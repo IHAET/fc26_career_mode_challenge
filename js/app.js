@@ -94,6 +94,16 @@
     const arch = $('#opt-archetype');
     content.archetypes.forEach((a) => arch.add(new Option(`${a.icon} ${a.name}`, a.id)));
 
+    const club = $('#opt-club');
+    data.leagues.forEach((l) => {
+      const group = document.createElement('optgroup');
+      group.label = l.name;
+      l.clubs.map(([name]) => name).sort((a, b) => a.localeCompare(b)).forEach((name) => {
+        group.appendChild(new Option(`${window.FC26.heritage[name] ? '🏛️ ' : ''}${name}`, `${l.id}|${name}`));
+      });
+      club.appendChild(group);
+    });
+
     const league = $('#opt-league');
     data.leagues.forEach((l) => league.add(new Option(`${l.name} (${l.country})`, l.id)));
 
@@ -106,7 +116,7 @@
     const saved = storageGet(OPTIONS_KEY, null);
     if (saved) {
       const form = $('#options');
-      ['archetype', 'league', 'tier', 'seasons', 'ruleCount'].forEach((name) => {
+      ['archetype', 'club', 'league', 'tier', 'seasons', 'ruleCount'].forEach((name) => {
         const el = form.elements[name];
         if (saved[name] != null && $$('option', el).some((o) => o.value === String(saved[name]))) el.value = String(saved[name]);
       });
@@ -121,6 +131,7 @@
     const opts = {
       difficulty: form.elements.difficulty.value,
       archetype: form.elements.archetype.value,
+      club: form.elements.club.value,
       league: form.elements.league.value,
       tier: form.elements.tier.value,
       seasons: form.elements.seasons.value,
@@ -129,6 +140,13 @@
     };
     storageSet(OPTIONS_KEY, opts);
     return opts;
+  }
+
+  // League and size filters don't apply once a specific club is chosen.
+  function syncClubFilters() {
+    const specific = $('#opt-club').value !== 'any';
+    $$('#club-filters select').forEach((el) => { el.disabled = specific; });
+    $('#club-filters').classList.toggle('is-disabled', specific);
   }
 
   // ---------- Generating ----------
@@ -218,7 +236,7 @@
         <div class="arch-icon">${esc(ch.archetype.icon)}</div>
         <div class="card-title">
           <div class="eyebrow">
-            ${esc(ch.archetype.name)}
+            ${ch.archetype.history ? `${esc(ch.archetype.typeName)} · ` : ''}${esc(ch.archetype.name)}
             ${builder ? lockBtn('archetype', L.archetype) : ''}
           </div>
           <h2>${esc(ch.club.name)}</h2>
@@ -250,7 +268,9 @@
         </div>
       </div>
 
-      <p class="desc">${esc(ch.archetype.desc)}</p>
+      ${ch.archetype.history
+    ? `<section class="history"><h3>📖 The history</h3><p>${esc(ch.archetype.history)}</p></section>`
+    : `<p class="desc">${esc(ch.archetype.desc)}</p>`}
 
       <section class="block">
         <h3>📜 Rules</h3>
@@ -516,6 +536,8 @@
 
   function init() {
     populateOptions();
+    syncClubFilters();
+    $('#opt-club').addEventListener('change', syncClubFilters);
     $('#options').addEventListener('submit', (e) => {
       e.preventDefault();
       const seed = $('#opt-seed').value.trim();

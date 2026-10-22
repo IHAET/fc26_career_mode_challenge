@@ -10,6 +10,7 @@
   'use strict';
   const FC26 = (root.FC26 = root.FC26 || {});
 
+  const heritage = FC26.heritage || {};
   const european = (club) => !club.continental;
   const tierIn = (club, min, max) => club.tier >= min && club.tier <= max;
 
@@ -21,6 +22,7 @@
       clubFilter: (club) => club.country === 'England' && (club.level >= 3 || (club.level === 2 && club.tier === 1)),
       seasonRange: (club) => [club.level + 1, club.level + 3],
       forcePromotion: true,
+      finalTitle: true,
       // Fixed caps make no sense for a club that changes division every year.
       blockTags: ['ovr', 'fee', 'wage'],
       core: (c) => [
@@ -183,6 +185,17 @@
         `Sell every player in the summer after they turn ${c.byD([26, 25, 24, 23])}.`,
       ],
       finalGoal: (c) => `Sell a player you signed as a teenager for ${c.money(c.byD([60, 80, 100, 120]))} or more, and win a trophy.`,
+    },
+    {
+      // Placeholder: the generator swaps in the club's entry from heritage.js.
+      id: 'club-heritage', name: 'Club Heritage', icon: '🏛️',
+      tagline: "Play it the club's way.",
+      desc: "A challenge built on the club's real history and identity.",
+      clubFilter: (club) => Boolean(heritage[club.name]),
+      perClub: true,
+      seasonRange: () => [4, 6],
+      core: () => [],
+      finalGoal: () => '',
     },
     {
       id: 'chaos', name: 'Pure Chaos', icon: '🎲',

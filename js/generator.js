@@ -76,6 +76,18 @@
   const leagueById = Object.fromEntries(data.leagues.map((l) => [l.id, l]));
   const archetypeById = Object.fromEntries(content.archetypes.map((a) => [a.id, a]));
   const ruleById = Object.fromEntries(content.rules.map((r) => [r.id, r]));
+  const heritage = FC26.heritage || {};
+
+  // Club Heritage is one archetype whose content comes from the club's entry.
+  function resolveArchetype(arch, club) {
+    const h = arch.perClub && club && heritage[club.name];
+    if (!h) return arch;
+    return Object.assign({}, arch, h, {
+      id: arch.id,
+      typeName: arch.name,
+      seasonRange: (c, d) => (typeof h.seasons === 'function' ? h.seasons(d) : h.seasons || [4, 6]),
+    });
+  }
 
   function leagueAt(country, level) {
     return data.leagues.find((l) => l.country === country && l.level === level) || null;
@@ -143,6 +155,7 @@
   const DEFAULT_OPTIONS = {
     difficulty: 'random', // 1-4 or 'random'
     archetype: 'any',
+    club: 'any', // "leagueId|Club name"
     league: 'any',
     tier: 'any',
     seasons: 'auto',
@@ -155,6 +168,10 @@
     if (o.difficulty !== 'random') o.difficulty = Math.min(4, Math.max(1, Number(o.difficulty) || 2));
     if (o.archetype !== 'any' && !archetypeById[o.archetype]) o.archetype = 'any';
     if (o.league !== 'any' && !leagueById[o.league]) o.league = 'any';
+    if (o.club !== 'any') {
+      const [leagueId, ...rest] = String(o.club).split('|');
+      if (!findClub(rest.join('|'), leagueId)) o.club = 'any';
+    }
     if (o.tier !== 'any') o.tier = Math.min(5, Math.max(1, Number(o.tier) || 3));
     if (o.seasons !== 'auto') o.seasons = Math.min(15, Math.max(1, Number(o.seasons) || 5));
     if (o.ruleCount !== 'auto') o.ruleCount = Math.min(8, Math.max(0, Number(o.ruleCount) || 0));
@@ -221,7 +238,7 @@
         if (club.level > 1) {
           // Newly promoted: start by surviving, then build up.
           eff = Math.min(eff, 1 + Math.floor((s - topFlightFrom) * (d >= 3 ? 1.5 : 1)));
-          if (archetype.forcePromotion && s === seasons) eff = Math.max(eff, 5);
+          if (archetype.finalTitle && s === seasons) eff = Math.max(eff, 5);
         }
         main = topFlightGoal(ctx.topLeague, ctx.continental, ctx.cup, Math.min(7, Math.max(1, eff)));
       }
@@ -305,8 +322,9 @@
 
     let d = opts.difficulty === 'random' ? r('difficulty').int(1, 4) : opts.difficulty;
     if (locks.difficulty) d = Math.min(4, Math.max(1, Number(locks.difficulty) || d));
-    const userFilter = (c) => (opts.league === 'any' || c.leagueId === opts.league)
-      && (opts.tier === 'any' || c.tier === opts.tier);
+    const userFilter = (c) => (opts.club !== 'any'
+      ? `${c.leagueId}|${c.name}` === opts.club
+      : (opts.league === 'any' || c.leagueId === opts.league) && (opts.tier === 'any' || c.tier === opts.tier));
 
     let club = locks.club ? (findClub(locks.club.name, locks.club.leagueId) || null) : null;
     let archetype = locks.archetypeId ? archetypeById[locks.archetypeId] : null;
@@ -321,6 +339,11 @@
       archetype = r('archetype').pick(candidates);
     }
 
+    if (archetype.perClub && club && !archetype.clubFilter(club)) {
+      notes.push(`${club.name} has no Club Heritage challenge yet, so another club was picked.`);
+      club = null;
+    }
+
     if (!club) {
       let pool = CLUBS.filter((c) => archetype.clubFilter(c) && userFilter(c));
       if (!pool.length) {
@@ -329,6 +352,7 @@
       }
       club = r('club').pick(pool.length ? pool : CLUBS);
     }
+    archetype = resolveArchetype(archetype, club);
 
     let seasons = locks.seasons ? Math.min(15, Math.max(1, Number(locks.seasons))) : null;
     seasons = seasons || (opts.seasons !== 'auto' ? opts.seasons : null);
@@ -357,7 +381,10 @@
       difficulty: d,
       difficultyName: difficulty.name,
       title: `${archetype.name}: ${club.name}`,
-      archetype: { id: archetype.id, name: archetype.name, icon: archetype.icon, tagline: archetype.tagline, desc: archetype.desc },
+      archetype: {
+        id: archetype.id, name: archetype.name, icon: archetype.icon, tagline: archetype.tagline, desc: archetype.desc,
+        typeName: archetype.typeName || archetype.name, history: archetype.history || null,
+      },
       club: {
         name: club.name, league: club.league, leagueId: club.leagueId, country: club.country,
         nationality: club.nationality, tier: club.tier, tierName: data.tierNames[club.tier],
@@ -377,7 +404,7 @@
   /** Swap one extra rule for a different eligible one. Returns a new challenge. */
   function rerollRule(challenge, index, seed) {
     const club = findClub(challenge.club.name, challenge.club.leagueId);
-    const archetype = archetypeById[challenge.archetype.id];
+    const archetype = archetypeById[challenge.archetype.id] && resolveArchetype(archetypeById[challenge.archetype.id], club);
     if (!club || !archetype || !challenge.rules[index]) return challenge;
     const ctx = makeContext({
       club, d: challenge.difficulty, seasons: challenge.seasons, archetype,
@@ -468,7 +495,7 @@
     const lines = [];
     lines.push(`${ch.archetype.icon} ${ch.title}`);
     lines.push(`${ch.difficultyName} · ${ch.seasons} season${ch.seasons === 1 ? '' : 's'} · ${ch.club.league} · Seed ${ch.seed}`);
-    lines.push('', ch.archetype.desc, '', 'RULES');
+    lines.push('', ch.archetype.history || ch.archetype.desc, '', 'RULES');
     ch.coreRules.concat(ch.rules).forEach((x) => lines.push(`- ${x.text}`));
     lines.push('', 'ROADMAP');
     ch.roadmap.forEach((s) => {

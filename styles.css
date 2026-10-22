@@ -243,6 +243,19 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
 
 .desc { color: var(--muted); margin: 12px 0 4px; }
 
+.history {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--warn);
+}
+.history h3 { margin: 0 0 6px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--warn); }
+.history p { margin: 0; font-size: 0.95rem; }
+
+.is-disabled { opacity: 0.45; }
+
 .block { margin-top: 22px; }
 .block h3 { margin: 0 0 10px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; }
 
