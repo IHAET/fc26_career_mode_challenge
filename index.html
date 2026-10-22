@@ -19,6 +19,7 @@
     </div>
     <nav class="tabs" role="tablist">
       <button class="tab is-active" role="tab" data-view="builder" aria-selected="true">Builder</button>
+      <button class="tab" role="tab" data-view="daily" aria-selected="false">Daily <span class="dot" id="daily-dot" title="Today's challenge is waiting" hidden></span></button>
       <button class="tab" role="tab" data-view="saved" aria-selected="false">My Challenges <span class="count" id="saved-count">0</span></button>
     </nav>
   </header>
@@ -101,6 +102,11 @@
       </div>
     </section>
 
+    <section id="view-daily" class="view daily" hidden>
+      <div class="panel daily-head" id="daily-head"></div>
+      <div id="daily-card" aria-live="polite"></div>
+    </section>
+
     <section id="view-saved" class="view saved" hidden>
       <div class="saved-head">
         <h2>My Challenges</h2>
@@ -112,6 +118,9 @@
 
   <footer class="footer">
     Fan-made tool, not affiliated with EA SPORTS. Club list based on the 2025/26 season; club sizes are approximate.
+    <!-- hosted-only -->
+    <br><a href="dist/fc26-challenge-builder.html" download>Download the app as a single HTML file</a> (works offline).
+    <!-- /hosted-only -->
   </footer>
 
   <div class="toast" id="toast" role="status" hidden></div>
@@ -126,6 +135,7 @@
   <script src="js/heritage/world.js"></script>
   <script src="js/rules.js"></script>
   <script src="js/generator.js"></script>
+  <script src="js/daily.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

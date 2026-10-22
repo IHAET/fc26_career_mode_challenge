@@ -9,6 +9,7 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **416 clubs** from 22 leagues (2025/26 season): Premier League down to League Two; the top two divisions in Spain, Italy, Germany and France; plus the Netherlands, Portugal, Scotland, Belgium, Türkiye, Norway, Denmark, Austria, MLS and the Saudi league.
 - **Pick a specific club** or filter by league and club size.
 - **4 difficulties** (Casual → Legendary) that scale fee caps, wage caps, rating limits, number of rules, season targets, events and fail conditions to the club's size and division.
+- **Daily challenge**: everyone gets the same challenge each day, seeded by the date and changing at local midnight. It shows a check-in streak (🔥 days in a row), the last 7 days, a countdown to the next one, and past days. *Take it on* saves it to My Challenges. *Customise* opens it in the Builder with everything locked, so you can unlock and reroll parts. Link straight to it with `#daily`.
 - **Lock & reroll**: lock the club, challenge type, length, difficulty or any rule, then reroll everything else. You can also swap a single rule.
 - **Seeds**: the same seed and options always give the same challenge.
 - **Share links**: a short URL rebuilds the exact challenge, including locks and swapped rules.
@@ -24,6 +25,16 @@ npm start        # python3 -m http.server 8080 → http://localhost:8080
 ```
 
 It also works on GitHub Pages as-is.
+
+### Hosting on GitHub Pages
+
+`.github/workflows/pages.yml` runs the tests on every push. On the default branch it also publishes the site to GitHub Pages, including the single-file download. One-time setup:
+
+1. GitHub only serves Pages from **private** repos on a paid plan (Pro, Team or Enterprise). On the free plan, make the repo public first (Settings → General → Danger Zone → Change visibility).
+2. Go to **Settings → Pages** and set **Source** to **GitHub Actions**.
+3. Re-run the latest "Test and deploy" workflow from the Actions tab, or push any commit.
+
+The site appears at `https://<your-username>.github.io/fc26_career_mode_challenge/`, and the daily challenge at `…/#daily`.
 
 ### Single-file version
 
@@ -48,10 +59,12 @@ npm test         # node --test (Node 18+)
 | `js/data.js` | Leagues, clubs (with a 1–5 size tier), nations, formations |
 | `js/heritage/*.js` | Club Heritage challenges by region (England, Spain, Italy, Germany, France, rest of Europe, rest of the world) |
 | `js/rules.js` | Challenge types, the extra-rule pool, side objectives, season events |
+| `js/daily.js` | Daily challenge: date-based seed, numbering and streaks |
 | `js/generator.js` | Seeded generator (no DOM, runs in Node too), share keys, text export |
 | `js/app.js` | UI: options form, challenge card, locks, saving, sharing |
 | `styles.css` | Styling (responsive down to phone width) |
 | `scripts/build-single.js` | Bundles everything into the single-file version |
+| `.github/workflows/pages.yml` | CI: tests, checks the single file is fresh, deploys to GitHub Pages |
 
 To add a heritage challenge, add an entry to the right file in `js/heritage/`, keyed by the club's name as written in `js/data.js`. List any rule topics it covers in `blockTags`. The tests flag a core rule that overlaps an extra rule without blocking it. To pin one season's target (e.g. "win the league in your first season up"), use `seasonGoal`.
 

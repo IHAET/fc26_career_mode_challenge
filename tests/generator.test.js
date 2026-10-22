@@ -12,7 +12,7 @@ const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
   .filter((src) => !src.endsWith('app.js'))
   .forEach((src) => require(path.join(ROOT, src)));
 
-const { generator: G, content, data, heritage } = globalThis.FC26;
+const { generator: G, content, data, heritage, daily: Daily } = globalThis.FC26;
 
 const SEEDS = Array.from({ length: 300 }, (_, i) => `seed-${i}`);
 
@@ -229,4 +229,44 @@ test('a veterans-only signing rule never appears with a young-XI rule', () => {
     const ids = G.generateChallenge({ ruleCount: 8, difficulty: 4 }, s).rules.map((r) => r.id);
     assert.ok(!(ids.includes('age-floor') && ids.includes('young-xi')), `${s}: ${ids}`);
   }
+});
+
+test('daily challenge is the same for everyone on a date and changes daily', () => {
+  const a = Daily.challenge('2026-10-22');
+  assert.deepEqual(a, Daily.challenge('2026-10-22'));
+  assert.deepEqual(a.daily, { date: '2026-10-22', number: 1 });
+  assert.equal(Daily.challenge('2026-12-25').daily.number, 65);
+  const titles = new Set(Array.from({ length: 30 }, (_, i) => Daily.challenge(Daily.shiftKey('2026-10-22', i)).title));
+  assert.ok(titles.size >= 28, `only ${titles.size} distinct dailies in 30 days`);
+});
+
+test('daily challenge ignores the player options and survives share links', () => {
+  const ch = Daily.challenge('2027-01-01');
+  assert.equal(ch.options.club, 'any');
+  const rebuilt = G.fromShareKey(JSON.parse(JSON.stringify(G.toShareKey(ch))));
+  assert.equal(rebuilt.title, ch.title);
+  assert.deepEqual(rebuilt.roadmap, ch.roadmap);
+  assert.match(G.challengeToText(ch), /^📅 FC 26 Daily Challenge #72 \(2027-01-01\)/);
+});
+
+test('date keys shift across month, year and leap-day boundaries', () => {
+  assert.equal(Daily.shiftKey('2026-12-31', 1), '2027-01-01');
+  assert.equal(Daily.shiftKey('2028-03-01', -1), '2028-02-29');
+  assert.equal(Daily.shiftKey('2026-10-22', -22), '2026-09-30');
+  assert.equal(Daily.dateKey(new Date(2026, 0, 5, 23, 59)), '2026-01-05');
+});
+
+test('streaks count consecutive check-ins', () => {
+  const t = '2026-11-10';
+  assert.deepEqual(Daily.streak([], t), { current: 0, best: 0, checkedInToday: false });
+  // Checked in yesterday and the two days before: still alive today.
+  assert.deepEqual(Daily.streak(['2026-11-07', '2026-11-08', '2026-11-09'], t), { current: 3, best: 3, checkedInToday: false });
+  assert.deepEqual(Daily.streak(['2026-11-08', '2026-11-09', t], t), { current: 3, best: 3, checkedInToday: true });
+  // A missed day breaks it, but best remembers the longer run.
+  const days = ['2026-11-01', '2026-11-02', '2026-11-03', '2026-11-04', '2026-11-08', t, 'junk', t];
+  assert.deepEqual(Daily.streak(days, t), { current: 1, best: 4, checkedInToday: true });
+});
+
+test('msUntilTomorrow counts to local midnight', () => {
+  assert.equal(Daily.msUntilTomorrow(new Date(2026, 9, 22, 23, 30)), 30 * 60000);
 });

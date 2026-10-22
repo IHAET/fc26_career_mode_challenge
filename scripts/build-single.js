@@ -14,6 +14,9 @@ const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
 
 let html = read('index.html');
 
+// Links to other files (e.g. the download link) only make sense on the hosted site.
+html = html.replace(/[ \t]*<!-- hosted-only -->[\s\S]*?<!-- \/hosted-only -->\n?/g, '');
+
 html = html.replace(/<link rel="stylesheet" href="([^"]+)">/g, (_, href) => `<style>\n${read(href)}</style>`);
 
 html = html.replace(/<script src="([^"]+)"><\/script>/g, (_, src) => {

@@ -1,0 +1,50 @@
+name: Test and deploy
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - name: Check the single-file build is up to date
+        run: |
+          npm run build
+          git diff --exit-code dist/ || { echo "::error::dist/ is out of date. Run 'npm run build' and commit the result."; exit 1; }
+      - name: Assemble the site
+        run: |
+          mkdir -p _site/dist
+          cp -r index.html styles.css js _site/
+          cp dist/fc26-challenge-builder.html _site/dist/
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        with:
+          path: _site
+
+  # Publishes only from the default branch. Needs GitHub Pages enabled with
+  # "GitHub Actions" as the source (Settings → Pages).
+  deploy:
+    needs: test
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

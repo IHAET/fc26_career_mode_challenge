@@ -1,16 +1,19 @@
 /* UI for the FC 26 Career Challenge Builder. */
 (function () {
   'use strict';
-  const { data, content, generator: G } = window.FC26;
+  const { data, content, generator: G, daily: Daily } = window.FC26;
 
   const STORE_KEY = 'fc26-challenges-v1';
   const OPTIONS_KEY = 'fc26-options-v1';
+  const DAILY_KEY = 'fc26-daily-v1';
 
   const $ = (sel, el = document) => el.querySelector(sel);
   const $$ = (sel, el = document) => Array.from(el.querySelectorAll(sel));
 
   const state = {
     challenge: null,
+    dailyKey: null, // date being viewed on the Daily tab
+    dailyChallenge: null,
     locks: { club: false, archetype: false, seasons: false, difficulty: false, rules: new Set() },
   };
 
@@ -308,6 +311,9 @@
         ${builder ? `
           <button type="button" class="btn btn-primary" data-action="reroll">🎲 Reroll unlocked</button>
           <button type="button" class="btn" data-action="save">💾 Save</button>` : ''}
+        ${mode === 'daily' ? `
+          <button type="button" class="btn btn-primary" data-action="save">💾 Take it on</button>
+          <button type="button" class="btn" data-action="customise" title="Open in the Builder to lock and reroll parts">🛠️ Customise</button>` : ''}
         <button type="button" class="btn" data-action="copy">📋 Copy text</button>
         <button type="button" class="btn" data-action="share">🔗 Share link</button>
         ${mode === 'saved' ? '<button type="button" class="btn btn-danger" data-action="delete">🗑️ Delete</button>' : ''}
@@ -387,7 +393,7 @@
           <span class="arch-icon small">${esc(ch.archetype.icon)}</span>
           <span class="saved-title">
             <strong>${esc(ch.title)}</strong>
-            <small>${esc(ch.difficultyName)} · ${ch.seasons} seasons · saved ${esc(new Date(entry.savedAt).toLocaleDateString())}</small>
+            <small>${ch.daily ? `📅 Daily #${Number(ch.daily.number) || ''} · ` : ''}${esc(ch.difficultyName)} · ${ch.seasons} seasons · saved ${esc(new Date(entry.savedAt).toLocaleDateString())}</small>
           </span>
           <span class="progress" title="${done}/${total} objectives">
             <span class="progress-bar"><span style="width:${pct}%"></span></span>
@@ -399,9 +405,8 @@
     }).join('');
   }
 
-  function saveCurrent() {
+  function saveChallenge(ch) {
     const list = loadSaved();
-    const ch = state.challenge;
     const key = JSON.stringify(G.toShareKey(ch));
     if (list.some((e) => JSON.stringify(G.toShareKey(e.challenge)) === key)) {
       toast('Already in My Challenges');
@@ -435,8 +440,125 @@
       t.setAttribute('aria-selected', String(active));
     });
     $('#view-builder').hidden = view !== 'builder';
+    $('#view-daily').hidden = view !== 'daily';
     $('#view-saved').hidden = view !== 'saved';
     if (view === 'saved') renderSaved();
+    if (view === 'daily') renderDaily(state.dailyKey || Daily.dateKey());
+    // Keep #daily in the address bar so the tab can be bookmarked or linked.
+    const hash = window.location.hash;
+    if (view === 'daily' && hash !== '#daily') history.replaceState(null, '', '#daily');
+    if (view !== 'daily' && hash === '#daily') history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+
+  // ---------- Daily challenge ----------
+
+  const loadCheckins = () => {
+    const stored = storageGet(DAILY_KEY, null);
+    return stored && Array.isArray(stored.days) ? stored.days.filter(Daily.isKey) : [];
+  };
+
+  function checkIn(key) {
+    const days = loadCheckins();
+    if (days.includes(key)) return;
+    days.push(key);
+    storageSet(DAILY_KEY, { days: days.sort().slice(-400) });
+  }
+
+  function formatDate(key) {
+    const [y, m, d] = key.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+
+  function formatCountdown(ms) {
+    const mins = Math.max(1, Math.ceil(ms / 60000));
+    const h = Math.floor(mins / 60);
+    return h ? `${h}h ${mins % 60}m` : `${mins}m`;
+  }
+
+  function syncDailyDot() {
+    const { checkedInToday } = Daily.streak(loadCheckins(), Daily.dateKey());
+    $('#daily-dot').hidden = checkedInToday;
+  }
+
+  function renderDaily(key) {
+    const today = Daily.dateKey();
+    if (!Daily.isKey(key) || key > today || Daily.number(key) < 1) key = today;
+    const isToday = key === today;
+    if (isToday) checkIn(today);
+    if (!state.dailyChallenge || state.dailyKey !== key) state.dailyChallenge = Daily.challenge(key);
+    state.dailyKey = key;
+
+    const days = loadCheckins();
+    const { current, best } = Daily.streak(days, today);
+    const set = new Set(days);
+    const week = Array.from({ length: 7 }, (_, i) => Daily.shiftKey(today, i - 6)).map((k) => {
+      const [y, m, d] = k.split('-').map(Number);
+      const label = new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: 'narrow' });
+      return `<span class="day ${set.has(k) ? 'is-done' : ''} ${k === today ? 'is-today' : ''}" title="${esc(formatDate(k))}">${esc(label)}</span>`;
+    }).join('');
+
+    $('#daily-head').innerHTML = `
+      <div class="daily-title">
+        <span class="eyebrow-plain">📅 Daily Challenge #${Daily.number(key)}</span>
+        <h2>${esc(formatDate(key))}</h2>
+        <p class="muted">${isToday
+    ? `Same challenge for everyone today. Next one in <strong id="daily-countdown">${formatCountdown(Daily.msUntilTomorrow())}</strong>.`
+    : 'A past daily challenge. Browse back, or jump to today.'}</p>
+        <div class="daily-nav">
+          <button type="button" class="btn" data-day="-1" ${Daily.number(key) <= 1 ? 'disabled' : ''} aria-label="Previous day">‹ Previous</button>
+          <button type="button" class="btn" data-day="today" ${isToday ? 'disabled' : ''}>Today</button>
+          <button type="button" class="btn" data-day="1" ${isToday ? 'disabled' : ''} aria-label="Next day">Next ›</button>
+        </div>
+      </div>
+      <div class="streak" title="Days in a row you've checked the daily challenge">
+        <div class="streak-num"><span class="flame">🔥</span><strong>${current}</strong></div>
+        <div class="streak-label">day streak<br><small>best ${best}</small></div>
+        <div class="week">${week}</div>
+      </div>`;
+    $('#daily-card').innerHTML = renderCard(state.dailyChallenge, 'daily');
+    syncDailyDot();
+  }
+
+  function onDailyClick(e) {
+    const nav = e.target.closest('[data-day]');
+    if (nav) {
+      const step = nav.dataset.day;
+      renderDaily(step === 'today' ? Daily.dateKey() : Daily.shiftKey(state.dailyKey, Number(step)));
+      return;
+    }
+    const btn = e.target.closest('[data-action]');
+    const ch = state.dailyChallenge;
+    if (!btn || !ch) return;
+    const { action } = btn.dataset;
+    if (action === 'save') {
+      saveChallenge(ch);
+    } else if (action === 'customise') {
+      // Open in the Builder with everything locked, so the player can unlock and reroll parts.
+      state.challenge = ch;
+      state.locks = { club: true, archetype: true, seasons: true, difficulty: true, rules: new Set(ch.rules.map((r) => r.id)) };
+      showView('builder');
+      renderBuilder(true);
+      toast('Everything is locked. Unlock the parts you want to change, then reroll.');
+    } else if (action === 'copy') {
+      copyText(G.challengeToText(ch)).then((ok) => toast(ok ? 'Copied to clipboard 📋' : 'Copy failed'));
+    } else if (action === 'share') {
+      shareChallenge(ch);
+    }
+  }
+
+  // Refresh the countdown, and roll over to the new challenge at midnight.
+  function tickDaily() {
+    if ($('#view-daily').hidden) {
+      syncDailyDot();
+      return;
+    }
+    const today = Daily.dateKey();
+    if (state.dailyKey && state.dailyKey === Daily.shiftKey(today, -1)) {
+      renderDaily(today);
+      return;
+    }
+    const el = $('#daily-countdown');
+    if (el) el.textContent = formatCountdown(Daily.msUntilTomorrow());
   }
 
   async function shareChallenge(ch) {
@@ -484,7 +606,7 @@
       state.challenge = next;
       renderBuilder();
     } else if (action === 'save') {
-      saveCurrent();
+      saveChallenge(state.challenge);
     } else if (action === 'copy') {
       copyText(G.challengeToText(state.challenge)).then((ok) => toast(ok ? 'Copied to clipboard 📋' : 'Copy failed'));
     } else if (action === 'share') {
@@ -535,6 +657,7 @@
     }
     state.challenge = ch;
     resetLocks();
+    showView('builder');
     renderBuilder();
     toast('Loaded shared challenge');
     return true;
@@ -552,10 +675,14 @@
     });
     $('#result').addEventListener('click', onBuilderClick);
     $('#saved-list').addEventListener('click', onSavedClick);
+    $('#view-daily').addEventListener('click', onDailyClick);
     $$('.tab').forEach((t) => t.addEventListener('click', () => showView(t.dataset.view)));
     window.addEventListener('hashchange', loadFromHash);
     $('#saved-count').textContent = loadSaved().length;
-    loadFromHash();
+    syncDailyDot();
+    setInterval(tickDaily, 30000);
+    if (window.location.hash === '#daily') showView('daily');
+    else loadFromHash();
   }
 
   init();

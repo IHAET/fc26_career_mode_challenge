@@ -495,6 +495,7 @@
   /** Plain-text version for pasting into Reddit, Discord, etc. */
   function challengeToText(ch) {
     const lines = [];
+    if (ch.daily) lines.push(`📅 FC 26 Daily Challenge #${ch.daily.number} (${ch.daily.date})`);
     lines.push(`${ch.archetype.icon} ${ch.title}`);
     lines.push(`${ch.difficultyName} · ${ch.seasons} season${ch.seasons === 1 ? '' : 's'} · ${ch.club.league} · Seed ${ch.seed}`);
     lines.push('', ch.archetype.history || ch.archetype.desc, '', 'RULES');
