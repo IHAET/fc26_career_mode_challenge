@@ -1,7 +1,7 @@
 /* UI for the FC 26 Career Challenge Builder. */
 (function () {
   'use strict';
-  const { data, modes, generator: G, daily: Daily, shareImage } = window.FC26;
+  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker } = window.FC26;
 
   const STORE_KEY = 'fc26-challenges-v1';
   const OPTIONS_KEY = 'fc26-options-v1';
@@ -290,6 +290,25 @@
     return '★'.repeat(tier) + '<span class="star-off">' + '★'.repeat(5 - tier) + '</span>';
   }
 
+  const CHECK_ICON = { ok: '✅', broken: '❌', warn: '⚠️', manual: '✋' };
+
+  function ruleCheckSummary(checks, entry) {
+    const t = Compliance.tally(checks);
+    const tr = Compliance.normalizeTracker(entry.tracker);
+    const empty = !tr.players.length && !tr.transfers.length && !tr.moves.length;
+    const where = entry.challenge.mode === 'player' ? 'Career moves' : 'Squad and Transfers';
+    return `
+        <div class="check-summary">
+          <span class="check-pills">
+            <span title="Kept">✅ ${t.ok}</span><span title="Broken">❌ ${t.broken}</span>
+            <span title="Needs attention or more data">⚠️ ${t.warn}</span><span title="Can't be checked automatically: check yourself">✋ ${t.manual}</span>
+          </span>
+          <span class="muted">${empty
+    ? `Fill in the ${where} tabs and the rules check themselves.`
+    : `Checked against your ${where.toLowerCase()} for season ${tr.season}. ✋ = check yourself.`}</span>
+        </div>`;
+  }
+
   /**
    * Render a challenge card.
    * mode 'builder' shows lock/reroll controls (not for edited challenges),
@@ -302,17 +321,26 @@
     const progress = (entry && entry.progress) || {};
     const log = (entry && entry.log) || {};
     const L = state.locks;
+    // Saved challenges: check each rule against the tracked squad and transfers.
+    const checks = mode === 'saved' ? Compliance.checkChallenge(ch, entry.tracker) : null;
+    const ruleCheck = (i) => {
+      const r = checks && checks[i];
+      if (!r) return '';
+      const more = r.details.length > 4 ? ` · +${r.details.length - 4} more` : '';
+      return `<small class="rule-check s-${r.status}"><span>${CHECK_ICON[r.status]} ${esc(r.summary)}</span>${r.details.length ? `<span class="rule-details">${r.details.slice(0, 4).map(esc).join(' · ')}${more}</span>` : ''}</small>`;
+    };
+    const ruleClass = (i) => (checks && checks[i] ? ` s-${checks[i].status}` : '');
 
     const check = (key) => (mode === 'saved'
       ? `<input type="checkbox" class="obj-check" data-action="toggle" data-key="${esc(key)}" ${progress[key] ? 'checked' : ''} aria-label="Mark done">`
       : '');
 
-    const rulesHtml = ch.coreRules.map((r) => `
-        <li class="rule core"><span class="rule-tag">Core</span><span class="rule-text">${esc(r.text)}</span></li>`).join('')
+    const rulesHtml = ch.coreRules.map((r, i) => `
+        <li class="rule core${ruleClass(i)}"><span class="rule-tag">Core</span><span class="rule-text">${esc(r.text)}${ruleCheck(i)}</span></li>`).join('')
       + ch.rules.map((r, i) => `
-        <li class="rule ${controls && L.rules.has(r.id) ? 'is-locked' : ''}">
+        <li class="rule ${controls && L.rules.has(r.id) ? 'is-locked' : ''}${ruleClass(ch.coreRules.length + i)}">
           <span class="rule-tag cat-${esc(r.cat.toLowerCase())}">${esc(r.cat)}</span>
-          <span class="rule-text">${esc(r.text)}</span>
+          <span class="rule-text">${esc(r.text)}${ruleCheck(ch.coreRules.length + i)}</span>
           ${controls ? `<span class="rule-actions">
             <button type="button" class="icon-btn" data-action="reroll-rule" data-index="${i}" title="Swap this rule">🔄</button>
             ${lockBtn('rule', L.rules.has(r.id), r.id)}
@@ -382,6 +410,7 @@
 
       <section class="block">
         <h3>📜 Rules</h3>
+        ${checks ? ruleCheckSummary(checks, entry) : ''}
         <ul class="rules">${rulesHtml}</ul>
       </section>
 
@@ -463,6 +492,8 @@
       if (bits.length) lines.push(`Season ${s.season}: ${bits.join(' · ')}`);
     });
     lines.push(`Score: ${scoreFor(entry.challenge, entry)} points (${currentSeason(entry)})`);
+    const t = Compliance.tally(Compliance.checkChallenge(entry.challenge, entry.tracker));
+    lines.push(`Rule check: ✅ ${t.ok} kept · ❌ ${t.broken} broken · ⚠️ ${t.warn} to watch · ✋ ${t.manual} self-checked`);
     return lines.join('\n');
   }
 
@@ -719,6 +750,7 @@
       e.log[1] = Object.assign({}, e.log[1], { trophies: (Number((e.log[1] || {}).trophies) || 0) + e.trophies });
     }
     delete e.trophies;
+    e.tracker = Compliance.normalizeTracker(e.tracker);
     return e;
   }
 
@@ -748,9 +780,9 @@
       const { done, total } = progressOf(entry);
       const pct = Math.round((done / total) * 100);
       return `
-      <details class="saved-item panel" data-id="${esc(entry.id)}" ${entry.id === openId ? 'open' : ''}>
+      <details class="saved-item panel" data-id="${esc(entry.id)}" data-club="${esc(ch.club.name)}" ${entry.id === openId ? 'open' : ''}>
         <summary>${savedSummary(entry)}</summary>
-        <div class="saved-body">${renderCard(ch, 'saved', entry)}</div>
+        <div class="saved-body">${Tracker.renderTracker(entry, renderCard(ch, 'saved', entry))}</div>
       </details>`;
     }).join('');
   }
@@ -759,7 +791,9 @@
     const ch = entry.challenge;
     const { done, total } = progressOf(entry);
     const pct = Math.round((done / total) * 100);
+    const broken = Compliance.tally(Compliance.checkChallenge(ch, entry.tracker)).broken;
     const tags = [
+      broken ? `<span class="neg">❌ ${broken} rule${broken === 1 ? '' : 's'} broken</span>` : '',
       ch.daily ? `📅 Daily #${Number(ch.daily.number) || ''}` : '',
       ch.mode === 'player' ? '⚽ Player' : '',
       ch.custom ? '✍️ Custom' : '',
@@ -778,8 +812,30 @@
           </span>`;
   }
 
+  function findEntry(id) {
+    return loadSaved().find((x) => x.id === id) || null;
+  }
+
+  function mutateEntry(id, fn) {
+    const list = loadSaved();
+    const entry = list.find((x) => x.id === id);
+    if (!entry) return null;
+    fn(entry);
+    writeSaved(list);
+    return entry;
+  }
+
+  // After a tracker change: re-check the rules (Challenge tab) and the summary row, leaving the edited panel alone.
+  function refreshSavedItem(item, entry) {
+    const panel = $('[data-panel="challenge"]', item);
+    if (panel) panel.innerHTML = renderCard(entry.challenge, 'saved', entry);
+    $('summary', item).innerHTML = savedSummary(entry);
+  }
+
   // Diary text fields save without re-rendering, so typing isn't interrupted.
   function onSavedChange(e) {
+    const tItem = e.target.closest('.saved-item');
+    if (tItem && Tracker.onChange(e, tItem)) return;
     const input = e.target.closest('[data-log]');
     const item = input && input.closest('.saved-item');
     if (!item) return;
@@ -1019,6 +1075,7 @@
     if (!btn) return;
     const item = btn.closest('.saved-item');
     if (!item) return;
+    if (Tracker.onClick(e, item)) return;
     const { id } = item.dataset;
     const entry = loadSaved().find((x) => x.id === id);
     if (!entry) return;
@@ -1094,6 +1151,13 @@
     $('#result').addEventListener('input', onEditorInput);
     $('#result').addEventListener('change', onEditorInput);
     $('#saved-list').addEventListener('change', onSavedChange);
+    $('#saved-list').addEventListener('submit', (e) => {
+      const item = e.target.closest('.saved-item');
+      if (item) Tracker.onSubmit(e, item);
+    });
+    Tracker.init({ esc, toast, mutateEntry, findEntry, refresh: refreshSavedItem });
+    const natList = $('#nat-list');
+    Compliance.NATIONALITIES.forEach((nat) => natList.appendChild(new Option(nat)));
     $('#options').addEventListener('submit', (e) => {
       e.preventDefault();
       const seed = $('#opt-seed').value.trim();

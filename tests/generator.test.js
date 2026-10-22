@@ -386,3 +386,211 @@ test('sanitizeChallenge keeps edits but strips junk from untrusted input', () =>
   assert.equal(G.sanitizeChallenge(null), null);
   assert.equal(G.sanitizeChallenge('string'), null);
 });
+
+// ---------- Season tracker rule checks ----------
+
+const { compliance: C } = globalThis.FC26;
+
+// A tracker builder for readable tests.
+function tracker(extra) {
+  return Object.assign(C.emptyTracker(), extra);
+}
+const sign = (name, more) => Object.assign({ dir: 'in', type: 'permanent', season: 1, window: 'summer', name, fee: 0 }, more);
+const sell = (name, more) => Object.assign({ dir: 'out', type: 'sale', season: 1, window: 'summer', name, fee: 0 }, more);
+const player = (name, more) => Object.assign({ name }, more);
+const ch0 = { club: { name: 'Test FC', leagueId: 'eng1', country: 'England' }, coreRules: [], rules: [] };
+const check = (text, t, ch) => C.evaluateRule(text, t, ch || ch0);
+
+test('rule sentences are recognised, numbers included', () => {
+  const cases = [
+    ['No single transfer fee above €12M.', { kind: 'maxFee', max: 12 }],
+    ['No single transfer fee above €300K.', { kind: 'maxFee', max: 0.3 }],
+    ['Only sign players aged 21 or younger.', { kind: 'maxSignAge', max: 21 }],
+    ['No signing anyone older than 19.', { kind: 'maxSignAge', max: 19 }],
+    ['No signing players under 25: experience wins trebles.', { kind: 'minSignAge', min: 25 }],
+    ['No player may earn more than €8K/week.', { kind: 'wageCap', max: 8 }],
+    ['No player may earn more than €500/week.', { kind: 'wageCap', max: 0.5 }],
+    ['Senior squad capped at 23 players.', { kind: 'squadSize', max: 23 }],
+    ['Promote at least one Knappenschmiede academy player every season.', { kind: 'promotions', min: 1, onlySeason: null }],
+    ['Promote at least 4 academy players to the first team during season 1.', { kind: 'promotions', min: 4, onlySeason: 1 }],
+    ['From season 2, at least 3 academy graduates must start every league match.', { kind: 'academyStarters', min: 3, fromSeason: 2 }],
+    ['At least 1 Welsh player(s) in every matchday squad.', { kind: 'natQuota', min: 1, nat: 'Welsh', xi: false }],
+  ];
+  cases.forEach(([text, want]) => assert.deepEqual(C.interpret(text), want, text));
+  assert.deepEqual(C.interpret('Only sign players from England, Scotland, Wales or Ireland.').allowed, ['English', 'Scottish', 'Welsh', 'Irish']);
+  assert.ok(C.interpret('Every signing must be Danish or African.').allowed.includes('Nigerian'));
+  assert.equal(C.interpret('Every signing must be South American and aged 23 or younger.').kind, 'all');
+  // Things a squad list can't show stay manual.
+  ['Play 4-3-3 in every match.', 'Only sign players your scouts have found — no using the player search.',
+    'Only sign players from leagues outside England, Spain, Italy, Germany and France.',
+    'Only sign players born in the Basque Country or Navarre, or who came through a Basque academy (check the real player if unsure).',
+    'Sign at least one current or former Barcelona player every season.', 'Every signing must be from South London.',
+  ].forEach((text) => assert.equal(C.interpret(text), null, text));
+});
+
+test('every generated and heritage rule can be evaluated, and checkable rule types are always recognised', () => {
+  const t = tracker({ season: 2, window: 'winter', players: [player('A', { age: 30, nat: 'English', ovr: 80, wage: 50, starter: true, academy: true })], transfers: [sign('B', { fee: 5, age: 22, nat: 'Brazilian', ovr: 75 }), sell('A2', { fee: 10 })] });
+  // Extra rules a squad list and transfer log can judge. The rest (formations,
+  // simming, captaincy…) are meant to stay "check yourself".
+  const CHECKABLE = new Set(['fee-cap', 'max-signings', 'age-cap', 'age-floor', 'ovr-cap', 'nation-only', 'region-only', 'no-loans',
+    'one-in-one-out', 'no-league-rivals', 'no-flip', 'wage-cap', 'profit-window', 'sell-star', 'squad-size', 'academy-matchday',
+    'youth-promote', 'home-quota', 'young-xi', 'stay-min', 'avoid-country', 'no-loan-out']);
+  const seenIds = new Set();
+  for (const mode of ['manager', 'player']) {
+    for (const s of SEEDS) {
+      const ch = G.generateChallenge({ mode, ruleCount: 6 }, s);
+      ch.rules.forEach((r) => {
+        seenIds.add(r.id);
+        assert.equal(CHECKABLE.has(r.id), Boolean(C.interpret(r.text)), `${r.id}: ${r.text}`);
+      });
+      C.checkChallenge(ch, t).forEach((r) => {
+        assert.ok(['ok', 'broken', 'warn', 'manual'].includes(r.status));
+        assert.ok(typeof r.summary === 'string' && r.summary.length);
+      });
+    }
+  }
+  CHECKABLE.forEach((id) => assert.ok(seenIds.has(id), `never generated: ${id}`));
+  for (const name of Object.keys(heritage)) {
+    const club = G.CLUBS.find((c) => c.name === name);
+    const ch = G.generateChallenge({ archetype: 'club-heritage', club: `${club.leagueId}|${name}` }, 'h');
+    C.checkChallenge(ch, t).forEach((r) => assert.ok(r.summary));
+  }
+});
+
+test('club-list rules: never sign from, never sell to, sign from every season', () => {
+  const t = tracker({ season: 2, transfers: [sign('A', { club: 'Celtic FC' }), sell('B', { club: 'Juventus' }), sign('C', { club: 'Red Bull Salzburg', type: 'loan' })] });
+  assert.deepEqual(check('Never sign a player from Celtic or Rangers.', t).details, ['A came from Celtic FC']);
+  assert.equal(check('Never sell a player to Juventus, Inter or AC Milan.', t).status, 'broken');
+  const serieA = Object.assign({}, ch0, { club: { name: 'Roma', leagueId: 'ita1', country: 'Italy' } });
+  assert.deepEqual(check('Never sell a player to another Serie A club.', t, serieA).details, ['B to Juventus']);
+  assert.equal(check('Sign at least one player from Red Bull Salzburg every season.', t).status, 'warn'); // S2 still to do
+  assert.equal(check('Take at least one loan from Manchester City, Girona or New York City FC every season.', t).status, 'broken');
+  const final = Object.assign({}, ch0, { seasons: 4 });
+  const xi = tracker({ season: 2, players: [player('P', { nat: 'Brazilian', starter: true })] });
+  assert.equal(check('By the final season at least 5 Brazilian players must start every league match.', xi, final).status, 'warn');
+  xi.season = 4;
+  assert.equal(check('By the final season at least 5 Brazilian players must start every league match.', xi, final).status, 'broken');
+  assert.equal(check('Before your first competitive match, sell or release your 3 highest-rated players.', tracker({ window: 'winter', transfers: [sell('X'), sell('Y')] })).status, 'broken');
+});
+
+test('fee, age and nationality rules catch the right signings', () => {
+  const t = tracker({ transfers: [sign('Cheap', { fee: 4, age: 20, nat: 'brazil', ovr: 70 }), sign('Pricey', { fee: 30, age: 27, nat: 'French', ovr: 82 })] });
+  const fee = check('No single transfer fee above €12M.', t);
+  assert.equal(fee.status, 'broken');
+  assert.deepEqual(fee.details, ['Pricey cost €30M, the cap is €12M']);
+  assert.equal(check('Only sign players aged 21 or younger.', t).details[0], 'Pricey was 27 when signed (max 21)');
+  const nat = check('Every signing must be Brazilian.', t);
+  assert.equal(nat.status, 'broken');
+  assert.deepEqual(nat.details, ['Pricey is French']); // "brazil" counts as Brazilian
+  assert.equal(check('No transfer fees — loans and free agents only.', t).status, 'broken');
+  assert.equal(check('No single transfer fee above €50M.', t).status, 'ok');
+  assert.equal(check('Signings must come from South America.', tracker({ transfers: [sign('X', { nat: 'Uruguayan' })] })).status, 'ok');
+  assert.equal(check('Every signing must be Brazilian.', tracker({ transfers: [sign('NoNat')] })).status, 'warn');
+});
+
+test('window rules: counts, one-in-one-out and net spend', () => {
+  const t = tracker({
+    season: 1, window: 'winter',
+    transfers: [sign('A', { fee: 10 }), sell('B', { fee: 4 }), sign('C', { fee: 1 }), sign('D', { window: 'winter', type: 'loan' })],
+  });
+  assert.equal(check('Maximum 1 permanent signings per window.', t).status, 'broken');
+  assert.equal(check('Maximum 2 permanent signings per window.', t).status, 'ok');
+  const oioo = check('One in, one out: sell or release a player before every signing.', t);
+  assert.equal(oioo.status, 'broken');
+  assert.equal(oioo.details.length, 2); // A signed first; D in January with nobody out
+  assert.equal(check('Finish every transfer window with zero or positive net spend.', t).status, 'broken');
+  assert.equal(check('No loan signings — permanent deals only.', t).details[0], 'D joined on loan (S1 January)');
+  // Moneyball: spend only what sales bring in, across the whole save.
+  const mb = tracker({ transfers: [sell('Star', { fee: 20 }), sign('A', { fee: 12 }), sign('B', { fee: 6 })] });
+  assert.equal(check('Your only spending money is what you raise from player sales — the starting budget is off-limits.', mb).status, 'ok');
+  mb.transfers.push(sign('C', { fee: 5, season: 2 }));
+  assert.equal(check('Your only spending money is what you raise from player sales.', mb).status, 'broken');
+});
+
+test('squad rules: size, wages, academy, quotas and the starting XI', () => {
+  const players = [
+    player('A', { age: 19, nat: 'English', wage: 5, academy: true, starter: true }),
+    player('B', { age: 24, nat: 'English', wage: 12, starter: true }),
+    player('C', { age: 33, nat: 'Spanish', wage: 30, starter: true, loanIn: true }),
+    player('D', { age: 22, nat: 'English', wage: 3, loanedOut: true }),
+  ];
+  const t = tracker({ players });
+  assert.equal(check('Senior squad capped at 3 players.', t).status, 'ok'); // D is out on loan
+  assert.equal(check('Senior squad capped at 2 players.', t).status, 'broken');
+  assert.deepEqual(check('No player may earn more than €10K/week.', t).details, ['B: €12K/week', 'C: €30K/week']);
+  assert.equal(check('At least 2 English players in every starting XI.', t).status, 'ok');
+  assert.equal(check('At least 3 English players in every starting XI.', t).summary, 'Only 2 of 3 English players in your XI');
+  assert.equal(check('At least 1 academy graduate(s) in every matchday squad.', t).status, 'ok');
+  assert.equal(check('At least 2 academy graduates must start every league match.', t).status, 'broken');
+  assert.equal(check('Your starting XI must average 25 years old or younger.', t).summary, 'XI averages 25.3 (max 25)');
+  assert.equal(check('At least 1 loanees must start every league match.', t).status, 'ok');
+  assert.equal(check('Sell (or release) every player in the summer after they turn 30.', t).details[0], 'C: 33');
+  assert.equal(check('Keep at least 2 players out on loan during every season.', t).status, 'warn');
+  assert.equal(check('No Italian players in your starting XI, ever.', t).status, 'ok');
+  // XI checks need the XI marked.
+  assert.equal(check('At least 2 English players in every starting XI.', tracker({ players: [player('X', { nat: 'English' })] })).status, 'warn');
+});
+
+test('every-season rules: past seasons must be done, the current one can still be pending', () => {
+  const promos = (n, season) => Array.from({ length: n }, (_, i) => sign(`Kid${season}-${i}`, { type: 'promotion', season }));
+  const rule = 'Promote at least 2 youth academy player(s) to the first team every season.';
+  assert.equal(check(rule, tracker({ season: 1, transfers: promos(1, 1) })).status, 'warn');
+  assert.equal(check(rule, tracker({ season: 2, transfers: promos(1, 1) })).status, 'broken');
+  assert.equal(check(rule, tracker({ season: 2, transfers: [...promos(2, 1), ...promos(2, 2)] })).status, 'ok');
+  const summer = 'Sign at least one player rated 85+ OVR every summer.';
+  assert.equal(check(summer, tracker({ season: 1, window: 'summer' })).status, 'warn');
+  assert.equal(check(summer, tracker({ season: 1, window: 'winter' })).status, 'broken');
+  assert.equal(check(summer, tracker({ season: 1, window: 'winter', transfers: [sign('Star', { ovr: 87 })] })).status, 'ok');
+  assert.equal(check('Sign at least one Welsh player every summer.', tracker({ season: 2, transfers: [sign('W', { nat: 'Wales' })] })).status, 'warn');
+  assert.equal(check('Sell your highest-rated player every summer.', tracker({ season: 2, transfers: [sell('Best')] })).status, 'warn');
+});
+
+test('league rivals, flipping and re-signing', () => {
+  const t = tracker({ transfers: [sign('R', { club: 'Arsenal' }), sign('F', { club: 'Ajax' }), sell('F'), sell('Old'), sign('Old', { season: 2 })], season: 2 });
+  assert.deepEqual(check('No signing players from clubs in your own league.', t).details, ['R came from Arsenal, a league rival']);
+  assert.deepEqual(check('No selling a player in the same season you signed them.', t).details, ['F (season 1)']);
+  assert.deepEqual(check('Never re-sign a player you sold.', t).details, ['Old']);
+});
+
+test('player career moves: loans, stays and countries', () => {
+  const ch = Object.assign({}, ch0, { startAge: 18 });
+  const t = tracker({ season: 5, moves: [{ season: 2, type: 'loan', club: 'Lille', country: 'France' }, { season: 3, type: 'permanent', club: 'Porto', country: 'Portugal' }] });
+  assert.equal(check('Never go out on loan.', t, ch).status, 'broken');
+  assert.equal(check('Loans are only allowed before you turn 20.', t, ch).status, 'ok'); // loaned at 19
+  assert.equal(check('Loans are only allowed before you turn 19.', t, ch).status, 'broken');
+  assert.equal(check('Spend your whole career at Test FC: never accept a permanent transfer.', t, ch).status, 'broken');
+  assert.deepEqual(check('Stay at least 2 season(s) at every club.', t, ch).details, ['Test FC: 1 season', 'Lille: 1 season']);
+  assert.equal(check('Never play for a club in England.', t, ch).status, 'broken'); // started in England
+  assert.equal(check('Never play for a club in Spain.', t, ch).status, 'ok');
+  assert.equal(check('Move to a club in a new country every 3 seasons.', t, ch).status, 'ok');
+  assert.equal(check('Move to a club in a new country every 2 seasons.', t, ch).details[0], 'Portugal: 3 seasons');
+});
+
+test('tally and tracker normalisation', () => {
+  assert.deepEqual(C.tally([{ status: 'ok' }, { status: 'broken' }, { status: 'ok' }, { status: 'manual' }]), { ok: 2, broken: 1, warn: 0, manual: 1 });
+  const t = C.normalizeTracker({ season: '0', window: 'nope', players: 'x' });
+  assert.deepEqual(t, { season: 1, window: 'summer', players: [], transfers: [], moves: [] });
+  assert.equal(C.normNat(' brazil '), 'Brazilian');
+  assert.equal(C.normNat('Martian'), 'Martian');
+});
+
+test('pasting a squad understands common formats', () => {
+  const { parseSquad } = globalThis.FC26.trackerUI;
+  const rows = parseSquad([
+    'Bukayo Saka, RW, 24, English, 87',
+    'Son Heung-min ST 33 South Korean 84 €190K',
+    'Kobbie Mainoo\tCM\t20\tEngland\t79',
+    '87  Rodri  CDM  Spain  29',
+    'Just A Name',
+    '',
+    '12345',
+  ].join('\n'));
+  assert.equal(rows.length, 5);
+  const pick = ({ name, pos, age, nat, ovr, wage }) => ({ name, pos, age, nat, ovr, wage });
+  assert.deepEqual(pick(rows[0]), { name: 'Bukayo Saka', pos: 'RW', age: 24, nat: 'English', ovr: 87, wage: '' });
+  assert.deepEqual(pick(rows[1]), { name: 'Son Heung-min', pos: 'ST', age: 33, nat: 'South Korean', ovr: 84, wage: 190 });
+  assert.deepEqual(pick(rows[2]), { name: 'Kobbie Mainoo', pos: 'CM', age: 20, nat: 'English', ovr: 79, wage: '' });
+  assert.deepEqual(pick(rows[3]), { name: 'Rodri', pos: 'CDM', age: 29, nat: 'Spanish', ovr: 87, wage: '' });
+  assert.deepEqual(pick(rows[4]), { name: 'Just A Name', pos: '', age: '', nat: '', ovr: '', wage: '' });
+  assert.ok(rows.every((r) => r.id));
+});

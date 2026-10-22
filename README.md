@@ -17,6 +17,7 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **Edit anything**: ✏️ Edit any challenge (rules, objectives, seasons, final goal, club, story), or ✍️ **Write your own** from scratch. Edited challenges share as a link that carries the whole challenge, compressed.
 - **Export as an image**: 🖼️ Image draws the challenge as a tall PNG card to post on Reddit, Discord or Instagram. On phones it opens the share sheet.
 - **Copy as text** for Reddit or Discord.
+- **Season tracker with automatic rule checks**: every saved challenge has **👥 Squad** and **🔁 Transfers** tabs (**🧳 Career moves** in Player Career). Type in or paste your squad (name, position, age, nationality, OVR, wage, plus starting XI, academy and loan flags), and log signings, sales, loans and academy promotions by season and window. Each rule then shows ✅ kept, ❌ broken (with the reason, e.g. "Big Buy cost €40M, the cap is €800K"), ⚠️ more to do or needs data, or ✋ check yourself (formations, simming and other things a squad list can't show). The checker reads the rule sentences themselves, so it also covers heritage rules and rules you write in the editor.
 - **My Challenges**: save challenges in your browser and tick off objectives. The **season diary** logs each season's finish, trophies and notes, and the score and "Season X of N" update as you go. Copy text includes your progress.
 
 ## Run it
@@ -64,6 +65,8 @@ npm test         # node --test (Node 18+)
 | `js/rules.js` | Challenge types, the extra-rule pool, side objectives, season events |
 | `js/player.js` | Player Career mode: challenge types, rules, positions, career milestones |
 | `js/share-image.js` | Draws a challenge as a PNG card (canvas, no dependencies) |
+| `js/compliance.js` | Rule checker: reads rule sentences and tests them against the tracked squad, transfers and career moves |
+| `js/tracker-ui.js` | Squad, Transfers and Career moves tabs, including the paste importer |
 | `js/daily.js` | Daily challenge: date-based seed, numbering and streaks |
 | `js/generator.js` | Seeded generator (no DOM, runs in Node too), share keys, text export |
 | `js/app.js` | UI: options form, challenge card, locks, saving, sharing |

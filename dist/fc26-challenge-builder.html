@@ -404,6 +404,81 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 .stepper .icon-btn { opacity: 1; border-color: var(--line); width: 28px; }
 .counter small { margin-left: 8px; font-size: 0.75rem; }
 
+/* ---------- Rule check ---------- */
+
+.check-summary { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin: -2px 0 10px; font-size: 0.85rem; }
+.check-pills { display: inline-flex; gap: 6px; }
+.check-pills span { padding: 2px 8px; border-radius: 99px; background: var(--bg-2); border: 1px solid var(--line); font-weight: 700; }
+.rule-check { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; font-size: 0.8rem; font-weight: 600; }
+.rule-check.s-ok { color: var(--accent); }
+.rule-check.s-broken { color: var(--danger); }
+.rule-check.s-warn { color: var(--warn); }
+.rule-check.s-manual { color: var(--muted); font-weight: 500; }
+.rule-details { color: var(--muted); font-weight: 400; }
+.rule-text { display: flex; flex-direction: column; }
+.rule.s-broken { border-color: rgba(255, 92, 108, 0.55); background: rgba(255, 92, 108, 0.06); }
+.rule.s-warn { border-color: rgba(255, 201, 77, 0.35); }
+
+/* ---------- Season tracker ---------- */
+
+.tracker-bar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.tracker-now { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem; flex-wrap: wrap; }
+.tracker-now select { width: auto; padding: 6px 10px; }
+.tracker-tabs { display: flex; gap: 4px; background: var(--bg-2); padding: 4px; border-radius: 12px; border: 1px solid var(--line); flex-wrap: wrap; }
+.ttab { border: 0; background: transparent; padding: 7px 12px; border-radius: 9px; cursor: pointer; color: var(--muted); font-weight: 700; font-size: 0.88rem; }
+.ttab.is-active { background: var(--panel-2); color: var(--text); }
+.tpanel > .card { margin: 0; }
+.squad, .transfers { display: flex; flex-direction: column; gap: 10px; }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.squad-stats { font-size: 0.85rem; }
+.paste-box { padding: 12px; border-radius: 12px; border: 1px dashed var(--line); background: var(--bg-2); display: flex; flex-direction: column; gap: 10px; }
+.paste-box p { margin: 0; font-size: 0.85rem; }
+.paste-box textarea { width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px; font-family: ui-monospace, monospace; font-size: 0.85rem; }
+.legend { margin: 0; font-size: 0.78rem; }
+.empty-note { margin: 4px 0; }
+
+.phead, .prow {
+  display: grid;
+  grid-template-columns: minmax(130px, 2fr) 74px 62px minmax(100px, 1.2fr) 62px 74px auto 32px;
+  gap: 6px; align-items: center;
+}
+.phead { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; padding: 0 6px; }
+.plist { display: flex; flex-direction: column; gap: 6px; }
+.prow { padding: 6px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); }
+.prow.is-out { opacity: 0.6; }
+.prow input, .prow select { width: 100%; min-width: 0; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); font-size: 0.88rem; }
+.prow input[type="number"] { -moz-appearance: textfield; }
+.p-flags { display: flex; gap: 6px; }
+.p-flags label { display: inline-flex; align-items: center; gap: 2px; cursor: pointer; font-size: 0.9rem; }
+.p-flags input { width: 15px; height: 15px; accent-color: var(--accent); margin: 0; }
+@media (max-width: 760px) {
+  .phead { display: none; }
+  .prow { grid-template-columns: 1fr 1fr 1fr 32px; }
+  .prow .p-name { grid-column: 1 / 4; }
+  .prow .p-nat { grid-column: span 2; }
+  .prow .p-flags { grid-column: 1 / -1; justify-content: space-around; }
+  .prow > .icon-btn { grid-row: 1; grid-column: 4; }
+}
+
+.tform { display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); }
+.tform > .btn { align-self: flex-start; }
+.seg { display: inline-flex; gap: 4px; background: var(--panel); padding: 4px; border-radius: 10px; align-self: flex-start; }
+.seg button { border: 0; background: transparent; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 700; color: var(--muted); }
+.seg button.is-on { background: var(--panel-2); color: var(--text); }
+.tgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.tgrid .f-wide { grid-column: span 2; }
+.tgrid label { display: flex; flex-direction: column; gap: 4px; font-size: 0.75rem; font-weight: 700; color: var(--muted); }
+.tgrid input, .tgrid select { width: 100%; padding: 7px 9px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); font-size: 0.9rem; }
+@media (max-width: 420px) { .tgrid .f-wide { grid-column: 1 / -1; } }
+.tgroup { display: flex; flex-direction: column; gap: 6px; }
+.tgroup-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; font-size: 0.88rem; padding: 4px 2px; border-bottom: 1px solid var(--line); }
+.trow { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto 32px; gap: 8px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); }
+.trow.start { border-style: dashed; }
+.tmain { display: flex; flex-direction: column; min-width: 0; }
+.tmain small { font-size: 0.78rem; }
+.tmeta { font-size: 0.85rem; color: var(--muted); text-align: right; }
+@media (max-width: 560px) { .trow { grid-template-columns: 24px minmax(0, 1fr) 32px; } .tmeta { grid-column: 2; grid-row: 2; text-align: left; } }
+
 /* ---------- Editor ---------- */
 
 .editor-head h2 { margin: 0 0 4px; }
@@ -665,6 +740,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
   </footer>
 
   <div class="toast" id="toast" role="status" hidden></div>
+  <datalist id="nat-list"></datalist>
 
   <script>/* js/data.js */
 /*
@@ -4154,6 +4230,1046 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
   FC26.daily = { OPTIONS, EPOCH, dateKey, isKey, shiftKey, number, challenge, streak, msUntilTomorrow };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
+  <script>/* js/compliance.js */
+/*
+ * Rule checker for the season tracker. Pure logic, no DOM.
+ *
+ * Rules are plain sentences (generated, heritage or typed by the player),
+ * so the checker reads the sentence: each matcher below recognises one kind
+ * of rule and pulls out its numbers ("No single transfer fee above €12M" →
+ * fee cap 12). The matching evaluator then tests the tracked squad and
+ * transfers. Rules nothing recognises (formations, substitutions…) are
+ * reported as "check yourself".
+ *
+ * Tracker shape (stored with a saved challenge):
+ *   { season, window: 'summer'|'winter', players: [...], transfers: [...], moves: [...] }
+ *   player:   { id, name, pos, age, nat, ovr, wage (€K/week), academy, starter, loanIn, loanedOut }
+ *   transfer: { id, season, window, dir: 'in'|'out', type, name, age, nat, ovr, fee (€M), club }
+ *             in-types: permanent, loan, free, promotion; out-types: sale, loan, release
+ *   move:     { id, season, type: 'permanent'|'loan'|'free', club, country }   (Player Career)
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const G = FC26.generator;
+
+  // ---------- Nationalities and regions ----------
+
+  const REGIONS = {
+    'south america': ['Argentine', 'Bolivian', 'Brazilian', 'Chilean', 'Colombian', 'Ecuadorian', 'Paraguayan', 'Peruvian', 'Uruguayan', 'Venezuelan'],
+    africa: ['Algerian', 'Angolan', 'Burkinabé', 'Cameroonian', 'Cape Verdean', 'Congolese', 'Egyptian', 'Gabonese', 'Gambian', 'Ghanaian', 'Guinean', 'Ivorian', 'Malian', 'Moroccan', 'Nigerian', 'Senegalese', 'South African', 'Tunisian', 'Zambian', 'Zimbabwean'],
+    'asia or oceania': ['Australian', 'Chinese', 'Indonesian', 'Iranian', 'Iraqi', 'Japanese', 'New Zealander', 'Qatari', 'Saudi', 'South Korean', 'Emirati', 'Uzbek'],
+    'the nordic countries': ['Danish', 'Finnish', 'Icelandic', 'Norwegian', 'Swedish', 'Faroese'],
+    'eastern europe': ['Belarusian', 'Bulgarian', 'Czech', 'Estonian', 'Georgian', 'Hungarian', 'Latvian', 'Lithuanian', 'Moldovan', 'Polish', 'Romanian', 'Russian', 'Slovak', 'Ukrainian'],
+    'north & central america': ['American', 'Canadian', 'Costa Rican', 'Guatemalan', 'Haitian', 'Honduran', 'Jamaican', 'Mexican', 'Panamanian', 'Salvadoran'],
+    'the british isles': ['English', 'Irish', 'Northern Irish', 'Scottish', 'Welsh'],
+    'the balkans': ['Albanian', 'Bosnian', 'Croatian', 'Greek', 'Kosovan', 'Macedonian', 'Montenegrin', 'Serbian', 'Slovenian'],
+  };
+  // How regions are written as adjectives inside rules ("Every signing must be South American").
+  const REGION_ADJ = { 'south american': 'south america', african: 'africa', asian: 'asia or oceania', nordic: 'the nordic countries', 'eastern european': 'eastern europe', balkan: 'the balkans', british: 'the british isles' };
+
+  const NAT = new Map();
+  const addNat = (key, adj) => { if (key && !NAT.has(key.toLowerCase())) NAT.set(key.toLowerCase(), adj); };
+  G.COUNTRIES.forEach((c) => { addNat(c.adj, c.adj); addNat(c.name, c.adj); });
+  Object.values(REGIONS).flat().forEach((adj) => addNat(adj, adj));
+  [['ireland', 'Irish'], ['northern ireland', 'Northern Irish'], ['united states', 'American'], ['us', 'American'],
+    ['holland', 'Dutch'], ['turkey', 'Turkish'], ['korea', 'South Korean'], ['korean', 'South Korean'],
+    ['ivory coast', 'Ivorian'], ["côte d'ivoire", 'Ivorian'], ['dr congo', 'Congolese'], ['czechia', 'Czech'],
+    ['argentinian', 'Argentine'], ['saudi arabia', 'Saudi']].forEach(([k, v]) => addNat(k, v));
+
+  const NATIONALITIES = Array.from(new Set(NAT.values())).sort((a, b) => a.localeCompare(b));
+
+  /** "brazil", "Brazilian " → "Brazilian". Unknown values are kept as typed. */
+  function normNat(value) {
+    const s = String(value || '').trim();
+    return NAT.get(s.toLowerCase()) || s;
+  }
+  const natIs = (value, adj) => normNat(value).toLowerCase() === String(adj).toLowerCase();
+
+  // ---------- Small helpers ----------
+
+  const WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+  const num = (s) => (WORDS[String(s).toLowerCase()] || Number(s));
+  const toMillions = (n, unit) => (String(unit).toUpperCase() === 'K' ? Number(n) / 1000 : Number(n));
+  const toThousands = (n, unit) => (String(unit).toUpperCase() === 'K' ? Number(n) : Number(n) / 1000);
+  const money = (m) => (m >= 1 ? `€${+m.toFixed(1)}M` : `€${Math.round(m * 1000)}K`);
+  const wage = (k) => (k >= 1 ? `€${+k.toFixed(1)}K` : `€${Math.round(k * 1000)}`);
+  const plural = (n, word, many) => `${n} ${n === 1 ? word : many || `${word}s`}`;
+  const winLabel = (t) => `S${t.season} ${t.window === 'winter' ? 'January' : 'summer'}`;
+  const fee = (t) => Number(t.fee) || 0;
+  const nameOf = (x) => (x.name || 'Unnamed').trim() || 'Unnamed';
+
+  function emptyTracker() {
+    return { season: 1, window: 'summer', players: [], transfers: [], moves: [] };
+  }
+
+  /** Fill in missing fields so old or hand-edited data can't break the checks. */
+  function normalizeTracker(t) {
+    const out = Object.assign(emptyTracker(), t && typeof t === 'object' ? t : {});
+    ['players', 'transfers', 'moves'].forEach((k) => { if (!Array.isArray(out[k])) out[k] = []; });
+    out.season = Math.max(1, Math.round(Number(out.season)) || 1);
+    out.window = out.window === 'winter' ? 'winter' : 'summer';
+    return out;
+  }
+
+  // Loose club-name match, so "Bayern" matches "Bayern Munich" and "FC Porto" matches "Porto".
+  const clubKey = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\b(fc|cf|afc|sc|ac|ssc|sl|cd|ud|rcd|sv|vfb|vfl|tsg|bv|1\.)\b/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim();
+  const clubMatches = (typed, names) => {
+    const k = clubKey(typed);
+    return Boolean(k) && names.some((n) => {
+      const nk = clubKey(n);
+      return nk && (nk === k || nk.includes(k) || k.includes(nk));
+    });
+  };
+  const clubList = (text) => text.split(/,\s*|\s+or\s+/).map((x) => x.trim()).filter(Boolean);
+
+  const signings = (t) => t.transfers.filter((x) => x.dir === 'in' && x.type !== 'promotion');
+  const promotions = (t) => t.transfers.filter((x) => x.dir === 'in' && x.type === 'promotion');
+  const outs = (t) => t.transfers.filter((x) => x.dir === 'out');
+  const inSquad = (t) => t.players.filter((p) => !p.loanedOut);
+  const starters = (t) => inSquad(t).filter((p) => p.starter);
+
+  // Windows that have happened so far, in order: S1 summer, S1 January, S2 summer…
+  function windowsSoFar(ctx) {
+    const list = [];
+    for (let s = 1; s <= ctx.season; s++) {
+      list.push({ season: s, window: 'summer' });
+      if (s < ctx.season || ctx.window === 'winter') list.push({ season: s, window: 'winter' });
+    }
+    return list;
+  }
+  const inWindow = (w) => (t) => t.season === w.season && (t.window === 'winter' ? 'winter' : 'summer') === w.window;
+  // A season's summer window is over once the tracker has moved past it.
+  const summerDone = (s, ctx) => s < ctx.season || (s === ctx.season && ctx.window === 'winter');
+
+  // ---------- Results ----------
+
+  const ok = (summary, details) => ({ status: 'ok', summary, details: details || [] });
+  const broken = (summary, details) => ({ status: 'broken', summary, details: details || [] });
+  const warn = (summary, details) => ({ status: 'warn', summary, details: details || [] });
+  const manual = () => ({ status: 'manual', summary: 'Check this one yourself', details: [] });
+  const RANK = { broken: 3, warn: 2, ok: 1, manual: 0 };
+
+  function needStarters(t) {
+    const n = starters(t).length;
+    return n ? null : warn('Tick ⭐ on your starting XI in the squad to check this');
+  }
+
+  // Per-signing test: lists every signing that fails it.
+  function eachSigning(t, test, describe, okText) {
+    const bad = signings(t).filter((x) => !test(x));
+    if (bad.length) return broken(plural(bad.length, 'signing') + ' break this', bad.map(describe));
+    const n = signings(t).length;
+    return n ? ok(okText || `All ${plural(n, 'signing')} fit`) : ok('No signings yet');
+  }
+
+  // ---------- Matchers ----------
+  // Each: [regex, (match, text) => check object | null]. More specific first.
+
+  const MATCHERS = [
+    // Transfers and money
+    [/no transfer fees|loans and free agents only|free transfers and loans only|free agents, loans and academy players only/i, () => ({ kind: 'noFees' })],
+    [/No single transfer fee above €\s?([\d.]+)\s*([MK])/i, (m) => ({ kind: 'maxFee', max: toMillions(m[1], m[2]) })],
+    [/^Every signing must be (.+?) and aged (\d+) or younger/i, (m) => {
+      const nat = natCheck(m[1]);
+      return nat && { kind: 'all', checks: [nat, { kind: 'maxSignAge', max: num(m[2]) }] };
+    }],
+    [/(?:Only sign players aged|Every signing must be aged) (\d+) or younger|No signing anyone older than (\d+)/i, (m) => ({ kind: 'maxSignAge', max: num(m[1] || m[2]) })],
+    [/(?:Only sign players aged|Every signing must be aged) (\d+) or older|No signing players under (\d+)/i, (m) => ({ kind: 'minSignAge', min: num(m[1] || m[2]) })],
+    [/No signing anyone rated above (\d+) OVR/i, (m) => ({ kind: 'maxSignOvr', max: num(m[1]) })],
+    [/^Only sign players from (?!leagues)(.+?)\.$/i, (m) => natCheck(m[1])],
+    [/^(?:Only sign|Every signing must be) ([A-Z][^.]*?)(?: players)?\.$/, (m) => natCheck(m[1])],
+    [/^Signings must come from (.+?)\.$/i, (m) => (REGIONS[m[1].toLowerCase()] ? { kind: 'signNat', allowed: REGIONS[m[1].toLowerCase()], label: m[1] } : null)],
+    [/Maximum (\d+) permanent signings per window/i, (m) => ({ kind: 'maxSignings', max: num(m[1]), permanentOnly: true })],
+    [/No more than (\d+) signings per (summer )?window/i, (m) => ({ kind: 'maxSignings', max: num(m[1]), summerOnly: Boolean(m[2]) })],
+    [/No loan signings/i, () => ({ kind: 'noLoansIn' })],
+    [/One in, one out/i, () => ({ kind: 'oneInOneOut' })],
+    [/Finish every transfer window with zero or positive net spend|Each window you may only spend money raised from sales/i, () => ({ kind: 'profitWindow' })],
+    [/only spending money is what you raise from player sales|only spend money raised from sales/i, () => ({ kind: 'spendFromSales' })],
+    [/Finish every season with a positive net transfer spend/i, () => ({ kind: 'profitSeason' })],
+    [/No signing players from clubs in your own league/i, () => ({ kind: 'noLeagueRivals' })],
+    [/No selling a player in the same season you signed them/i, () => ({ kind: 'noFlip' })],
+    [/Never re-sign a player you sold/i, () => ({ kind: 'noResign' })],
+    [/^Never sign a player from (.+?)\.$/i, (m) => ({ kind: 'noSignFrom', clubs: clubList(m[1]) })],
+    [/^Never sell a player to another .+ club/i, () => ({ kind: 'noSellToLeague' })],
+    [/^Never sell a player to (.+?)\.$/i, (m) => ({ kind: 'noSellTo', clubs: clubList(m[1]) })],
+    [/Sign at least one player from (.+?) every season/i, (m) => ({ kind: 'signFromEvery', clubs: clubList(m[1]), loan: false })],
+    [/Take at least one loan from (.+?) every season/i, (m) => ({ kind: 'signFromEvery', clubs: clubList(m[1]), loan: true })],
+    [/Before your first (?:competitive )?match, sell or release your (\d+) highest-rated players/i, (m) => ({ kind: 'clearOut', min: num(m[1]) })],
+    [/Sign at least one player rated (\d+)\+ OVR every summer/i, (m) => ({ kind: 'signOvrEverySummer', min: num(m[1]) })],
+    [/Sign at least one (?:current or former )?([A-Z][a-zé]+(?: [A-Z][a-z]+)?) player every (summer|season)/, (m) => (NAT.has(m[1].toLowerCase())
+      ? { kind: 'signNatEvery', nat: normNat(m[1]), summer: m[2] === 'summer' } : null)],
+    [/Sell your highest-(?:rated|valued) player every summer/i, () => ({ kind: 'sellEverySummer' })],
+
+    // Squad and wages
+    [/squad capped at (\d+) players/i, (m) => ({ kind: 'squadSize', max: num(m[1]) })],
+    [/Only (\w+) players may earn more than €\s?([\d.]+)\s*(K?)\/week/i, (m) => ({ kind: 'wageCount', count: num(m[1]), max: toThousands(m[2], m[3] || '') })],
+    [/No player may earn more than three times your lowest-paid/i, () => ({ kind: 'wageRatio', ratio: 3 })],
+    [/No player may earn more than twice your second-highest earner/i, () => ({ kind: 'wageTopTwice' })],
+    [/No player may earn more than €\s?([\d.]+)\s*(K?)\/week/i, (m) => ({ kind: 'wageCap', max: toThousands(m[1], m[2] || '') })],
+    [/Every first-team player must be (\d+)\+ OVR/i, (m) => ({ kind: 'squadOvrMin', min: num(m[1]) })],
+    [/Sell (?:\(or release\) )?every player in the summer after they turn (\d+)/i, (m) => ({ kind: 'maxSquadAge', max: num(m[1]) })],
+    [/Keep at least (\d+) players out on loan/i, (m) => ({ kind: 'loansOut', min: num(m[1]) })],
+    [/No academy promotions/i, () => ({ kind: 'noPromotions' })],
+    [/^Promote at least (\w+) [\w\s]*?(?:academy|youth)[\w\s]*?players?(?:\(s\))?(?: to the first team)? (every season|during season (\d+))/i, (m) => ({
+      kind: 'promotions', min: num(m[1]), onlySeason: m[3] ? num(m[3]) : null,
+    })],
+    [/[Aa]t least (\d+) [\w\s]*?graduates?(?:\(s\))? (?:must start every league match|in every starting XI)/, (m, text) => {
+      const from = text.match(/From season (\d+)/i);
+      return { kind: 'academyStarters', min: num(m[1]), fromSeason: from ? num(from[1]) : 1 };
+    }],
+    [/[Aa]t least (\d+) [\w\s]*?graduates?(?:\(s\))? in every matchday squad/, (m) => ({ kind: 'academySquad', min: num(m[1]) })],
+    [/[Aa]t least (\d+) loanees must start/, (m) => ({ kind: 'loaneeStarters', min: num(m[1]) })],
+    [/[Aa]t least (\d+) ([A-Z][a-z]+(?: [A-Z][a-z]+)?) players?(?:\(s\))? in every (starting XI|matchday squad)/, (m) => (NAT.has(m[2].toLowerCase())
+      ? { kind: 'natQuota', min: num(m[1]), nat: normNat(m[2]), xi: m[3] === 'starting XI' } : null)],
+    [/By the final season at least (\d+) ([A-Z][a-z]+(?: [A-Z][a-z]+)?) players must start every league match/, (m) => (NAT.has(m[2].toLowerCase())
+      ? { kind: 'natQuota', min: num(m[1]), nat: normNat(m[2]), xi: true, finalOnly: true } : null)],
+    [/No ([A-Z][a-z]+) players in your starting XI/, (m) => (NAT.has(m[1].toLowerCase()) ? { kind: 'noNatXi', nat: normNat(m[1]) } : null)],
+    [/starting XI must average (\d+)(?: years old)? or younger/i, (m) => ({ kind: 'avgAgeXi', max: num(m[1]) })],
+
+    // Player Career moves
+    [/Never go out on loan/i, () => ({ kind: 'noLoanMoves' })],
+    [/^Start at .+? and stay for at least (\d+) season/i, (m) => ({ kind: 'firstStay', min: num(m[1]) })],
+    [/Loans are only allowed before you turn (\d+)/i, (m) => ({ kind: 'loanAgeMax', max: num(m[1]) })],
+    [/whole career at .+?: never accept a permanent transfer/i, () => ({ kind: 'noPermanentMoves' })],
+    [/Stay at least (\d+) seasons?(?:\(s\))? at every club/i, (m) => ({ kind: 'stayMin', min: num(m[1]) })],
+    [/Never play for a club in ([A-Z][\w ]+?)\./, (m) => ({ kind: 'avoidCountry', country: m[1] })],
+    [/Never return to a league you have already played in/i, () => ({ kind: 'noRepeatCountry' })],
+    [/Move to a club in a new country every (\d+) seasons/i, (m) => ({ kind: 'moveCountryEvery', every: num(m[1]) })],
+  ];
+
+  // "Brazilian", "Danish or African", "England, Scotland, Wales or Ireland" → an allowed-nationality check.
+  function natCheck(list) {
+    const parts = list.split(/,\s*|\s+or\s+/).map((x) => x.trim()).filter(Boolean);
+    const allowed = [];
+    for (const part of parts) {
+      const region = REGION_ADJ[part.toLowerCase()] || (REGIONS[part.toLowerCase()] && part.toLowerCase());
+      if (region) allowed.push(...REGIONS[region]);
+      else if (NAT.has(part.toLowerCase())) allowed.push(normNat(part));
+      else return null; // something we can't check, e.g. "born in the Basque Country"
+    }
+    return allowed.length ? { kind: 'signNat', allowed, label: list } : null;
+  }
+
+  function interpret(text) {
+    const t = String(text || '').trim();
+    for (const [re, make] of MATCHERS) {
+      const m = t.match(re);
+      if (m) {
+        const check = make(m, t);
+        if (check) return check;
+      }
+    }
+    return null;
+  }
+
+  // ---------- Evaluators ----------
+
+  const EVAL = {
+    all(c, t, ctx) {
+      const results = c.checks.map((sub) => EVAL[sub.kind](sub, t, ctx));
+      const worst = results.reduce((a, b) => (RANK[b.status] > RANK[a.status] ? b : a));
+      return Object.assign({}, worst, { details: results.flatMap((r) => r.details) });
+    },
+    noFees(c, t) {
+      return eachSigning(t, (x) => fee(x) === 0, (x) => `${nameOf(x)} cost ${money(fee(x))} (${winLabel(x)})`, 'No fees paid');
+    },
+    maxFee(c, t) {
+      return eachSigning(t, (x) => fee(x) <= c.max + 1e-9, (x) => `${nameOf(x)} cost ${money(fee(x))}, the cap is ${money(c.max)}`, `Every fee is ${money(c.max)} or less`);
+    },
+    maxSignAge(c, t) {
+      return eachSigning(t, (x) => !(Number(x.age) > c.max), (x) => `${nameOf(x)} was ${x.age} when signed (max ${c.max})`);
+    },
+    minSignAge(c, t) {
+      return eachSigning(t, (x) => !(Number(x.age) > 0 && Number(x.age) < c.min), (x) => `${nameOf(x)} was ${x.age} when signed (min ${c.min})`);
+    },
+    maxSignOvr(c, t) {
+      return eachSigning(t, (x) => !(Number(x.ovr) > c.max), (x) => `${nameOf(x)} was ${x.ovr} OVR when signed (max ${c.max})`);
+    },
+    signNat(c, t) {
+      const missing = signings(t).filter((x) => !String(x.nat || '').trim());
+      const res = eachSigning(t, (x) => !String(x.nat || '').trim() || c.allowed.some((a) => natIs(x.nat, a)),
+        (x) => `${nameOf(x)} is ${normNat(x.nat)}`, `Every signing is ${c.label}`);
+      if (res.status === 'ok' && missing.length) return warn(`Add a nationality for ${plural(missing.length, 'signing')}`, missing.map(nameOf));
+      return res;
+    },
+    maxSignings(c, t, ctx) {
+      const details = windowsSoFar(ctx).filter((w) => !c.summerOnly || w.window === 'summer').map((w) => {
+        const n = signings(t).filter(inWindow(w)).filter((x) => !c.permanentOnly || x.type === 'permanent' || x.type === 'free').length;
+        return n > c.max ? `${n} signings in ${winLabel(w)} (max ${c.max})` : null;
+      }).filter(Boolean);
+      return details.length ? broken('Too many signings in a window', details) : ok(`No window over ${c.max}`);
+    },
+    noLoansIn(c, t) {
+      return eachSigning(t, (x) => x.type !== 'loan', (x) => `${nameOf(x)} joined on loan (${winLabel(x)})`, 'No loan signings');
+    },
+    oneInOneOut(c, t, ctx) {
+      const details = [];
+      windowsSoFar(ctx).forEach((w) => {
+        // In the order they were logged: every signing needs a departure before it.
+        let balance = 0;
+        t.transfers.filter(inWindow(w)).forEach((x) => {
+          if (x.dir === 'out') balance += 1;
+          else if (x.type !== 'promotion') {
+            balance -= 1;
+            if (balance < 0) {
+              details.push(`${nameOf(x)} signed before anyone left (${winLabel(x)})`);
+              balance = 0;
+            }
+          }
+        });
+      });
+      return details.length ? broken('Signed without a departure first', details) : ok('Every signing followed a departure');
+    },
+    profitWindow(c, t, ctx) {
+      const details = windowsSoFar(ctx).map((w) => {
+        const list = t.transfers.filter(inWindow(w));
+        const net = list.filter((x) => x.dir === 'out').reduce((n, x) => n + fee(x), 0) - list.filter((x) => x.dir === 'in').reduce((n, x) => n + fee(x), 0);
+        return net < -1e-9 ? `${winLabel(w)}: spent ${money(-net)} more than you made` : null;
+      }).filter(Boolean);
+      return details.length ? broken('A window lost money', details) : ok('No window lost money');
+    },
+    spendFromSales(c, t) {
+      let balance = 0;
+      const details = [];
+      t.transfers.slice().sort((a, b) => a.season - b.season || (a.window === 'winter') - (b.window === 'winter')).forEach((x) => {
+        balance += x.dir === 'out' ? fee(x) : -fee(x);
+        if (balance < -1e-9 && x.dir === 'in') details.push(`${nameOf(x)} (${money(fee(x))}) took you ${money(-balance)} past your sales income`);
+      });
+      return details.length ? broken('Spent more than sales brought in', details) : ok(`Sales cover all spending (${money(Math.max(0, balance))} left)`);
+    },
+    profitSeason(c, t, ctx) {
+      const details = [];
+      for (let s = 1; s <= ctx.season; s++) {
+        const list = t.transfers.filter((x) => x.season === s);
+        const net = list.filter((x) => x.dir === 'out').reduce((n, x) => n + fee(x), 0) - list.filter((x) => x.dir === 'in').reduce((n, x) => n + fee(x), 0);
+        if (net < -1e-9) details.push(`Season ${s}: net spend ${money(-net)}${s === ctx.season ? ' (season still going)' : ''}`);
+      }
+      if (!details.length) return ok('Every season in profit so far');
+      const onlyCurrent = details.length === 1 && details[0].includes('still going');
+      return onlyCurrent ? warn('This season is in the red so far', details) : broken('A season finished in the red', details);
+    },
+    noLeagueRivals(c, t, ctx) {
+      const rivals = ctx.leagueClubs;
+      if (!rivals.size) return manual();
+      return eachSigning(t, (x) => !rivals.has(String(x.club || '').trim().toLowerCase()), (x) => `${nameOf(x)} came from ${x.club}, a league rival`);
+    },
+    noFlip(c, t) {
+      const signedIn = new Map(signings(t).map((x) => [nameOf(x).toLowerCase(), x.season]));
+      const bad = outs(t).filter((x) => x.type !== 'loan' && signedIn.get(nameOf(x).toLowerCase()) === x.season);
+      return bad.length ? broken('Sold in the season they arrived', bad.map((x) => `${nameOf(x)} (season ${x.season})`)) : ok('Nobody sold in their first season');
+    },
+    noResign(c, t) {
+      const sold = outs(t).filter((x) => x.type !== 'loan');
+      const bad = signings(t).filter((x) => sold.some((o) => nameOf(o).toLowerCase() === nameOf(x).toLowerCase() && (o.season < x.season || (o.season === x.season && o.window === 'summer' && x.window === 'winter'))));
+      return bad.length ? broken('Re-signed a player you sold', bad.map(nameOf)) : ok('No re-signings');
+    },
+    noSignFrom(c, t) {
+      return eachSigning(t, (x) => !clubMatches(x.club, c.clubs), (x) => `${nameOf(x)} came from ${x.club}`, 'No signings from those clubs');
+    },
+    noSellToLeague(c, t, ctx) {
+      if (!ctx.leagueClubs.size) return manual();
+      const rivals = Array.from(ctx.leagueClubs);
+      const bad = outs(t).filter((x) => x.type !== 'release' && clubMatches(x.club, rivals));
+      return bad.length ? broken('Sold to a league rival', bad.map((x) => `${nameOf(x)} to ${x.club}`)) : ok('No sales to league rivals');
+    },
+    noSellTo(c, t) {
+      const bad = outs(t).filter((x) => clubMatches(x.club, c.clubs));
+      return bad.length ? broken('Sold to a club on the list', bad.map((x) => `${nameOf(x)} to ${x.club}`)) : ok('No sales to those clubs');
+    },
+    signFromEvery(c, t, ctx) {
+      const what = c.loan ? `a loan from ${c.clubs.join(' or ')}` : `a signing from ${c.clubs.join(' or ')}`;
+      return everySeason(ctx, false, (s) => signings(t).some((x) => x.season === s && (!c.loan || x.type === 'loan') && clubMatches(x.club, c.clubs)), what);
+    },
+    clearOut(c, t, ctx) {
+      const n = outs(t).filter((x) => x.season === 1 && x.window !== 'winter' && x.type !== 'loan').length;
+      if (n >= c.min) return ok(`${n} players moved on in your first window`, ['Make sure they were your highest-rated players.']);
+      return summerDone(1, ctx) ? broken(`Only ${n} of ${c.min} players sold or released before the season`) : warn(`${n} of ${c.min} sold or released so far`);
+    },
+    signOvrEverySummer(c, t, ctx) {
+      return everySeason(ctx, true, (s) => signings(t).some((x) => x.season === s && x.window !== 'winter' && Number(x.ovr) >= c.min), `a ${c.min}+ OVR signing`);
+    },
+    signNatEvery(c, t, ctx) {
+      return everySeason(ctx, c.summer, (s) => signings(t).some((x) => x.season === s && (!c.summer || x.window !== 'winter') && natIs(x.nat, c.nat)), `a ${c.nat} signing`);
+    },
+    sellEverySummer(c, t, ctx) {
+      const res = everySeason(ctx, true, (s) => outs(t).some((x) => x.season === s && x.window !== 'winter' && x.type === 'sale'), 'a summer sale');
+      if (res.status === 'ok' && res.summary !== 'Nothing due yet') res.details.push('Make sure it was your best player each time.');
+      return res;
+    },
+    squadSize(c, t) {
+      const n = inSquad(t).length;
+      return n > c.max ? broken(`${n} players in the squad, the cap is ${c.max}`) : ok(`${n} of ${c.max} squad places used`);
+    },
+    wageCount(c, t) {
+      const high = inSquad(t).filter((p) => Number(p.wage) > c.max);
+      const details = high.map((p) => `${nameOf(p)}: ${wage(Number(p.wage))}/week`);
+      return high.length > c.count ? broken(`${high.length} players earn over ${wage(c.max)}/week (max ${c.count})`, details) : ok(`${high.length} of ${c.count} big earners`, details);
+    },
+    wageRatio(c, t) {
+      const paid = inSquad(t).filter((p) => Number(p.wage) > 0);
+      if (paid.length < 2) return warn('Add wages to check this');
+      const low = Math.min(...paid.map((p) => Number(p.wage)));
+      const bad = paid.filter((p) => Number(p.wage) > low * c.ratio + 1e-9);
+      return bad.length ? broken(`Top wages are more than ${c.ratio}× the lowest (${wage(low)})`, bad.map((p) => `${nameOf(p)}: ${wage(Number(p.wage))}`)) : ok(`Everyone within ${c.ratio}× the lowest wage`);
+    },
+    wageTopTwice(c, t) {
+      const w = inSquad(t).map((p) => Number(p.wage) || 0).sort((a, b) => b - a);
+      if (w.length < 2 || !w[1]) return warn('Add wages to check this');
+      return w[0] > w[1] * 2 + 1e-9 ? broken(`Top wage ${wage(w[0])} is more than twice the next (${wage(w[1])})`) : ok('Top wage is within twice the next');
+    },
+    wageCap(c, t) {
+      const bad = inSquad(t).filter((p) => Number(p.wage) > c.max + 1e-9);
+      if (bad.length) return broken(plural(bad.length, 'player') + ` earn over ${wage(c.max)}/week`, bad.map((p) => `${nameOf(p)}: ${wage(Number(p.wage))}/week`));
+      const missing = inSquad(t).filter((p) => !(Number(p.wage) > 0)).length;
+      return missing && inSquad(t).length ? warn(`Add wages for ${plural(missing, 'player')} to check this fully`) : ok(`Nobody earns over ${wage(c.max)}/week`);
+    },
+    squadOvrMin(c, t) {
+      const bad = inSquad(t).filter((p) => Number(p.ovr) > 0 && Number(p.ovr) < c.min);
+      return bad.length ? broken(`${plural(bad.length, 'player')} below ${c.min} OVR`, bad.map((p) => `${nameOf(p)}: ${p.ovr}`)) : ok(`Everyone is ${c.min}+ OVR`);
+    },
+    maxSquadAge(c, t) {
+      const bad = inSquad(t).filter((p) => Number(p.age) > c.max);
+      return bad.length ? broken(`${plural(bad.length, 'player')} past ${c.max} still at the club`, bad.map((p) => `${nameOf(p)}: ${p.age}`)) : ok(`Nobody over ${c.max}`);
+    },
+    loansOut(c, t) {
+      const n = t.players.filter((p) => p.loanedOut).length;
+      return n >= c.min ? ok(`${n} players out on loan`) : warn(`${n} of ${c.min} players out on loan`);
+    },
+    noPromotions(c, t) {
+      const list = promotions(t);
+      return list.length ? broken('Academy players promoted', list.map((x) => `${nameOf(x)} (${winLabel(x)})`)) : ok('No academy promotions');
+    },
+    promotions(c, t, ctx) {
+      const count = (s) => promotions(t).filter((x) => x.season === s).length;
+      if (c.onlySeason) {
+        const n = count(c.onlySeason);
+        if (n >= c.min) return ok(`${n} promoted in season ${c.onlySeason}`);
+        return ctx.season > c.onlySeason ? broken(`Only ${n} of ${c.min} promoted in season ${c.onlySeason}`) : warn(`${n} of ${c.min} promoted so far`);
+      }
+      const details = [];
+      for (let s = 1; s < ctx.season; s++) if (count(s) < c.min) details.push(`Season ${s}: ${count(s)} of ${c.min}`);
+      const now = count(ctx.season);
+      if (details.length) return broken('Not enough academy promotions', details);
+      return now >= c.min ? ok(`${now} promoted this season`) : warn(`${now} of ${c.min} promoted this season`);
+    },
+    academyStarters(c, t, ctx) {
+      if (ctx.season < c.fromSeason) return ok(`Starts in season ${c.fromSeason}`);
+      const need = needStarters(t);
+      if (need) return need;
+      const n = starters(t).filter((p) => p.academy).length;
+      return n >= c.min ? ok(`${n} academy graduates in your XI`) : broken(`Only ${n} of ${c.min} academy graduates in your XI`);
+    },
+    academySquad(c, t) {
+      const n = inSquad(t).filter((p) => p.academy).length;
+      return n >= c.min ? ok(`${n} academy graduates available`) : broken(`Only ${n} academy graduates in the squad, you need ${c.min} for every matchday squad`);
+    },
+    loaneeStarters(c, t) {
+      const need = needStarters(t);
+      if (need) return need;
+      const n = starters(t).filter((p) => p.loanIn).length;
+      return n >= c.min ? ok(`${n} loanees in your XI`) : broken(`Only ${n} of ${c.min} loanees in your XI`);
+    },
+    natQuota(c, t, ctx) {
+      const pool = c.xi ? starters(t) : inSquad(t);
+      if (c.xi) {
+        const need = needStarters(t);
+        if (need) return need;
+      }
+      const n = pool.filter((p) => natIs(p.nat, c.nat)).length;
+      const where = c.xi ? 'your XI' : 'the squad';
+      if (n >= c.min) return ok(`${n} ${c.nat} players in ${where}`);
+      // "By the final season…": a target to build towards until then.
+      if (c.finalOnly && ctx.season < ctx.finalSeason) return warn(`${n} of ${c.min} ${c.nat} starters, needed by season ${ctx.finalSeason}`);
+      return broken(`Only ${n} of ${c.min} ${c.nat} players in ${where}`);
+    },
+    noNatXi(c, t) {
+      const need = needStarters(t);
+      if (need) return need;
+      const bad = starters(t).filter((p) => natIs(p.nat, c.nat));
+      return bad.length ? broken(`${c.nat} players in your XI`, bad.map(nameOf)) : ok(`No ${c.nat} starters`);
+    },
+    avgAgeXi(c, t) {
+      const need = needStarters(t);
+      if (need) return need;
+      const ages = starters(t).map((p) => Number(p.age)).filter((a) => a > 0);
+      if (!ages.length) return warn('Add ages for your XI');
+      const avg = ages.reduce((a, b) => a + b, 0) / ages.length;
+      return avg <= c.max + 1e-9 ? ok(`XI averages ${avg.toFixed(1)}`) : broken(`XI averages ${avg.toFixed(1)} (max ${c.max})`);
+    },
+
+    // Player Career
+    firstStay(c, t, ctx) {
+      const first = careerStints(t, ctx)[0];
+      const left = t.moves.length > 0;
+      if (first.length >= c.min) return ok(`${plural(first.length, 'season')} at ${first.club}`);
+      return left ? broken(`Left ${first.club} after ${plural(first.length, 'season')} (needed ${c.min})`) : ok(`${plural(first.length, 'season')} at ${first.club} so far`);
+    },
+    noLoanMoves(c, t) {
+      const bad = t.moves.filter((m) => m.type === 'loan');
+      return bad.length ? broken('Went out on loan', bad.map((m) => `${m.club || 'Loan'} (season ${m.season})`)) : ok('No loans');
+    },
+    loanAgeMax(c, t, ctx) {
+      const bad = t.moves.filter((m) => m.type === 'loan' && ctx.ageAt(m.season) >= c.max);
+      return bad.length ? broken(`Loaned out at ${c.max} or older`, bad.map((m) => `${m.club || 'Loan'} at age ${ctx.ageAt(m.season)}`)) : ok(`No loans after ${c.max - 1}`);
+    },
+    noPermanentMoves(c, t) {
+      const bad = t.moves.filter((m) => m.type !== 'loan');
+      return bad.length ? broken('Left the club', bad.map((m) => `${m.club || 'New club'} (season ${m.season})`)) : ok('Still a one-club player');
+    },
+    stayMin(c, t, ctx) {
+      const stints = careerStints(t, ctx);
+      const bad = stints.slice(0, -1).filter((s) => s.length < c.min);
+      return bad.length ? broken(`Left a club before ${plural(c.min, 'season')}`, bad.map((s) => `${s.club}: ${plural(s.length, 'season')}`)) : ok('Every stay long enough');
+    },
+    avoidCountry(c, t, ctx) {
+      const bad = careerStints(t, ctx).filter((s) => natIs(s.country, normNat(c.country)) || String(s.country).toLowerCase() === c.country.toLowerCase());
+      return bad.length ? broken(`Played in ${c.country}`, bad.map((s) => s.club)) : ok(`Never played in ${c.country}`);
+    },
+    noRepeatCountry(c, t, ctx) {
+      const seen = new Set();
+      const bad = [];
+      let prev = null;
+      careerStints(t, ctx).forEach((s) => {
+        const k = String(s.country || '').toLowerCase();
+        if (k && k !== prev && seen.has(k)) bad.push(`${s.club} (${s.country})`);
+        if (k) seen.add(k);
+        prev = k;
+      });
+      return bad.length ? broken('Went back to a country you had left', bad) : ok('No country twice');
+    },
+    moveCountryEvery(c, t, ctx) {
+      const spells = [];
+      careerStints(t, ctx).forEach((s) => {
+        const last = spells[spells.length - 1];
+        if (last && last.country === s.country) last.length += s.length;
+        else spells.push({ country: s.country, length: s.length });
+      });
+      const bad = spells.filter((s) => s.length > c.every);
+      return bad.length ? broken(`Stayed in a country more than ${plural(c.every, 'season')}`, bad.map((s) => `${s.country || 'Unknown'}: ${plural(s.length, 'season')}`)) : ok(`Moving on every ${plural(c.every, 'season')} or sooner`);
+    },
+  };
+
+  // Requirement that repeats every season (or every summer): past seasons must
+  // have it; the current one is "still to do" until its window closes.
+  function everySeason(ctx, summer, has, what) {
+    const missed = [];
+    let pending = false;
+    for (let s = 1; s <= ctx.season; s++) {
+      if (has(s)) continue;
+      const due = summer ? summerDone(s, ctx) : s < ctx.season;
+      if (due) missed.push(`Season ${s}: no ${what}`);
+      else pending = true;
+    }
+    if (missed.length) return broken(`Missed ${what}`, missed);
+    if (pending) return warn(`Still need ${what} this ${summer ? 'summer' : 'season'}`);
+    return ok(ctx.season ? `Done every ${summer ? 'summer' : 'season'} so far` : 'Nothing due yet');
+  }
+
+  // Player Career: clubs in order with how many seasons at each, starting at the challenge club.
+  function careerStints(t, ctx) {
+    const moves = t.moves.slice().sort((a, b) => a.season - b.season);
+    const stints = [{ club: ctx.startClub, country: ctx.startCountry, from: 1 }];
+    moves.forEach((m) => stints.push({ club: m.club || 'New club', country: m.country || '', from: Math.max(1, Number(m.season) || 1), loan: m.type === 'loan' }));
+    return stints.map((s, i) => {
+      const end = i + 1 < stints.length ? stints[i + 1].from : ctx.season + 1;
+      return Object.assign(s, { length: Math.max(0, end - s.from) });
+    });
+  }
+
+  // ---------- Public API ----------
+
+  function contextFor(ch, tracker) {
+    const leagueClubs = new Set(G.CLUBS.filter((c) => c.leagueId === ch.club.leagueId && c.name !== ch.club.name).map((c) => c.name.toLowerCase()));
+    return {
+      season: tracker.season,
+      window: tracker.window,
+      leagueClubs,
+      finalSeason: Number(ch.seasons) || 1,
+      startClub: ch.club.name,
+      startCountry: ch.club.country || '',
+      ageAt: (s) => (Number(ch.startAge) || 17) + s - 1,
+    };
+  }
+
+  /** Check one rule sentence against a tracker. */
+  function evaluateRule(text, tracker, ch) {
+    const check = interpret(text);
+    if (!check || !EVAL[check.kind]) return manual();
+    const t = normalizeTracker(tracker);
+    return Object.assign({ kind: check.kind }, EVAL[check.kind](check, t, contextFor(ch, t)));
+  }
+
+  /** Results for every rule of a challenge, core rules first. */
+  function checkChallenge(ch, tracker) {
+    const t = normalizeTracker(tracker);
+    return ch.coreRules.map((r) => Object.assign({ core: true, text: r.text }, evaluateRule(r.text, t, ch)))
+      .concat(ch.rules.map((r) => Object.assign({ core: false, text: r.text }, evaluateRule(r.text, t, ch))));
+  }
+
+  function tally(results) {
+    return results.reduce((n, r) => Object.assign(n, { [r.status]: n[r.status] + 1 }), { ok: 0, broken: 0, warn: 0, manual: 0 });
+  }
+
+  FC26.compliance = { interpret, evaluateRule, checkChallenge, tally, normNat, normalizeTracker, emptyTracker, NATIONALITIES, REGIONS };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/tracker-ui.js */
+/*
+ * Season tracker UI inside a saved challenge: Squad, Transfers and (Player
+ * Career) Career moves tabs. Rule checking itself lives in compliance.js;
+ * app.js renders the results next to each rule.
+ *
+ * app.js calls init() with shared helpers, renders with renderTracker(),
+ * and forwards click/change events from the saved list.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const C = FC26.compliance;
+  const G = FC26.generator;
+
+  const POSITIONS = ['GK', 'RB', 'LB', 'CB', 'RWB', 'LWB', 'CDM', 'CM', 'CAM', 'RM', 'LM', 'RW', 'LW', 'CF', 'ST'];
+  const IN_TYPES = [['permanent', 'Permanent'], ['loan', 'Loan'], ['free', 'Free transfer'], ['promotion', 'Academy promotion']];
+  const OUT_TYPES = [['sale', 'Sale'], ['loan', 'Loan out'], ['release', 'Release']];
+  const MOVE_TYPES = [['permanent', 'Transfer'], ['loan', 'Loan'], ['free', 'Free transfer']];
+
+  let deps = null; // { esc, toast, mutateEntry, renderChallenge, refreshSummary }
+  const tabs = {}; // saved entry id → open tab
+
+  const esc = (v) => deps.esc(v == null ? '' : v);
+  const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  const n = (v) => (v === '' || v == null || Number.isNaN(Number(v)) ? null : Number(v));
+  const money = (m) => (Math.abs(m) >= 1 ? `€${+m.toFixed(1)}M` : `€${Math.round(m * 1000)}K`);
+  const opts = (list, selected) => list.map(([v, label]) => `<option value="${v}" ${String(selected) === String(v) ? 'selected' : ''}>${esc(label)}</option>`).join('');
+
+  function init(d) {
+    deps = d;
+  }
+
+  const trackerOf = (entry) => C.normalizeTracker(entry.tracker);
+  const isPlayer = (entry) => entry.challenge.mode === 'player';
+
+  // ---------- Rendering ----------
+
+  function renderTracker(entry, challengeHtml) {
+    const t = trackerOf(entry);
+    const tab = tabs[entry.id] || 'challenge';
+    const seasons = Math.max(entry.challenge.seasons, t.season);
+    const tabBtn = (id, label, count) => `<button type="button" class="ttab ${tab === id ? 'is-active' : ''}" data-action="ttab" data-tab="${id}" role="tab" aria-selected="${tab === id}">${label}${count != null ? ` <span class="count">${count}</span>` : ''}</button>`;
+    return `
+      <div class="tracker">
+        <div class="tracker-bar">
+          <span class="tracker-now">📅 Now:
+            <select data-tracker="season" aria-label="Current season">${opts(Array.from({ length: seasons }, (_, i) => [i + 1, `Season ${i + 1}`]), t.season)}</select>
+            ${isPlayer(entry) ? '' : `<select data-tracker="window" aria-label="Current transfer window">${opts([['summer', 'Summer window'], ['winter', 'January window']], t.window)}</select>`}
+          </span>
+          <div class="tracker-tabs" role="tablist">
+            ${tabBtn('challenge', '📋 Challenge')}
+            ${isPlayer(entry)
+    ? tabBtn('moves', '🧳 Career moves', t.moves.length)
+    : `${tabBtn('squad', '👥 Squad', t.players.filter((p) => !p.loanedOut).length)}${tabBtn('transfers', '🔁 Transfers', t.transfers.length)}`}
+          </div>
+        </div>
+        <div class="tpanel" data-panel="challenge" ${tab === 'challenge' ? '' : 'hidden'}>${challengeHtml}</div>
+        ${isPlayer(entry)
+    ? `<div class="tpanel" data-panel="moves" ${tab === 'moves' ? '' : 'hidden'}>${renderMoves(entry, t)}</div>`
+    : `<div class="tpanel" data-panel="squad" ${tab === 'squad' ? '' : 'hidden'}>${renderSquad(entry, t)}</div>
+        <div class="tpanel" data-panel="transfers" ${tab === 'transfers' ? '' : 'hidden'}>${renderTransfers(entry, t)}</div>`}
+      </div>`;
+  }
+
+  function squadStats(t) {
+    const squad = t.players.filter((p) => !p.loanedOut);
+    const xi = squad.filter((p) => p.starter).length;
+    const ages = squad.map((p) => n(p.age)).filter((a) => a);
+    const wages = squad.reduce((sum, p) => sum + (n(p.wage) || 0), 0);
+    const bits = [`${squad.length} players`, `⭐ XI ${xi}/11`];
+    if (ages.length) bits.push(`avg age ${(ages.reduce((a, b) => a + b, 0) / ages.length).toFixed(1)}`);
+    if (wages) bits.push(`wages €${wages >= 1000 ? `${(wages / 1000).toFixed(2)}M` : `${Math.round(wages)}K`}/week`);
+    const out = t.players.length - squad.length;
+    if (out) bits.push(`${out} out on loan`);
+    return bits.join(' · ');
+  }
+
+  function renderSquad(entry, t) {
+    const real = FC26.squads && FC26.squads[entry.challenge.club.name];
+    const rows = t.players.map((p) => `
+        <div class="prow ${p.loanedOut ? 'is-out' : ''}" data-pid="${esc(p.id)}">
+          <input class="p-name" type="text" data-pfield="name" value="${esc(p.name)}" placeholder="Player name" maxlength="40" aria-label="Name">
+          <select class="p-pos" data-pfield="pos" aria-label="Position"><option value=""></option>${opts(POSITIONS.map((x) => [x, x]), p.pos)}</select>
+          <input class="p-age" type="number" min="14" max="50" data-pfield="age" value="${esc(p.age)}" placeholder="Age" aria-label="Age">
+          <input class="p-nat" type="text" list="nat-list" data-pfield="nat" value="${esc(p.nat)}" placeholder="Nationality" maxlength="30" aria-label="Nationality">
+          <input class="p-ovr" type="number" min="1" max="99" data-pfield="ovr" value="${esc(p.ovr)}" placeholder="OVR" aria-label="Overall rating">
+          <input class="p-wage" type="number" min="0" step="0.1" data-pfield="wage" value="${esc(p.wage)}" placeholder="€K/w" aria-label="Wage in thousands of euros per week">
+          <span class="p-flags">
+            <label title="In your starting XI"><input type="checkbox" data-pfield="starter" ${p.starter ? 'checked' : ''}>⭐</label>
+            <label title="Academy graduate"><input type="checkbox" data-pfield="academy" ${p.academy ? 'checked' : ''}>🎓</label>
+            <label title="On loan at your club"><input type="checkbox" data-pfield="loanIn" ${p.loanIn ? 'checked' : ''}>🔁</label>
+            <label title="Loaned out to another club"><input type="checkbox" data-pfield="loanedOut" ${p.loanedOut ? 'checked' : ''}>✈️</label>
+          </span>
+          <button type="button" class="icon-btn" data-action="squad-del" title="Remove from the squad" aria-label="Remove ${esc(p.name)}">✕</button>
+        </div>`).join('');
+    return `
+      <div class="squad">
+        <div class="tools">
+          <button type="button" class="btn btn-small" data-action="squad-add">+ Add player</button>
+          <button type="button" class="btn btn-small" data-action="squad-paste">📋 Paste squad</button>
+          ${real ? `<button type="button" class="btn btn-small" data-action="squad-load">⬇️ Load ${esc(entry.challenge.club.name)} squad</button>` : ''}
+          <span class="muted squad-stats">${esc(squadStats(t))}</span>
+        </div>
+        <div class="paste-box" hidden>
+          <p class="muted">One player per line: <code>Name, Position, Age, Nationality, OVR, Wage</code>. Only the name is required, and the other values can come in any order. Copying a table from a ratings site works too.</p>
+          <textarea rows="6" data-paste placeholder="Bukayo Saka, RW, 24, English, 87&#10;Jamie Gittens LW 21 English 80"></textarea>
+          <label class="toggle"><input type="checkbox" data-paste-replace> Replace the current squad</label>
+          <div class="tools">
+            <button type="button" class="btn btn-small btn-primary" data-action="paste-import">Import</button>
+            <button type="button" class="btn btn-small" data-action="paste-cancel">Cancel</button>
+          </div>
+        </div>
+        ${t.players.length ? `<div class="phead" aria-hidden="true"><span>Name</span><span>Pos</span><span>Age</span><span>Nationality</span><span>OVR</span><span>€K/week</span><span>⭐ 🎓 🔁 ✈️</span><span></span></div>` : ''}
+        <div class="plist">${rows || '<p class="muted empty-note">No players yet. Add them one by one, or paste your whole squad.</p>'}</div>
+        <p class="muted legend">⭐ starting XI · 🎓 academy graduate · 🔁 on loan at your club · ✈️ loaned out</p>
+      </div>`;
+  }
+
+  function transferForm(entry, t, dir) {
+    const types = dir === 'out' ? OUT_TYPES : IN_TYPES;
+    const squadNames = t.players.map((p) => `<option value="${esc(p.name)}"></option>`).join('');
+    return `
+      <form class="tform" data-tform data-dir="${dir}" autocomplete="off">
+        <div class="seg">
+          <button type="button" class="${dir === 'in' ? 'is-on' : ''}" data-action="tr-dir" data-dir="in">⬇️ Signing</button>
+          <button type="button" class="${dir === 'out' ? 'is-on' : ''}" data-action="tr-dir" data-dir="out">⬆️ Departure</button>
+        </div>
+        <div class="tgrid">
+          <label class="f-wide"><span>Player</span><input name="name" type="text" maxlength="40" required ${dir === 'out' ? 'list="squad-names-' + esc(entry.id) + '"' : ''} placeholder="${dir === 'out' ? 'Pick from your squad' : 'Name'}"></label>
+          ${dir === 'out' ? `<datalist id="squad-names-${esc(entry.id)}">${squadNames}</datalist>` : ''}
+          <label><span>Type</span><select name="type">${opts(types)}</select></label>
+          <label><span>Fee €M</span><input name="fee" type="number" min="0" step="0.1" placeholder="0"></label>
+          <label class="f-wide"><span>${dir === 'out' ? 'To club' : 'From club'}</span><input name="club" type="text" maxlength="40"></label>
+          ${dir === 'in' ? `
+          <label><span>Pos</span><select name="pos"><option value=""></option>${opts(POSITIONS.map((x) => [x, x]))}</select></label>
+          <label><span>Age</span><input name="age" type="number" min="14" max="50"></label>
+          <label><span>Nationality</span><input name="nat" type="text" list="nat-list" maxlength="30"></label>
+          <label><span>OVR</span><input name="ovr" type="number" min="1" max="99"></label>
+          <label><span>Wage €K/w</span><input name="wage" type="number" min="0" step="0.1"></label>` : ''}
+          <label><span>Season</span><select name="season">${opts(Array.from({ length: Math.max(entry.challenge.seasons, t.season) }, (_, i) => [i + 1, `S${i + 1}`]), t.season)}</select></label>
+          <label><span>Window</span><select name="window">${opts([['summer', 'Summer'], ['winter', 'January']], t.window)}</select></label>
+        </div>
+        <button type="submit" class="btn btn-small btn-primary">${dir === 'out' ? 'Log departure' : 'Log signing'}</button>
+      </form>`;
+  }
+
+  function renderTransfers(entry, t) {
+    const groups = new Map();
+    t.transfers.forEach((x) => {
+      const key = `${x.season}-${x.window === 'winter' ? 2 : 1}`;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(x);
+    });
+    const list = Array.from(groups.keys()).sort((a, b) => b.localeCompare(a, undefined, { numeric: true })).map((key) => {
+      const items = groups.get(key);
+      const [season, w] = key.split('-');
+      const spent = items.filter((x) => x.dir === 'in').reduce((s, x) => s + (n(x.fee) || 0), 0);
+      const made = items.filter((x) => x.dir === 'out').reduce((s, x) => s + (n(x.fee) || 0), 0);
+      const net = made - spent;
+      return `
+        <div class="tgroup">
+          <div class="tgroup-head"><strong>Season ${season} · ${w === '2' ? 'January' : 'Summer'}</strong>
+            <span class="muted">in ${money(spent)} · out ${money(made)} · <span class="${net < 0 ? 'neg' : 'pos'}">net ${net < 0 ? '−' : '+'}${money(Math.abs(net))}</span></span></div>
+          ${items.map((x) => `
+          <div class="trow ${x.dir}" data-tid="${esc(x.id)}">
+            <span class="tdir">${x.dir === 'in' ? '⬇️' : '⬆️'}</span>
+            <span class="tmain"><strong>${esc(x.name)}</strong>
+              <small class="muted">${[x.pos, x.age ? `${x.age}y` : '', x.nat ? C.normNat(x.nat) : '', x.ovr ? `${x.ovr} OVR` : ''].filter(Boolean).map(esc).join(' · ')}</small></span>
+            <span class="tmeta">${esc(((x.dir === 'in' ? IN_TYPES : OUT_TYPES).find(([v]) => v === x.type) || ['', x.type])[1])}${x.club ? ` · ${x.dir === 'in' ? 'from' : 'to'} ${esc(x.club)}` : ''}${n(x.fee) ? ` · <strong>${money(n(x.fee))}</strong>` : ''}</span>
+            <button type="button" class="icon-btn" data-action="tr-del" title="Delete this log entry (your squad list isn't changed)" aria-label="Delete">✕</button>
+          </div>`).join('')}
+        </div>`;
+    }).join('');
+    return `
+      <div class="transfers">
+        ${transferForm(entry, t, 'in')}
+        <p class="muted legend">Logging a signing adds the player to your squad. A sale or release removes them; a loan out marks them ✈️.</p>
+        ${list || '<p class="muted empty-note">No transfers logged yet.</p>'}
+      </div>`;
+  }
+
+  function renderMoves(entry, t) {
+    const ch = entry.challenge;
+    const age = (s) => (Number(ch.startAge) || 17) + s - 1;
+    const rows = t.moves.slice().sort((a, b) => a.season - b.season).map((m) => `
+        <div class="trow" data-mid="${esc(m.id)}">
+          <span class="tdir">${m.type === 'loan' ? '🔁' : '✈️'}</span>
+          <span class="tmain"><strong>${esc(m.club || 'New club')}</strong><small class="muted">${esc(m.country || '')}</small></span>
+          <span class="tmeta">${esc((MOVE_TYPES.find(([v]) => v === m.type) || ['', m.type])[1])} · season ${Number(m.season)} (age ${age(Number(m.season))})</span>
+          <button type="button" class="icon-btn" data-action="mv-del" aria-label="Delete">✕</button>
+        </div>`).join('');
+    return `
+      <div class="transfers">
+        <form class="tform" data-mform autocomplete="off">
+          <div class="tgrid">
+            <label class="f-wide"><span>New club</span><input name="club" type="text" maxlength="40" required></label>
+            <label><span>Country</span><select name="country">${G.COUNTRIES.map((c) => `<option ${c.name === ch.club.country ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></label>
+            <label><span>Type</span><select name="type">${opts(MOVE_TYPES)}</select></label>
+            <label><span>Season</span><select name="season">${opts(Array.from({ length: Math.max(ch.seasons, t.season) }, (_, i) => [i + 1, `S${i + 1} (age ${age(i + 1)})`]), t.season)}</select></label>
+          </div>
+          <button type="submit" class="btn btn-small btn-primary">Log move</button>
+        </form>
+        <div class="trow start"><span class="tdir">🏁</span><span class="tmain"><strong>${esc(ch.club.name)}</strong><small class="muted">${esc(ch.club.country || '')}</small></span><span class="tmeta">Starting club · age ${age(1)}</span><span></span></div>
+        ${rows}
+      </div>`;
+  }
+
+  // ---------- Paste import ----------
+
+  const isNat = (s) => C.NATIONALITIES.includes(C.normNat(s));
+  const POS_SET = new Set(POSITIONS.concat(['LF', 'RF', 'DM', 'AM', 'FW', 'DF', 'MF', 'LCB', 'RCB']));
+
+  /** Turn pasted lines into players. Exposed for tests. */
+  function parseSquad(text) {
+    return String(text || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
+      const separated = line.includes(',') || line.includes('\t') || line.includes(';');
+      let tokens = separated ? line.split(/[,\t;]+/).map((x) => x.trim()).filter(Boolean) : line.split(/\s+/);
+      // Space-separated: join two-word nationalities ("South Korean", "Costa Rican") before reading tokens.
+      if (!separated) {
+        const merged = [];
+        for (let i = 0; i < tokens.length; i++) {
+          const pair = tokens[i + 1] ? `${tokens[i]} ${tokens[i + 1]}` : '';
+          if (pair && isNat(pair)) {
+            merged.push(pair);
+            i += 1;
+          } else merged.push(tokens[i]);
+        }
+        tokens = merged;
+      }
+      const p = { name: [], nums: [] };
+      tokens.forEach((tok) => {
+        const up = tok.toUpperCase();
+        if (/^€?\d+(\.\d+)?\s*[KM](\/W(EEK)?)?$/i.test(tok)) {
+          const v = parseFloat(tok.replace(/[^\d.]/g, ''));
+          p.wage = /M/i.test(tok) ? v * 1000 : v;
+        } else if (/^\d{1,2}$/.test(tok)) p.nums.push(Number(tok));
+        else if (POS_SET.has(up) && !p.pos) p.pos = { LF: 'LW', RF: 'RW', DM: 'CDM', AM: 'CAM', FW: 'ST', LCB: 'CB', RCB: 'CB' }[up] || (POSITIONS.includes(up) ? up : '');
+        else if (isNat(tok)) p.nat = p.nat || C.normNat(tok);
+        else if (!/^\d/.test(tok)) p.name.push(tok);
+      });
+      // Ratings are 40+, ages 15-45: with two numbers the larger is the rating.
+      const nums = p.nums.filter((x) => x >= 14 && x <= 99);
+      let age = null;
+      let ovr = null;
+      if (nums.length >= 2) {
+        const sorted = nums.slice(0, 2).sort((a, b) => a - b);
+        [age, ovr] = sorted[0] <= 45 ? sorted : [null, sorted[1]];
+      } else if (nums.length === 1) {
+        if (nums[0] > 45) ovr = nums[0];
+        else age = nums[0];
+      }
+      return {
+        id: uid(),
+        name: p.name.join(' ').slice(0, 40),
+        pos: p.pos || '',
+        age: age == null ? '' : age,
+        nat: p.nat || '',
+        ovr: ovr == null ? '' : ovr,
+        wage: p.wage == null ? '' : p.wage,
+      };
+    }).filter((p) => p.name);
+  }
+
+  // ---------- Events ----------
+
+  function refreshAll(item, entry) {
+    deps.refresh(item, entry);
+  }
+
+  function rerenderPanel(item, entry, panel) {
+    const t = trackerOf(entry);
+    const el = item.querySelector(`[data-panel="${panel}"]`);
+    if (!el) return;
+    if (panel === 'squad') el.innerHTML = renderSquad(entry, t);
+    if (panel === 'transfers') el.innerHTML = renderTransfers(entry, t);
+    if (panel === 'moves') el.innerHTML = renderMoves(entry, t);
+  }
+
+  function updateCounts(item, entry) {
+    const t = trackerOf(entry);
+    const set = (tab, value) => {
+      const c = item.querySelector(`.ttab[data-tab="${tab}"] .count`);
+      if (c) c.textContent = value;
+    };
+    set('squad', t.players.filter((p) => !p.loanedOut).length);
+    set('transfers', t.transfers.length);
+    set('moves', t.moves.length);
+    const stats = item.querySelector('.squad-stats');
+    if (stats) stats.textContent = squadStats(t);
+  }
+
+  // Save a tracker change, then refresh rule checks and counts around it.
+  function change(item, fn, panels) {
+    const entry = deps.mutateEntry(item.dataset.id, (e) => {
+      e.tracker = C.normalizeTracker(e.tracker);
+      fn(e.tracker, e);
+    });
+    if (!entry) return null;
+    (panels || []).forEach((p) => rerenderPanel(item, entry, p));
+    updateCounts(item, entry);
+    refreshAll(item, entry);
+    return entry;
+  }
+
+  function onClick(e, item) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return false;
+    const { action } = btn.dataset;
+    const id = item.dataset.id;
+    if (action === 'ttab') {
+      tabs[id] = btn.dataset.tab;
+      item.querySelectorAll('.ttab').forEach((b) => {
+        const on = b.dataset.tab === btn.dataset.tab;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-selected', String(on));
+      });
+      item.querySelectorAll('.tpanel').forEach((p) => { p.hidden = p.dataset.panel !== btn.dataset.tab; });
+      return true;
+    }
+    if (action === 'squad-add') {
+      change(item, (t) => t.players.push({ id: uid(), name: '' }), ['squad']);
+      const inputs = item.querySelectorAll('.p-name');
+      if (inputs.length) inputs[inputs.length - 1].focus();
+      return true;
+    }
+    if (action === 'squad-del') {
+      const pid = btn.closest('[data-pid]').dataset.pid;
+      change(item, (t) => { t.players = t.players.filter((p) => p.id !== pid); }, ['squad']);
+      return true;
+    }
+    if (action === 'squad-paste' || action === 'paste-cancel') {
+      const box = item.querySelector('.paste-box');
+      box.hidden = action === 'paste-cancel' ? true : !box.hidden;
+      if (!box.hidden) box.querySelector('textarea').focus();
+      return true;
+    }
+    if (action === 'paste-import') {
+      const box = item.querySelector('.paste-box');
+      const players = parseSquad(box.querySelector('[data-paste]').value);
+      if (!players.length) {
+        deps.toast('Nothing to import: put one player per line');
+        return true;
+      }
+      const replace = box.querySelector('[data-paste-replace]').checked;
+      change(item, (t) => { t.players = (replace ? [] : t.players).concat(players); }, ['squad']);
+      deps.toast(`Imported ${players.length} player${players.length === 1 ? '' : 's'}`);
+      return true;
+    }
+    if (action === 'squad-load') {
+      const real = (FC26.squads || {})[item.dataset.club];
+      if (!real) return true;
+      const t0 = trackerOf(deps.findEntry(id));
+      if (t0.players.length && !root.confirm('Replace your current squad list with the real squad?')) return true;
+      change(item, (t) => { t.players = real.players.map((p) => Object.assign({ id: uid() }, p)); }, ['squad']);
+      deps.toast(`Loaded ${real.players.length} players`);
+      return true;
+    }
+    if (action === 'tr-dir') {
+      const entry = deps.findEntry(id);
+      btn.closest('[data-tform]').outerHTML = transferForm(entry, trackerOf(entry), btn.dataset.dir);
+      return true;
+    }
+    if (action === 'tr-del') {
+      const tid = btn.closest('[data-tid]').dataset.tid;
+      change(item, (t) => { t.transfers = t.transfers.filter((x) => x.id !== tid); }, ['transfers']);
+      return true;
+    }
+    if (action === 'mv-del') {
+      const mid = btn.closest('[data-mid]').dataset.mid;
+      change(item, (t) => { t.moves = t.moves.filter((x) => x.id !== mid); }, ['moves']);
+      return true;
+    }
+    return false;
+  }
+
+  function onSubmit(e, item) {
+    const form = e.target;
+    if (form.matches('[data-tform]')) {
+      e.preventDefault();
+      const f = Object.fromEntries(new FormData(form).entries());
+      const dir = form.dataset.dir;
+      const name = String(f.name || '').trim().slice(0, 40);
+      if (!name) return true;
+      change(item, (t) => {
+        const squadPlayer = t.players.find((p) => p.name.trim().toLowerCase() === name.toLowerCase());
+        const rec = {
+          id: uid(), dir, type: f.type, name, season: Number(f.season) || t.season, window: f.window === 'winter' ? 'winter' : 'summer',
+          fee: n(f.fee) || 0, club: String(f.club || '').trim().slice(0, 40),
+        };
+        if (dir === 'in') {
+          Object.assign(rec, { pos: f.pos || '', age: n(f.age) || '', nat: C.normNat(String(f.nat || '').trim()), ovr: n(f.ovr) || '' });
+          t.transfers.push(rec);
+          t.players.push({
+            id: uid(), name, pos: rec.pos, age: rec.age, nat: rec.nat, ovr: rec.ovr, wage: n(f.wage) || '',
+            academy: rec.type === 'promotion', loanIn: rec.type === 'loan',
+          });
+        } else {
+          // Snapshot the player's details at the time they left.
+          if (squadPlayer) Object.assign(rec, { pos: squadPlayer.pos, age: squadPlayer.age, nat: squadPlayer.nat, ovr: squadPlayer.ovr });
+          t.transfers.push(rec);
+          if (squadPlayer) {
+            if (rec.type === 'loan') squadPlayer.loanedOut = true;
+            else t.players = t.players.filter((p) => p !== squadPlayer);
+          }
+        }
+      }, ['transfers', 'squad']);
+      deps.toast(dir === 'in' ? `Signed ${name} ⬇️` : `${name} left ⬆️`);
+      return true;
+    }
+    if (form.matches('[data-mform]')) {
+      e.preventDefault();
+      const f = Object.fromEntries(new FormData(form).entries());
+      const club = String(f.club || '').trim().slice(0, 40);
+      if (!club) return true;
+      change(item, (t) => t.moves.push({ id: uid(), season: Number(f.season) || t.season, type: f.type, club, country: f.country }), ['moves']);
+      return true;
+    }
+    return false;
+  }
+
+  function onChange(e, item) {
+    const el = e.target;
+    if (el.dataset.tracker) {
+      change(item, (t) => {
+        if (el.dataset.tracker === 'season') t.season = Number(el.value) || 1;
+        else t.window = el.value === 'winter' ? 'winter' : 'summer';
+      }, []);
+      // Forms default to "now".
+      item.querySelectorAll('[data-tform] select[name=season], [data-mform] select[name=season]').forEach((s) => { if (el.dataset.tracker === 'season') s.value = el.value; });
+      item.querySelectorAll('[data-tform] select[name=window]').forEach((s) => { if (el.dataset.tracker === 'window') s.value = el.value; });
+      return true;
+    }
+    if (el.dataset.pfield) {
+      const pid = el.closest('[data-pid]').dataset.pid;
+      const field = el.dataset.pfield;
+      let value = el.type === 'checkbox' ? el.checked : el.value.trim().slice(0, 40);
+      if (el.type === 'number') value = n(value) == null ? '' : n(value);
+      if (field === 'nat') {
+        value = C.normNat(value);
+        el.value = value;
+      }
+      change(item, (t) => {
+        const p = t.players.find((x) => x.id === pid);
+        if (p) p[field] = value;
+      }, []);
+      if (field === 'loanedOut') el.closest('.prow').classList.toggle('is-out', el.checked);
+      return true;
+    }
+    return false;
+  }
+
+  FC26.trackerUI = { init, renderTracker, onClick, onChange, onSubmit, parseSquad, POSITIONS };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
   <script>/* js/share-image.js */
 /*
  * Draws a challenge as a tall PNG card for posting on Reddit, Discord,
@@ -4451,7 +5567,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 /* UI for the FC 26 Career Challenge Builder. */
 (function () {
   'use strict';
-  const { data, modes, generator: G, daily: Daily, shareImage } = window.FC26;
+  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker } = window.FC26;
 
   const STORE_KEY = 'fc26-challenges-v1';
   const OPTIONS_KEY = 'fc26-options-v1';
@@ -4740,6 +5856,25 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     return '★'.repeat(tier) + '<span class="star-off">' + '★'.repeat(5 - tier) + '</span>';
   }
 
+  const CHECK_ICON = { ok: '✅', broken: '❌', warn: '⚠️', manual: '✋' };
+
+  function ruleCheckSummary(checks, entry) {
+    const t = Compliance.tally(checks);
+    const tr = Compliance.normalizeTracker(entry.tracker);
+    const empty = !tr.players.length && !tr.transfers.length && !tr.moves.length;
+    const where = entry.challenge.mode === 'player' ? 'Career moves' : 'Squad and Transfers';
+    return `
+        <div class="check-summary">
+          <span class="check-pills">
+            <span title="Kept">✅ ${t.ok}</span><span title="Broken">❌ ${t.broken}</span>
+            <span title="Needs attention or more data">⚠️ ${t.warn}</span><span title="Can't be checked automatically: check yourself">✋ ${t.manual}</span>
+          </span>
+          <span class="muted">${empty
+    ? `Fill in the ${where} tabs and the rules check themselves.`
+    : `Checked against your ${where.toLowerCase()} for season ${tr.season}. ✋ = check yourself.`}</span>
+        </div>`;
+  }
+
   /**
    * Render a challenge card.
    * mode 'builder' shows lock/reroll controls (not for edited challenges),
@@ -4752,17 +5887,26 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     const progress = (entry && entry.progress) || {};
     const log = (entry && entry.log) || {};
     const L = state.locks;
+    // Saved challenges: check each rule against the tracked squad and transfers.
+    const checks = mode === 'saved' ? Compliance.checkChallenge(ch, entry.tracker) : null;
+    const ruleCheck = (i) => {
+      const r = checks && checks[i];
+      if (!r) return '';
+      const more = r.details.length > 4 ? ` · +${r.details.length - 4} more` : '';
+      return `<small class="rule-check s-${r.status}"><span>${CHECK_ICON[r.status]} ${esc(r.summary)}</span>${r.details.length ? `<span class="rule-details">${r.details.slice(0, 4).map(esc).join(' · ')}${more}</span>` : ''}</small>`;
+    };
+    const ruleClass = (i) => (checks && checks[i] ? ` s-${checks[i].status}` : '');
 
     const check = (key) => (mode === 'saved'
       ? `<input type="checkbox" class="obj-check" data-action="toggle" data-key="${esc(key)}" ${progress[key] ? 'checked' : ''} aria-label="Mark done">`
       : '');
 
-    const rulesHtml = ch.coreRules.map((r) => `
-        <li class="rule core"><span class="rule-tag">Core</span><span class="rule-text">${esc(r.text)}</span></li>`).join('')
+    const rulesHtml = ch.coreRules.map((r, i) => `
+        <li class="rule core${ruleClass(i)}"><span class="rule-tag">Core</span><span class="rule-text">${esc(r.text)}${ruleCheck(i)}</span></li>`).join('')
       + ch.rules.map((r, i) => `
-        <li class="rule ${controls && L.rules.has(r.id) ? 'is-locked' : ''}">
+        <li class="rule ${controls && L.rules.has(r.id) ? 'is-locked' : ''}${ruleClass(ch.coreRules.length + i)}">
           <span class="rule-tag cat-${esc(r.cat.toLowerCase())}">${esc(r.cat)}</span>
-          <span class="rule-text">${esc(r.text)}</span>
+          <span class="rule-text">${esc(r.text)}${ruleCheck(ch.coreRules.length + i)}</span>
           ${controls ? `<span class="rule-actions">
             <button type="button" class="icon-btn" data-action="reroll-rule" data-index="${i}" title="Swap this rule">🔄</button>
             ${lockBtn('rule', L.rules.has(r.id), r.id)}
@@ -4832,6 +5976,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 
       <section class="block">
         <h3>📜 Rules</h3>
+        ${checks ? ruleCheckSummary(checks, entry) : ''}
         <ul class="rules">${rulesHtml}</ul>
       </section>
 
@@ -4913,6 +6058,8 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       if (bits.length) lines.push(`Season ${s.season}: ${bits.join(' · ')}`);
     });
     lines.push(`Score: ${scoreFor(entry.challenge, entry)} points (${currentSeason(entry)})`);
+    const t = Compliance.tally(Compliance.checkChallenge(entry.challenge, entry.tracker));
+    lines.push(`Rule check: ✅ ${t.ok} kept · ❌ ${t.broken} broken · ⚠️ ${t.warn} to watch · ✋ ${t.manual} self-checked`);
     return lines.join('\n');
   }
 
@@ -5169,6 +6316,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       e.log[1] = Object.assign({}, e.log[1], { trophies: (Number((e.log[1] || {}).trophies) || 0) + e.trophies });
     }
     delete e.trophies;
+    e.tracker = Compliance.normalizeTracker(e.tracker);
     return e;
   }
 
@@ -5198,9 +6346,9 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       const { done, total } = progressOf(entry);
       const pct = Math.round((done / total) * 100);
       return `
-      <details class="saved-item panel" data-id="${esc(entry.id)}" ${entry.id === openId ? 'open' : ''}>
+      <details class="saved-item panel" data-id="${esc(entry.id)}" data-club="${esc(ch.club.name)}" ${entry.id === openId ? 'open' : ''}>
         <summary>${savedSummary(entry)}</summary>
-        <div class="saved-body">${renderCard(ch, 'saved', entry)}</div>
+        <div class="saved-body">${Tracker.renderTracker(entry, renderCard(ch, 'saved', entry))}</div>
       </details>`;
     }).join('');
   }
@@ -5209,7 +6357,9 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     const ch = entry.challenge;
     const { done, total } = progressOf(entry);
     const pct = Math.round((done / total) * 100);
+    const broken = Compliance.tally(Compliance.checkChallenge(ch, entry.tracker)).broken;
     const tags = [
+      broken ? `<span class="neg">❌ ${broken} rule${broken === 1 ? '' : 's'} broken</span>` : '',
       ch.daily ? `📅 Daily #${Number(ch.daily.number) || ''}` : '',
       ch.mode === 'player' ? '⚽ Player' : '',
       ch.custom ? '✍️ Custom' : '',
@@ -5228,8 +6378,30 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
           </span>`;
   }
 
+  function findEntry(id) {
+    return loadSaved().find((x) => x.id === id) || null;
+  }
+
+  function mutateEntry(id, fn) {
+    const list = loadSaved();
+    const entry = list.find((x) => x.id === id);
+    if (!entry) return null;
+    fn(entry);
+    writeSaved(list);
+    return entry;
+  }
+
+  // After a tracker change: re-check the rules (Challenge tab) and the summary row, leaving the edited panel alone.
+  function refreshSavedItem(item, entry) {
+    const panel = $('[data-panel="challenge"]', item);
+    if (panel) panel.innerHTML = renderCard(entry.challenge, 'saved', entry);
+    $('summary', item).innerHTML = savedSummary(entry);
+  }
+
   // Diary text fields save without re-rendering, so typing isn't interrupted.
   function onSavedChange(e) {
+    const tItem = e.target.closest('.saved-item');
+    if (tItem && Tracker.onChange(e, tItem)) return;
     const input = e.target.closest('[data-log]');
     const item = input && input.closest('.saved-item');
     if (!item) return;
@@ -5469,6 +6641,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     if (!btn) return;
     const item = btn.closest('.saved-item');
     if (!item) return;
+    if (Tracker.onClick(e, item)) return;
     const { id } = item.dataset;
     const entry = loadSaved().find((x) => x.id === id);
     if (!entry) return;
@@ -5544,6 +6717,13 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     $('#result').addEventListener('input', onEditorInput);
     $('#result').addEventListener('change', onEditorInput);
     $('#saved-list').addEventListener('change', onSavedChange);
+    $('#saved-list').addEventListener('submit', (e) => {
+      const item = e.target.closest('.saved-item');
+      if (item) Tracker.onSubmit(e, item);
+    });
+    Tracker.init({ esc, toast, mutateEntry, findEntry, refresh: refreshSavedItem });
+    const natList = $('#nat-list');
+    Compliance.NATIONALITIES.forEach((nat) => natList.appendChild(new Option(nat)));
     $('#options').addEventListener('submit', (e) => {
       e.preventDefault();
       const seed = $('#opt-seed').value.trim();
