@@ -32,7 +32,7 @@
       ],
     },
     {
-      id: 'eng3', name: 'EFL League One', country: 'England', nationality: 'English', level: 3, cup: 'FA Cup',
+      id: 'eng3', name: 'EFL League One', noArticle: true, country: 'England', nationality: 'English', level: 3, cup: 'FA Cup',
       clubs: [
         ['Luton Town', 1], ['Plymouth Argyle', 1], ['Cardiff City', 1], ['Wigan Athletic', 1],
         ['Bolton Wanderers', 1], ['Huddersfield Town', 1], ['Stockport County', 1], ['Barnsley', 1],
@@ -43,7 +43,7 @@
       ],
     },
     {
-      id: 'eng4', name: 'EFL League Two', country: 'England', nationality: 'English', level: 4, cup: 'FA Cup',
+      id: 'eng4', name: 'EFL League Two', noArticle: true, country: 'England', nationality: 'English', level: 4, cup: 'FA Cup',
       clubs: [
         ['Bristol Rovers', 1], ['Shrewsbury Town', 1], ['Crawley Town', 1], ['Cambridge United', 1],
         ['MK Dons', 1], ['Notts County', 1], ['Chesterfield', 1], ['Walsall', 1], ['Grimsby Town', 1],

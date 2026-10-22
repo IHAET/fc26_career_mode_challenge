@@ -4,17 +4,20 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 
 ## Features
 
-- **14 challenge types**: Road to Glory, Youth Revolution, Moneyball, Fallen Giant, Homegrown Heroes, Loan Army, Journeyman, Galácticos, Underdog in Europe, One Nation, Dad's Army, Wonderkid Factory, Pure Chaos and Club Heritage.
+- **Two game modes**: Manager Career and **Player Career**. Player Career has nine challenge types (One-Club Legend, Wonderkid, Hometown Hero, The Dream Move, Globetrotter, Last Line, Goal Machine, Goalscoring Defender, Wildcard Career), plus a position picker, age-based season milestones and its own rules and events.
+- **14 Manager challenge types**: Road to Glory, Youth Revolution, Moneyball, Fallen Giant, Homegrown Heroes, Loan Army, Journeyman, Galácticos, Underdog in Europe, One Nation, Dad's Army, Wonderkid Factory, Pure Chaos and Club Heritage.
 - **Club Heritage**: hand-written challenges for 133 clubs, based on their real history, from giants to League Two. Examples: Athletic Club's Basque-only *La Cantera*, Celtic's all-Scottish *Lisbon Lions*, Ipswich's *Ramsey's Miracle* (up and champions at the first attempt), Notts County, whose stripes Juventus copied, Kaiserslautern's *Rehhagel Miracle*, Bodø/Glimt's *Arctic Miracle* and Bournemouth's *Minus 17*. Clubs that have one are marked 🏛️ in the club picker.
 - **416 clubs** from 22 leagues (2025/26 season): Premier League down to League Two; the top two divisions in Spain, Italy, Germany and France; plus the Netherlands, Portugal, Scotland, Belgium, Türkiye, Norway, Denmark, Austria, MLS and the Saudi league.
-- **Pick a specific club** or filter by league and club size.
+- **Pick a specific club** or filter by league and club size. **Other club…** lets you type in any club in FC 26: set its country, division and size, and every challenge type adapts to it.
 - **4 difficulties** (Casual → Legendary) that scale fee caps, wage caps, rating limits, number of rules, season targets, events and fail conditions to the club's size and division.
 - **Daily challenge**: everyone gets the same challenge each day, seeded by the date and changing at local midnight. It shows a check-in streak (🔥 days in a row), the last 7 days, a countdown to the next one, and past days. *Take it on* saves it to My Challenges. *Customise* opens it in the Builder with everything locked, so you can unlock and reroll parts. Link straight to it with `#daily`.
 - **Lock & reroll**: lock the club, challenge type, length, difficulty or any rule, then reroll everything else. You can also swap a single rule.
 - **Seeds**: the same seed and options always give the same challenge.
 - **Share links**: a short URL rebuilds the exact challenge, including locks and swapped rules.
+- **Edit anything**: ✏️ Edit any challenge (rules, objectives, seasons, final goal, club, story), or ✍️ **Write your own** from scratch. Edited challenges share as a link that carries the whole challenge, compressed.
+- **Export as an image**: 🖼️ Image draws the challenge as a tall PNG card to post on Reddit, Discord or Instagram. On phones it opens the share sheet.
 - **Copy as text** for Reddit or Discord.
-- **My Challenges**: save challenges in your browser, tick off objectives and track your score (trophies and rule breaks).
+- **My Challenges**: save challenges in your browser and tick off objectives. The **season diary** logs each season's finish, trophies and notes, and the score and "Season X of N" update as you go. Copy text includes your progress.
 
 ## Run it
 
@@ -59,6 +62,8 @@ npm test         # node --test (Node 18+)
 | `js/data.js` | Leagues, clubs (with a 1–5 size tier), nations, formations |
 | `js/heritage/*.js` | Club Heritage challenges by region (England, Spain, Italy, Germany, France, rest of Europe, rest of the world) |
 | `js/rules.js` | Challenge types, the extra-rule pool, side objectives, season events |
+| `js/player.js` | Player Career mode: challenge types, rules, positions, career milestones |
+| `js/share-image.js` | Draws a challenge as a PNG card (canvas, no dependencies) |
 | `js/daily.js` | Daily challenge: date-based seed, numbering and streaks |
 | `js/generator.js` | Seeded generator (no DOM, runs in Node too), share keys, text export |
 | `js/app.js` | UI: options form, challenge card, locks, saving, sharing |

@@ -47,7 +47,7 @@ body {
   flex-direction: column;
 }
 
-button, input, select { font: inherit; color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
 
 [hidden] { display: none !important; }
 
@@ -162,6 +162,12 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
 
 .hint { margin: 0; color: var(--muted); font-size: 0.82rem; text-align: center; }
 
+.custom-club {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 12px; border-radius: 12px; background: var(--bg-2); border: 1px dashed var(--line);
+}
+.custom-club select, .custom-club input[type="text"] { background: var(--panel); }
+
 /* ---------- Buttons ---------- */
 
 .btn {
@@ -179,6 +185,7 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
 .btn-primary:hover { background: #3af0a1; }
 .btn-danger { color: var(--danger); }
 .btn-big { padding: 14px; font-size: 1.05rem; }
+.btn-small { padding: 6px 10px; font-size: 0.85rem; }
 
 .icon-btn {
   border: 1px solid transparent;
@@ -309,6 +316,8 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
   width: 2px;
   background: var(--line);
 }
+.season-num { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: none; }
+.season-num small { color: var(--muted); font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
 .season-num span {
   width: 44px;
   height: 44px;
@@ -378,6 +387,55 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 .week .day.is-done { background: var(--warn); border-color: var(--warn); color: #0b0f14; }
 .week .day.is-today { outline: 2px solid var(--accent); outline-offset: 1px; }
 .footer a { color: var(--accent); }
+
+/* ---------- Season diary ---------- */
+
+.diary {
+  display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: flex-end;
+  margin-top: 4px; padding: 10px 12px; border-radius: 10px;
+  background: var(--bg-2); border: 1px solid var(--line);
+}
+.diary-field { display: flex; flex-direction: column; gap: 4px; font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+.diary-field.grow { flex: 1 1 200px; }
+.diary-field input { width: 100%; min-width: 90px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); }
+.diary-field:first-child input { width: 110px; }
+.stepper { display: flex; align-items: center; gap: 6px; height: 32px; }
+.stepper strong { min-width: 2ch; text-align: center; color: var(--text); font-size: 1rem; }
+.stepper .icon-btn { opacity: 1; border-color: var(--line); width: 28px; }
+.counter small { margin-left: 8px; font-size: 0.75rem; }
+
+/* ---------- Editor ---------- */
+
+.editor-head h2 { margin: 0 0 4px; }
+.editor-head p { margin: 0; }
+.edit-grid { display: grid; grid-template-columns: 1fr 90px; gap: 12px; margin-top: 18px; }
+.edit-grid .edit-field.wide, .edit-grid .edit-field:nth-child(n+3) { grid-column: 1 / -1; }
+@media (min-width: 700px) {
+  .edit-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .edit-grid .edit-field { grid-column: span 2; }
+  .edit-grid .edit-field:nth-child(n+3) { grid-column: span 2; }
+  .edit-grid .icon-field { grid-column: span 1; }
+  .edit-grid .edit-field:first-child { grid-column: span 3; }
+  .edit-grid .edit-field.wide { grid-column: 1 / -1; }
+}
+.edit-field { display: flex; flex-direction: column; gap: 6px; font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+.edit-field small { font-weight: 400; }
+.editor input, .editor textarea, .editor select {
+  width: 100%; background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px;
+  padding: 9px 11px; font-size: 0.95rem; resize: vertical;
+}
+.editor textarea { min-height: 42px; line-height: 1.4; overflow: hidden; }
+.edit-block { margin-top: 22px; display: flex; flex-direction: column; gap: 8px; }
+.edit-block h3 { margin: 0 0 4px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.edit-block > .btn-small { align-self: flex-start; }
+.edit-row { display: flex; gap: 6px; align-items: flex-start; }
+.edit-row textarea { flex: 1; }
+.edit-row .icon-btn { margin-top: 6px; }
+.event-row .obj-icon { margin-top: 9px; color: var(--warn); }
+.event-row textarea { border-color: rgba(255, 201, 77, 0.35); }
+.edit-season { padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.015); display: flex; flex-direction: column; gap: 8px; }
+.edit-season-head { display: flex; gap: 8px; align-items: baseline; }
+.edit-inline { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* ---------- Saved ---------- */
 
@@ -461,6 +519,14 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
         <h2>Options</h2>
 
         <fieldset>
+          <legend>Game mode</legend>
+          <div class="segmented">
+            <label><input type="radio" name="mode" value="manager" checked><span>🧑‍💼 Manager Career</span></label>
+            <label><input type="radio" name="mode" value="player"><span>⚽ Player Career</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
           <legend>Difficulty</legend>
           <div class="segmented" id="difficulty">
             <label><input type="radio" name="difficulty" value="random" checked><span>🎲 Any</span></label>
@@ -476,10 +542,56 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
           <select name="archetype" id="opt-archetype"><option value="any">🎲 Surprise me</option></select>
         </label>
 
+        <label class="field" data-mode-only="player" hidden>
+          <span>Position</span>
+          <select name="position" id="opt-position"><option value="any">🎲 Any position</option></select>
+        </label>
+
         <label class="field">
           <span>Club <small>(🏛️ = has a heritage challenge)</small></span>
-          <select name="club" id="opt-club"><option value="any">Any club</option></select>
+          <select name="club" id="opt-club">
+            <option value="any">Any club</option>
+            <option value="__custom">✍️ Other club (type it in)…</option>
+          </select>
         </label>
+
+        <div class="custom-club" id="custom-club" hidden>
+          <label class="field">
+            <span>Club name</span>
+            <input type="text" name="ccName" maxlength="40" placeholder="e.g. Dulwich Hamlet" spellcheck="false">
+          </label>
+          <div class="field-row">
+            <label class="field">
+              <span>Country</span>
+              <select name="ccCountry" id="cc-country"></select>
+            </label>
+            <label class="field">
+              <span>Division</span>
+              <select name="ccLevel">
+                <option value="1">Top flight</option>
+                <option value="2">2nd tier</option>
+                <option value="3">3rd tier</option>
+                <option value="4">4th tier</option>
+              </select>
+            </label>
+          </div>
+          <div class="field-row">
+            <label class="field">
+              <span>Club size</span>
+              <select name="ccTier">
+                <option value="5">Giant</option>
+                <option value="4">Strong</option>
+                <option value="3">Mid-table</option>
+                <option value="2" selected>Underdog</option>
+                <option value="1">Minnow</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>League <small>(optional)</small></span>
+              <input type="text" name="ccLeague" maxlength="40" placeholder="e.g. Brasileirão">
+            </label>
+          </div>
+        </div>
 
         <div class="field-row" id="club-filters">
           <label class="field">
@@ -521,6 +633,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
         </label>
 
         <button type="submit" class="btn btn-primary btn-big">⚽ Generate challenge</button>
+        <button type="button" class="btn" id="write-own">✍️ Write your own</button>
         <p class="hint">Lock 🔒 the parts you like, then hit <strong>Reroll</strong> to change the rest.</p>
       </form>
 
@@ -588,7 +701,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       ],
     },
     {
-      id: 'eng3', name: 'EFL League One', country: 'England', nationality: 'English', level: 3, cup: 'FA Cup',
+      id: 'eng3', name: 'EFL League One', noArticle: true, country: 'England', nationality: 'English', level: 3, cup: 'FA Cup',
       clubs: [
         ['Luton Town', 1], ['Plymouth Argyle', 1], ['Cardiff City', 1], ['Wigan Athletic', 1],
         ['Bolton Wanderers', 1], ['Huddersfield Town', 1], ['Stockport County', 1], ['Barnsley', 1],
@@ -599,7 +712,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       ],
     },
     {
-      id: 'eng4', name: 'EFL League Two', country: 'England', nationality: 'English', level: 4, cup: 'FA Cup',
+      id: 'eng4', name: 'EFL League Two', noArticle: true, country: 'England', nationality: 'English', level: 4, cup: 'FA Cup',
       clubs: [
         ['Bristol Rovers', 1], ['Shrewsbury Town', 1], ['Crawley Town', 1], ['Cambridge United', 1],
         ['MK Dons', 1], ['Notts County', 1], ['Chesterfield', 1], ['Walsall', 1], ['Grimsby Town', 1],
@@ -2904,6 +3017,11 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
  * Every random choice draws from its own RNG stream derived from the seed
  * (e.g. "AB12CD:club"), so locking one part of a challenge and rerolling
  * the rest keeps the locked part stable and the result reproducible.
+ *
+ * The generator is shared by game modes (FC26.modes): Manager Career is
+ * defined here, Player Career in player.js. A mode supplies its own
+ * archetypes, rules, roadmap and scoring; club picking, rules and locks
+ * are common.
  */
 (function (root) {
   'use strict';
@@ -3001,6 +3119,66 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     return CLUBS.find((c) => c.name === name && (!leagueId || c.leagueId === leagueId)) || null;
   }
 
+  // ---------- Custom clubs ----------
+
+  // Countries a custom club can come from, with their nationality adjective.
+  const COUNTRIES = (() => {
+    const map = new Map(data.leagues.map((l) => [l.country, l.nationality]));
+    data.nations.forEach((n) => { if (!map.has(n.name)) map.set(n.name, n.adj); });
+    return Array.from(map, ([name, adj]) => ({ name, adj })).sort((a, b) => a.name.localeCompare(b.name));
+  })();
+
+  function normalizeCustomClub(cc) {
+    if (!cc || typeof cc !== 'object') return null;
+    const name = String(cc.name || '').replace(/\s+/g, ' ').trim().slice(0, 40);
+    const country = COUNTRIES.find((c) => c.name === cc.country);
+    if (!name || !country) return null;
+    return {
+      name,
+      country: country.name,
+      level: Math.min(4, Math.max(1, Math.round(Number(cc.level)) || 1)),
+      tier: Math.min(5, Math.max(1, Math.round(Number(cc.tier)) || 3)),
+      league: String(cc.league || '').replace(/\s+/g, ' ').trim().slice(0, 40),
+    };
+  }
+
+  /**
+   * A club the user typed in. It slots into a real league when one exists
+   * for that country and division (e.g. an English fourth-tier club goes in
+   * League Two); otherwise it gets a stand-in league.
+   */
+  function buildCustomClub(cc) {
+    const known = leagueAt(cc.country, cc.level);
+    const country = COUNTRIES.find((c) => c.name === cc.country);
+    const fallbackName = cc.level === 1 ? 'top flight' : ['', '', 'second division', 'third division', 'fourth division'][cc.level];
+    return {
+      name: cc.name,
+      tier: cc.tier,
+      leagueId: known ? known.id : 'custom',
+      league: known ? known.name : (cc.league || fallbackName),
+      country: cc.country,
+      nationality: country ? country.adj : 'local',
+      level: cc.level,
+      continental: known ? known.continental || null : null,
+      custom: true,
+    };
+  }
+
+  // The league object for a club, including stand-ins for custom clubs.
+  function leagueOf(club) {
+    return leagueById[club.leagueId] || { id: 'custom', name: club.league, level: club.level, cup: 'domestic cup' };
+  }
+
+  function topLeagueOf(club) {
+    return leagueAt(club.country, 1) || (club.level === 1 ? leagueOf(club) : { id: 'custom-top', name: 'top flight', level: 1 });
+  }
+
+  /** The club behind a generated challenge, custom or not. */
+  function clubOf(ch) {
+    const custom = ch.options && normalizeCustomClub(ch.options.customClub);
+    return custom ? buildCustomClub(custom) : findClub(ch.club.name, ch.club.leagueId);
+  }
+
   // ---------- Scaling helpers ----------
 
   // Rough budget in €M by club tier, scaled down for lower divisions.
@@ -3018,8 +3196,8 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
   }
 
   function makeContext({ club, d, seasons, archetype, nation, formation }) {
-    const topLeague = leagueAt(club.country, 1) || leagueById[club.leagueId];
-    const league = leagueById[club.leagueId];
+    const topLeague = topLeagueOf(club);
+    const league = leagueOf(club);
     const byD = (arr) => arr[d - 1];
     const budget = TIER_BUDGET[club.tier] * (LEVEL_FACTOR[club.level] || 1);
     return {
@@ -3052,6 +3230,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
   // ---------- Options ----------
 
   const DEFAULT_OPTIONS = {
+    mode: 'manager', // key of FC26.modes
     difficulty: 'random', // 1-4 or 'random'
     archetype: 'any',
     club: 'any', // "leagueId|Club name"
@@ -3060,12 +3239,18 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     seasons: 'auto',
     ruleCount: 'auto',
     events: true,
+    customClub: null, // { name, country, level, tier, league }
+    position: 'any', // Player Career only
   };
+
+  const modeOf = (mode) => FC26.modes[mode] || FC26.modes.manager;
 
   function normalizeOptions(options) {
     const o = Object.assign({}, DEFAULT_OPTIONS, options || {});
+    if (!FC26.modes[o.mode]) o.mode = 'manager';
+    const mode = modeOf(o.mode);
     if (o.difficulty !== 'random') o.difficulty = Math.min(4, Math.max(1, Number(o.difficulty) || 2));
-    if (o.archetype !== 'any' && !archetypeById[o.archetype]) o.archetype = 'any';
+    if (o.archetype !== 'any' && !mode.archetypeById[o.archetype]) o.archetype = 'any';
     if (o.league !== 'any' && !leagueById[o.league]) o.league = 'any';
     if (o.club !== 'any') {
       const [leagueId, ...rest] = String(o.club).split('|');
@@ -3075,6 +3260,8 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     if (o.seasons !== 'auto') o.seasons = Math.min(15, Math.max(1, Number(o.seasons) || 5));
     if (o.ruleCount !== 'auto') o.ruleCount = Math.min(8, Math.max(0, Number(o.ruleCount) || 0));
     o.events = o.events !== false;
+    o.customClub = normalizeCustomClub(o.customClub);
+    if (mode.normalizeOptions) mode.normalizeOptions(o);
     return o;
   }
 
@@ -3178,6 +3365,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
   function eligibleRule(def, ctx, blocked, used) {
     return !used.has(def.id)
       && (!def.minD || ctx.d >= def.minD)
+      && (!def.when || def.when(ctx))
       && !def.tags.some((t) => blocked.has(t));
   }
 
@@ -3185,7 +3373,8 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     return { id: def.id, cat: def.cat, text: def.text(withRng(ctx, createRng(`${seed}:rule:${def.id}`))) };
   }
 
-  function pickRules(ctx, seed, count, lockedIds) {
+  function pickRules(mode, ctx, seed, count, lockedIds) {
+    const { ruleById } = mode;
     const blocked = new Set(ctx.archetype.blockTags || []);
     const used = new Set();
     const rules = [];
@@ -3196,7 +3385,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       used.add(id);
       def.tags.forEach((t) => blocked.add(t));
     }
-    for (const def of createRng(`${seed}:rules`).shuffle(content.rules)) {
+    for (const def of createRng(`${seed}:rules`).shuffle(mode.rules)) {
       if (rules.length >= count) break;
       if (!eligibleRule(def, ctx, blocked, used)) continue;
       rules.push(makeRule(def, ctx, seed));
@@ -3213,11 +3402,14 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
    * @param {object} options  see DEFAULT_OPTIONS
    * @param {string} seed     any string; same seed + options + locks = same challenge
    * @param {object} locks    { club: {name, leagueId}, archetypeId, seasons, difficulty, ruleIds: [] }
+   *                          plus any mode-specific locks (e.g. position)
    */
   function generateChallenge(options, seed, locks) {
     seed = String(seed || randomSeed());
     locks = locks || {};
     const opts = normalizeOptions(options);
+    const mode = modeOf(opts.mode);
+    const { archetypeById: archById } = mode;
     const r = (label) => createRng(`${seed}:${label}`);
     const notes = [];
 
@@ -3227,12 +3419,14 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       ? `${c.leagueId}|${c.name}` === opts.club
       : (opts.league === 'any' || c.leagueId === opts.league) && (opts.tier === 'any' || c.tier === opts.tier));
 
-    let club = locks.club ? (findClub(locks.club.name, locks.club.leagueId) || null) : null;
-    let archetype = locks.archetypeId ? archetypeById[locks.archetypeId] : null;
+    let club = opts.customClub ? buildCustomClub(opts.customClub)
+      : locks.club ? (findClub(locks.club.name, locks.club.leagueId) || null) : null;
+    let archetype = locks.archetypeId ? archById[locks.archetypeId] : null;
 
     if (!archetype) {
-      const pool = opts.archetype !== 'any' ? [archetypeById[opts.archetype]] : content.archetypes;
-      let candidates = pool.filter((a) => (club ? a.clubFilter(club) : CLUBS.some((c) => a.clubFilter(c) && userFilter(c))));
+      const pool = opts.archetype !== 'any' ? [archById[opts.archetype]] : mode.archetypes;
+      let candidates = pool.filter((a) => (!mode.archetypeFilter || mode.archetypeFilter(a, locks, opts))
+        && (club ? a.clubFilter(club) : CLUBS.some((c) => a.clubFilter(c) && userFilter(c))));
       if (!candidates.length) {
         candidates = pool;
         notes.push('That challenge type doesn\'t suit your club filters, so the filters were loosened.');
@@ -3253,35 +3447,37 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       }
       club = r('club').pick(pool.length ? pool : CLUBS);
     }
-    archetype = resolveArchetype(archetype, club);
+    archetype = mode.resolveArchetype ? mode.resolveArchetype(archetype, club) : archetype;
 
     let seasons = locks.seasons ? Math.min(15, Math.max(1, Number(locks.seasons))) : null;
     seasons = seasons || (opts.seasons !== 'auto' ? opts.seasons : null);
     const [minS, maxS] = archetype.seasonRange(club, d);
     if (!seasons) seasons = r('seasons').int(minS, maxS);
     if (archetype.forcePromotion && seasons < club.level) {
-      notes.push(`${seasons} season(s) is not enough to reach the top flight from ${leagueRef(leagueById[club.leagueId])} — try ${club.level + 1} or more.`);
+      notes.push(`${seasons} season(s) is not enough to reach the top flight from ${leagueRef(leagueOf(club))} — try ${club.level + 1} or more.`);
     }
 
     const nation = r('nation').pick(data.nations.filter((n) => n.adj !== club.nationality));
     const formation = r('formation').pick(data.formations);
     const ctx = makeContext({ club, d, seasons, archetype, nation, formation });
+    if (mode.prepare) mode.prepare(ctx, r, locks, opts);
 
-    const ruleCount = opts.ruleCount === 'auto' ? [1, 2, 3, 4][d - 1] + (archetype.bonusRules || 0) : opts.ruleCount;
+    const ruleCount = opts.ruleCount === 'auto' ? mode.ruleCount(d) + (archetype.bonusRules || 0) : opts.ruleCount;
     const coreRules = archetype.core(withRng(ctx, r('core'))).map((text) => ({ text }));
-    const rules = pickRules(ctx, seed, ruleCount, locks.ruleIds);
+    const rules = pickRules(mode, ctx, seed, ruleCount, locks.ruleIds);
     ctx.eventsOn = opts.events;
 
-    const roadmap = buildRoadmap(ctx, r('roadmap'));
+    const roadmap = mode.buildRoadmap(ctx, r('roadmap'));
 
     const difficulty = data.difficulties[d - 1];
-    return {
+    return Object.assign({
       version: 1,
+      mode: mode.id,
       seed,
       options: opts,
       difficulty: d,
       difficultyName: difficulty.name,
-      title: `${archetype.name}: ${club.name}`,
+      title: mode.title ? mode.title(ctx) : `${archetype.name}: ${club.name}`,
       archetype: {
         id: archetype.id, name: archetype.name, icon: archetype.icon, tagline: archetype.tagline, desc: archetype.desc,
         typeName: archetype.typeName || archetype.name, history: archetype.history || null,
@@ -3289,35 +3485,41 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       club: {
         name: club.name, league: club.league, leagueId: club.leagueId, country: club.country,
         nationality: club.nationality, tier: club.tier, tierName: data.tierNames[club.tier],
+        custom: Boolean(club.custom),
       },
       seasons,
       coreRules,
       rules,
       roadmap,
       finalGoal: archetype.finalGoal(withRng(ctx, r('final'))),
-      failConditions: failConditions(d),
-      scoring: scoring(d),
-      settings: settings(d),
+      failConditions: mode.failConditions(d),
+      scoring: mode.scoring(d),
+      settings: mode.settings(d),
       notes,
-    };
+    }, mode.extraOutput ? mode.extraOutput(ctx) : {});
   }
 
   /** Swap one extra rule for a different eligible one. Returns a new challenge. */
   function rerollRule(challenge, index, seed) {
-    const club = findClub(challenge.club.name, challenge.club.leagueId);
-    const archetype = archetypeById[challenge.archetype.id] && resolveArchetype(archetypeById[challenge.archetype.id], club);
+    const mode = modeOf(challenge.mode);
+    const ruleDefs = mode.ruleById;
+    const club = clubOf(challenge);
+    const base = club && mode.archetypeById[challenge.archetype.id];
+    const archetype = base && (mode.resolveArchetype ? mode.resolveArchetype(base, club) : base);
     if (!club || !archetype || !challenge.rules[index]) return challenge;
+    const r = (label) => createRng(`${challenge.seed}:${label}`);
     const ctx = makeContext({
       club, d: challenge.difficulty, seasons: challenge.seasons, archetype,
-      nation: createRng(`${challenge.seed}:nation`).pick(data.nations.filter((n) => n.adj !== club.nationality)),
-      formation: createRng(`${challenge.seed}:formation`).pick(data.formations),
+      nation: r('nation').pick(data.nations.filter((n) => n.adj !== club.nationality)),
+      formation: r('formation').pick(data.formations),
     });
+    if (mode.prepare) mode.prepare(ctx, r, mode.locksOf ? mode.locksOf(challenge) : {}, challenge.options || {});
     const blocked = new Set(archetype.blockTags || []);
     const used = new Set(challenge.rules.map((x) => x.id));
     challenge.rules.forEach((x, i) => {
-      if (i !== index && ruleById[x.id]) ruleById[x.id].tags.forEach((t) => blocked.add(t));
+      if (i !== index && ruleDefs[x.id]) ruleDefs[x.id].tags.forEach((t) => blocked.add(t));
     });
-    const pool = content.rules.filter((def) => eligibleRule(def, ctx, blocked, used));
+    const pool = mode.rules.filter((def) => eligibleRule(def, ctx, blocked, used));
     if (!pool.length) return challenge;
     const def = createRng(`${seed || randomSeed()}:swap`).pick(pool);
     const rules = challenge.rules.slice();
@@ -3365,7 +3567,8 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
    * pinned as a lock. `fromShareKey` rebuilds the identical challenge.
    */
   function toShareKey(ch) {
-    return {
+    const mode = modeOf(ch.mode);
+    return Object.assign({
       v: 1,
       s: ch.seed,
       o: Object.assign({}, ch.options, { seasons: 'auto', ruleCount: 'auto' }),
@@ -3374,21 +3577,103 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       n: ch.seasons,
       d: ch.difficulty,
       r: ch.rules.map((x) => x.id),
-    };
+    }, mode.locksOf ? { m: mode.locksOf(ch) } : {});
   }
 
   function fromShareKey(key) {
     if (!key || key.v !== 1 || !key.s || !Array.isArray(key.r) || !Array.isArray(key.c)) return null;
     const options = Object.assign({}, key.o, { ruleCount: key.r.length });
-    const ch = generateChallenge(options, key.s, {
+    const mode = modeOf(options.mode);
+    const ch = generateChallenge(options, String(key.s), Object.assign({}, key.m && typeof key.m === 'object' ? key.m : {}, {
       club: { name: String(key.c[0]), leagueId: String(key.c[1]) },
-      archetypeId: archetypeById[key.a] ? key.a : null,
+      archetypeId: mode.archetypeById[key.a] ? key.a : null,
       seasons: Number(key.n) || null,
       difficulty: Number(key.d) || null,
       ruleIds: key.r.map(String),
-    });
+    }));
     ch.options = Object.assign({}, ch.options, { ruleCount: 'auto' });
     return ch;
+  }
+
+  /**
+   * Clean up a challenge from an untrusted source (an edited challenge in a
+   * share link): keep only known fields, coerce types and cap lengths. The
+   * result is safe to render and to store.
+   */
+  function sanitizeChallenge(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    // Only plain strings and numbers count as text: String() on an object can run its code or throw.
+    const str = (v, max = 400) => (typeof v === 'string' ? v : Number.isFinite(v) ? String(v) : '').slice(0, max).trim();
+    const int = (v, min, max, dflt) => {
+      const n = Math.round(Number(v));
+      return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : dflt;
+    };
+    const list = (v, max) => (Array.isArray(v) ? v.slice(0, max) : []);
+    const obj = (v) => (v && typeof v === 'object' ? v : {});
+
+    const options = normalizeOptions(obj(raw.options));
+    const mode = modeOf(raw.mode === 'player' ? 'player' : 'manager');
+    options.mode = mode.id;
+    const d = int(raw.difficulty, 1, 4, 2);
+    const a = obj(raw.archetype);
+    const c = obj(raw.club);
+    const tier = int(c.tier, 1, 5, 3);
+
+    let roadmap = list(raw.roadmap, 15).map((s, i) => {
+      const season = obj(s);
+      const out = {
+        season: i + 1,
+        objectives: list(season.objectives, 8).map((o) => ({ text: str(obj(o).text), type: obj(o).type === 'side' ? 'side' : 'main' })).filter((o) => o.text),
+        events: list(season.events, 6).map((e) => str(e)).filter(Boolean),
+      };
+      if (season.age != null) out.age = int(season.age, 14, 50, null);
+      return out;
+    });
+    if (!roadmap.length) roadmap = [{ season: 1, objectives: [], events: [] }];
+
+    const archName = str(a.name, 60) || 'Custom Challenge';
+    const clubName = str(c.name, 40) || 'Your club';
+    const out = {
+      version: 1,
+      mode: mode.id,
+      custom: true,
+      seed: str(raw.seed, 40) || 'custom',
+      options,
+      difficulty: d,
+      difficultyName: data.difficulties[d - 1].name,
+      title: str(raw.title, 120) || `${archName}: ${clubName}`,
+      archetype: {
+        id: str(a.id, 40) || 'custom',
+        name: archName,
+        icon: str(a.icon, 8) || '✍️',
+        tagline: str(a.tagline, 160),
+        desc: str(a.desc, 400),
+        typeName: str(a.typeName, 60) || archName,
+        history: str(a.history, 1200) || null,
+      },
+      club: {
+        name: clubName,
+        league: str(c.league, 60),
+        leagueId: str(c.leagueId, 20),
+        country: str(c.country, 40),
+        nationality: str(c.nationality, 40),
+        tier,
+        tierName: data.tierNames[tier],
+        custom: Boolean(c.custom),
+      },
+      seasons: roadmap.length,
+      coreRules: list(raw.coreRules, 12).map((x) => ({ text: str(obj(x).text) })).filter((x) => x.text),
+      rules: list(raw.rules, 12).map((x) => ({ id: str(obj(x).id, 40) || 'custom', cat: str(obj(x).cat, 20) || 'Custom', text: str(obj(x).text) })).filter((x) => x.text),
+      roadmap,
+      finalGoal: str(raw.finalGoal),
+      failConditions: list(raw.failConditions, 6).map((f) => str(f)).filter(Boolean),
+      scoring: mode.scoring(d),
+      settings: mode.settings(d),
+      notes: [],
+    };
+    if (!out.failConditions.length) out.failConditions = mode.failConditions(d);
+    if (mode.sanitizeExtra) Object.assign(out, mode.sanitizeExtra(raw));
+    return out;
   }
 
   /** Plain-text version for pasting into Reddit, Discord, etc. */
@@ -3396,12 +3681,16 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     const lines = [];
     if (ch.daily) lines.push(`📅 FC 26 Daily Challenge #${ch.daily.number} (${ch.daily.date})`);
     lines.push(`${ch.archetype.icon} ${ch.title}`);
-    lines.push(`${ch.difficultyName} · ${ch.seasons} season${ch.seasons === 1 ? '' : 's'} · ${ch.club.league} · Seed ${ch.seed}`);
+    const meta = [ch.difficultyName, `${ch.seasons} season${ch.seasons === 1 ? '' : 's'}`];
+    if (ch.position) meta.push(`${ch.position.name}, starting age ${ch.startAge}`);
+    if (ch.club.league) meta.push(ch.club.league);
+    meta.push(ch.custom ? 'Custom challenge' : `Seed ${ch.seed}`);
+    lines.push(meta.join(' · '));
     lines.push('', ch.archetype.history || ch.archetype.desc, '', 'RULES');
     ch.coreRules.concat(ch.rules).forEach((x) => lines.push(`- ${x.text}`));
     lines.push('', 'ROADMAP');
     ch.roadmap.forEach((s) => {
-      lines.push(`Season ${s.season}:`);
+      lines.push(`Season ${s.season}${s.age ? ` (age ${s.age})` : ''}:`);
       s.objectives.forEach((o) => lines.push(`  ${o.type === 'main' ? '•' : '+'} ${o.text}`));
       s.events.forEach((e) => lines.push(`  ⚡ ${e}`));
     });
@@ -3410,6 +3699,24 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     return lines.join('\n');
   }
 
+  // ---------- Manager Career mode ----------
+
+  FC26.modes = FC26.modes || {};
+  FC26.modes.manager = {
+    id: 'manager',
+    name: 'Manager Career',
+    archetypes: content.archetypes,
+    archetypeById,
+    rules: content.rules,
+    ruleById,
+    resolveArchetype,
+    ruleCount: (d) => [1, 2, 3, 4][d - 1],
+    buildRoadmap,
+    failConditions,
+    scoring,
+    settings,
+  };
+
   FC26.generator = {
     createRng,
     randomSeed,
@@ -3417,12 +3724,348 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     rerollRule,
     toShareKey,
     fromShareKey,
+    sanitizeChallenge,
     challengeToText,
     normalizeOptions,
+    buildCustomClub,
+    normalizeCustomClub,
     money,
     CLUBS,
+    COUNTRIES,
     DEFAULT_OPTIONS,
+    // Building blocks for other modes (player.js).
+    internal: { withRng, failConditions, scoring, settings },
   };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/player.js */
+/*
+ * Player Career mode: challenges for a single player's career rather than
+ * a manager's save. Registers FC26.modes.player for the shared generator.
+ *
+ * Seasons carry an age, objectives are milestones for the player (debut,
+ * ratings, caps, trophies, awards) and targets depend on the position.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const { withRng, failConditions: managerFail, scoring, settings } = FC26.generator.internal;
+
+  const positions = [
+    { id: 'GK', name: 'Goalkeeper' },
+    { id: 'CB', name: 'Centre-back' },
+    { id: 'FB', name: 'Full-back' },
+    { id: 'CDM', name: 'Defensive midfielder' },
+    { id: 'CM', name: 'Central midfielder' },
+    { id: 'CAM', name: 'Attacking midfielder' },
+    { id: 'W', name: 'Winger' },
+    { id: 'ST', name: 'Striker' },
+  ];
+  const positionById = Object.fromEntries(positions.map((p) => [p.id, p]));
+
+  const GIANTS = 'Real Madrid, Barcelona, Bayern, Manchester City, Liverpool, Arsenal, PSG or Inter';
+
+  // A season's headline number for the position. `scale` raises it later in a career.
+  function statTarget(c, scale) {
+    const n = (arr) => Math.round(c.byD(arr) * (scale || 1));
+    switch (c.position.id) {
+      case 'GK': return `Keep ${n([10, 12, 15, 18])}+ clean sheets in all competitions.`;
+      case 'CB': return `Keep ${n([8, 10, 12, 14])}+ clean sheets and score ${n([2, 3, 4, 5])}+ goals.`;
+      case 'FB': return `Get ${n([4, 6, 8, 10])}+ assists in all competitions.`;
+      case 'CDM': return `Average a ${(c.byD([6.8, 7.0, 7.2, 7.4]) + (scale > 1 ? 0.2 : 0)).toFixed(1)}+ match rating.`;
+      case 'CM': return `Get ${n([6, 10, 14, 18])}+ goals and assists combined.`;
+      case 'ST': return `Score ${n([15, 20, 25, 30])}+ goals in all competitions.`;
+      default: return `Get ${n([12, 16, 20, 25])}+ goals and assists combined.`;
+    }
+  }
+
+  const isKeeper = (c) => c.position.id === 'GK';
+
+  const archetypes = [
+    {
+      id: 'one-club-legend', name: 'One-Club Legend', icon: '🏟️',
+      tagline: 'One badge, one career.',
+      desc: 'Come through at one club and never leave. Become captain, lift trophies, retire a legend.',
+      clubFilter: () => true,
+      startAge: [17, 18],
+      seasonRange: () => [8, 12],
+      blockTags: ['moves', 'loans'],
+      core: (c) => [
+        `Spend your whole career at ${c.club.name}: never accept a permanent transfer.`,
+        `Loans are only allowed before you turn ${c.byD([21, 20, 19, 19])}.`,
+        `Become club captain by age ${c.byD([28, 27, 26, 25])}.`,
+      ],
+      finalGoal: (c) => (c.club.level > 1
+        ? `Take ${c.club.name} up to the top flight and win ${c.topLeagueRef} with them.`
+        : `Win ${c.topLeagueRef} and the ${c.continental} with ${c.club.name}, and make ${c.byD([300, 350, 400, 450])}+ appearances for them.`),
+    },
+    {
+      id: 'wonderkid', name: 'Wonderkid', icon: '🌟',
+      tagline: 'Seventeen and fearless.',
+      desc: 'Start at a small club at 17 and become one of the best players in the world before 24.',
+      clubFilter: (club) => club.tier <= 2,
+      startAge: [17, 17],
+      seasonRange: () => [5, 7],
+      core: (c) => [
+        `Start at ${c.club.name} and stay for at least ${c.byD([1, 2, 2, 3])} season(s).`,
+        `Turn down every transfer offer until you are ${c.byD([75, 78, 80, 82])}+ OVR.`,
+      ],
+      finalGoal: (c) => `Win an end-of-season individual award (player of the year or top scorer) before you turn ${c.byD([24, 23, 22, 21])}.`,
+    },
+    {
+      id: 'hometown-hero', name: 'Hometown Hero', icon: '🏘️',
+      tagline: 'Carry your club to the top.',
+      desc: 'Start at a lower-league club and refuse to leave until you have dragged them to the top flight.',
+      clubFilter: (club) => club.level >= 2 || club.tier === 1,
+      startAge: [17, 19],
+      seasonRange: () => [6, 10],
+      blockTags: ['moves'],
+      core: (c) => [
+        `Never leave ${c.club.name} until they reach the top flight.`,
+        'Turn down every offer from a bigger club until then.',
+      ],
+      finalGoal: (c) => `Captain ${c.club.name} to a ${c.topLeague.name} title.`,
+    },
+    {
+      id: 'dream-move', name: 'The Dream Move', icon: '💫',
+      tagline: 'Step by step to the very top.',
+      desc: 'Climb the ladder one club at a time until a European giant comes calling.',
+      clubFilter: (club) => club.tier <= 3,
+      startAge: [17, 19],
+      seasonRange: () => [5, 8],
+      blockTags: ['moves'],
+      core: (c) => [
+        'Only accept a transfer to a bigger club than the one you are at.',
+        `Earn a move to a European giant (${GIANTS}) by age ${c.byD([25, 24, 23, 22])}.`,
+      ],
+      finalGoal: (c) => `Win the Champions League with a European giant before you turn ${c.byD([28, 27, 26, 25])}.`,
+    },
+    {
+      id: 'globetrotter', name: 'Globetrotter', icon: '🌍',
+      tagline: 'Have boots, will travel.',
+      desc: 'Play in a new country every few seasons and win the league wherever you go.',
+      clubFilter: () => true,
+      startAge: [18, 20],
+      seasonRange: () => [7, 10],
+      blockTags: ['moves', 'leagues'],
+      core: (c) => [
+        `Move to a club in a new country every ${c.byD([3, 3, 2, 2])} seasons.`,
+        'Never return to a league you have already played in.',
+      ],
+      finalGoal: (c) => `Win league titles in ${c.byD([2, 3, 3, 4])} different countries.`,
+    },
+    {
+      id: 'last-line', name: 'Last Line', icon: '🧤',
+      tagline: 'Keep it out. Every time.',
+      desc: 'A goalkeeper career: become number one, then the best keeper in Europe.',
+      position: 'GK',
+      clubFilter: () => true,
+      startAge: [17, 19],
+      seasonRange: () => [5, 8],
+      blockTags: ['position'],
+      core: (c) => [
+        'Play in goal for your whole career.',
+        `Become your club's first-choice goalkeeper by age ${c.byD([22, 21, 20, 19])}.`,
+      ],
+      finalGoal: (c) => `Keep ${c.byD([15, 18, 20, 22])}+ league clean sheets in one season and win the ${c.continental}.`,
+    },
+    {
+      id: 'goal-machine', name: 'Goal Machine', icon: '⚽',
+      tagline: 'Goals, goals, goals.',
+      desc: 'A striker career measured in one number: goals.',
+      position: 'ST',
+      clubFilter: () => true,
+      startAge: [17, 18],
+      seasonRange: () => [8, 12],
+      blockTags: ['position'],
+      seasonGoal: (c, s) => (s >= 3 ? statTarget(c, s >= 6 ? 1.3 : 1) : null),
+      core: (c) => [
+        'Play as a striker for your whole career.',
+        `Score ${c.byD([10, 15, 18, 20])}+ goals in every full season, or move clubs that summer.`,
+      ],
+      finalGoal: (c) => `Score ${c.byD([200, 250, 300, 400])} career goals.`,
+    },
+    {
+      id: 'goalscoring-defender', name: 'Goalscoring Defender', icon: '🧱',
+      tagline: 'Defend first, then score anyway.',
+      desc: 'A centre-back who keeps clean sheets and pops up with goals at set pieces.',
+      position: 'CB',
+      clubFilter: () => true,
+      startAge: [17, 19],
+      seasonRange: () => [5, 8],
+      blockTags: ['position'],
+      core: (c) => [
+        'Play as a centre-back for your whole career.',
+        `Score ${c.byD([2, 3, 4, 5])}+ goals in every full season.`,
+      ],
+      finalGoal: (c) => `Score ${c.byD([8, 10, 12, 15])}+ league goals in a single season as a centre-back.`,
+    },
+    {
+      id: 'wildcard-career', name: 'Wildcard Career', icon: '🎲',
+      tagline: 'Let the dice decide.',
+      desc: 'No theme, just a pile of random rules and a career full of surprises.',
+      clubFilter: () => true,
+      startAge: [17, 20],
+      seasonRange: () => [4, 7],
+      bonusRules: 2,
+      eventBoost: 2,
+      core: () => [],
+      finalGoal: (c) => `Win a major trophy and reach ${c.byD([82, 84, 86, 88])}+ OVR.`,
+    },
+  ];
+
+  const rules = [
+    { id: 'no-request', cat: 'Moves', tags: ['request'], text: () => 'Never hand in a transfer request.' },
+    { id: 'first-offer', cat: 'Moves', tags: ['moves'], minD: 2, text: () => 'Accept the first permanent transfer offer you receive each summer.' },
+    { id: 'stay-min', cat: 'Moves', tags: ['moves'], text: (c) => `Stay at least ${c.byD([1, 2, 2, 3])} season(s) at every club.` },
+    { id: 'no-bigger', cat: 'Moves', tags: ['moves'], minD: 2, text: () => 'Never join a club bigger than the one you are leaving.' },
+    { id: 'avoid-country', cat: 'Moves', tags: ['leagues'], text: (c) => `Never play for a club in ${c.rng.pick(['England', 'Spain', 'Italy', 'Germany', 'France'])}.` },
+    { id: 'no-loan-out', cat: 'Moves', tags: ['loans'], text: () => 'Never go out on loan.' },
+    { id: 'position-lock', cat: 'Playing', tags: ['position'], text: () => 'Never change position, even if your manager asks.' },
+    { id: 'no-sim', cat: 'Playing', tags: ['sim'], text: () => 'Play every match you are picked for: no simming.' },
+    { id: 'rating-floor', cat: 'Playing', tags: ['rating'], text: (c) => `Average a ${c.byD([6.6, 6.8, 7.0, 7.2]).toFixed(1)}+ match rating every season, or move clubs that summer.` },
+    { id: 'no-skill', cat: 'Playing', tags: ['style'], text: () => 'No skill moves, ever.' },
+    { id: 'one-celebration', cat: 'Playing', tags: ['celebrate'], when: (c) => !isKeeper(c), text: () => 'Use the same goal celebration for your whole career.' },
+    { id: 'retire-at', cat: 'Career', tags: ['retire'], text: (c) => `Retire at ${c.byD([36, 35, 34, 33])}, whatever your rating.` },
+    { id: 'first-contract', cat: 'Career', tags: ['contract'], text: () => "Always accept a club's first contract offer: no negotiating." },
+    { id: 'intl-early', cat: 'Career', tags: ['intl'], text: (c) => `Earn a senior international cap by age ${c.byD([24, 23, 22, 21])}.` },
+    { id: 'captain-by', cat: 'Career', tags: ['captain'], text: (c) => `Captain a club by age ${c.byD([30, 28, 27, 26])}.` },
+  ];
+  const ruleById = Object.fromEntries(rules.map((r) => [r.id, r]));
+
+  const sideObjectives = [
+    { id: 'potm', text: () => 'Win a Player of the Month award.' },
+    { id: 'big-moment', text: (c) => (isKeeper(c) ? 'Save a penalty in a competitive match.' : 'Score a hat-trick.') },
+    { id: 'cup', text: (c) => `Win the ${c.cup}.` },
+    { id: 'apps', text: (c) => `Play ${c.byD([35, 40, 45, 50])}+ matches in all competitions.` },
+    { id: 'motm', text: (c) => `Win ${c.byD([3, 5, 7, 10])}+ player of the match awards.` },
+    { id: 'growth', text: (c) => `Gain ${c.byD([4, 5, 6, 8])}+ OVR this season.` },
+    { id: 'intl-moment', text: (c) => (isKeeper(c) ? 'Keep a clean sheet for your national team.' : 'Score for your national team.') },
+    { id: 'derby', text: (c) => (isKeeper(c) ? 'Keep a clean sheet in a derby.' : 'Score or assist in a derby.') },
+  ];
+
+  const events = [
+    { id: 'rival-signing', text: () => 'Rival signing: your club buys a star in your position. Win your place back with 20+ starts.' },
+    { id: 'new-manager', text: () => 'New manager: average a 7.0+ match rating until the winter break to win them over.' },
+    { id: 'big-offer', text: () => 'Big offer: accept the biggest transfer offer you receive this summer.' },
+    { id: 'loan-spell', text: () => 'Loan spell: if a loan offer comes in January, take it.' },
+    { id: 'injury-setback', text: () => 'Injury setback: no transfers this season. Focus on getting back to your best.' },
+    { id: 'media-storm', when: (c) => !isKeeper(c), text: () => 'Media storm: no goal celebrations this season.' },
+    { id: 'leadership', text: () => 'Leadership test: be named captain in at least one match this season.' },
+    { id: 'tactical-switch', when: (c) => !isKeeper(c), text: () => 'Tactical switch: if your manager asks you to play a new position this season, say yes (overrides any position rule).' },
+    { id: 'national-duty', text: () => 'National duty: earn a call-up this season.' },
+  ];
+
+  // Career milestones, roughly in order. Difficulty decides where you start
+  // on the ladder and how fast you climb it.
+  const ladder = [
+    () => 'Make your debut and play 15+ matches in all competitions.',
+    () => 'Become a regular starter: 25+ league starts.',
+    (c) => `Reach ${c.byD([72, 75, 78, 80])}+ OVR.`,
+    (c) => statTarget(c, 1),
+    () => 'Earn your first senior international cap.',
+    () => 'Win a league title.',
+    (c) => `Reach ${c.byD([80, 83, 85, 87])}+ OVR.`,
+    (c) => statTarget(c, 1.3),
+    (c) => `Win the ${c.continental}.`,
+    () => 'Win an end-of-season individual award (player of the year or top scorer).',
+  ];
+
+  function buildRoadmap(ctx, rng) {
+    const { d, seasons, archetype } = ctx;
+    const startStep = [0, 0, 1, 2][d - 1];
+    const pace = [0.8, 1, 1, 1.2][d - 1];
+    const sideChance = [0.35, 0.5, 0.65, 0.8][d - 1];
+    const eventChance = Math.min(0.9, [0.2, 0.3, 0.45, 0.6][d - 1] * (archetype.eventBoost || 1));
+    const usedSide = new Set();
+    const usedEvents = new Set();
+    const roadmap = [];
+
+    for (let s = 1; s <= seasons; s++) {
+      let step = Math.floor(startStep + (s - 1) * pace);
+      // Past the top of the ladder, alternate the last two milestones.
+      if (step >= ladder.length) step = ladder.length - 1 - ((step - ladder.length) % 2);
+      const main = (archetype.seasonGoal && archetype.seasonGoal(ctx, s)) || ladder[step](ctx);
+      const objectives = [{ text: main, type: 'main' }];
+
+      if (rng.chance(sideChance)) {
+        const pool = sideObjectives.filter((o) => !usedSide.has(o.id) && (!o.when || o.when(ctx)));
+        if (pool.length) {
+          const pick = rng.pick(pool);
+          usedSide.add(pick.id);
+          objectives.push({ text: pick.text(withRng(ctx, rng)), type: 'side' });
+        }
+      }
+
+      const evs = [];
+      if (ctx.eventsOn && s > 1 && rng.chance(eventChance)) {
+        const pool = events.filter((ev) => !usedEvents.has(ev.id) && (!ev.when || ev.when(ctx)));
+        if (pool.length) {
+          const pick = rng.pick(pool);
+          usedEvents.add(pick.id);
+          evs.push(pick.text(withRng(ctx, rng)));
+        }
+      }
+
+      roadmap.push({ season: s, age: ctx.startAge + s - 1, objectives, events: evs });
+    }
+    return roadmap;
+  }
+
+  function failConditions(d) {
+    const lines = managerFail(d).slice(1);
+    return ['Ending up without a club ends the challenge.', ...lines];
+  }
+
+  const archetypeById = Object.fromEntries(archetypes.map((a) => [a.id, a]));
+
+  FC26.modes = FC26.modes || {};
+  FC26.modes.player = {
+    id: 'player',
+    name: 'Player Career',
+    archetypes,
+    archetypeById,
+    rules,
+    ruleById,
+    positions,
+    ruleCount: (d) => [1, 2, 2, 3][d - 1],
+    normalizeOptions(o) {
+      if (o.position !== 'any' && !positionById[o.position]) o.position = 'any';
+    },
+    // Don't pick a fixed-position archetype (e.g. Goal Machine) for a different position.
+    archetypeFilter(a, locks, opts) {
+      const wanted = locks.position || (opts.position !== 'any' ? opts.position : null);
+      return !a.position || !wanted || a.position === wanted;
+    },
+    // Position and starting age, from the archetype, locks, the options or the seed.
+    prepare(ctx, r, locks, opts) {
+      const a = ctx.archetype;
+      const posId = a.position
+        || (locks.position && positionById[locks.position] && locks.position)
+        || (opts.position && opts.position !== 'any' ? opts.position : r('position').pick(positions).id);
+      ctx.position = positionById[posId];
+      const [minAge, maxAge] = a.startAge || [17, 19];
+      const lockedAge = Number(locks.startAge);
+      ctx.startAge = lockedAge >= 15 && lockedAge <= 40 ? lockedAge : r('age').int(minAge, maxAge);
+    },
+    locksOf: (ch) => ({ position: ch.position && ch.position.id, startAge: ch.startAge }),
+    title: (ctx) => `${ctx.archetype.name}: ${ctx.position.name} at ${ctx.club.name}`,
+    extraOutput: (ctx) => ({ position: { id: ctx.position.id, name: ctx.position.name }, startAge: ctx.startAge }),
+    sanitizeExtra(raw) {
+      const pos = raw.position && positionById[raw.position.id];
+      const age = Math.round(Number(raw.startAge));
+      return {
+        position: pos ? { id: pos.id, name: pos.name } : { id: 'CM', name: 'Central midfielder' },
+        startAge: age >= 15 && age <= 40 ? age : 17,
+      };
+    },
+    buildRoadmap,
+    failConditions,
+    scoring,
+    settings,
+  };
+
+  FC26.player = { positions, statTarget };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/daily.js */
@@ -3511,11 +4154,304 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
   FC26.daily = { OPTIONS, EPOCH, dateKey, isKey, shiftKey, number, challenge, streak, msUntilTomorrow };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
+  <script>/* js/share-image.js */
+/*
+ * Draws a challenge as a tall PNG card for posting on Reddit, Discord,
+ * Instagram and so on. Browser only (uses <canvas>), no dependencies.
+ *
+ * Layout is done in one pass that records drawing steps and measures the
+ * height, then the canvas is sized and the steps are replayed.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  const W = 1080;
+  const PAD = 72;
+  const INNER = W - PAD * 2;
+  const FONT = 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Color Emoji", sans-serif';
+  const C = {
+    bg: '#0b0f14', panel: '#151d28', panel2: '#1b2533', line: '#263243',
+    text: '#e9eef5', muted: '#8d9bb0', accent: '#19e68c', ink: '#062314', warn: '#ffc94d',
+    diff: ['#4dd6ff', '#19e68c', '#ffb547', '#ff5c6c'],
+  };
+
+  const font = (weight, size, style) => `${style || ''} ${weight} ${size}px ${FONT}`.trim();
+
+  function wrap(ctx, text, maxWidth) {
+    const lines = [];
+    String(text).split('\n').forEach((para) => {
+      let line = '';
+      para.split(/\s+/).filter(Boolean).forEach((word) => {
+        const test = line ? `${line} ${word}` : word;
+        if (line && ctx.measureText(test).width > maxWidth) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = test;
+        }
+      });
+      lines.push(line);
+    });
+    return lines;
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function layout(ch, siteLabel) {
+    const measure = document.createElement('canvas').getContext('2d');
+    const ops = [];
+    const diff = C.diff[(ch.difficulty || 2) - 1];
+    let y = PAD;
+
+    // Text block: wraps, records the draw, returns its height.
+    const text = (str, { weight = 400, size = 30, style, color = C.text, x = PAD, width = INNER, lineHeight = 1.35, maxLines } = {}) => {
+      measure.font = font(weight, size, style);
+      let lines = wrap(measure, str, width);
+      if (maxLines && lines.length > maxLines) {
+        lines = lines.slice(0, maxLines);
+        lines[maxLines - 1] = `${lines[maxLines - 1].replace(/\s+\S*$/, '')}…`;
+      }
+      const top = y;
+      const lh = Math.round(size * lineHeight);
+      ops.push((ctx) => {
+        ctx.font = font(weight, size, style);
+        ctx.fillStyle = color;
+        ctx.textBaseline = 'top';
+        lines.forEach((line, i) => ctx.fillText(line, x, top + i * lh));
+      });
+      return lines.length * lh;
+    };
+
+    const heading = (label) => {
+      y += 36;
+      const top = y;
+      ops.push((ctx) => {
+        ctx.font = font(800, 24);
+        ctx.fillStyle = C.muted;
+        ctx.textBaseline = 'top';
+        ctx.fillText(label.toUpperCase().split('').join(' '), PAD, top);
+        ctx.fillStyle = C.line;
+        ctx.fillRect(PAD, top + 40, INNER, 2);
+      });
+      y += 60;
+    };
+
+    // Top bar and brand row.
+    ops.push((ctx) => {
+      ctx.fillStyle = diff;
+      ctx.fillRect(0, 0, W, 14);
+    });
+    const brandTop = y;
+    const kind = ch.daily ? `DAILY CHALLENGE #${ch.daily.number}` : ch.mode === 'player' ? 'PLAYER CAREER CHALLENGE' : 'CAREER MODE CHALLENGE';
+    ops.push((ctx) => {
+      ctx.fillStyle = C.accent;
+      roundRect(ctx, PAD, brandTop, 124, 56, 12);
+      ctx.fill();
+      ctx.fillStyle = C.ink;
+      ctx.font = font(900, 32, 'italic');
+      ctx.textBaseline = 'middle';
+      ctx.fillText('FC26', PAD + 18, brandTop + 29);
+      ctx.fillStyle = C.muted;
+      ctx.font = font(700, 24);
+      ctx.fillText(kind, PAD + 148, brandTop + 29);
+      ctx.font = font(800, 26);
+      const label = ch.difficultyName.toUpperCase();
+      const w = ctx.measureText(label).width + 40;
+      ctx.fillStyle = diff;
+      roundRect(ctx, W - PAD - w, brandTop + 4, w, 48, 24);
+      ctx.fill();
+      ctx.fillStyle = C.bg;
+      ctx.fillText(label, W - PAD - w + 20, brandTop + 29);
+    });
+    y += 56 + 48;
+
+    // Title block.
+    const typeLabel = ch.archetype.history && ch.archetype.typeName && ch.archetype.typeName !== ch.archetype.name ? `${ch.archetype.typeName} · ` : '';
+    y += text(`${ch.archetype.icon}  ${typeLabel}${ch.archetype.name}`.toUpperCase(), { weight: 800, size: 28, color: diff });
+    y += 8;
+    y += text(ch.mode === 'player' && ch.position ? `${ch.position.name} at ${ch.club.name}` : ch.club.name, { weight: 800, size: 76, lineHeight: 1.1 });
+    y += 12;
+    if (ch.archetype.tagline) y += text(ch.archetype.tagline, { size: 32, style: 'italic', color: C.muted });
+    y += 10;
+    const meta = [`${ch.seasons} season${ch.seasons === 1 ? '' : 's'}`];
+    if (ch.startAge) meta.push(`starting age ${ch.startAge}`);
+    if (ch.club.league) meta.push(ch.club.league);
+    y += text(meta.join('  ·  '), { weight: 600, size: 28, color: C.muted });
+
+    if (ch.archetype.history) {
+      y += 32;
+      measure.font = font(400, 27);
+      const lines = Math.min(7, wrap(measure, ch.archetype.history, INNER - 56).length);
+      const boxTop = y;
+      const boxH = lines * Math.round(27 * 1.4) + 48;
+      ops.push((ctx) => {
+        ctx.fillStyle = C.panel;
+        roundRect(ctx, PAD, boxTop, INNER, boxH, 16);
+        ctx.fill();
+        ctx.fillStyle = C.warn;
+        ctx.fillRect(PAD, boxTop, 5, boxH);
+      });
+      y += 24;
+      text(ch.archetype.history, { size: 27, color: C.text, x: PAD + 32, width: INNER - 56, lineHeight: 1.4, maxLines: 7 });
+      y = boxTop + boxH;
+    }
+
+    // Rules.
+    heading('Rules');
+    ch.coreRules.concat(ch.rules).forEach((rule, i) => {
+      const top = y;
+      const core = i < ch.coreRules.length;
+      ops.push((ctx) => {
+        ctx.fillStyle = core ? diff : C.muted;
+        ctx.beginPath();
+        ctx.arc(PAD + 9, top + 20, 7, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      y += text(rule.text, { size: 30, x: PAD + 36, width: INNER - 36 });
+      y += 14;
+    });
+
+    // Roadmap (seasons left blank in a hand-written challenge are skipped).
+    const seasons = ch.roadmap.filter((season) => season.objectives.length || season.events.length);
+    if (seasons.length) heading(ch.mode === 'player' ? 'Career roadmap' : 'Season roadmap');
+    seasons.forEach((season) => {
+      const top = y;
+      ops.push((ctx) => {
+        ctx.strokeStyle = diff;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(PAD + 30, top + 26, 28, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = C.text;
+        ctx.font = font(800, 24);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`S${season.season}`, PAD + 30, top + 27);
+        ctx.textAlign = 'left';
+        if (season.age) {
+          ctx.fillStyle = C.muted;
+          ctx.font = font(600, 19);
+          ctx.fillText(`age ${season.age}`, PAD + 2, top + 72);
+        }
+      });
+      const x = PAD + 84;
+      const width = INNER - 84;
+      y += 10;
+      season.objectives.forEach((o) => {
+        y += o.type === 'main'
+          ? text(o.text, { weight: 700, size: 30, x, width })
+          : text(`+ ${o.text}`, { size: 27, color: C.muted, x, width });
+        y += 6;
+      });
+      season.events.forEach((e) => {
+        y += text(`⚡ ${e}`, { size: 26, color: C.warn, x, width });
+        y += 6;
+      });
+      y = Math.max(y, top + (season.age ? 96 : 64)) + 18;
+    });
+
+    // Final goal.
+    y += 28;
+    measure.font = font(800, 34);
+    const goalLines = wrap(measure, ch.finalGoal, INNER - 64).length;
+    const goalTop = y;
+    const goalH = goalLines * Math.round(34 * 1.3) + 108;
+    ops.push((ctx) => {
+      const g = ctx.createLinearGradient(PAD, goalTop, W - PAD, goalTop + goalH);
+      g.addColorStop(0, 'rgba(255, 201, 77, 0.18)');
+      g.addColorStop(1, 'rgba(25, 230, 140, 0.10)');
+      ctx.fillStyle = g;
+      roundRect(ctx, PAD, goalTop, INNER, goalH, 20);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255, 201, 77, 0.6)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+    y += 30;
+    y += text('🏆  FINAL GOAL', { weight: 800, size: 24, color: C.warn, x: PAD + 32 });
+    y += 12;
+    text(ch.finalGoal, { weight: 800, size: 34, x: PAD + 32, width: INNER - 64, lineHeight: 1.3 });
+    y = goalTop + goalH;
+
+    // Footer.
+    y += 40;
+    const footer = [siteLabel, ch.custom ? 'custom challenge' : `seed ${ch.seed}`].filter(Boolean).join('  ·  ');
+    y += text(footer, { weight: 600, size: 24, color: C.muted });
+    y += PAD - 20;
+
+    return { height: Math.ceil(y), ops };
+  }
+
+  function render(ch, siteLabel) {
+    const { height, ops } = layout(ch, siteLabel);
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(0, 0, W, height);
+    const glow = ctx.createRadialGradient(W * 0.85, 0, 0, W * 0.85, 0, 900);
+    glow.addColorStop(0, 'rgba(25, 230, 140, 0.12)');
+    glow.addColorStop(1, 'rgba(25, 230, 140, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, height);
+    ops.forEach((op) => {
+      ctx.save();
+      op(ctx);
+      ctx.restore();
+    });
+    return canvas;
+  }
+
+  const slug = (s) => String(s).toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim().replace(/[\s_]+/g, '-').slice(0, 60) || 'challenge';
+
+  /**
+   * Render the challenge and hand it to the user: the share sheet on phones
+   * that support sharing files, otherwise a download.
+   */
+  async function exportImage(ch, siteLabel) {
+    const canvas = render(ch, siteLabel);
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+    if (!blob) throw new Error('Could not create the image');
+    const name = `fc26-${slug(ch.title)}.png`;
+    const file = typeof File === 'function' ? new File([blob], name, { type: 'image/png' }) : null;
+    const coarse = root.matchMedia && root.matchMedia('(pointer: coarse)').matches;
+    if (file && coarse && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: ch.title });
+        return 'shared';
+      } catch (e) {
+        if (e && e.name === 'AbortError') return 'cancelled';
+      }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    return 'downloaded';
+  }
+
+  FC26.shareImage = { render, exportImage };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
   <script>/* js/app.js */
 /* UI for the FC 26 Career Challenge Builder. */
 (function () {
   'use strict';
-  const { data, content, generator: G, daily: Daily } = window.FC26;
+  const { data, modes, generator: G, daily: Daily, shareImage } = window.FC26;
 
   const STORE_KEY = 'fc26-challenges-v1';
   const OPTIONS_KEY = 'fc26-options-v1';
@@ -3528,8 +4464,12 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     challenge: null,
     dailyKey: null, // date being viewed on the Daily tab
     dailyChallenge: null,
-    locks: { club: false, archetype: false, seasons: false, difficulty: false, rules: new Set() },
+    locks: { club: false, archetype: false, seasons: false, difficulty: false, position: false, rules: new Set() },
+    draft: null, // challenge being edited in the Builder, or null
   };
+
+  // The Builder's starting placeholder, restored when you cancel a blank challenge.
+  let EMPTY_RESULT = '';
 
   // ---------- Helpers ----------
 
@@ -3582,34 +4522,86 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     }
   }
 
-  function encodeKey(obj) {
-    const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  const toB64 = (bytes) => {
     let bin = '';
     bytes.forEach((b) => { bin += String.fromCharCode(b); });
     return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  };
+  const fromB64 = (str) => Uint8Array.from(atob(str.replace(/-/g, '+').replace(/_/g, '/')), (ch) => ch.charCodeAt(0));
+
+  function encodeKey(obj) {
+    return toB64(new TextEncoder().encode(JSON.stringify(obj)));
   }
 
   function decodeKey(str) {
     try {
-      const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/'));
-      const bytes = Uint8Array.from(bin, (ch) => ch.charCodeAt(0));
-      return JSON.parse(new TextDecoder().decode(bytes));
+      return JSON.parse(new TextDecoder().decode(fromB64(str)));
     } catch (e) {
       return null;
     }
   }
 
-  function shareUrl(ch) {
+  // Edited challenges can't be rebuilt from a seed, so their links carry the
+  // whole challenge, deflated where the browser supports it ("z"), else raw ("j").
+  async function packCustom(ch) {
+    const slim = Object.assign({}, ch);
+    ['scoring', 'settings', 'notes', 'version', 'daily'].forEach((k) => delete slim[k]);
+    const bytes = new TextEncoder().encode(JSON.stringify(slim));
+    if (typeof CompressionStream === 'function') {
+      const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+      return 'z' + toB64(new Uint8Array(await new Response(stream).arrayBuffer()));
+    }
+    return 'j' + toB64(bytes);
+  }
+
+  async function unpackCustom(str) {
+    if (str.length > 60000) return null;
+    try {
+      let bytes = fromB64(str.slice(1));
+      if (str[0] === 'z') {
+        if (typeof DecompressionStream !== 'function') return null;
+        const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+        bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+      } else if (str[0] !== 'j') {
+        return null;
+      }
+      return G.sanitizeChallenge(JSON.parse(new TextDecoder().decode(bytes)));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function shareUrl(ch) {
     const url = new URL(window.location.href);
-    url.hash = 'c=' + encodeKey(G.toShareKey(ch));
+    url.hash = ch.custom ? 'x=' + (await packCustom(ch)) : 'c=' + encodeKey(G.toShareKey(ch));
     return url.toString();
   }
 
+  // Identity used to spot duplicates in My Challenges.
+  const challengeKey = (ch) => (ch.custom ? 'x:' + JSON.stringify(G.sanitizeChallenge(ch)) : JSON.stringify(G.toShareKey(ch)));
+
   // ---------- Options form ----------
 
+  const formEl = () => $('#options');
+  const currentMode = () => (formEl().elements.mode.value === 'player' ? 'player' : 'manager');
+
+  function populateArchetypes(selected) {
+    const sel = $('#opt-archetype');
+    const mode = modes[currentMode()];
+    sel.length = 1; // keep "Surprise me"
+    mode.archetypes.forEach((a) => sel.add(new Option(`${a.icon} ${a.name}`, a.id)));
+    sel.value = mode.archetypeById[selected] ? selected : 'any';
+  }
+
+  function syncMode() {
+    populateArchetypes($('#opt-archetype').value);
+    $$('[data-mode-only]').forEach((el) => { el.hidden = el.dataset.modeOnly !== currentMode(); });
+  }
+
   function populateOptions() {
-    const arch = $('#opt-archetype');
-    content.archetypes.forEach((a) => arch.add(new Option(`${a.icon} ${a.name}`, a.id)));
+    modes.player.positions.forEach((pos) => $('#opt-position').add(new Option(pos.name, pos.id)));
+    G.COUNTRIES.forEach((c) => $('#cc-country').add(new Option(c.name, c.name)));
+    $('#cc-country').value = 'England';
 
     const club = $('#opt-club');
     data.leagues.forEach((l) => {
@@ -3631,45 +4623,81 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     for (let i = 0; i <= 6; i++) rules.add(new Option(String(i), String(i)));
 
     const saved = storageGet(OPTIONS_KEY, null);
+    const form = formEl();
     if (saved) {
-      const form = $('#options');
-      ['archetype', 'club', 'league', 'tier', 'seasons', 'ruleCount'].forEach((name) => {
+      ['mode', 'difficulty'].forEach((name) => {
+        const radio = $(`input[name="${name}"][value="${saved[name]}"]`, form);
+        if (radio) radio.checked = true;
+      });
+    }
+    populateArchetypes(saved && saved.archetype);
+    if (saved) {
+      ['club', 'position', 'league', 'tier', 'seasons', 'ruleCount', 'ccCountry', 'ccLevel', 'ccTier'].forEach((name) => {
         const el = form.elements[name];
         if (saved[name] != null && $$('option', el).some((o) => o.value === String(saved[name]))) el.value = String(saved[name]);
       });
-      const radio = $(`input[name="difficulty"][value="${saved.difficulty}"]`, form);
-      if (radio) radio.checked = true;
+      ['ccName', 'ccLeague'].forEach((name) => { if (typeof saved[name] === 'string') form.elements[name].value = saved[name]; });
       form.elements.events.checked = saved.events !== false;
     }
   }
 
   function readOptions() {
-    const form = $('#options');
-    const opts = {
-      difficulty: form.elements.difficulty.value,
-      archetype: form.elements.archetype.value,
-      club: form.elements.club.value,
-      league: form.elements.league.value,
-      tier: form.elements.tier.value,
-      seasons: form.elements.seasons.value,
-      ruleCount: form.elements.ruleCount.value,
-      events: form.elements.events.checked,
+    const f = formEl().elements;
+    const custom = f.club.value === '__custom';
+    const raw = {
+      mode: currentMode(),
+      difficulty: f.difficulty.value,
+      archetype: f.archetype.value,
+      position: f.position.value,
+      club: f.club.value,
+      league: f.league.value,
+      tier: f.tier.value,
+      seasons: f.seasons.value,
+      ruleCount: f.ruleCount.value,
+      events: f.events.checked,
+      ccName: f.ccName.value,
+      ccCountry: f.ccCountry.value,
+      ccLevel: f.ccLevel.value,
+      ccTier: f.ccTier.value,
+      ccLeague: f.ccLeague.value,
     };
-    storageSet(OPTIONS_KEY, opts);
-    return opts;
+    storageSet(OPTIONS_KEY, raw);
+    return {
+      mode: raw.mode,
+      difficulty: raw.difficulty,
+      archetype: raw.archetype,
+      position: raw.position,
+      club: custom ? 'any' : raw.club,
+      league: raw.league,
+      tier: raw.tier,
+      seasons: raw.seasons,
+      ruleCount: raw.ruleCount,
+      events: raw.events,
+      customClub: custom ? { name: raw.ccName, country: raw.ccCountry, level: raw.ccLevel, tier: raw.ccTier, league: raw.ccLeague } : null,
+    };
   }
 
   // League and size filters don't apply once a specific club is chosen.
   function syncClubFilters() {
-    const specific = $('#opt-club').value !== 'any';
+    const value = $('#opt-club').value;
+    const specific = value !== 'any';
     $$('#club-filters select').forEach((el) => { el.disabled = specific; });
     $('#club-filters').classList.toggle('is-disabled', specific);
+    $('#custom-club').hidden = value !== '__custom';
+  }
+
+  // A typed-in club needs a name before anything can be generated for it.
+  function customClubMissing(opts) {
+    if ($('#opt-club').value !== '__custom' || G.normalizeCustomClub(opts.customClub)) return false;
+    toast('Type your club’s name first');
+    formEl().elements.ccName.focus();
+    return true;
   }
 
   // ---------- Generating ----------
 
   function resetLocks() {
-    state.locks = { club: false, archetype: false, seasons: false, difficulty: false, rules: new Set() };
+    state.locks = { club: false, archetype: false, seasons: false, difficulty: false, position: false, rules: new Set() };
   }
 
   function currentLocks() {
@@ -3682,11 +4710,15 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       seasons: locks.seasons ? ch.seasons : null,
       difficulty: locks.difficulty ? ch.difficulty : null,
       ruleIds: ch.rules.filter((r) => locks.rules.has(r.id)).map((r) => r.id),
+      position: locks.position && ch.position ? ch.position.id : null,
+      startAge: locks.position && ch.startAge ? ch.startAge : null,
     };
   }
 
   function generate(seed, useLocks) {
     const opts = readOptions();
+    if (customClubMissing(opts)) return;
+    state.draft = null;
     const locks = useLocks ? currentLocks() : {};
     state.challenge = G.generateChallenge(opts, seed || G.randomSeed(), locks);
     if (!useLocks) resetLocks();
@@ -3710,11 +4742,15 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 
   /**
    * Render a challenge card.
-   * mode 'builder' shows lock/reroll controls; mode 'saved' shows progress checkboxes.
+   * mode 'builder' shows lock/reroll controls (not for edited challenges),
+   * 'saved' shows progress checkboxes and the season diary, 'daily' its own actions.
    */
   function renderCard(ch, mode, entry) {
     const builder = mode === 'builder';
+    const controls = builder && !ch.custom;
+    const player = ch.mode === 'player';
     const progress = (entry && entry.progress) || {};
+    const log = (entry && entry.log) || {};
     const L = state.locks;
 
     const check = (key) => (mode === 'saved'
@@ -3724,10 +4760,10 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     const rulesHtml = ch.coreRules.map((r) => `
         <li class="rule core"><span class="rule-tag">Core</span><span class="rule-text">${esc(r.text)}</span></li>`).join('')
       + ch.rules.map((r, i) => `
-        <li class="rule ${builder && L.rules.has(r.id) ? 'is-locked' : ''}">
+        <li class="rule ${controls && L.rules.has(r.id) ? 'is-locked' : ''}">
           <span class="rule-tag cat-${esc(r.cat.toLowerCase())}">${esc(r.cat)}</span>
           <span class="rule-text">${esc(r.text)}</span>
-          ${builder ? `<span class="rule-actions">
+          ${controls ? `<span class="rule-actions">
             <button type="button" class="icon-btn" data-action="reroll-rule" data-index="${i}" title="Swap this rule">🔄</button>
             ${lockBtn('rule', L.rules.has(r.id), r.id)}
           </span>` : ''}
@@ -3735,7 +4771,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 
     const roadmapHtml = ch.roadmap.map((s) => `
       <li class="season">
-        <div class="season-num"><span>S${s.season}</span></div>
+        <div class="season-num"><span>S${s.season}</span>${s.age ? `<small>age ${Number(s.age)}</small>` : ''}</div>
         <div class="season-body">
           ${s.objectives.map((o, i) => `
             <label class="objective ${o.type}">
@@ -3744,6 +4780,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
               <span>${esc(o.text)}</span>
             </label>`).join('')}
           ${s.events.map((e) => `<div class="event"><span class="obj-icon">⚡</span><span>${esc(e)}</span></div>`).join('')}
+          ${mode === 'saved' ? diaryRow(s.season, log[s.season] || {}) : ''}
         </div>
       </li>`).join('');
 
@@ -3753,15 +4790,15 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
         <div class="arch-icon">${esc(ch.archetype.icon)}</div>
         <div class="card-title">
           <div class="eyebrow">
-            ${ch.archetype.history ? `${esc(ch.archetype.typeName)} · ` : ''}${esc(ch.archetype.name)}
-            ${builder ? lockBtn('archetype', L.archetype) : ''}
+            ${ch.archetype.history && ch.archetype.typeName !== ch.archetype.name ? `${esc(ch.archetype.typeName)} · ` : ''}${esc(ch.archetype.name)}
+            ${controls ? lockBtn('archetype', L.archetype) : ''}
           </div>
           <h2>${esc(ch.club.name)}</h2>
           <p class="tagline">${esc(ch.archetype.tagline)}</p>
         </div>
         <div class="badges">
-          <span class="badge-row">${builder ? lockBtn('difficulty', L.difficulty) : ''}<span class="badge diff">${esc(ch.difficultyName)}</span></span>
-          <span class="badge seed" title="Seed">#${esc(ch.seed)}</span>
+          <span class="badge-row">${controls ? lockBtn('difficulty', L.difficulty) : ''}<span class="badge diff">${esc(ch.difficultyName)}</span></span>
+          ${ch.custom ? '<span class="badge seed" title="Written or edited by hand">✍️ Custom</span>' : `<span class="badge seed" title="Seed">#${esc(ch.seed)}</span>`}
         </div>
       </header>
 
@@ -3769,17 +4806,21 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 
       <div class="facts">
         <div class="fact">
-          <span class="fact-label">Club ${builder ? lockBtn('club', L.club) : ''}</span>
+          <span class="fact-label">${player ? 'Starting club' : 'Club'} ${controls ? lockBtn('club', L.club) : ''}</span>
           <span class="fact-value">${esc(ch.club.name)}</span>
-          <span class="fact-sub">${esc(ch.club.league)} · ${esc(ch.club.country)}</span>
+          <span class="fact-sub">${[ch.club.league, ch.club.country].filter(Boolean).map(esc).join(' · ')}</span>
         </div>
-        <div class="fact">
+        ${player && ch.position ? `<div class="fact">
+          <span class="fact-label">Position ${controls ? lockBtn('position', L.position) : ''}</span>
+          <span class="fact-value">${esc(ch.position.name)}</span>
+          <span class="fact-sub">starting age ${Number(ch.startAge)}</span>
+        </div>` : `<div class="fact">
           <span class="fact-label">Club size</span>
           <span class="fact-value stars" title="${esc(ch.club.tierName)}">${stars(ch.club.tier)}</span>
           <span class="fact-sub">${esc(ch.club.tierName)}</span>
-        </div>
+        </div>`}
         <div class="fact">
-          <span class="fact-label">Length ${builder ? lockBtn('seasons', L.seasons) : ''}</span>
+          <span class="fact-label">Length ${controls ? lockBtn('seasons', L.seasons) : ''}</span>
           <span class="fact-value">${ch.seasons}</span>
           <span class="fact-sub">season${ch.seasons === 1 ? '' : 's'}</span>
         </div>
@@ -3787,7 +4828,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 
       ${ch.archetype.history
     ? `<section class="history"><h3>📖 The history</h3><p>${esc(ch.archetype.history)}</p></section>`
-    : `<p class="desc">${esc(ch.archetype.desc)}</p>`}
+    : ch.archetype.desc ? `<p class="desc">${esc(ch.archetype.desc)}</p>` : ''}
 
       <section class="block">
         <h3>📜 Rules</h3>
@@ -3795,14 +4836,14 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       </section>
 
       <section class="block">
-        <h3>🗺️ Season roadmap</h3>
+        <h3>🗺️ ${player ? 'Career roadmap' : 'Season roadmap'}</h3>
         <ol class="roadmap">${roadmapHtml}</ol>
       </section>
 
-      <section class="block final">
+      ${ch.finalGoal ? `<section class="block final">
         <h3>🏆 Final goal</h3>
         <label class="objective final-goal">${check('final')}<span>${esc(ch.finalGoal)}</span></label>
-      </section>
+      </section>` : ''}
 
       <div class="grid-2">
         <section class="block">
@@ -3822,17 +4863,57 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       </section>`}
 
       <footer class="card-actions">
+        ${controls ? '<button type="button" class="btn btn-primary" data-action="reroll">🎲 Reroll unlocked</button>' : ''}
         ${builder ? `
-          <button type="button" class="btn btn-primary" data-action="reroll">🎲 Reroll unlocked</button>
-          <button type="button" class="btn" data-action="save">💾 Save</button>` : ''}
+          <button type="button" class="btn${ch.custom ? ' btn-primary' : ''}" data-action="save">💾 Save</button>
+          <button type="button" class="btn" data-action="edit" title="Change any text, add or remove rules and seasons">✏️ Edit</button>` : ''}
         ${mode === 'daily' ? `
           <button type="button" class="btn btn-primary" data-action="save">💾 Take it on</button>
           <button type="button" class="btn" data-action="customise" title="Open in the Builder to lock and reroll parts">🛠️ Customise</button>` : ''}
         <button type="button" class="btn" data-action="copy">📋 Copy text</button>
         <button type="button" class="btn" data-action="share">🔗 Share link</button>
+        <button type="button" class="btn" data-action="image" title="Save the challenge as a picture to post">🖼️ Image</button>
         ${mode === 'saved' ? '<button type="button" class="btn btn-danger" data-action="delete">🗑️ Delete</button>' : ''}
       </footer>
     </article>`;
+  }
+
+  // ---------- Season diary ----------
+
+  const trophiesOf = (entry) => Object.values(entry.log || {}).reduce((n, l) => n + (Number(l && l.trophies) || 0), 0);
+
+  function diaryRow(season, l) {
+    return `
+          <div class="diary" data-season="${season}">
+            <label class="diary-field"><span>Finish</span>
+              <input type="text" data-log="finish" maxlength="24" placeholder="e.g. 3rd" value="${esc(l.finish || '')}"></label>
+            <div class="diary-field"><span>Trophies</span>
+              <div class="stepper">
+                <button type="button" class="icon-btn" data-action="log-step" data-delta="-1" aria-label="One fewer trophy">−</button>
+                <strong>${Number(l.trophies) || 0}</strong>
+                <button type="button" class="icon-btn" data-action="log-step" data-delta="1" aria-label="One more trophy">+</button>
+              </div></div>
+            <label class="diary-field grow"><span>Notes</span>
+              <input type="text" data-log="notes" maxlength="200" placeholder="Big signings, best moments…" value="${esc(l.notes || '')}"></label>
+          </div>`;
+  }
+
+  // Seasons with a ticked main objective or a logged finish count as played.
+  function currentSeason(entry) {
+    const ch = entry.challenge;
+    const played = ch.roadmap.filter((s) => (entry.progress || {})[`s${s.season}-0`] || ((entry.log || {})[s.season] || {}).finish).length;
+    return played >= ch.seasons ? 'Finished' : `Season ${played + 1} of ${ch.seasons}`;
+  }
+
+  function diaryText(entry) {
+    const lines = ['', 'MY PROGRESS'];
+    entry.challenge.roadmap.forEach((s) => {
+      const l = (entry.log || {})[s.season] || {};
+      const bits = [l.finish, l.trophies ? `${l.trophies} troph${l.trophies === 1 ? 'y' : 'ies'}` : '', l.notes].filter(Boolean);
+      if (bits.length) lines.push(`Season ${s.season}: ${bits.join(' · ')}`);
+    });
+    lines.push(`Score: ${scoreFor(entry.challenge, entry)} points (${currentSeason(entry)})`);
+    return lines.join('\n');
   }
 
   function scoreFor(ch, entry) {
@@ -3843,7 +4924,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       if (p[`s${s.season}-${i}`]) total += o.type === 'main' ? pts['Main season objective'] : pts['Side objective'];
     }));
     if (p.final) total += pts['Final goal achieved'];
-    total += (entry.trophies || 0) * pts['Major trophy won'];
+    total += trophiesOf(entry) * pts['Major trophy won'];
     total += (entry.breaks || 0) * pts['Rule broken'];
     return total;
   }
@@ -3855,10 +4936,8 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
         <h3>🧮 Scoreboard</h3>
         <div class="score-row">
           <div class="counter">
-            <span>🏆 Trophies (+15)</span>
-            <div><button type="button" class="icon-btn" data-action="count" data-field="trophies" data-delta="-1">−</button>
-            <strong>${entry.trophies || 0}</strong>
-            <button type="button" class="icon-btn" data-action="count" data-field="trophies" data-delta="1">+</button></div>
+            <span>🏆 Trophies (+15 each)</span>
+            <div><strong data-score="trophies">${trophiesOf(entry)}</strong><small class="muted">from the season diary</small></div>
           </div>
           <div class="counter">
             <span>🚫 Rules broken (${rulePts})</span>
@@ -3866,20 +4945,237 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
             <strong>${entry.breaks || 0}</strong>
             <button type="button" class="icon-btn" data-action="count" data-field="breaks" data-delta="1">+</button></div>
           </div>
-          <div class="counter total"><span>Total score</span><strong>${scoreFor(ch, entry)}</strong></div>
+          <div class="counter total"><span>Total score</span><strong data-score="total">${scoreFor(ch, entry)}</strong></div>
         </div>
       </section>`;
   }
 
+  // Grow a text box to fit its contents, so long objectives aren't clipped.
+  function autosize(el) {
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight + 2}px`;
+  }
+
   function renderBuilder(scroll) {
     const el = $('#result');
-    el.innerHTML = renderCard(state.challenge, 'builder');
+    el.innerHTML = state.draft ? renderEditor(state.draft) : renderCard(state.challenge, 'builder');
+    if (state.draft) $$('textarea', el).forEach(autosize);
     if (scroll && window.innerWidth < 900) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ---------- Editor ----------
+
+  const clone = (x) => JSON.parse(JSON.stringify(x));
+
+  function getParent(obj, path) {
+    const parts = path.split('.');
+    const last = parts.pop();
+    return { parent: parts.reduce((o, k) => (o == null ? o : o[k]), obj), key: last };
+  }
+
+  function setPath(obj, path, value) {
+    const { parent, key } = getParent(obj, path);
+    if (parent != null) parent[key] = value;
+  }
+
+  function renderEditor(d) {
+    const player = d.mode === 'player';
+    const input = (path, value, placeholder, max = 120) => `<input type="text" data-path="${path}" maxlength="${max}" value="${esc(value || '')}" placeholder="${esc(placeholder)}">`;
+    const area = (path, value, placeholder, max = 400, rows = 2) => `<textarea data-path="${path}" maxlength="${max}" rows="${rows}" placeholder="${esc(placeholder)}">${esc(value || '')}</textarea>`;
+    const row = (path, value, placeholder, removable = true) => `
+          <div class="edit-row">${area(path, value, placeholder, 400, 1)}${removable ? `<button type="button" class="icon-btn" data-edit="remove" data-path="${path}" title="Remove" aria-label="Remove">✕</button>` : ''}</div>`;
+    const ruleList = (key, label, addLabel, placeholder) => `
+        <section class="edit-block">
+          <h3>${label}</h3>
+          ${d[key].map((r, i) => row(`${key}.${i}.text`, r.text, placeholder)).join('')}
+          <button type="button" class="btn btn-small" data-edit="add-${key}">+ ${addLabel}</button>
+        </section>`;
+
+    const seasons = d.roadmap.map((s, si) => `
+          <div class="edit-season">
+            <div class="edit-season-head"><strong>Season ${si + 1}</strong>${s.age ? `<small class="muted">age ${Number(s.age)}</small>` : ''}</div>
+            ${s.objectives.map((o, oi) => row(`roadmap.${si}.objectives.${oi}.text`, o.text, o.type === 'main' ? 'Main objective, e.g. Win promotion' : 'Side objective', oi > 0)).join('')}
+            ${s.events.map((e, ei) => `<div class="edit-row event-row"><span class="obj-icon">⚡</span>${area(`roadmap.${si}.events.${ei}`, e, 'Random event', 300, 1)}<button type="button" class="icon-btn" data-edit="remove" data-path="roadmap.${si}.events.${ei}" title="Remove" aria-label="Remove">✕</button></div>`).join('')}
+            <div class="edit-inline">
+              <button type="button" class="btn btn-small" data-edit="add-side" data-season="${si}">+ Side objective</button>
+              <button type="button" class="btn btn-small" data-edit="add-event" data-season="${si}">+ Event</button>
+            </div>
+          </div>`).join('');
+
+    return `
+    <article class="card panel editor diff-${Number(d.difficulty) || 2}">
+      <header class="editor-head">
+        <h2>✏️ ${d.archetype.id === 'custom' && !d.archetype.history && !d.finalGoal ? 'Write your own challenge' : 'Edit challenge'}</h2>
+        <p class="muted">Change any text, add or remove rules and seasons, then press <strong>Done</strong>. Edited challenges share as a link that carries everything.</p>
+      </header>
+
+      <div class="edit-grid">
+        <label class="edit-field"><span>Challenge name</span>${input('archetype.name', d.archetype.name, 'e.g. The Long Climb', 60)}</label>
+        <label class="edit-field icon-field"><span>Icon</span>${input('archetype.icon', d.archetype.icon, '✍️', 8)}</label>
+        <label class="edit-field"><span>${player ? 'Starting club' : 'Club'}</span>${input('club.name', d.club.name, 'Club name', 40)}</label>
+        <label class="edit-field"><span>Difficulty</span>
+          <select data-path="difficulty">${data.difficulties.map((x) => `<option value="${x.level}" ${Number(d.difficulty) === x.level ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>
+        ${player ? `
+        <label class="edit-field"><span>Position</span>
+          <select data-path="position.id">${modes.player.positions.map((pos) => `<option value="${pos.id}" ${d.position && d.position.id === pos.id ? 'selected' : ''}>${esc(pos.name)}</option>`).join('')}</select></label>
+        <label class="edit-field"><span>Starting age</span><input type="number" min="15" max="40" data-path="startAge" value="${Number(d.startAge) || 17}"></label>` : ''}
+        <label class="edit-field wide"><span>Tagline</span>${input('archetype.tagline', d.archetype.tagline, 'A one-line hook', 160)}</label>
+        <label class="edit-field wide"><span>Story or club history <small>(optional)</small></span>${area('archetype.history', d.archetype.history, 'Why this challenge? Real club history makes the best ones.', 1200, 3)}</label>
+      </div>
+
+      ${ruleList('coreRules', '📜 Core rules', 'Core rule', 'e.g. Only sign players from your own country.')}
+      ${ruleList('rules', '➕ Extra rules', 'Extra rule', 'e.g. No loan signings.')}
+
+      <section class="edit-block">
+        <h3>🗺️ ${player ? 'Career roadmap' : 'Season roadmap'}</h3>
+        ${seasons}
+        <div class="edit-inline">
+          <button type="button" class="btn btn-small" data-edit="add-season">+ Add season</button>
+          ${d.roadmap.length > 1 ? '<button type="button" class="btn btn-small" data-edit="remove-season">− Remove last season</button>' : ''}
+        </div>
+      </section>
+
+      <section class="edit-block">
+        <h3>🏆 Final goal</h3>
+        ${area('finalGoal', d.finalGoal, 'e.g. Win the league with an all-academy XI.', 400, 2)}
+      </section>
+
+      <footer class="card-actions">
+        <button type="button" class="btn btn-primary" data-edit="done">✅ Done</button>
+        <button type="button" class="btn" data-edit="cancel">Cancel</button>
+      </footer>
+    </article>`;
+  }
+
+  function startEdit(ch) {
+    state.draft = clone(ch);
+    renderBuilder(true);
+  }
+
+  function blankChallenge() {
+    const opts = readOptions();
+    const player = opts.mode === 'player';
+    const custom = G.normalizeCustomClub(opts.customClub);
+    const picked = opts.club !== 'any' && G.CLUBS.find((c) => `${c.leagueId}|${c.name}` === opts.club);
+    const club = custom ? G.buildCustomClub(custom) : picked || null;
+    const d = opts.difficulty === 'random' ? 2 : Number(opts.difficulty);
+    const startAge = 17;
+    const ch = {
+      mode: opts.mode,
+      custom: true,
+      seed: 'custom',
+      options: opts,
+      difficulty: d,
+      archetype: { id: 'custom', name: 'My Challenge', icon: '✍️', tagline: '', desc: '', history: '' },
+      club: club
+        ? { name: club.name, league: club.league, leagueId: club.leagueId, country: club.country, nationality: club.nationality, tier: club.tier }
+        : { name: '', league: '', country: '', tier: 3 },
+      coreRules: [{ text: '' }],
+      rules: [],
+      roadmap: [1, 2, 3].map((s) => Object.assign({ season: s, objectives: [{ text: '', type: 'main' }], events: [] }, player ? { age: startAge + s - 1 } : {})),
+      finalGoal: '',
+    };
+    if (player) {
+      const pos = modes.player.positions.find((x) => x.id === opts.position) || modes.player.positions[5];
+      Object.assign(ch, { position: { id: pos.id, name: pos.name }, startAge });
+    }
+    return ch;
+  }
+
+  function finishEdit() {
+    const d = state.draft;
+    if (d.mode === 'player') {
+      const age = Number(d.startAge) || 17;
+      d.roadmap.forEach((s, i) => { s.age = age + i; });
+      const pos = modes.player.positions.find((x) => x.id === (d.position && d.position.id));
+      if (pos) d.position = { id: pos.id, name: pos.name };
+    }
+    const name = (d.archetype.name || '').trim() || 'My Challenge';
+    const club = (d.club.name || '').trim() || 'Your club';
+    d.title = d.mode === 'player' && d.position ? `${name}: ${d.position.name} at ${club}` : `${name}: ${club}`;
+    d.archetype.typeName = name;
+    const ch = G.sanitizeChallenge(d);
+    if (!ch.coreRules.length && !ch.rules.length && !ch.finalGoal) {
+      toast('Add at least one rule or a final goal first');
+      return;
+    }
+    state.challenge = ch;
+    state.draft = null;
+    resetLocks();
+    renderBuilder();
+    toast('Challenge updated ✍️');
+  }
+
+  function onEditorInput(e) {
+    const el = e.target.closest('[data-path]');
+    if (!el || !state.draft) return;
+    setPath(state.draft, el.dataset.path, el.value);
+    if (el.tagName === 'TEXTAREA') autosize(el);
+  }
+
+  function onEditorClick(btn) {
+    const d = state.draft;
+    const act = btn.dataset.edit;
+    const si = Number(btn.dataset.season);
+    if (act === 'done') return finishEdit();
+    if (act === 'cancel') {
+      state.draft = null;
+      if (state.challenge) renderBuilder();
+      else $('#result').innerHTML = EMPTY_RESULT;
+      return undefined;
+    }
+    if (act === 'add-coreRules') d.coreRules.push({ text: '' });
+    else if (act === 'add-rules') d.rules.push({ id: `custom-${Date.now().toString(36)}`, cat: 'Custom', text: '' });
+    else if (act === 'add-side') d.roadmap[si].objectives.push({ text: '', type: 'side' });
+    else if (act === 'add-event') d.roadmap[si].events.push('');
+    else if (act === 'add-season') {
+      const last = d.roadmap[d.roadmap.length - 1];
+      if (d.roadmap.length >= 15) return toast('15 seasons is the maximum');
+      d.roadmap.push(Object.assign({ season: d.roadmap.length + 1, objectives: [{ text: '', type: 'main' }], events: [] }, last && last.age ? { age: last.age + 1 } : {}));
+    } else if (act === 'remove-season') d.roadmap.pop();
+    else if (act === 'remove') {
+      // "rules.2.text" removes rules[2]; "roadmap.0.events.1" removes that event.
+      const path = btn.dataset.path.replace(/\.text$/, '');
+      const { parent, key } = getParent(d, path);
+      if (Array.isArray(parent)) parent.splice(Number(key), 1);
+    }
+    renderBuilder();
+    return undefined;
+  }
+
+  // ---------- Image export ----------
+
+  // Where the challenge came from, printed at the bottom of the image.
+  function siteLabel() {
+    if (!/^https?:$/.test(window.location.protocol)) return '';
+    return (window.location.host + window.location.pathname).replace(/\/index\.html$/, '').replace(/\/$/, '');
+  }
+
+  async function exportImage(ch) {
+    try {
+      const result = await shareImage.exportImage(ch, siteLabel());
+      if (result === 'downloaded') toast('Image saved 🖼️');
+    } catch (e) {
+      toast("Couldn't create the image in this browser");
+    }
   }
 
   // ---------- Saved challenges ----------
 
-  const loadSaved = () => storageGet(STORE_KEY, []).filter((e) => e && e.challenge && e.id);
+  // Older saves kept one trophy counter for the whole challenge; it now lives in season 1 of the diary.
+  function migrateEntry(e) {
+    if (e.trophies > 0) {
+      e.log = e.log || {};
+      e.log[1] = Object.assign({}, e.log[1], { trophies: (Number((e.log[1] || {}).trophies) || 0) + e.trophies });
+    }
+    delete e.trophies;
+    return e;
+  }
+
+  const loadSaved = () => {
+    const list = storageGet(STORE_KEY, []);
+    return (Array.isArray(list) ? list : []).filter((e) => e && e.challenge && e.id).map(migrateEntry);
+  };
   const writeSaved = (list) => storageSet(STORE_KEY, list);
 
   function progressOf(entry) {
@@ -3903,31 +5199,59 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       const pct = Math.round((done / total) * 100);
       return `
       <details class="saved-item panel" data-id="${esc(entry.id)}" ${entry.id === openId ? 'open' : ''}>
-        <summary>
-          <span class="arch-icon small">${esc(ch.archetype.icon)}</span>
-          <span class="saved-title">
-            <strong>${esc(ch.title)}</strong>
-            <small>${ch.daily ? `📅 Daily #${Number(ch.daily.number) || ''} · ` : ''}${esc(ch.difficultyName)} · ${ch.seasons} seasons · saved ${esc(new Date(entry.savedAt).toLocaleDateString())}</small>
-          </span>
-          <span class="progress" title="${done}/${total} objectives">
-            <span class="progress-bar"><span style="width:${pct}%"></span></span>
-            <small>${done}/${total} · ${scoreFor(ch, entry)} pts</small>
-          </span>
-        </summary>
+        <summary>${savedSummary(entry)}</summary>
         <div class="saved-body">${renderCard(ch, 'saved', entry)}</div>
       </details>`;
     }).join('');
   }
 
+  function savedSummary(entry) {
+    const ch = entry.challenge;
+    const { done, total } = progressOf(entry);
+    const pct = Math.round((done / total) * 100);
+    const tags = [
+      ch.daily ? `📅 Daily #${Number(ch.daily.number) || ''}` : '',
+      ch.mode === 'player' ? '⚽ Player' : '',
+      ch.custom ? '✍️ Custom' : '',
+      esc(ch.difficultyName),
+      `saved ${esc(new Date(entry.savedAt).toLocaleDateString())}`,
+    ].filter(Boolean).join(' · ');
+    return `
+          <span class="arch-icon small">${esc(ch.archetype.icon)}</span>
+          <span class="saved-title">
+            <strong>${esc(ch.title)}</strong>
+            <small>${tags}</small>
+          </span>
+          <span class="progress" title="${done}/${total} objectives">
+            <span class="progress-bar"><span style="width:${pct}%"></span></span>
+            <small>${esc(currentSeason(entry))} · ${scoreFor(ch, entry)} pts</small>
+          </span>`;
+  }
+
+  // Diary text fields save without re-rendering, so typing isn't interrupted.
+  function onSavedChange(e) {
+    const input = e.target.closest('[data-log]');
+    const item = input && input.closest('.saved-item');
+    if (!item) return;
+    const season = Number(input.closest('.diary').dataset.season);
+    const list = loadSaved();
+    const entry = list.find((x) => x.id === item.dataset.id);
+    if (!entry) return;
+    entry.log = entry.log || {};
+    entry.log[season] = Object.assign({}, entry.log[season], { [input.dataset.log]: input.value.trim().slice(0, 200) });
+    writeSaved(list);
+    $('summary', item).innerHTML = savedSummary(entry);
+  }
+
   function saveChallenge(ch) {
     const list = loadSaved();
-    const key = JSON.stringify(G.toShareKey(ch));
-    if (list.some((e) => JSON.stringify(G.toShareKey(e.challenge)) === key)) {
+    const key = challengeKey(ch);
+    if (list.some((e) => challengeKey(e.challenge) === key)) {
       toast('Already in My Challenges');
       return;
     }
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-    list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, trophies: 0, breaks: 0 });
+    list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, log: {}, breaks: 0 });
     if (writeSaved(list)) {
       $('#saved-count').textContent = list.length;
       toast('Saved to My Challenges 💾');
@@ -4049,10 +5373,13 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     } else if (action === 'customise') {
       // Open in the Builder with everything locked, so the player can unlock and reroll parts.
       state.challenge = ch;
-      state.locks = { club: true, archetype: true, seasons: true, difficulty: true, rules: new Set(ch.rules.map((r) => r.id)) };
+      state.draft = null;
+      state.locks = { club: true, archetype: true, seasons: true, difficulty: true, position: true, rules: new Set(ch.rules.map((r) => r.id)) };
       showView('builder');
       renderBuilder(true);
       toast('Everything is locked. Unlock the parts you want to change, then reroll.');
+    } else if (action === 'image') {
+      exportImage(ch);
     } else if (action === 'copy') {
       copyText(G.challengeToText(ch)).then((ok) => toast(ok ? 'Copied to clipboard 📋' : 'Copy failed'));
     } else if (action === 'share') {
@@ -4082,7 +5409,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       toast(ok ? 'Share links need the hosted version, so the challenge text was copied instead 📋' : 'Share links need the hosted version');
       return;
     }
-    const url = shareUrl(ch);
+    const url = await shareUrl(ch);
     if (navigator.share && window.matchMedia('(pointer: coarse)').matches) {
       try {
         await navigator.share({ title: ch.title, text: `FC 26 career challenge: ${ch.title}`, url });
@@ -4093,6 +5420,11 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
   }
 
   function onBuilderClick(e) {
+    const editBtn = e.target.closest('[data-edit]');
+    if (editBtn && state.draft) {
+      onEditorClick(editBtn);
+      return;
+    }
     const btn = e.target.closest('[data-action]');
     if (!btn || !state.challenge) return;
     const { action } = btn.dataset;
@@ -4121,6 +5453,10 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       renderBuilder();
     } else if (action === 'save') {
       saveChallenge(state.challenge);
+    } else if (action === 'edit') {
+      startEdit(state.challenge);
+    } else if (action === 'image') {
+      exportImage(state.challenge);
     } else if (action === 'copy') {
       copyText(G.challengeToText(state.challenge)).then((ok) => toast(ok ? 'Copied to clipboard 📋' : 'Copy failed'));
     } else if (action === 'share') {
@@ -4147,6 +5483,16 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
         const f = btn.dataset.field;
         en[f] = Math.max(0, (en[f] || 0) + Number(btn.dataset.delta));
       });
+    } else if (action === 'log-step') {
+      const season = Number(btn.closest('.diary').dataset.season);
+      updateEntry(id, (en) => {
+        en.log = en.log || {};
+        const l = Object.assign({}, en.log[season]);
+        l.trophies = Math.min(20, Math.max(0, (Number(l.trophies) || 0) + Number(btn.dataset.delta)));
+        en.log[season] = l;
+      });
+    } else if (action === 'image') {
+      exportImage(entry.challenge);
     } else if (action === 'delete') {
       if (window.confirm(`Delete "${entry.challenge.title}"?`)) {
         writeSaved(loadSaved().filter((x) => x.id !== id));
@@ -4154,22 +5500,28 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
         toast('Challenge deleted');
       }
     } else if (action === 'copy') {
-      copyText(G.challengeToText(entry.challenge)).then((ok) => toast(ok ? 'Copied to clipboard 📋' : 'Copy failed'));
+      copyText(G.challengeToText(entry.challenge) + '\n' + diaryText(entry)).then((ok) => toast(ok ? 'Copied with your progress 📋' : 'Copy failed'));
     } else if (action === 'share') {
       shareChallenge(entry.challenge);
     }
   }
 
-  function loadFromHash() {
-    const m = window.location.hash.match(/^#c=([A-Za-z0-9_-]+)$/);
+  async function loadFromHash() {
+    const m = window.location.hash.match(/^#([cx])=([A-Za-z0-9_-]+)$/);
     if (!m) return false;
-    const key = decodeKey(m[1]);
-    const ch = key && G.fromShareKey(key);
+    let ch = null;
+    if (m[1] === 'c') {
+      const key = decodeKey(m[2]);
+      ch = key && G.fromShareKey(key);
+    } else {
+      ch = await unpackCustom(m[2]);
+    }
     if (!ch) {
       toast("That share link couldn't be read");
       return false;
     }
     state.challenge = ch;
+    state.draft = null;
     resetLocks();
     showView('builder');
     renderBuilder();
@@ -4178,9 +5530,20 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
   }
 
   function init() {
+    EMPTY_RESULT = $('#result').innerHTML;
     populateOptions();
+    syncMode();
     syncClubFilters();
     $('#opt-club').addEventListener('change', syncClubFilters);
+    $$('input[name="mode"]').forEach((el) => el.addEventListener('change', syncMode));
+    $('#write-own').addEventListener('click', () => {
+      const opts = readOptions();
+      if (customClubMissing(opts)) return;
+      startEdit(blankChallenge());
+    });
+    $('#result').addEventListener('input', onEditorInput);
+    $('#result').addEventListener('change', onEditorInput);
+    $('#saved-list').addEventListener('change', onSavedChange);
     $('#options').addEventListener('submit', (e) => {
       e.preventDefault();
       const seed = $('#opt-seed').value.trim();
@@ -4191,7 +5554,10 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     $('#saved-list').addEventListener('click', onSavedClick);
     $('#view-daily').addEventListener('click', onDailyClick);
     $$('.tab').forEach((t) => t.addEventListener('click', () => showView(t.dataset.view)));
-    window.addEventListener('hashchange', loadFromHash);
+    window.addEventListener('hashchange', () => {
+      if (window.location.hash === '#daily') showView('daily');
+      else loadFromHash();
+    });
     $('#saved-count').textContent = loadSaved().length;
     syncDailyDot();
     setInterval(tickDaily, 30000);

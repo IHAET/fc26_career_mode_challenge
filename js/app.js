@@ -1,7 +1,7 @@
 /* UI for the FC 26 Career Challenge Builder. */
 (function () {
   'use strict';
-  const { data, content, generator: G, daily: Daily } = window.FC26;
+  const { data, modes, generator: G, daily: Daily, shareImage } = window.FC26;
 
   const STORE_KEY = 'fc26-challenges-v1';
   const OPTIONS_KEY = 'fc26-options-v1';
@@ -14,8 +14,12 @@
     challenge: null,
     dailyKey: null, // date being viewed on the Daily tab
     dailyChallenge: null,
-    locks: { club: false, archetype: false, seasons: false, difficulty: false, rules: new Set() },
+    locks: { club: false, archetype: false, seasons: false, difficulty: false, position: false, rules: new Set() },
+    draft: null, // challenge being edited in the Builder, or null
   };
+
+  // The Builder's starting placeholder, restored when you cancel a blank challenge.
+  let EMPTY_RESULT = '';
 
   // ---------- Helpers ----------
 
@@ -68,34 +72,86 @@
     }
   }
 
-  function encodeKey(obj) {
-    const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  const toB64 = (bytes) => {
     let bin = '';
     bytes.forEach((b) => { bin += String.fromCharCode(b); });
     return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  };
+  const fromB64 = (str) => Uint8Array.from(atob(str.replace(/-/g, '+').replace(/_/g, '/')), (ch) => ch.charCodeAt(0));
+
+  function encodeKey(obj) {
+    return toB64(new TextEncoder().encode(JSON.stringify(obj)));
   }
 
   function decodeKey(str) {
     try {
-      const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/'));
-      const bytes = Uint8Array.from(bin, (ch) => ch.charCodeAt(0));
-      return JSON.parse(new TextDecoder().decode(bytes));
+      return JSON.parse(new TextDecoder().decode(fromB64(str)));
     } catch (e) {
       return null;
     }
   }
 
-  function shareUrl(ch) {
+  // Edited challenges can't be rebuilt from a seed, so their links carry the
+  // whole challenge, deflated where the browser supports it ("z"), else raw ("j").
+  async function packCustom(ch) {
+    const slim = Object.assign({}, ch);
+    ['scoring', 'settings', 'notes', 'version', 'daily'].forEach((k) => delete slim[k]);
+    const bytes = new TextEncoder().encode(JSON.stringify(slim));
+    if (typeof CompressionStream === 'function') {
+      const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+      return 'z' + toB64(new Uint8Array(await new Response(stream).arrayBuffer()));
+    }
+    return 'j' + toB64(bytes);
+  }
+
+  async function unpackCustom(str) {
+    if (str.length > 60000) return null;
+    try {
+      let bytes = fromB64(str.slice(1));
+      if (str[0] === 'z') {
+        if (typeof DecompressionStream !== 'function') return null;
+        const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+        bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+      } else if (str[0] !== 'j') {
+        return null;
+      }
+      return G.sanitizeChallenge(JSON.parse(new TextDecoder().decode(bytes)));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function shareUrl(ch) {
     const url = new URL(window.location.href);
-    url.hash = 'c=' + encodeKey(G.toShareKey(ch));
+    url.hash = ch.custom ? 'x=' + (await packCustom(ch)) : 'c=' + encodeKey(G.toShareKey(ch));
     return url.toString();
   }
 
+  // Identity used to spot duplicates in My Challenges.
+  const challengeKey = (ch) => (ch.custom ? 'x:' + JSON.stringify(G.sanitizeChallenge(ch)) : JSON.stringify(G.toShareKey(ch)));
+
   // ---------- Options form ----------
 
+  const formEl = () => $('#options');
+  const currentMode = () => (formEl().elements.mode.value === 'player' ? 'player' : 'manager');
+
+  function populateArchetypes(selected) {
+    const sel = $('#opt-archetype');
+    const mode = modes[currentMode()];
+    sel.length = 1; // keep "Surprise me"
+    mode.archetypes.forEach((a) => sel.add(new Option(`${a.icon} ${a.name}`, a.id)));
+    sel.value = mode.archetypeById[selected] ? selected : 'any';
+  }
+
+  function syncMode() {
+    populateArchetypes($('#opt-archetype').value);
+    $$('[data-mode-only]').forEach((el) => { el.hidden = el.dataset.modeOnly !== currentMode(); });
+  }
+
   function populateOptions() {
-    const arch = $('#opt-archetype');
-    content.archetypes.forEach((a) => arch.add(new Option(`${a.icon} ${a.name}`, a.id)));
+    modes.player.positions.forEach((pos) => $('#opt-position').add(new Option(pos.name, pos.id)));
+    G.COUNTRIES.forEach((c) => $('#cc-country').add(new Option(c.name, c.name)));
+    $('#cc-country').value = 'England';
 
     const club = $('#opt-club');
     data.leagues.forEach((l) => {
@@ -117,45 +173,81 @@
     for (let i = 0; i <= 6; i++) rules.add(new Option(String(i), String(i)));
 
     const saved = storageGet(OPTIONS_KEY, null);
+    const form = formEl();
     if (saved) {
-      const form = $('#options');
-      ['archetype', 'club', 'league', 'tier', 'seasons', 'ruleCount'].forEach((name) => {
+      ['mode', 'difficulty'].forEach((name) => {
+        const radio = $(`input[name="${name}"][value="${saved[name]}"]`, form);
+        if (radio) radio.checked = true;
+      });
+    }
+    populateArchetypes(saved && saved.archetype);
+    if (saved) {
+      ['club', 'position', 'league', 'tier', 'seasons', 'ruleCount', 'ccCountry', 'ccLevel', 'ccTier'].forEach((name) => {
         const el = form.elements[name];
         if (saved[name] != null && $$('option', el).some((o) => o.value === String(saved[name]))) el.value = String(saved[name]);
       });
-      const radio = $(`input[name="difficulty"][value="${saved.difficulty}"]`, form);
-      if (radio) radio.checked = true;
+      ['ccName', 'ccLeague'].forEach((name) => { if (typeof saved[name] === 'string') form.elements[name].value = saved[name]; });
       form.elements.events.checked = saved.events !== false;
     }
   }
 
   function readOptions() {
-    const form = $('#options');
-    const opts = {
-      difficulty: form.elements.difficulty.value,
-      archetype: form.elements.archetype.value,
-      club: form.elements.club.value,
-      league: form.elements.league.value,
-      tier: form.elements.tier.value,
-      seasons: form.elements.seasons.value,
-      ruleCount: form.elements.ruleCount.value,
-      events: form.elements.events.checked,
+    const f = formEl().elements;
+    const custom = f.club.value === '__custom';
+    const raw = {
+      mode: currentMode(),
+      difficulty: f.difficulty.value,
+      archetype: f.archetype.value,
+      position: f.position.value,
+      club: f.club.value,
+      league: f.league.value,
+      tier: f.tier.value,
+      seasons: f.seasons.value,
+      ruleCount: f.ruleCount.value,
+      events: f.events.checked,
+      ccName: f.ccName.value,
+      ccCountry: f.ccCountry.value,
+      ccLevel: f.ccLevel.value,
+      ccTier: f.ccTier.value,
+      ccLeague: f.ccLeague.value,
     };
-    storageSet(OPTIONS_KEY, opts);
-    return opts;
+    storageSet(OPTIONS_KEY, raw);
+    return {
+      mode: raw.mode,
+      difficulty: raw.difficulty,
+      archetype: raw.archetype,
+      position: raw.position,
+      club: custom ? 'any' : raw.club,
+      league: raw.league,
+      tier: raw.tier,
+      seasons: raw.seasons,
+      ruleCount: raw.ruleCount,
+      events: raw.events,
+      customClub: custom ? { name: raw.ccName, country: raw.ccCountry, level: raw.ccLevel, tier: raw.ccTier, league: raw.ccLeague } : null,
+    };
   }
 
   // League and size filters don't apply once a specific club is chosen.
   function syncClubFilters() {
-    const specific = $('#opt-club').value !== 'any';
+    const value = $('#opt-club').value;
+    const specific = value !== 'any';
     $$('#club-filters select').forEach((el) => { el.disabled = specific; });
     $('#club-filters').classList.toggle('is-disabled', specific);
+    $('#custom-club').hidden = value !== '__custom';
+  }
+
+  // A typed-in club needs a name before anything can be generated for it.
+  function customClubMissing(opts) {
+    if ($('#opt-club').value !== '__custom' || G.normalizeCustomClub(opts.customClub)) return false;
+    toast('Type your club’s name first');
+    formEl().elements.ccName.focus();
+    return true;
   }
 
   // ---------- Generating ----------
 
   function resetLocks() {
-    state.locks = { club: false, archetype: false, seasons: false, difficulty: false, rules: new Set() };
+    state.locks = { club: false, archetype: false, seasons: false, difficulty: false, position: false, rules: new Set() };
   }
 
   function currentLocks() {
@@ -168,11 +260,15 @@
       seasons: locks.seasons ? ch.seasons : null,
       difficulty: locks.difficulty ? ch.difficulty : null,
       ruleIds: ch.rules.filter((r) => locks.rules.has(r.id)).map((r) => r.id),
+      position: locks.position && ch.position ? ch.position.id : null,
+      startAge: locks.position && ch.startAge ? ch.startAge : null,
     };
   }
 
   function generate(seed, useLocks) {
     const opts = readOptions();
+    if (customClubMissing(opts)) return;
+    state.draft = null;
     const locks = useLocks ? currentLocks() : {};
     state.challenge = G.generateChallenge(opts, seed || G.randomSeed(), locks);
     if (!useLocks) resetLocks();
@@ -196,11 +292,15 @@
 
   /**
    * Render a challenge card.
-   * mode 'builder' shows lock/reroll controls; mode 'saved' shows progress checkboxes.
+   * mode 'builder' shows lock/reroll controls (not for edited challenges),
+   * 'saved' shows progress checkboxes and the season diary, 'daily' its own actions.
    */
   function renderCard(ch, mode, entry) {
     const builder = mode === 'builder';
+    const controls = builder && !ch.custom;
+    const player = ch.mode === 'player';
     const progress = (entry && entry.progress) || {};
+    const log = (entry && entry.log) || {};
     const L = state.locks;
 
     const check = (key) => (mode === 'saved'
@@ -210,10 +310,10 @@
     const rulesHtml = ch.coreRules.map((r) => `
         <li class="rule core"><span class="rule-tag">Core</span><span class="rule-text">${esc(r.text)}</span></li>`).join('')
       + ch.rules.map((r, i) => `
-        <li class="rule ${builder && L.rules.has(r.id) ? 'is-locked' : ''}">
+        <li class="rule ${controls && L.rules.has(r.id) ? 'is-locked' : ''}">
           <span class="rule-tag cat-${esc(r.cat.toLowerCase())}">${esc(r.cat)}</span>
           <span class="rule-text">${esc(r.text)}</span>
-          ${builder ? `<span class="rule-actions">
+          ${controls ? `<span class="rule-actions">
             <button type="button" class="icon-btn" data-action="reroll-rule" data-index="${i}" title="Swap this rule">🔄</button>
             ${lockBtn('rule', L.rules.has(r.id), r.id)}
           </span>` : ''}
@@ -221,7 +321,7 @@
 
     const roadmapHtml = ch.roadmap.map((s) => `
       <li class="season">
-        <div class="season-num"><span>S${s.season}</span></div>
+        <div class="season-num"><span>S${s.season}</span>${s.age ? `<small>age ${Number(s.age)}</small>` : ''}</div>
         <div class="season-body">
           ${s.objectives.map((o, i) => `
             <label class="objective ${o.type}">
@@ -230,6 +330,7 @@
               <span>${esc(o.text)}</span>
             </label>`).join('')}
           ${s.events.map((e) => `<div class="event"><span class="obj-icon">⚡</span><span>${esc(e)}</span></div>`).join('')}
+          ${mode === 'saved' ? diaryRow(s.season, log[s.season] || {}) : ''}
         </div>
       </li>`).join('');
 
@@ -239,15 +340,15 @@
         <div class="arch-icon">${esc(ch.archetype.icon)}</div>
         <div class="card-title">
           <div class="eyebrow">
-            ${ch.archetype.history ? `${esc(ch.archetype.typeName)} · ` : ''}${esc(ch.archetype.name)}
-            ${builder ? lockBtn('archetype', L.archetype) : ''}
+            ${ch.archetype.history && ch.archetype.typeName !== ch.archetype.name ? `${esc(ch.archetype.typeName)} · ` : ''}${esc(ch.archetype.name)}
+            ${controls ? lockBtn('archetype', L.archetype) : ''}
           </div>
           <h2>${esc(ch.club.name)}</h2>
           <p class="tagline">${esc(ch.archetype.tagline)}</p>
         </div>
         <div class="badges">
-          <span class="badge-row">${builder ? lockBtn('difficulty', L.difficulty) : ''}<span class="badge diff">${esc(ch.difficultyName)}</span></span>
-          <span class="badge seed" title="Seed">#${esc(ch.seed)}</span>
+          <span class="badge-row">${controls ? lockBtn('difficulty', L.difficulty) : ''}<span class="badge diff">${esc(ch.difficultyName)}</span></span>
+          ${ch.custom ? '<span class="badge seed" title="Written or edited by hand">✍️ Custom</span>' : `<span class="badge seed" title="Seed">#${esc(ch.seed)}</span>`}
         </div>
       </header>
 
@@ -255,17 +356,21 @@
 
       <div class="facts">
         <div class="fact">
-          <span class="fact-label">Club ${builder ? lockBtn('club', L.club) : ''}</span>
+          <span class="fact-label">${player ? 'Starting club' : 'Club'} ${controls ? lockBtn('club', L.club) : ''}</span>
           <span class="fact-value">${esc(ch.club.name)}</span>
-          <span class="fact-sub">${esc(ch.club.league)} · ${esc(ch.club.country)}</span>
+          <span class="fact-sub">${[ch.club.league, ch.club.country].filter(Boolean).map(esc).join(' · ')}</span>
         </div>
-        <div class="fact">
+        ${player && ch.position ? `<div class="fact">
+          <span class="fact-label">Position ${controls ? lockBtn('position', L.position) : ''}</span>
+          <span class="fact-value">${esc(ch.position.name)}</span>
+          <span class="fact-sub">starting age ${Number(ch.startAge)}</span>
+        </div>` : `<div class="fact">
           <span class="fact-label">Club size</span>
           <span class="fact-value stars" title="${esc(ch.club.tierName)}">${stars(ch.club.tier)}</span>
           <span class="fact-sub">${esc(ch.club.tierName)}</span>
-        </div>
+        </div>`}
         <div class="fact">
-          <span class="fact-label">Length ${builder ? lockBtn('seasons', L.seasons) : ''}</span>
+          <span class="fact-label">Length ${controls ? lockBtn('seasons', L.seasons) : ''}</span>
           <span class="fact-value">${ch.seasons}</span>
           <span class="fact-sub">season${ch.seasons === 1 ? '' : 's'}</span>
         </div>
@@ -273,7 +378,7 @@
 
       ${ch.archetype.history
     ? `<section class="history"><h3>📖 The history</h3><p>${esc(ch.archetype.history)}</p></section>`
-    : `<p class="desc">${esc(ch.archetype.desc)}</p>`}
+    : ch.archetype.desc ? `<p class="desc">${esc(ch.archetype.desc)}</p>` : ''}
 
       <section class="block">
         <h3>📜 Rules</h3>
@@ -281,14 +386,14 @@
       </section>
 
       <section class="block">
-        <h3>🗺️ Season roadmap</h3>
+        <h3>🗺️ ${player ? 'Career roadmap' : 'Season roadmap'}</h3>
         <ol class="roadmap">${roadmapHtml}</ol>
       </section>
 
-      <section class="block final">
+      ${ch.finalGoal ? `<section class="block final">
         <h3>🏆 Final goal</h3>
         <label class="objective final-goal">${check('final')}<span>${esc(ch.finalGoal)}</span></label>
-      </section>
+      </section>` : ''}
 
       <div class="grid-2">
         <section class="block">
@@ -308,17 +413,57 @@
       </section>`}
 
       <footer class="card-actions">
+        ${controls ? '<button type="button" class="btn btn-primary" data-action="reroll">🎲 Reroll unlocked</button>' : ''}
         ${builder ? `
-          <button type="button" class="btn btn-primary" data-action="reroll">🎲 Reroll unlocked</button>
-          <button type="button" class="btn" data-action="save">💾 Save</button>` : ''}
+          <button type="button" class="btn${ch.custom ? ' btn-primary' : ''}" data-action="save">💾 Save</button>
+          <button type="button" class="btn" data-action="edit" title="Change any text, add or remove rules and seasons">✏️ Edit</button>` : ''}
         ${mode === 'daily' ? `
           <button type="button" class="btn btn-primary" data-action="save">💾 Take it on</button>
           <button type="button" class="btn" data-action="customise" title="Open in the Builder to lock and reroll parts">🛠️ Customise</button>` : ''}
         <button type="button" class="btn" data-action="copy">📋 Copy text</button>
         <button type="button" class="btn" data-action="share">🔗 Share link</button>
+        <button type="button" class="btn" data-action="image" title="Save the challenge as a picture to post">🖼️ Image</button>
         ${mode === 'saved' ? '<button type="button" class="btn btn-danger" data-action="delete">🗑️ Delete</button>' : ''}
       </footer>
     </article>`;
+  }
+
+  // ---------- Season diary ----------
+
+  const trophiesOf = (entry) => Object.values(entry.log || {}).reduce((n, l) => n + (Number(l && l.trophies) || 0), 0);
+
+  function diaryRow(season, l) {
+    return `
+          <div class="diary" data-season="${season}">
+            <label class="diary-field"><span>Finish</span>
+              <input type="text" data-log="finish" maxlength="24" placeholder="e.g. 3rd" value="${esc(l.finish || '')}"></label>
+            <div class="diary-field"><span>Trophies</span>
+              <div class="stepper">
+                <button type="button" class="icon-btn" data-action="log-step" data-delta="-1" aria-label="One fewer trophy">−</button>
+                <strong>${Number(l.trophies) || 0}</strong>
+                <button type="button" class="icon-btn" data-action="log-step" data-delta="1" aria-label="One more trophy">+</button>
+              </div></div>
+            <label class="diary-field grow"><span>Notes</span>
+              <input type="text" data-log="notes" maxlength="200" placeholder="Big signings, best moments…" value="${esc(l.notes || '')}"></label>
+          </div>`;
+  }
+
+  // Seasons with a ticked main objective or a logged finish count as played.
+  function currentSeason(entry) {
+    const ch = entry.challenge;
+    const played = ch.roadmap.filter((s) => (entry.progress || {})[`s${s.season}-0`] || ((entry.log || {})[s.season] || {}).finish).length;
+    return played >= ch.seasons ? 'Finished' : `Season ${played + 1} of ${ch.seasons}`;
+  }
+
+  function diaryText(entry) {
+    const lines = ['', 'MY PROGRESS'];
+    entry.challenge.roadmap.forEach((s) => {
+      const l = (entry.log || {})[s.season] || {};
+      const bits = [l.finish, l.trophies ? `${l.trophies} troph${l.trophies === 1 ? 'y' : 'ies'}` : '', l.notes].filter(Boolean);
+      if (bits.length) lines.push(`Season ${s.season}: ${bits.join(' · ')}`);
+    });
+    lines.push(`Score: ${scoreFor(entry.challenge, entry)} points (${currentSeason(entry)})`);
+    return lines.join('\n');
   }
 
   function scoreFor(ch, entry) {
@@ -329,7 +474,7 @@
       if (p[`s${s.season}-${i}`]) total += o.type === 'main' ? pts['Main season objective'] : pts['Side objective'];
     }));
     if (p.final) total += pts['Final goal achieved'];
-    total += (entry.trophies || 0) * pts['Major trophy won'];
+    total += trophiesOf(entry) * pts['Major trophy won'];
     total += (entry.breaks || 0) * pts['Rule broken'];
     return total;
   }
@@ -341,10 +486,8 @@
         <h3>🧮 Scoreboard</h3>
         <div class="score-row">
           <div class="counter">
-            <span>🏆 Trophies (+15)</span>
-            <div><button type="button" class="icon-btn" data-action="count" data-field="trophies" data-delta="-1">−</button>
-            <strong>${entry.trophies || 0}</strong>
-            <button type="button" class="icon-btn" data-action="count" data-field="trophies" data-delta="1">+</button></div>
+            <span>🏆 Trophies (+15 each)</span>
+            <div><strong data-score="trophies">${trophiesOf(entry)}</strong><small class="muted">from the season diary</small></div>
           </div>
           <div class="counter">
             <span>🚫 Rules broken (${rulePts})</span>
@@ -352,20 +495,237 @@
             <strong>${entry.breaks || 0}</strong>
             <button type="button" class="icon-btn" data-action="count" data-field="breaks" data-delta="1">+</button></div>
           </div>
-          <div class="counter total"><span>Total score</span><strong>${scoreFor(ch, entry)}</strong></div>
+          <div class="counter total"><span>Total score</span><strong data-score="total">${scoreFor(ch, entry)}</strong></div>
         </div>
       </section>`;
   }
 
+  // Grow a text box to fit its contents, so long objectives aren't clipped.
+  function autosize(el) {
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight + 2}px`;
+  }
+
   function renderBuilder(scroll) {
     const el = $('#result');
-    el.innerHTML = renderCard(state.challenge, 'builder');
+    el.innerHTML = state.draft ? renderEditor(state.draft) : renderCard(state.challenge, 'builder');
+    if (state.draft) $$('textarea', el).forEach(autosize);
     if (scroll && window.innerWidth < 900) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ---------- Editor ----------
+
+  const clone = (x) => JSON.parse(JSON.stringify(x));
+
+  function getParent(obj, path) {
+    const parts = path.split('.');
+    const last = parts.pop();
+    return { parent: parts.reduce((o, k) => (o == null ? o : o[k]), obj), key: last };
+  }
+
+  function setPath(obj, path, value) {
+    const { parent, key } = getParent(obj, path);
+    if (parent != null) parent[key] = value;
+  }
+
+  function renderEditor(d) {
+    const player = d.mode === 'player';
+    const input = (path, value, placeholder, max = 120) => `<input type="text" data-path="${path}" maxlength="${max}" value="${esc(value || '')}" placeholder="${esc(placeholder)}">`;
+    const area = (path, value, placeholder, max = 400, rows = 2) => `<textarea data-path="${path}" maxlength="${max}" rows="${rows}" placeholder="${esc(placeholder)}">${esc(value || '')}</textarea>`;
+    const row = (path, value, placeholder, removable = true) => `
+          <div class="edit-row">${area(path, value, placeholder, 400, 1)}${removable ? `<button type="button" class="icon-btn" data-edit="remove" data-path="${path}" title="Remove" aria-label="Remove">✕</button>` : ''}</div>`;
+    const ruleList = (key, label, addLabel, placeholder) => `
+        <section class="edit-block">
+          <h3>${label}</h3>
+          ${d[key].map((r, i) => row(`${key}.${i}.text`, r.text, placeholder)).join('')}
+          <button type="button" class="btn btn-small" data-edit="add-${key}">+ ${addLabel}</button>
+        </section>`;
+
+    const seasons = d.roadmap.map((s, si) => `
+          <div class="edit-season">
+            <div class="edit-season-head"><strong>Season ${si + 1}</strong>${s.age ? `<small class="muted">age ${Number(s.age)}</small>` : ''}</div>
+            ${s.objectives.map((o, oi) => row(`roadmap.${si}.objectives.${oi}.text`, o.text, o.type === 'main' ? 'Main objective, e.g. Win promotion' : 'Side objective', oi > 0)).join('')}
+            ${s.events.map((e, ei) => `<div class="edit-row event-row"><span class="obj-icon">⚡</span>${area(`roadmap.${si}.events.${ei}`, e, 'Random event', 300, 1)}<button type="button" class="icon-btn" data-edit="remove" data-path="roadmap.${si}.events.${ei}" title="Remove" aria-label="Remove">✕</button></div>`).join('')}
+            <div class="edit-inline">
+              <button type="button" class="btn btn-small" data-edit="add-side" data-season="${si}">+ Side objective</button>
+              <button type="button" class="btn btn-small" data-edit="add-event" data-season="${si}">+ Event</button>
+            </div>
+          </div>`).join('');
+
+    return `
+    <article class="card panel editor diff-${Number(d.difficulty) || 2}">
+      <header class="editor-head">
+        <h2>✏️ ${d.archetype.id === 'custom' && !d.archetype.history && !d.finalGoal ? 'Write your own challenge' : 'Edit challenge'}</h2>
+        <p class="muted">Change any text, add or remove rules and seasons, then press <strong>Done</strong>. Edited challenges share as a link that carries everything.</p>
+      </header>
+
+      <div class="edit-grid">
+        <label class="edit-field"><span>Challenge name</span>${input('archetype.name', d.archetype.name, 'e.g. The Long Climb', 60)}</label>
+        <label class="edit-field icon-field"><span>Icon</span>${input('archetype.icon', d.archetype.icon, '✍️', 8)}</label>
+        <label class="edit-field"><span>${player ? 'Starting club' : 'Club'}</span>${input('club.name', d.club.name, 'Club name', 40)}</label>
+        <label class="edit-field"><span>Difficulty</span>
+          <select data-path="difficulty">${data.difficulties.map((x) => `<option value="${x.level}" ${Number(d.difficulty) === x.level ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>
+        ${player ? `
+        <label class="edit-field"><span>Position</span>
+          <select data-path="position.id">${modes.player.positions.map((pos) => `<option value="${pos.id}" ${d.position && d.position.id === pos.id ? 'selected' : ''}>${esc(pos.name)}</option>`).join('')}</select></label>
+        <label class="edit-field"><span>Starting age</span><input type="number" min="15" max="40" data-path="startAge" value="${Number(d.startAge) || 17}"></label>` : ''}
+        <label class="edit-field wide"><span>Tagline</span>${input('archetype.tagline', d.archetype.tagline, 'A one-line hook', 160)}</label>
+        <label class="edit-field wide"><span>Story or club history <small>(optional)</small></span>${area('archetype.history', d.archetype.history, 'Why this challenge? Real club history makes the best ones.', 1200, 3)}</label>
+      </div>
+
+      ${ruleList('coreRules', '📜 Core rules', 'Core rule', 'e.g. Only sign players from your own country.')}
+      ${ruleList('rules', '➕ Extra rules', 'Extra rule', 'e.g. No loan signings.')}
+
+      <section class="edit-block">
+        <h3>🗺️ ${player ? 'Career roadmap' : 'Season roadmap'}</h3>
+        ${seasons}
+        <div class="edit-inline">
+          <button type="button" class="btn btn-small" data-edit="add-season">+ Add season</button>
+          ${d.roadmap.length > 1 ? '<button type="button" class="btn btn-small" data-edit="remove-season">− Remove last season</button>' : ''}
+        </div>
+      </section>
+
+      <section class="edit-block">
+        <h3>🏆 Final goal</h3>
+        ${area('finalGoal', d.finalGoal, 'e.g. Win the league with an all-academy XI.', 400, 2)}
+      </section>
+
+      <footer class="card-actions">
+        <button type="button" class="btn btn-primary" data-edit="done">✅ Done</button>
+        <button type="button" class="btn" data-edit="cancel">Cancel</button>
+      </footer>
+    </article>`;
+  }
+
+  function startEdit(ch) {
+    state.draft = clone(ch);
+    renderBuilder(true);
+  }
+
+  function blankChallenge() {
+    const opts = readOptions();
+    const player = opts.mode === 'player';
+    const custom = G.normalizeCustomClub(opts.customClub);
+    const picked = opts.club !== 'any' && G.CLUBS.find((c) => `${c.leagueId}|${c.name}` === opts.club);
+    const club = custom ? G.buildCustomClub(custom) : picked || null;
+    const d = opts.difficulty === 'random' ? 2 : Number(opts.difficulty);
+    const startAge = 17;
+    const ch = {
+      mode: opts.mode,
+      custom: true,
+      seed: 'custom',
+      options: opts,
+      difficulty: d,
+      archetype: { id: 'custom', name: 'My Challenge', icon: '✍️', tagline: '', desc: '', history: '' },
+      club: club
+        ? { name: club.name, league: club.league, leagueId: club.leagueId, country: club.country, nationality: club.nationality, tier: club.tier }
+        : { name: '', league: '', country: '', tier: 3 },
+      coreRules: [{ text: '' }],
+      rules: [],
+      roadmap: [1, 2, 3].map((s) => Object.assign({ season: s, objectives: [{ text: '', type: 'main' }], events: [] }, player ? { age: startAge + s - 1 } : {})),
+      finalGoal: '',
+    };
+    if (player) {
+      const pos = modes.player.positions.find((x) => x.id === opts.position) || modes.player.positions[5];
+      Object.assign(ch, { position: { id: pos.id, name: pos.name }, startAge });
+    }
+    return ch;
+  }
+
+  function finishEdit() {
+    const d = state.draft;
+    if (d.mode === 'player') {
+      const age = Number(d.startAge) || 17;
+      d.roadmap.forEach((s, i) => { s.age = age + i; });
+      const pos = modes.player.positions.find((x) => x.id === (d.position && d.position.id));
+      if (pos) d.position = { id: pos.id, name: pos.name };
+    }
+    const name = (d.archetype.name || '').trim() || 'My Challenge';
+    const club = (d.club.name || '').trim() || 'Your club';
+    d.title = d.mode === 'player' && d.position ? `${name}: ${d.position.name} at ${club}` : `${name}: ${club}`;
+    d.archetype.typeName = name;
+    const ch = G.sanitizeChallenge(d);
+    if (!ch.coreRules.length && !ch.rules.length && !ch.finalGoal) {
+      toast('Add at least one rule or a final goal first');
+      return;
+    }
+    state.challenge = ch;
+    state.draft = null;
+    resetLocks();
+    renderBuilder();
+    toast('Challenge updated ✍️');
+  }
+
+  function onEditorInput(e) {
+    const el = e.target.closest('[data-path]');
+    if (!el || !state.draft) return;
+    setPath(state.draft, el.dataset.path, el.value);
+    if (el.tagName === 'TEXTAREA') autosize(el);
+  }
+
+  function onEditorClick(btn) {
+    const d = state.draft;
+    const act = btn.dataset.edit;
+    const si = Number(btn.dataset.season);
+    if (act === 'done') return finishEdit();
+    if (act === 'cancel') {
+      state.draft = null;
+      if (state.challenge) renderBuilder();
+      else $('#result').innerHTML = EMPTY_RESULT;
+      return undefined;
+    }
+    if (act === 'add-coreRules') d.coreRules.push({ text: '' });
+    else if (act === 'add-rules') d.rules.push({ id: `custom-${Date.now().toString(36)}`, cat: 'Custom', text: '' });
+    else if (act === 'add-side') d.roadmap[si].objectives.push({ text: '', type: 'side' });
+    else if (act === 'add-event') d.roadmap[si].events.push('');
+    else if (act === 'add-season') {
+      const last = d.roadmap[d.roadmap.length - 1];
+      if (d.roadmap.length >= 15) return toast('15 seasons is the maximum');
+      d.roadmap.push(Object.assign({ season: d.roadmap.length + 1, objectives: [{ text: '', type: 'main' }], events: [] }, last && last.age ? { age: last.age + 1 } : {}));
+    } else if (act === 'remove-season') d.roadmap.pop();
+    else if (act === 'remove') {
+      // "rules.2.text" removes rules[2]; "roadmap.0.events.1" removes that event.
+      const path = btn.dataset.path.replace(/\.text$/, '');
+      const { parent, key } = getParent(d, path);
+      if (Array.isArray(parent)) parent.splice(Number(key), 1);
+    }
+    renderBuilder();
+    return undefined;
+  }
+
+  // ---------- Image export ----------
+
+  // Where the challenge came from, printed at the bottom of the image.
+  function siteLabel() {
+    if (!/^https?:$/.test(window.location.protocol)) return '';
+    return (window.location.host + window.location.pathname).replace(/\/index\.html$/, '').replace(/\/$/, '');
+  }
+
+  async function exportImage(ch) {
+    try {
+      const result = await shareImage.exportImage(ch, siteLabel());
+      if (result === 'downloaded') toast('Image saved 🖼️');
+    } catch (e) {
+      toast("Couldn't create the image in this browser");
+    }
   }
 
   // ---------- Saved challenges ----------
 
-  const loadSaved = () => storageGet(STORE_KEY, []).filter((e) => e && e.challenge && e.id);
+  // Older saves kept one trophy counter for the whole challenge; it now lives in season 1 of the diary.
+  function migrateEntry(e) {
+    if (e.trophies > 0) {
+      e.log = e.log || {};
+      e.log[1] = Object.assign({}, e.log[1], { trophies: (Number((e.log[1] || {}).trophies) || 0) + e.trophies });
+    }
+    delete e.trophies;
+    return e;
+  }
+
+  const loadSaved = () => {
+    const list = storageGet(STORE_KEY, []);
+    return (Array.isArray(list) ? list : []).filter((e) => e && e.challenge && e.id).map(migrateEntry);
+  };
   const writeSaved = (list) => storageSet(STORE_KEY, list);
 
   function progressOf(entry) {
@@ -389,31 +749,59 @@
       const pct = Math.round((done / total) * 100);
       return `
       <details class="saved-item panel" data-id="${esc(entry.id)}" ${entry.id === openId ? 'open' : ''}>
-        <summary>
-          <span class="arch-icon small">${esc(ch.archetype.icon)}</span>
-          <span class="saved-title">
-            <strong>${esc(ch.title)}</strong>
-            <small>${ch.daily ? `📅 Daily #${Number(ch.daily.number) || ''} · ` : ''}${esc(ch.difficultyName)} · ${ch.seasons} seasons · saved ${esc(new Date(entry.savedAt).toLocaleDateString())}</small>
-          </span>
-          <span class="progress" title="${done}/${total} objectives">
-            <span class="progress-bar"><span style="width:${pct}%"></span></span>
-            <small>${done}/${total} · ${scoreFor(ch, entry)} pts</small>
-          </span>
-        </summary>
+        <summary>${savedSummary(entry)}</summary>
         <div class="saved-body">${renderCard(ch, 'saved', entry)}</div>
       </details>`;
     }).join('');
   }
 
+  function savedSummary(entry) {
+    const ch = entry.challenge;
+    const { done, total } = progressOf(entry);
+    const pct = Math.round((done / total) * 100);
+    const tags = [
+      ch.daily ? `📅 Daily #${Number(ch.daily.number) || ''}` : '',
+      ch.mode === 'player' ? '⚽ Player' : '',
+      ch.custom ? '✍️ Custom' : '',
+      esc(ch.difficultyName),
+      `saved ${esc(new Date(entry.savedAt).toLocaleDateString())}`,
+    ].filter(Boolean).join(' · ');
+    return `
+          <span class="arch-icon small">${esc(ch.archetype.icon)}</span>
+          <span class="saved-title">
+            <strong>${esc(ch.title)}</strong>
+            <small>${tags}</small>
+          </span>
+          <span class="progress" title="${done}/${total} objectives">
+            <span class="progress-bar"><span style="width:${pct}%"></span></span>
+            <small>${esc(currentSeason(entry))} · ${scoreFor(ch, entry)} pts</small>
+          </span>`;
+  }
+
+  // Diary text fields save without re-rendering, so typing isn't interrupted.
+  function onSavedChange(e) {
+    const input = e.target.closest('[data-log]');
+    const item = input && input.closest('.saved-item');
+    if (!item) return;
+    const season = Number(input.closest('.diary').dataset.season);
+    const list = loadSaved();
+    const entry = list.find((x) => x.id === item.dataset.id);
+    if (!entry) return;
+    entry.log = entry.log || {};
+    entry.log[season] = Object.assign({}, entry.log[season], { [input.dataset.log]: input.value.trim().slice(0, 200) });
+    writeSaved(list);
+    $('summary', item).innerHTML = savedSummary(entry);
+  }
+
   function saveChallenge(ch) {
     const list = loadSaved();
-    const key = JSON.stringify(G.toShareKey(ch));
-    if (list.some((e) => JSON.stringify(G.toShareKey(e.challenge)) === key)) {
+    const key = challengeKey(ch);
+    if (list.some((e) => challengeKey(e.challenge) === key)) {
       toast('Already in My Challenges');
       return;
     }
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-    list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, trophies: 0, breaks: 0 });
+    list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, log: {}, breaks: 0 });
     if (writeSaved(list)) {
       $('#saved-count').textContent = list.length;
       toast('Saved to My Challenges 💾');
@@ -535,10 +923,13 @@
     } else if (action === 'customise') {
       // Open in the Builder with everything locked, so the player can unlock and reroll parts.
       state.challenge = ch;
-      state.locks = { club: true, archetype: true, seasons: true, difficulty: true, rules: new Set(ch.rules.map((r) => r.id)) };
+      state.draft = null;
+      state.locks = { club: true, archetype: true, seasons: true, difficulty: true, position: true, rules: new Set(ch.rules.map((r) => r.id)) };
       showView('builder');
       renderBuilder(true);
       toast('Everything is locked. Unlock the parts you want to change, then reroll.');
+    } else if (action === 'image') {
+      exportImage(ch);
     } else if (action === 'copy') {
       copyText(G.challengeToText(ch)).then((ok) => toast(ok ? 'Copied to clipboard 📋' : 'Copy failed'));
     } else if (action === 'share') {
@@ -568,7 +959,7 @@
       toast(ok ? 'Share links need the hosted version, so the challenge text was copied instead 📋' : 'Share links need the hosted version');
       return;
     }
-    const url = shareUrl(ch);
+    const url = await shareUrl(ch);
     if (navigator.share && window.matchMedia('(pointer: coarse)').matches) {
       try {
         await navigator.share({ title: ch.title, text: `FC 26 career challenge: ${ch.title}`, url });
@@ -579,6 +970,11 @@
   }
 
   function onBuilderClick(e) {
+    const editBtn = e.target.closest('[data-edit]');
+    if (editBtn && state.draft) {
+      onEditorClick(editBtn);
+      return;
+    }
     const btn = e.target.closest('[data-action]');
     if (!btn || !state.challenge) return;
     const { action } = btn.dataset;
@@ -607,6 +1003,10 @@
       renderBuilder();
     } else if (action === 'save') {
       saveChallenge(state.challenge);
+    } else if (action === 'edit') {
+      startEdit(state.challenge);
+    } else if (action === 'image') {
+      exportImage(state.challenge);
     } else if (action === 'copy') {
       copyText(G.challengeToText(state.challenge)).then((ok) => toast(ok ? 'Copied to clipboard 📋' : 'Copy failed'));
     } else if (action === 'share') {
@@ -633,6 +1033,16 @@
         const f = btn.dataset.field;
         en[f] = Math.max(0, (en[f] || 0) + Number(btn.dataset.delta));
       });
+    } else if (action === 'log-step') {
+      const season = Number(btn.closest('.diary').dataset.season);
+      updateEntry(id, (en) => {
+        en.log = en.log || {};
+        const l = Object.assign({}, en.log[season]);
+        l.trophies = Math.min(20, Math.max(0, (Number(l.trophies) || 0) + Number(btn.dataset.delta)));
+        en.log[season] = l;
+      });
+    } else if (action === 'image') {
+      exportImage(entry.challenge);
     } else if (action === 'delete') {
       if (window.confirm(`Delete "${entry.challenge.title}"?`)) {
         writeSaved(loadSaved().filter((x) => x.id !== id));
@@ -640,22 +1050,28 @@
         toast('Challenge deleted');
       }
     } else if (action === 'copy') {
-      copyText(G.challengeToText(entry.challenge)).then((ok) => toast(ok ? 'Copied to clipboard 📋' : 'Copy failed'));
+      copyText(G.challengeToText(entry.challenge) + '\n' + diaryText(entry)).then((ok) => toast(ok ? 'Copied with your progress 📋' : 'Copy failed'));
     } else if (action === 'share') {
       shareChallenge(entry.challenge);
     }
   }
 
-  function loadFromHash() {
-    const m = window.location.hash.match(/^#c=([A-Za-z0-9_-]+)$/);
+  async function loadFromHash() {
+    const m = window.location.hash.match(/^#([cx])=([A-Za-z0-9_-]+)$/);
     if (!m) return false;
-    const key = decodeKey(m[1]);
-    const ch = key && G.fromShareKey(key);
+    let ch = null;
+    if (m[1] === 'c') {
+      const key = decodeKey(m[2]);
+      ch = key && G.fromShareKey(key);
+    } else {
+      ch = await unpackCustom(m[2]);
+    }
     if (!ch) {
       toast("That share link couldn't be read");
       return false;
     }
     state.challenge = ch;
+    state.draft = null;
     resetLocks();
     showView('builder');
     renderBuilder();
@@ -664,9 +1080,20 @@
   }
 
   function init() {
+    EMPTY_RESULT = $('#result').innerHTML;
     populateOptions();
+    syncMode();
     syncClubFilters();
     $('#opt-club').addEventListener('change', syncClubFilters);
+    $$('input[name="mode"]').forEach((el) => el.addEventListener('change', syncMode));
+    $('#write-own').addEventListener('click', () => {
+      const opts = readOptions();
+      if (customClubMissing(opts)) return;
+      startEdit(blankChallenge());
+    });
+    $('#result').addEventListener('input', onEditorInput);
+    $('#result').addEventListener('change', onEditorInput);
+    $('#saved-list').addEventListener('change', onSavedChange);
     $('#options').addEventListener('submit', (e) => {
       e.preventDefault();
       const seed = $('#opt-seed').value.trim();
@@ -677,7 +1104,10 @@
     $('#saved-list').addEventListener('click', onSavedClick);
     $('#view-daily').addEventListener('click', onDailyClick);
     $$('.tab').forEach((t) => t.addEventListener('click', () => showView(t.dataset.view)));
-    window.addEventListener('hashchange', loadFromHash);
+    window.addEventListener('hashchange', () => {
+      if (window.location.hash === '#daily') showView('daily');
+      else loadFromHash();
+    });
     $('#saved-count').textContent = loadSaved().length;
     syncDailyDot();
     setInterval(tickDaily, 30000);

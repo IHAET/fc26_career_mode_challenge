@@ -30,6 +30,14 @@
         <h2>Options</h2>
 
         <fieldset>
+          <legend>Game mode</legend>
+          <div class="segmented">
+            <label><input type="radio" name="mode" value="manager" checked><span>🧑‍💼 Manager Career</span></label>
+            <label><input type="radio" name="mode" value="player"><span>⚽ Player Career</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
           <legend>Difficulty</legend>
           <div class="segmented" id="difficulty">
             <label><input type="radio" name="difficulty" value="random" checked><span>🎲 Any</span></label>
@@ -45,10 +53,56 @@
           <select name="archetype" id="opt-archetype"><option value="any">🎲 Surprise me</option></select>
         </label>
 
+        <label class="field" data-mode-only="player" hidden>
+          <span>Position</span>
+          <select name="position" id="opt-position"><option value="any">🎲 Any position</option></select>
+        </label>
+
         <label class="field">
           <span>Club <small>(🏛️ = has a heritage challenge)</small></span>
-          <select name="club" id="opt-club"><option value="any">Any club</option></select>
+          <select name="club" id="opt-club">
+            <option value="any">Any club</option>
+            <option value="__custom">✍️ Other club (type it in)…</option>
+          </select>
         </label>
+
+        <div class="custom-club" id="custom-club" hidden>
+          <label class="field">
+            <span>Club name</span>
+            <input type="text" name="ccName" maxlength="40" placeholder="e.g. Dulwich Hamlet" spellcheck="false">
+          </label>
+          <div class="field-row">
+            <label class="field">
+              <span>Country</span>
+              <select name="ccCountry" id="cc-country"></select>
+            </label>
+            <label class="field">
+              <span>Division</span>
+              <select name="ccLevel">
+                <option value="1">Top flight</option>
+                <option value="2">2nd tier</option>
+                <option value="3">3rd tier</option>
+                <option value="4">4th tier</option>
+              </select>
+            </label>
+          </div>
+          <div class="field-row">
+            <label class="field">
+              <span>Club size</span>
+              <select name="ccTier">
+                <option value="5">Giant</option>
+                <option value="4">Strong</option>
+                <option value="3">Mid-table</option>
+                <option value="2" selected>Underdog</option>
+                <option value="1">Minnow</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>League <small>(optional)</small></span>
+              <input type="text" name="ccLeague" maxlength="40" placeholder="e.g. Brasileirão">
+            </label>
+          </div>
+        </div>
 
         <div class="field-row" id="club-filters">
           <label class="field">
@@ -90,6 +144,7 @@
         </label>
 
         <button type="submit" class="btn btn-primary btn-big">⚽ Generate challenge</button>
+        <button type="button" class="btn" id="write-own">✍️ Write your own</button>
         <p class="hint">Lock 🔒 the parts you like, then hit <strong>Reroll</strong> to change the rest.</p>
       </form>
 
@@ -135,7 +190,9 @@
   <script src="js/heritage/world.js"></script>
   <script src="js/rules.js"></script>
   <script src="js/generator.js"></script>
+  <script src="js/player.js"></script>
   <script src="js/daily.js"></script>
+  <script src="js/share-image.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

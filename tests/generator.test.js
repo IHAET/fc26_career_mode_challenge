@@ -270,3 +270,119 @@ test('streaks count consecutive check-ins', () => {
 test('msUntilTomorrow counts to local midnight', () => {
   assert.equal(Daily.msUntilTomorrow(new Date(2026, 9, 22, 23, 30)), 30 * 60000);
 });
+
+// ---------- Player Career ----------
+
+test('player mode generates complete challenges for every archetype and difficulty', () => {
+  const mode = globalThis.FC26.modes.player;
+  for (const a of mode.archetypes) {
+    for (let d = 1; d <= 4; d++) {
+      for (const s of SEEDS.slice(0, 15)) {
+        const ch = G.generateChallenge({ mode: 'player', archetype: a.id, difficulty: d }, s);
+        assert.equal(ch.mode, 'player');
+        assert.equal(ch.archetype.id, a.id);
+        assert.ok(mode.positions.some((p) => p.id === ch.position.id));
+        if (a.position) assert.equal(ch.position.id, a.position);
+        assert.equal(ch.roadmap.length, ch.seasons);
+        ch.roadmap.forEach((season, i) => assert.equal(season.age, ch.startAge + i));
+        assert.ok(ch.title.includes(ch.position.name) && ch.title.includes(ch.club.name));
+        const texts = [...ch.coreRules, ...ch.rules].map((r) => r.text)
+          .concat(ch.roadmap.flatMap((x) => x.objectives.map((o) => o.text).concat(x.events)), ch.finalGoal);
+        texts.forEach((t) => assert.doesNotMatch(t, /undefined|NaN|\[object/, `${a.id}: ${t}`));
+      }
+    }
+  }
+});
+
+test('player mode honours the position option and keeps keeper-only wording right', () => {
+  for (const s of SEEDS.slice(0, 40)) {
+    const ch = G.generateChallenge({ mode: 'player', position: 'GK', archetype: 'wildcard-career', ruleCount: 8 }, s);
+    assert.equal(ch.position.id, 'GK');
+    assert.ok(!ch.rules.some((r) => r.id === 'one-celebration'), 'keeper got the celebration rule');
+    ch.roadmap.forEach((x) => x.objectives.forEach((o) => assert.doesNotMatch(o.text, /hat-trick|Score for your national/)));
+  }
+});
+
+test('player share links rebuild the same career, including position and age', () => {
+  for (const s of SEEDS.slice(0, 40)) {
+    let ch = G.generateChallenge({ mode: 'player' }, s);
+    if (ch.rules.length) ch = G.rerollRule(ch, 0, `swap-${s}`);
+    const rebuilt = G.fromShareKey(JSON.parse(JSON.stringify(G.toShareKey(ch))));
+    assert.equal(rebuilt.mode, 'player');
+    assert.deepEqual(rebuilt.position, ch.position);
+    assert.equal(rebuilt.startAge, ch.startAge);
+    assert.deepEqual(rebuilt.rules, ch.rules);
+    assert.deepEqual(rebuilt.roadmap, ch.roadmap);
+  }
+});
+
+// ---------- Custom clubs ----------
+
+test('a custom club in a known league slots into that league', () => {
+  const opts = { customClub: { name: 'Dulwich Hamlet', country: 'England', level: 4, tier: 1 } };
+  for (const s of SEEDS.slice(0, 20)) {
+    const ch = G.generateChallenge(opts, s);
+    assert.equal(ch.club.name, 'Dulwich Hamlet');
+    assert.equal(ch.club.leagueId, 'eng4');
+    assert.ok(ch.club.custom);
+    assert.notEqual(ch.archetype.id, 'club-heritage');
+  }
+});
+
+test('a custom club from a country without leagues still gets sensible text', () => {
+  const opts = { customClub: { name: 'Flamengo', country: 'Brazil', level: 1, tier: 4, league: 'Brasileirão' } };
+  for (const s of SEEDS.slice(0, 40)) {
+    for (const mode of ['manager', 'player']) {
+      const ch = G.generateChallenge(Object.assign({ mode }, opts), s);
+      assert.equal(ch.club.name, 'Flamengo');
+      assert.equal(ch.club.nationality, 'Brazilian');
+      const texts = [...ch.coreRules, ...ch.rules].map((r) => r.text)
+        .concat(ch.roadmap.flatMap((x) => x.objectives.map((o) => o.text).concat(x.events)), ch.finalGoal);
+      texts.forEach((t) => assert.doesNotMatch(t, /undefined|NaN|\[object/, t));
+      const rebuilt = G.fromShareKey(JSON.parse(JSON.stringify(G.toShareKey(ch))));
+      assert.equal(rebuilt.club.name, 'Flamengo');
+      assert.deepEqual(rebuilt.roadmap, ch.roadmap);
+      if (ch.rules.length) assert.equal(G.rerollRule(ch, 0, 'x').club.name, 'Flamengo');
+    }
+  }
+  // Lower divisions abroad fall back to generic names.
+  const lower = G.generateChallenge({ customClub: { name: 'Santos', country: 'Brazil', level: 2, tier: 2 }, archetype: 'road-to-glory' }, 'S');
+  assert.match(lower.roadmap[0].objectives[0].text, /next division|top flight/);
+});
+
+test('custom club input is cleaned up', () => {
+  assert.equal(G.normalizeCustomClub({ name: '   ', country: 'England' }), null);
+  assert.equal(G.normalizeCustomClub({ name: 'X', country: 'Narnia' }), null);
+  const cc = G.normalizeCustomClub({ name: '  A   very  long name '.repeat(5), country: 'Spain', level: 9, tier: -3 });
+  assert.ok(cc.name.length <= 40 && !/\s{2}/.test(cc.name));
+  assert.equal(cc.level, 4);
+  assert.equal(cc.tier, 1);
+});
+
+// ---------- Edited challenges ----------
+
+test('sanitizeChallenge keeps edits but strips junk from untrusted input', () => {
+  const ch = G.generateChallenge({}, 'EDIT1');
+  ch.rules.push({ id: 'my-rule', cat: 'Custom', text: 'Only sign left-footed players.' });
+  ch.finalGoal = 'Win it all.';
+  const clean = G.sanitizeChallenge(JSON.parse(JSON.stringify(ch)));
+  assert.ok(clean.custom);
+  assert.equal(clean.finalGoal, 'Win it all.');
+  assert.equal(clean.rules.at(-1).text, 'Only sign left-footed players.');
+  assert.deepEqual(clean.roadmap.map((s) => s.objectives), ch.roadmap.map((s) => s.objectives));
+
+  const evil = G.sanitizeChallenge({
+    difficulty: '99', seasons: 1e9, club: { name: { toString: 1 }, tier: 'lots' },
+    roadmap: Array(100).fill({ objectives: [{ text: 'x'.repeat(5000) }, null, 7], events: 'nope' }),
+    rules: [{ text: '<img src=x onerror=alert(1)>' }], scoring: [{ label: 'Hack', points: 1e9 }], mode: 'other',
+  });
+  assert.equal(evil.difficulty, 4);
+  assert.equal(evil.seasons, 15);
+  assert.equal(evil.roadmap.length, 15);
+  assert.equal(evil.club.tier, 3);
+  assert.ok(evil.roadmap[0].objectives[0].text.length <= 400);
+  assert.equal(evil.mode, 'manager');
+  assert.ok(!evil.scoring.some((s) => s.label === 'Hack'));
+  assert.equal(G.sanitizeChallenge(null), null);
+  assert.equal(G.sanitizeChallenge('string'), null);
+});

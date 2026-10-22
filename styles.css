@@ -38,7 +38,7 @@ body {
   flex-direction: column;
 }
 
-button, input, select { font: inherit; color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
 
 [hidden] { display: none !important; }
 
@@ -153,6 +153,12 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
 
 .hint { margin: 0; color: var(--muted); font-size: 0.82rem; text-align: center; }
 
+.custom-club {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 12px; border-radius: 12px; background: var(--bg-2); border: 1px dashed var(--line);
+}
+.custom-club select, .custom-club input[type="text"] { background: var(--panel); }
+
 /* ---------- Buttons ---------- */
 
 .btn {
@@ -170,6 +176,7 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
 .btn-primary:hover { background: #3af0a1; }
 .btn-danger { color: var(--danger); }
 .btn-big { padding: 14px; font-size: 1.05rem; }
+.btn-small { padding: 6px 10px; font-size: 0.85rem; }
 
 .icon-btn {
   border: 1px solid transparent;
@@ -300,6 +307,8 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
   width: 2px;
   background: var(--line);
 }
+.season-num { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: none; }
+.season-num small { color: var(--muted); font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
 .season-num span {
   width: 44px;
   height: 44px;
@@ -369,6 +378,55 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 .week .day.is-done { background: var(--warn); border-color: var(--warn); color: #0b0f14; }
 .week .day.is-today { outline: 2px solid var(--accent); outline-offset: 1px; }
 .footer a { color: var(--accent); }
+
+/* ---------- Season diary ---------- */
+
+.diary {
+  display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: flex-end;
+  margin-top: 4px; padding: 10px 12px; border-radius: 10px;
+  background: var(--bg-2); border: 1px solid var(--line);
+}
+.diary-field { display: flex; flex-direction: column; gap: 4px; font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+.diary-field.grow { flex: 1 1 200px; }
+.diary-field input { width: 100%; min-width: 90px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); }
+.diary-field:first-child input { width: 110px; }
+.stepper { display: flex; align-items: center; gap: 6px; height: 32px; }
+.stepper strong { min-width: 2ch; text-align: center; color: var(--text); font-size: 1rem; }
+.stepper .icon-btn { opacity: 1; border-color: var(--line); width: 28px; }
+.counter small { margin-left: 8px; font-size: 0.75rem; }
+
+/* ---------- Editor ---------- */
+
+.editor-head h2 { margin: 0 0 4px; }
+.editor-head p { margin: 0; }
+.edit-grid { display: grid; grid-template-columns: 1fr 90px; gap: 12px; margin-top: 18px; }
+.edit-grid .edit-field.wide, .edit-grid .edit-field:nth-child(n+3) { grid-column: 1 / -1; }
+@media (min-width: 700px) {
+  .edit-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .edit-grid .edit-field { grid-column: span 2; }
+  .edit-grid .edit-field:nth-child(n+3) { grid-column: span 2; }
+  .edit-grid .icon-field { grid-column: span 1; }
+  .edit-grid .edit-field:first-child { grid-column: span 3; }
+  .edit-grid .edit-field.wide { grid-column: 1 / -1; }
+}
+.edit-field { display: flex; flex-direction: column; gap: 6px; font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+.edit-field small { font-weight: 400; }
+.editor input, .editor textarea, .editor select {
+  width: 100%; background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px;
+  padding: 9px 11px; font-size: 0.95rem; resize: vertical;
+}
+.editor textarea { min-height: 42px; line-height: 1.4; overflow: hidden; }
+.edit-block { margin-top: 22px; display: flex; flex-direction: column; gap: 8px; }
+.edit-block h3 { margin: 0 0 4px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.edit-block > .btn-small { align-self: flex-start; }
+.edit-row { display: flex; gap: 6px; align-items: flex-start; }
+.edit-row textarea { flex: 1; }
+.edit-row .icon-btn { margin-top: 6px; }
+.event-row .obj-icon { margin-top: 9px; color: var(--warn); }
+.event-row textarea { border-color: rgba(255, 201, 77, 0.35); }
+.edit-season { padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.015); display: flex; flex-direction: column; gap: 8px; }
+.edit-season-head { display: flex; gap: 8px; align-items: baseline; }
+.edit-inline { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* ---------- Saved ---------- */
 

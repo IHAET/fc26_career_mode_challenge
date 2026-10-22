@@ -5,6 +5,11 @@
  * Every random choice draws from its own RNG stream derived from the seed
  * (e.g. "AB12CD:club"), so locking one part of a challenge and rerolling
  * the rest keeps the locked part stable and the result reproducible.
+ *
+ * The generator is shared by game modes (FC26.modes): Manager Career is
+ * defined here, Player Career in player.js. A mode supplies its own
+ * archetypes, rules, roadmap and scoring; club picking, rules and locks
+ * are common.
  */
 (function (root) {
   'use strict';
@@ -102,6 +107,66 @@
     return CLUBS.find((c) => c.name === name && (!leagueId || c.leagueId === leagueId)) || null;
   }
 
+  // ---------- Custom clubs ----------
+
+  // Countries a custom club can come from, with their nationality adjective.
+  const COUNTRIES = (() => {
+    const map = new Map(data.leagues.map((l) => [l.country, l.nationality]));
+    data.nations.forEach((n) => { if (!map.has(n.name)) map.set(n.name, n.adj); });
+    return Array.from(map, ([name, adj]) => ({ name, adj })).sort((a, b) => a.name.localeCompare(b.name));
+  })();
+
+  function normalizeCustomClub(cc) {
+    if (!cc || typeof cc !== 'object') return null;
+    const name = String(cc.name || '').replace(/\s+/g, ' ').trim().slice(0, 40);
+    const country = COUNTRIES.find((c) => c.name === cc.country);
+    if (!name || !country) return null;
+    return {
+      name,
+      country: country.name,
+      level: Math.min(4, Math.max(1, Math.round(Number(cc.level)) || 1)),
+      tier: Math.min(5, Math.max(1, Math.round(Number(cc.tier)) || 3)),
+      league: String(cc.league || '').replace(/\s+/g, ' ').trim().slice(0, 40),
+    };
+  }
+
+  /**
+   * A club the user typed in. It slots into a real league when one exists
+   * for that country and division (e.g. an English fourth-tier club goes in
+   * League Two); otherwise it gets a stand-in league.
+   */
+  function buildCustomClub(cc) {
+    const known = leagueAt(cc.country, cc.level);
+    const country = COUNTRIES.find((c) => c.name === cc.country);
+    const fallbackName = cc.level === 1 ? 'top flight' : ['', '', 'second division', 'third division', 'fourth division'][cc.level];
+    return {
+      name: cc.name,
+      tier: cc.tier,
+      leagueId: known ? known.id : 'custom',
+      league: known ? known.name : (cc.league || fallbackName),
+      country: cc.country,
+      nationality: country ? country.adj : 'local',
+      level: cc.level,
+      continental: known ? known.continental || null : null,
+      custom: true,
+    };
+  }
+
+  // The league object for a club, including stand-ins for custom clubs.
+  function leagueOf(club) {
+    return leagueById[club.leagueId] || { id: 'custom', name: club.league, level: club.level, cup: 'domestic cup' };
+  }
+
+  function topLeagueOf(club) {
+    return leagueAt(club.country, 1) || (club.level === 1 ? leagueOf(club) : { id: 'custom-top', name: 'top flight', level: 1 });
+  }
+
+  /** The club behind a generated challenge, custom or not. */
+  function clubOf(ch) {
+    const custom = ch.options && normalizeCustomClub(ch.options.customClub);
+    return custom ? buildCustomClub(custom) : findClub(ch.club.name, ch.club.leagueId);
+  }
+
   // ---------- Scaling helpers ----------
 
   // Rough budget in €M by club tier, scaled down for lower divisions.
@@ -119,8 +184,8 @@
   }
 
   function makeContext({ club, d, seasons, archetype, nation, formation }) {
-    const topLeague = leagueAt(club.country, 1) || leagueById[club.leagueId];
-    const league = leagueById[club.leagueId];
+    const topLeague = topLeagueOf(club);
+    const league = leagueOf(club);
     const byD = (arr) => arr[d - 1];
     const budget = TIER_BUDGET[club.tier] * (LEVEL_FACTOR[club.level] || 1);
     return {
@@ -153,6 +218,7 @@
   // ---------- Options ----------
 
   const DEFAULT_OPTIONS = {
+    mode: 'manager', // key of FC26.modes
     difficulty: 'random', // 1-4 or 'random'
     archetype: 'any',
     club: 'any', // "leagueId|Club name"
@@ -161,12 +227,18 @@
     seasons: 'auto',
     ruleCount: 'auto',
     events: true,
+    customClub: null, // { name, country, level, tier, league }
+    position: 'any', // Player Career only
   };
+
+  const modeOf = (mode) => FC26.modes[mode] || FC26.modes.manager;
 
   function normalizeOptions(options) {
     const o = Object.assign({}, DEFAULT_OPTIONS, options || {});
+    if (!FC26.modes[o.mode]) o.mode = 'manager';
+    const mode = modeOf(o.mode);
     if (o.difficulty !== 'random') o.difficulty = Math.min(4, Math.max(1, Number(o.difficulty) || 2));
-    if (o.archetype !== 'any' && !archetypeById[o.archetype]) o.archetype = 'any';
+    if (o.archetype !== 'any' && !mode.archetypeById[o.archetype]) o.archetype = 'any';
     if (o.league !== 'any' && !leagueById[o.league]) o.league = 'any';
     if (o.club !== 'any') {
       const [leagueId, ...rest] = String(o.club).split('|');
@@ -176,6 +248,8 @@
     if (o.seasons !== 'auto') o.seasons = Math.min(15, Math.max(1, Number(o.seasons) || 5));
     if (o.ruleCount !== 'auto') o.ruleCount = Math.min(8, Math.max(0, Number(o.ruleCount) || 0));
     o.events = o.events !== false;
+    o.customClub = normalizeCustomClub(o.customClub);
+    if (mode.normalizeOptions) mode.normalizeOptions(o);
     return o;
   }
 
@@ -279,6 +353,7 @@
   function eligibleRule(def, ctx, blocked, used) {
     return !used.has(def.id)
       && (!def.minD || ctx.d >= def.minD)
+      && (!def.when || def.when(ctx))
       && !def.tags.some((t) => blocked.has(t));
   }
 
@@ -286,7 +361,8 @@
     return { id: def.id, cat: def.cat, text: def.text(withRng(ctx, createRng(`${seed}:rule:${def.id}`))) };
   }
 
-  function pickRules(ctx, seed, count, lockedIds) {
+  function pickRules(mode, ctx, seed, count, lockedIds) {
+    const { ruleById } = mode;
     const blocked = new Set(ctx.archetype.blockTags || []);
     const used = new Set();
     const rules = [];
@@ -297,7 +373,7 @@
       used.add(id);
       def.tags.forEach((t) => blocked.add(t));
     }
-    for (const def of createRng(`${seed}:rules`).shuffle(content.rules)) {
+    for (const def of createRng(`${seed}:rules`).shuffle(mode.rules)) {
       if (rules.length >= count) break;
       if (!eligibleRule(def, ctx, blocked, used)) continue;
       rules.push(makeRule(def, ctx, seed));
@@ -314,11 +390,14 @@
    * @param {object} options  see DEFAULT_OPTIONS
    * @param {string} seed     any string; same seed + options + locks = same challenge
    * @param {object} locks    { club: {name, leagueId}, archetypeId, seasons, difficulty, ruleIds: [] }
+   *                          plus any mode-specific locks (e.g. position)
    */
   function generateChallenge(options, seed, locks) {
     seed = String(seed || randomSeed());
     locks = locks || {};
     const opts = normalizeOptions(options);
+    const mode = modeOf(opts.mode);
+    const { archetypeById: archById } = mode;
     const r = (label) => createRng(`${seed}:${label}`);
     const notes = [];
 
@@ -328,12 +407,14 @@
       ? `${c.leagueId}|${c.name}` === opts.club
       : (opts.league === 'any' || c.leagueId === opts.league) && (opts.tier === 'any' || c.tier === opts.tier));
 
-    let club = locks.club ? (findClub(locks.club.name, locks.club.leagueId) || null) : null;
-    let archetype = locks.archetypeId ? archetypeById[locks.archetypeId] : null;
+    let club = opts.customClub ? buildCustomClub(opts.customClub)
+      : locks.club ? (findClub(locks.club.name, locks.club.leagueId) || null) : null;
+    let archetype = locks.archetypeId ? archById[locks.archetypeId] : null;
 
     if (!archetype) {
-      const pool = opts.archetype !== 'any' ? [archetypeById[opts.archetype]] : content.archetypes;
-      let candidates = pool.filter((a) => (club ? a.clubFilter(club) : CLUBS.some((c) => a.clubFilter(c) && userFilter(c))));
+      const pool = opts.archetype !== 'any' ? [archById[opts.archetype]] : mode.archetypes;
+      let candidates = pool.filter((a) => (!mode.archetypeFilter || mode.archetypeFilter(a, locks, opts))
+        && (club ? a.clubFilter(club) : CLUBS.some((c) => a.clubFilter(c) && userFilter(c))));
       if (!candidates.length) {
         candidates = pool;
         notes.push('That challenge type doesn\'t suit your club filters, so the filters were loosened.');
@@ -354,35 +435,37 @@
       }
       club = r('club').pick(pool.length ? pool : CLUBS);
     }
-    archetype = resolveArchetype(archetype, club);
+    archetype = mode.resolveArchetype ? mode.resolveArchetype(archetype, club) : archetype;
 
     let seasons = locks.seasons ? Math.min(15, Math.max(1, Number(locks.seasons))) : null;
     seasons = seasons || (opts.seasons !== 'auto' ? opts.seasons : null);
     const [minS, maxS] = archetype.seasonRange(club, d);
     if (!seasons) seasons = r('seasons').int(minS, maxS);
     if (archetype.forcePromotion && seasons < club.level) {
-      notes.push(`${seasons} season(s) is not enough to reach the top flight from ${leagueRef(leagueById[club.leagueId])} — try ${club.level + 1} or more.`);
+      notes.push(`${seasons} season(s) is not enough to reach the top flight from ${leagueRef(leagueOf(club))} — try ${club.level + 1} or more.`);
     }
 
     const nation = r('nation').pick(data.nations.filter((n) => n.adj !== club.nationality));
     const formation = r('formation').pick(data.formations);
     const ctx = makeContext({ club, d, seasons, archetype, nation, formation });
+    if (mode.prepare) mode.prepare(ctx, r, locks, opts);
 
-    const ruleCount = opts.ruleCount === 'auto' ? [1, 2, 3, 4][d - 1] + (archetype.bonusRules || 0) : opts.ruleCount;
+    const ruleCount = opts.ruleCount === 'auto' ? mode.ruleCount(d) + (archetype.bonusRules || 0) : opts.ruleCount;
     const coreRules = archetype.core(withRng(ctx, r('core'))).map((text) => ({ text }));
-    const rules = pickRules(ctx, seed, ruleCount, locks.ruleIds);
+    const rules = pickRules(mode, ctx, seed, ruleCount, locks.ruleIds);
     ctx.eventsOn = opts.events;
 
-    const roadmap = buildRoadmap(ctx, r('roadmap'));
+    const roadmap = mode.buildRoadmap(ctx, r('roadmap'));
 
     const difficulty = data.difficulties[d - 1];
-    return {
+    return Object.assign({
       version: 1,
+      mode: mode.id,
       seed,
       options: opts,
       difficulty: d,
       difficultyName: difficulty.name,
-      title: `${archetype.name}: ${club.name}`,
+      title: mode.title ? mode.title(ctx) : `${archetype.name}: ${club.name}`,
       archetype: {
         id: archetype.id, name: archetype.name, icon: archetype.icon, tagline: archetype.tagline, desc: archetype.desc,
         typeName: archetype.typeName || archetype.name, history: archetype.history || null,
@@ -390,35 +473,41 @@
       club: {
         name: club.name, league: club.league, leagueId: club.leagueId, country: club.country,
         nationality: club.nationality, tier: club.tier, tierName: data.tierNames[club.tier],
+        custom: Boolean(club.custom),
       },
       seasons,
       coreRules,
       rules,
       roadmap,
       finalGoal: archetype.finalGoal(withRng(ctx, r('final'))),
-      failConditions: failConditions(d),
-      scoring: scoring(d),
-      settings: settings(d),
+      failConditions: mode.failConditions(d),
+      scoring: mode.scoring(d),
+      settings: mode.settings(d),
       notes,
-    };
+    }, mode.extraOutput ? mode.extraOutput(ctx) : {});
   }
 
   /** Swap one extra rule for a different eligible one. Returns a new challenge. */
   function rerollRule(challenge, index, seed) {
-    const club = findClub(challenge.club.name, challenge.club.leagueId);
-    const archetype = archetypeById[challenge.archetype.id] && resolveArchetype(archetypeById[challenge.archetype.id], club);
+    const mode = modeOf(challenge.mode);
+    const ruleDefs = mode.ruleById;
+    const club = clubOf(challenge);
+    const base = club && mode.archetypeById[challenge.archetype.id];
+    const archetype = base && (mode.resolveArchetype ? mode.resolveArchetype(base, club) : base);
     if (!club || !archetype || !challenge.rules[index]) return challenge;
+    const r = (label) => createRng(`${challenge.seed}:${label}`);
     const ctx = makeContext({
       club, d: challenge.difficulty, seasons: challenge.seasons, archetype,
-      nation: createRng(`${challenge.seed}:nation`).pick(data.nations.filter((n) => n.adj !== club.nationality)),
-      formation: createRng(`${challenge.seed}:formation`).pick(data.formations),
+      nation: r('nation').pick(data.nations.filter((n) => n.adj !== club.nationality)),
+      formation: r('formation').pick(data.formations),
     });
+    if (mode.prepare) mode.prepare(ctx, r, mode.locksOf ? mode.locksOf(challenge) : {}, challenge.options || {});
     const blocked = new Set(archetype.blockTags || []);
     const used = new Set(challenge.rules.map((x) => x.id));
     challenge.rules.forEach((x, i) => {
-      if (i !== index && ruleById[x.id]) ruleById[x.id].tags.forEach((t) => blocked.add(t));
+      if (i !== index && ruleDefs[x.id]) ruleDefs[x.id].tags.forEach((t) => blocked.add(t));
     });
-    const pool = content.rules.filter((def) => eligibleRule(def, ctx, blocked, used));
+    const pool = mode.rules.filter((def) => eligibleRule(def, ctx, blocked, used));
     if (!pool.length) return challenge;
     const def = createRng(`${seed || randomSeed()}:swap`).pick(pool);
     const rules = challenge.rules.slice();
@@ -466,7 +555,8 @@
    * pinned as a lock. `fromShareKey` rebuilds the identical challenge.
    */
   function toShareKey(ch) {
-    return {
+    const mode = modeOf(ch.mode);
+    return Object.assign({
       v: 1,
       s: ch.seed,
       o: Object.assign({}, ch.options, { seasons: 'auto', ruleCount: 'auto' }),
@@ -475,21 +565,103 @@
       n: ch.seasons,
       d: ch.difficulty,
       r: ch.rules.map((x) => x.id),
-    };
+    }, mode.locksOf ? { m: mode.locksOf(ch) } : {});
   }
 
   function fromShareKey(key) {
     if (!key || key.v !== 1 || !key.s || !Array.isArray(key.r) || !Array.isArray(key.c)) return null;
     const options = Object.assign({}, key.o, { ruleCount: key.r.length });
-    const ch = generateChallenge(options, key.s, {
+    const mode = modeOf(options.mode);
+    const ch = generateChallenge(options, String(key.s), Object.assign({}, key.m && typeof key.m === 'object' ? key.m : {}, {
       club: { name: String(key.c[0]), leagueId: String(key.c[1]) },
-      archetypeId: archetypeById[key.a] ? key.a : null,
+      archetypeId: mode.archetypeById[key.a] ? key.a : null,
       seasons: Number(key.n) || null,
       difficulty: Number(key.d) || null,
       ruleIds: key.r.map(String),
-    });
+    }));
     ch.options = Object.assign({}, ch.options, { ruleCount: 'auto' });
     return ch;
+  }
+
+  /**
+   * Clean up a challenge from an untrusted source (an edited challenge in a
+   * share link): keep only known fields, coerce types and cap lengths. The
+   * result is safe to render and to store.
+   */
+  function sanitizeChallenge(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    // Only plain strings and numbers count as text: String() on an object can run its code or throw.
+    const str = (v, max = 400) => (typeof v === 'string' ? v : Number.isFinite(v) ? String(v) : '').slice(0, max).trim();
+    const int = (v, min, max, dflt) => {
+      const n = Math.round(Number(v));
+      return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : dflt;
+    };
+    const list = (v, max) => (Array.isArray(v) ? v.slice(0, max) : []);
+    const obj = (v) => (v && typeof v === 'object' ? v : {});
+
+    const options = normalizeOptions(obj(raw.options));
+    const mode = modeOf(raw.mode === 'player' ? 'player' : 'manager');
+    options.mode = mode.id;
+    const d = int(raw.difficulty, 1, 4, 2);
+    const a = obj(raw.archetype);
+    const c = obj(raw.club);
+    const tier = int(c.tier, 1, 5, 3);
+
+    let roadmap = list(raw.roadmap, 15).map((s, i) => {
+      const season = obj(s);
+      const out = {
+        season: i + 1,
+        objectives: list(season.objectives, 8).map((o) => ({ text: str(obj(o).text), type: obj(o).type === 'side' ? 'side' : 'main' })).filter((o) => o.text),
+        events: list(season.events, 6).map((e) => str(e)).filter(Boolean),
+      };
+      if (season.age != null) out.age = int(season.age, 14, 50, null);
+      return out;
+    });
+    if (!roadmap.length) roadmap = [{ season: 1, objectives: [], events: [] }];
+
+    const archName = str(a.name, 60) || 'Custom Challenge';
+    const clubName = str(c.name, 40) || 'Your club';
+    const out = {
+      version: 1,
+      mode: mode.id,
+      custom: true,
+      seed: str(raw.seed, 40) || 'custom',
+      options,
+      difficulty: d,
+      difficultyName: data.difficulties[d - 1].name,
+      title: str(raw.title, 120) || `${archName}: ${clubName}`,
+      archetype: {
+        id: str(a.id, 40) || 'custom',
+        name: archName,
+        icon: str(a.icon, 8) || '✍️',
+        tagline: str(a.tagline, 160),
+        desc: str(a.desc, 400),
+        typeName: str(a.typeName, 60) || archName,
+        history: str(a.history, 1200) || null,
+      },
+      club: {
+        name: clubName,
+        league: str(c.league, 60),
+        leagueId: str(c.leagueId, 20),
+        country: str(c.country, 40),
+        nationality: str(c.nationality, 40),
+        tier,
+        tierName: data.tierNames[tier],
+        custom: Boolean(c.custom),
+      },
+      seasons: roadmap.length,
+      coreRules: list(raw.coreRules, 12).map((x) => ({ text: str(obj(x).text) })).filter((x) => x.text),
+      rules: list(raw.rules, 12).map((x) => ({ id: str(obj(x).id, 40) || 'custom', cat: str(obj(x).cat, 20) || 'Custom', text: str(obj(x).text) })).filter((x) => x.text),
+      roadmap,
+      finalGoal: str(raw.finalGoal),
+      failConditions: list(raw.failConditions, 6).map((f) => str(f)).filter(Boolean),
+      scoring: mode.scoring(d),
+      settings: mode.settings(d),
+      notes: [],
+    };
+    if (!out.failConditions.length) out.failConditions = mode.failConditions(d);
+    if (mode.sanitizeExtra) Object.assign(out, mode.sanitizeExtra(raw));
+    return out;
   }
 
   /** Plain-text version for pasting into Reddit, Discord, etc. */
@@ -497,12 +669,16 @@
     const lines = [];
     if (ch.daily) lines.push(`📅 FC 26 Daily Challenge #${ch.daily.number} (${ch.daily.date})`);
     lines.push(`${ch.archetype.icon} ${ch.title}`);
-    lines.push(`${ch.difficultyName} · ${ch.seasons} season${ch.seasons === 1 ? '' : 's'} · ${ch.club.league} · Seed ${ch.seed}`);
+    const meta = [ch.difficultyName, `${ch.seasons} season${ch.seasons === 1 ? '' : 's'}`];
+    if (ch.position) meta.push(`${ch.position.name}, starting age ${ch.startAge}`);
+    if (ch.club.league) meta.push(ch.club.league);
+    meta.push(ch.custom ? 'Custom challenge' : `Seed ${ch.seed}`);
+    lines.push(meta.join(' · '));
     lines.push('', ch.archetype.history || ch.archetype.desc, '', 'RULES');
     ch.coreRules.concat(ch.rules).forEach((x) => lines.push(`- ${x.text}`));
     lines.push('', 'ROADMAP');
     ch.roadmap.forEach((s) => {
-      lines.push(`Season ${s.season}:`);
+      lines.push(`Season ${s.season}${s.age ? ` (age ${s.age})` : ''}:`);
       s.objectives.forEach((o) => lines.push(`  ${o.type === 'main' ? '•' : '+'} ${o.text}`));
       s.events.forEach((e) => lines.push(`  ⚡ ${e}`));
     });
@@ -511,6 +687,24 @@
     return lines.join('\n');
   }
 
+  // ---------- Manager Career mode ----------
+
+  FC26.modes = FC26.modes || {};
+  FC26.modes.manager = {
+    id: 'manager',
+    name: 'Manager Career',
+    archetypes: content.archetypes,
+    archetypeById,
+    rules: content.rules,
+    ruleById,
+    resolveArchetype,
+    ruleCount: (d) => [1, 2, 3, 4][d - 1],
+    buildRoadmap,
+    failConditions,
+    scoring,
+    settings,
+  };
+
   FC26.generator = {
     createRng,
     randomSeed,
@@ -518,10 +712,16 @@
     rerollRule,
     toShareKey,
     fromShareKey,
+    sanitizeChallenge,
     challengeToText,
     normalizeOptions,
+    buildCustomClub,
+    normalizeCustomClub,
     money,
     CLUBS,
+    COUNTRIES,
     DEFAULT_OPTIONS,
+    // Building blocks for other modes (player.js).
+    internal: { withRng, failConditions, scoring, settings },
   };
 })(typeof window !== 'undefined' ? window : globalThis);
