@@ -242,6 +242,8 @@
         }
         main = topFlightGoal(ctx.topLeague, ctx.continental, ctx.cup, Math.min(7, Math.max(1, eff)));
       }
+      const custom = archetype.seasonGoal && archetype.seasonGoal(ctx, s);
+      if (custom) main = custom;
       objectives.push({ text: main, type: 'main' });
 
       if (archetype.id === 'journeyman' && s % ctx.moveEvery === 0 && s < seasons) {

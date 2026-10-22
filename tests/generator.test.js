@@ -2,10 +2,15 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-require('../js/data.js');
-require('../js/heritage.js');
-require('../js/rules.js');
-require('../js/generator.js');
+// Load scripts in the same order as index.html.
+const fs = require('node:fs');
+const path = require('node:path');
+const ROOT = path.join(__dirname, '..');
+const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+[...html.matchAll(/<script src="([^"]+)"><\/script>/g)]
+  .map((m) => m[1])
+  .filter((src) => !src.endsWith('app.js'))
+  .forEach((src) => require(path.join(ROOT, src)));
 
 const { generator: G, content, data, heritage } = globalThis.FC26;
 
@@ -70,10 +75,10 @@ test('club filters are honoured when compatible', () => {
 });
 
 test('incompatible filters are loosened with a note', () => {
-  // Road to Glory needs a lower-league English club.
+  // Road to Glory needs a lower-league club, and LALIGA is a top flight.
   const ch = G.generateChallenge({ archetype: 'road-to-glory', league: 'esp1' }, 'X');
   assert.equal(ch.archetype.id, 'road-to-glory');
-  assert.equal(ch.club.country, 'England');
+  assert.notEqual(ch.club.leagueId, 'esp1');
   assert.ok(ch.notes.length > 0);
 });
 
@@ -83,7 +88,8 @@ test('Road to Glory climbs the pyramid one division per season', () => {
     const startLevel = data.leagues.find((l) => l.id === ch.club.leagueId).level;
     const promotions = ch.roadmap.filter((x) => /Win promotion/.test(x.objectives[0].text)).length;
     assert.equal(promotions, Math.min(startLevel - 1, ch.seasons));
-    assert.match(ch.roadmap.at(-1).objectives[0].text, /Win the Premier League/);
+    const top = data.leagues.find((l) => l.country === ch.club.country && l.level === 1);
+    assert.ok(ch.roadmap.at(-1).objectives[0].text.includes(`Win ${top.noArticle ? '' : 'the '}${top.name}`));
   }
 });
 
@@ -178,5 +184,49 @@ test('locking a club without heritage and asking for heritage picks a heritage c
 test('a specific club option is honoured', () => {
   for (const s of SEEDS.slice(0, 40)) {
     assert.equal(G.generateChallenge({ club: 'ita1|Napoli' }, s).club.name, 'Napoli');
+  }
+});
+
+test('heritage core rules block the extra rules they overlap with', () => {
+  // If a core rule covers one of these topics, the matching tag must be
+  // blocked so a random extra rule can't repeat or contradict it.
+  const checks = [
+    [/squad capped/i, 'squad-size'],
+    [/^Promote at least/i, 'academy-promote'],
+    [/academy graduates (in every|must start)|graduates in every matchday/i, 'academy'],
+    [/No single transfer fee|no transfer fees/i, 'fee'],
+    [/earn more than .*\/week/i, 'wage'],
+    [/positive net transfer spend/i, 'profit'],
+    [/Only sign players aged|Every signing must be aged|No signing players under/i, 'age'],
+    [/average .* or younger/i, 'avg-age'],
+    [/ in every match\b|back three/i, 'formation'],
+    [/rated above .* OVR/i, 'ovr'],
+    [/Sell your highest-(rated|valued) player every summer/i, 'sell-star'],
+    [/no simming/i, 'sim'],
+    [/signings per (summer )?window/i, 'count'],
+    [/No loan signings/i, 'loans'],
+    [/^Only sign \w+ players\.$|^Every signing must be [A-Z]/, 'origin'],
+  ];
+  const problems = [];
+  for (const [name, h] of Object.entries(heritage)) {
+    const club = G.CLUBS.find((c) => c.name === name);
+    const ch = G.generateChallenge({ archetype: 'club-heritage', club: `${club.leagueId}|${name}`, difficulty: 2 }, 'lint');
+    const blocked = new Set(h.blockTags || []);
+    for (const { text } of ch.coreRules) {
+      for (const [re, tag] of checks) {
+        if (re.test(text) && !blocked.has(tag)) problems.push(`${name}: "${text}" needs blockTags '${tag}'`);
+      }
+      if (text.includes(`${club.nationality} players in every starting XI`) && !blocked.has('quota')) {
+        problems.push(`${name}: "${text}" needs blockTags 'quota'`);
+      }
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
+test('a veterans-only signing rule never appears with a young-XI rule', () => {
+  for (const s of SEEDS) {
+    const ids = G.generateChallenge({ ruleCount: 8, difficulty: 4 }, s).rules.map((r) => r.id);
+    assert.ok(!(ids.includes('age-floor') && ids.includes('young-xi')), `${s}: ${ids}`);
   }
 });

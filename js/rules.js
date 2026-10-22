@@ -18,8 +18,8 @@
     {
       id: 'road-to-glory', name: 'Road to Glory', icon: '🪜',
       tagline: 'From the bottom of the pyramid to the top of Europe.',
-      desc: 'Take a lower-league English club and drag them all the way to the Premier League title.',
-      clubFilter: (club) => club.country === 'England' && (club.level >= 3 || (club.level === 2 && club.tier === 1)),
+      desc: 'Take a lower-league club and drag them all the way to the top-flight title.',
+      clubFilter: (club) => club.level >= 3 || (club.level === 2 && club.tier === 1),
       seasonRange: (club) => [club.level + 1, club.level + 3],
       forcePromotion: true,
       finalTitle: true,
@@ -30,8 +30,8 @@
         `Spend only the board's budget: no custom starting budget.`,
       ],
       finalGoal: (c) => (c.d >= 3
-        ? `Win the Premier League and the Champions League with ${c.club.name}.`
-        : `Win the Premier League with ${c.club.name}.`),
+        ? `Win ${c.topLeagueRef} and the ${c.continental} with ${c.club.name}.`
+        : `Win ${c.topLeagueRef} with ${c.club.name}.`),
     },
     {
       id: 'youth-revolution', name: 'Youth Revolution', icon: '🌱',
@@ -187,7 +187,10 @@
       finalGoal: (c) => `Sell a player you signed as a teenager for ${c.money(c.byD([60, 80, 100, 120]))} or more, and win a trophy.`,
     },
     {
-      // Placeholder: the generator swaps in the club's entry from heritage.js.
+      // Placeholder: the generator swaps in the club's entry from js/heritage/.
+      // Entries take the same fields as an archetype, plus `history`, an
+      // optional `seasons` ([min, max] or a function of difficulty) and an
+      // optional `seasonGoal(c, season)` that replaces a season's main target.
       id: 'club-heritage', name: 'Club Heritage', icon: '🏛️',
       tagline: "Play it the club's way.",
       desc: "A challenge built on the club's real history and identity.",
@@ -218,7 +221,8 @@
     { id: 'fee-cap', cat: 'Transfers', tags: ['fee'], text: (c) => `No single transfer fee above ${c.feeCap()}.` },
     { id: 'max-signings', cat: 'Transfers', tags: ['count'], text: (c) => `Maximum ${c.byD([5, 4, 3, 2])} permanent signings per window.` },
     { id: 'age-cap', cat: 'Transfers', tags: ['age'], text: (c) => `Only sign players aged ${c.byD([25, 24, 23, 22])} or younger.` },
-    { id: 'age-floor', cat: 'Transfers', tags: ['age'], minD: 2, text: (c) => `Only sign players aged ${c.byD([27, 28, 29, 30])} or older.` },
+    // Also tagged avg-age: a 30+ signing policy can't coexist with a young-XI rule.
+    { id: 'age-floor', cat: 'Transfers', tags: ['age', 'avg-age'], minD: 2, text: (c) => `Only sign players aged ${c.byD([27, 28, 29, 30])} or older.` },
     { id: 'ovr-cap', cat: 'Transfers', tags: ['ovr'], text: (c) => `No signing anyone rated above ${c.ovrCap()} OVR.` },
     { id: 'nation-only', cat: 'Transfers', tags: ['origin'], minD: 2, text: (c) => `Every signing must be ${c.nation.adj}.` },
     { id: 'region-only', cat: 'Transfers', tags: ['origin'], text: (c) => `Signings must come from ${c.rng.pick(c.data.regions)}.` },

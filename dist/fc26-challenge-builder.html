@@ -1,0 +1,3961 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FC 26 Career Challenge Builder</title>
+  <meta name="description" content="Generate random EA SPORTS FC 26 Career Mode challenges: clubs, rules, season objectives and random events.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+  <style>
+:root {
+  --bg: #0b0f14;
+  --bg-2: #111821;
+  --panel: #151d28;
+  --panel-2: #1b2533;
+  --line: #263243;
+  --text: #e9eef5;
+  --muted: #8d9bb0;
+  --accent: #19e68c;
+  --accent-ink: #062314;
+  --accent-soft: rgba(25, 230, 140, 0.12);
+  --warn: #ffc94d;
+  --danger: #ff5c6c;
+  --d1: #4dd6ff;
+  --d2: #19e68c;
+  --d3: #ffb547;
+  --d4: #ff5c6c;
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { color-scheme: dark; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font);
+  color: var(--text);
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(25, 230, 140, 0.10), transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, rgba(77, 214, 255, 0.08), transparent 60%),
+    var(--bg);
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+}
+
+button, input, select { font: inherit; color: inherit; }
+
+[hidden] { display: none !important; }
+
+/* ---------- Top bar ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 18px clamp(16px, 4vw, 40px);
+  border-bottom: 1px solid var(--line);
+  background: rgba(11, 15, 20, 0.8);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand h1 { margin: 0; font-size: 1.25rem; letter-spacing: -0.01em; }
+.brand-sub { margin: 2px 0 0; color: var(--muted); font-size: 0.85rem; }
+.brand-mark {
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -0.04em;
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  transform: skewX(-8deg);
+}
+
+.tabs { display: flex; gap: 6px; background: var(--bg-2); padding: 4px; border-radius: 12px; border: 1px solid var(--line); }
+.tab {
+  border: 0;
+  background: transparent;
+  padding: 8px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 600;
+}
+.tab.is-active { background: var(--panel-2); color: var(--text); }
+.count {
+  display: inline-block;
+  min-width: 1.5em;
+  padding: 0 6px;
+  margin-left: 4px;
+  border-radius: 99px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8em;
+}
+
+/* ---------- Layout ---------- */
+
+main { flex: 1; padding: clamp(16px, 3vw, 32px) clamp(16px, 4vw, 40px); width: 100%; max-width: 1280px; margin: 0 auto; }
+
+.builder { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .builder { grid-template-columns: 1fr; } }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* ---------- Options ---------- */
+
+.options { padding: 20px; position: sticky; top: 96px; display: flex; flex-direction: column; gap: 16px; }
+@media (max-width: 900px) { .options { position: static; } }
+.options h2 { margin: 0; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+
+fieldset { border: 0; padding: 0; margin: 0; }
+legend, .field > span { display: block; font-size: 0.82rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+.field small { font-weight: 400; opacity: 0.8; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+select, input[type="text"] {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.segmented { display: flex; flex-wrap: wrap; gap: 6px; }
+.segmented label { flex: 1 1 auto; }
+.segmented input { position: absolute; opacity: 0; pointer-events: none; }
+.segmented span {
+  display: block;
+  text-align: center;
+  padding: 8px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.segmented input:checked + span { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.segmented input:focus-visible + span { outline: 2px solid var(--accent); }
+
+.toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+.toggle input { width: 18px; height: 18px; accent-color: var(--accent); }
+
+.hint { margin: 0; color: var(--muted); font-size: 0.82rem; text-align: center; }
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.08s ease, background 0.15s ease;
+}
+.btn:hover { background: #223044; }
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn-primary:hover { background: #3af0a1; }
+.btn-danger { color: var(--danger); }
+.btn-big { padding: 14px; font-size: 1.05rem; }
+
+.icon-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 8px;
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  opacity: 0.65;
+}
+.icon-btn:hover { opacity: 1; background: var(--panel-2); }
+.icon-btn.is-locked { opacity: 1; background: rgba(255, 201, 77, 0.15); border-color: rgba(255, 201, 77, 0.4); }
+
+/* ---------- Empty state ---------- */
+
+.empty { padding: 56px 24px; text-align: center; }
+.empty h2 { margin: 8px 0; }
+.empty p { color: var(--muted); margin: 0 auto; max-width: 38ch; }
+.empty-ball { font-size: 3rem; animation: bounce 1.6s ease-in-out infinite; }
+@keyframes bounce { 50% { transform: translateY(-10px); } }
+@media (prefers-reduced-motion: reduce) { .empty-ball { animation: none; } }
+
+/* ---------- Challenge card ---------- */
+
+.card { padding: clamp(16px, 3vw, 28px); --diff: var(--d2); border-top: 4px solid var(--diff); animation: pop 0.25s ease-out; }
+.card.diff-1 { --diff: var(--d1); }
+.card.diff-3 { --diff: var(--d3); }
+.card.diff-4 { --diff: var(--d4); }
+@keyframes pop { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) { .card { animation: none; } }
+
+.card-head { display: flex; gap: 16px; align-items: flex-start; }
+.arch-icon {
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+.arch-icon.small { width: 40px; height: 40px; font-size: 1.3rem; border-radius: 10px; }
+.card-title { flex: 1; min-width: 0; }
+.eyebrow { color: var(--diff); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; }
+.card-title h2 { margin: 2px 0; font-size: clamp(1.4rem, 3vw, 2rem); letter-spacing: -0.02em; line-height: 1.15; overflow-wrap: anywhere; }
+.tagline { margin: 0; color: var(--muted); font-style: italic; }
+.badges { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+.badge-row { display: flex; align-items: center; gap: 4px; }
+.badge { padding: 4px 10px; border-radius: 99px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+.badge.diff { background: var(--diff); color: #0b0f14; }
+.badge.seed { background: var(--panel-2); color: var(--muted); font-family: ui-monospace, monospace; }
+@media (max-width: 560px) {
+  .card-head { flex-wrap: wrap; }
+  .badges { flex-direction: row; width: 100%; align-items: center; }
+}
+
+.notes { margin-top: 14px; padding: 10px 14px; border-radius: 10px; background: rgba(255, 201, 77, 0.08); border: 1px solid rgba(255, 201, 77, 0.3); font-size: 0.88rem; }
+.notes p { margin: 0; }
+
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 18px 0 8px; }
+@media (max-width: 560px) { .facts { grid-template-columns: 1fr 1fr; } .facts .fact:first-child { grid-column: 1 / -1; } }
+.fact { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; min-width: 0; }
+.fact-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; display: flex; align-items: center; gap: 4px; min-height: 26px; }
+.fact-value { font-size: 1.15rem; font-weight: 800; overflow-wrap: anywhere; }
+.fact-sub { font-size: 0.8rem; color: var(--muted); }
+.stars { color: var(--warn); letter-spacing: 2px; }
+.star-off { color: var(--line); }
+
+.desc { color: var(--muted); margin: 12px 0 4px; }
+
+.history {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--warn);
+}
+.history h3 { margin: 0 0 6px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--warn); }
+.history p { margin: 0; font-size: 0.95rem; }
+
+.is-disabled { opacity: 0.45; }
+
+.block { margin-top: 22px; }
+.block h3 { margin: 0 0 10px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+.rules { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.rule { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); }
+.rule.core { border-left: 3px solid var(--diff); }
+.rule.is-locked { border-color: rgba(255, 201, 77, 0.45); }
+.rule-text { flex: 1; min-width: 0; }
+.rule-actions { display: flex; gap: 2px; flex: none; }
+.rule-tag {
+  flex: none;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: var(--panel-2);
+  color: var(--muted);
+  width: 78px;
+  text-align: center;
+}
+.rule.core .rule-tag { color: var(--diff); }
+.cat-transfers { color: #7cc4ff !important; }
+.cat-finance { color: #ffd166 !important; }
+.cat-squad { color: #c49bff !important; }
+.cat-tactics { color: #ff9b85 !important; }
+@media (max-width: 560px) {
+  .rule { flex-wrap: wrap; }
+  .rule-text { flex-basis: calc(100% - 90px); }
+  .rule-actions { margin-left: auto; }
+}
+
+.roadmap { list-style: none; margin: 0; padding: 0; position: relative; }
+.season { display: flex; gap: 14px; position: relative; padding-bottom: 14px; }
+.season:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 21px;
+  top: 40px;
+  bottom: 0;
+  width: 2px;
+  background: var(--line);
+}
+.season-num span {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--panel-2);
+  border: 2px solid var(--diff);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+.season-body { flex: 1; display: flex; flex-direction: column; gap: 6px; padding-top: 8px; min-width: 0; }
+.objective, .event { display: flex; gap: 8px; align-items: flex-start; }
+.objective.main { font-weight: 600; }
+.objective.side { color: var(--muted); font-size: 0.92rem; }
+.event { font-size: 0.9rem; color: var(--warn); background: rgba(255, 201, 77, 0.07); border-radius: 8px; padding: 6px 10px; }
+.obj-icon { flex: none; }
+.obj-check { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); flex: none; cursor: pointer; }
+label.objective:has(.obj-check) { cursor: pointer; }
+label.objective:has(.obj-check:checked) > span:last-child { text-decoration: line-through; opacity: 0.6; }
+
+.final .final-goal {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 201, 77, 0.15), rgba(25, 230, 140, 0.08));
+  border: 1px solid rgba(255, 201, 77, 0.4);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+@media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+.plain { margin: 0; padding-left: 18px; color: var(--muted); font-size: 0.92rem; }
+.plain li + li { margin-top: 4px; }
+.settings { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0; font-size: 0.92rem; }
+.settings dt { color: var(--muted); }
+.settings dd { margin: 0; font-weight: 600; }
+
+.scoring { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.scoring li { display: flex; justify-content: space-between; gap: 8px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 0.9rem; }
+.pos { color: var(--accent); }
+.neg { color: var(--danger); }
+
+.card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line); }
+
+/* ---------- Saved ---------- */
+
+.saved-head h2 { margin: 0; }
+.muted { color: var(--muted); }
+.saved-list { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+.saved-item > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+.saved-item > summary::-webkit-details-marker { display: none; }
+.saved-title { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.saved-title strong { overflow-wrap: anywhere; }
+.saved-title small, .progress small { color: var(--muted); }
+.progress { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; width: 150px; flex: none; }
+.progress-bar { width: 100%; height: 8px; background: var(--bg-2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
+.progress-bar span { display: block; height: 100%; background: var(--accent); }
+@media (max-width: 560px) {
+  .saved-item > summary { flex-wrap: wrap; }
+  .progress { width: 100%; align-items: stretch; }
+}
+.saved-body { padding: 0 12px 12px; }
+.saved-body .card { box-shadow: none; animation: none; }
+
+.score-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.counter { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.counter > span { font-size: 0.82rem; color: var(--muted); font-weight: 600; }
+.counter > div { display: flex; align-items: center; gap: 10px; }
+.counter strong { font-size: 1.3rem; min-width: 2ch; text-align: center; }
+.counter .icon-btn { opacity: 1; border-color: var(--line); width: 32px; font-size: 1.1rem; }
+.counter.total strong { color: var(--accent); font-size: 1.8rem; text-align: left; }
+
+/* ---------- Footer & toast ---------- */
+
+.footer { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 24px 16px 32px; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 18px;
+  border-radius: 99px;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  z-index: 50;
+  max-width: calc(100vw - 32px);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .topbar { position: static; }
+}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">FC26</span>
+      <div>
+        <h1>Career Challenge Builder</h1>
+        <p class="brand-sub">Random career mode challenges for EA SPORTS FC 26</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab is-active" role="tab" data-view="builder" aria-selected="true">Builder</button>
+      <button class="tab" role="tab" data-view="saved" aria-selected="false">My Challenges <span class="count" id="saved-count">0</span></button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="view-builder" class="view builder">
+      <form id="options" class="panel options" autocomplete="off">
+        <h2>Options</h2>
+
+        <fieldset>
+          <legend>Difficulty</legend>
+          <div class="segmented" id="difficulty">
+            <label><input type="radio" name="difficulty" value="random" checked><span>🎲 Any</span></label>
+            <label><input type="radio" name="difficulty" value="1"><span>Casual</span></label>
+            <label><input type="radio" name="difficulty" value="2"><span>Pro</span></label>
+            <label><input type="radio" name="difficulty" value="3"><span>World Class</span></label>
+            <label><input type="radio" name="difficulty" value="4"><span>Legendary</span></label>
+          </div>
+        </fieldset>
+
+        <label class="field">
+          <span>Challenge type</span>
+          <select name="archetype" id="opt-archetype"><option value="any">🎲 Surprise me</option></select>
+        </label>
+
+        <label class="field">
+          <span>Club <small>(🏛️ = has a heritage challenge)</small></span>
+          <select name="club" id="opt-club"><option value="any">Any club</option></select>
+        </label>
+
+        <div class="field-row" id="club-filters">
+          <label class="field">
+            <span>League</span>
+            <select name="league" id="opt-league"><option value="any">Any league</option></select>
+          </label>
+          <label class="field">
+            <span>Club size</span>
+            <select name="tier" id="opt-tier">
+              <option value="any">Any size</option>
+              <option value="5">Giant</option>
+              <option value="4">Strong</option>
+              <option value="3">Mid-table</option>
+              <option value="2">Underdog</option>
+              <option value="1">Minnow</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field-row">
+          <label class="field">
+            <span>Seasons</span>
+            <select name="seasons" id="opt-seasons"><option value="auto">Auto</option></select>
+          </label>
+          <label class="field">
+            <span>Extra rules</span>
+            <select name="ruleCount" id="opt-rules"><option value="auto">Auto</option></select>
+          </label>
+        </div>
+
+        <label class="toggle">
+          <input type="checkbox" name="events" checked>
+          <span>Random season events ⚡</span>
+        </label>
+
+        <label class="field">
+          <span>Seed <small>(same seed + options = same challenge)</small></span>
+          <input type="text" name="seed" id="opt-seed" placeholder="Leave blank for random" maxlength="32" spellcheck="false">
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-big">⚽ Generate challenge</button>
+        <p class="hint">Lock 🔒 the parts you like, then hit <strong>Reroll</strong> to change the rest.</p>
+      </form>
+
+      <div class="result" id="result" aria-live="polite">
+        <div class="empty panel">
+          <div class="empty-ball">⚽</div>
+          <h2>Ready when you are, gaffer.</h2>
+          <p>Pick some options (or don't) and generate your first FC 26 career mode challenge.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-saved" class="view saved" hidden>
+      <div class="saved-head">
+        <h2>My Challenges</h2>
+        <p class="muted">Saved on this device. Tick objectives off as you go.</p>
+      </div>
+      <div id="saved-list" class="saved-list"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Fan-made tool, not affiliated with EA SPORTS. Club list based on the 2025/26 season; club sizes are approximate.
+  </footer>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script>/* js/data.js */
+/*
+ * Static data for the FC 26 Career Challenge Builder.
+ *
+ * Club lists follow the 2025/26 season. Tiers are a rough guide to club
+ * strength (5 = European giant, 1 = minnow) and only drive how hard the
+ * generated targets and limits are, so they don't need to be exact.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  const leagues = [
+    {
+      id: 'eng1', name: 'Premier League', country: 'England', nationality: 'English', level: 1, cup: 'FA Cup',
+      clubs: [
+        ['Arsenal', 5], ['Liverpool', 5], ['Manchester City', 5], ['Chelsea', 5],
+        ['Manchester United', 4], ['Tottenham Hotspur', 4], ['Newcastle United', 4], ['Aston Villa', 4],
+        ['Brighton & Hove Albion', 3], ['Nottingham Forest', 3], ['Crystal Palace', 3], ['AFC Bournemouth', 3],
+        ['Brentford', 3], ['Fulham', 3], ['West Ham United', 3], ['Everton', 3],
+        ['Wolverhampton Wanderers', 2], ['Leeds United', 2], ['Burnley', 2], ['Sunderland', 2],
+      ],
+    },
+    {
+      id: 'eng2', name: 'EFL Championship', country: 'England', nationality: 'English', level: 2, cup: 'FA Cup',
+      clubs: [
+        ['Leicester City', 2], ['Southampton', 2], ['Ipswich Town', 2], ['Sheffield United', 2],
+        ['Middlesbrough', 2], ['Coventry City', 2], ['West Bromwich Albion', 2], ['Norwich City', 2],
+        ['Watford', 2], ['Wrexham', 2], ['Birmingham City', 2], ['Hull City', 1], ['Stoke City', 1],
+        ['Swansea City', 1], ['Millwall', 1], ['Queens Park Rangers', 1], ['Preston North End', 1],
+        ['Bristol City', 1], ['Blackburn Rovers', 1], ['Derby County', 1], ['Portsmouth', 1],
+        ['Oxford United', 1], ['Sheffield Wednesday', 1], ['Charlton Athletic', 1],
+      ],
+    },
+    {
+      id: 'eng3', name: 'EFL League One', country: 'England', nationality: 'English', level: 3, cup: 'FA Cup',
+      clubs: [
+        ['Luton Town', 1], ['Plymouth Argyle', 1], ['Cardiff City', 1], ['Wigan Athletic', 1],
+        ['Bolton Wanderers', 1], ['Huddersfield Town', 1], ['Stockport County', 1], ['Barnsley', 1],
+        ['Blackpool', 1], ['Reading', 1], ['Rotherham United', 1], ['Peterborough United', 1],
+        ['Lincoln City', 1], ['Wycombe Wanderers', 1], ['Stevenage', 1], ['Leyton Orient', 1],
+        ['Mansfield Town', 1], ['Exeter City', 1], ['Burton Albion', 1], ['AFC Wimbledon', 1],
+        ['Doncaster Rovers', 1], ['Port Vale', 1], ['Bradford City', 1], ['Northampton Town', 1],
+      ],
+    },
+    {
+      id: 'eng4', name: 'EFL League Two', country: 'England', nationality: 'English', level: 4, cup: 'FA Cup',
+      clubs: [
+        ['Bristol Rovers', 1], ['Shrewsbury Town', 1], ['Crawley Town', 1], ['Cambridge United', 1],
+        ['MK Dons', 1], ['Notts County', 1], ['Chesterfield', 1], ['Walsall', 1], ['Grimsby Town', 1],
+        ['Salford City', 1], ['Swindon Town', 1], ['Crewe Alexandra', 1], ['Gillingham', 1],
+        ['Colchester United', 1], ['Cheltenham Town', 1], ['Tranmere Rovers', 1], ['Accrington Stanley', 1],
+        ['Fleetwood Town', 1], ['Harrogate Town', 1], ['Newport County', 1], ['Barrow', 1],
+        ['Bromley', 1], ['Oldham Athletic', 1], ['Barnet', 1],
+      ],
+    },
+    {
+      id: 'esp1', noArticle: true, name: 'LALIGA EA SPORTS', country: 'Spain', nationality: 'Spanish', level: 1, cup: 'Copa del Rey',
+      clubs: [
+        ['Real Madrid', 5], ['FC Barcelona', 5], ['Atlético de Madrid', 4], ['Athletic Club', 4],
+        ['Villarreal', 4], ['Real Betis', 3], ['Real Sociedad', 3], ['Sevilla', 3], ['Valencia', 3],
+        ['Celta Vigo', 3], ['Girona', 3], ['Osasuna', 2], ['Rayo Vallecano', 2], ['RCD Mallorca', 2],
+        ['Getafe', 2], ['Espanyol', 2], ['Deportivo Alavés', 2], ['Levante', 1], ['Elche', 1], ['Real Oviedo', 1],
+      ],
+    },
+    {
+      id: 'ita1', noArticle: true, name: 'Serie A', country: 'Italy', nationality: 'Italian', level: 1, cup: 'Coppa Italia',
+      clubs: [
+        ['Inter', 5], ['Napoli', 4], ['Juventus', 4], ['AC Milan', 4], ['Atalanta', 4], ['Roma', 4],
+        ['Lazio', 3], ['Fiorentina', 3], ['Bologna', 3], ['Como', 3], ['Torino', 2], ['Udinese', 2],
+        ['Genoa', 2], ['Hellas Verona', 2], ['Cagliari', 2], ['Parma', 2], ['Sassuolo', 2],
+        ['Lecce', 1], ['Pisa', 1], ['Cremonese', 1],
+      ],
+    },
+    {
+      id: 'ger1', name: 'Bundesliga', country: 'Germany', nationality: 'German', level: 1, cup: 'DFB-Pokal',
+      clubs: [
+        ['FC Bayern München', 5], ['Bayer 04 Leverkusen', 4], ['Borussia Dortmund', 4], ['RB Leipzig', 4],
+        ['Eintracht Frankfurt', 4], ['VfB Stuttgart', 3], ['SC Freiburg', 3], ['VfL Wolfsburg', 3],
+        ['1. FSV Mainz 05', 3], ['Borussia Mönchengladbach', 3], ['SV Werder Bremen', 3],
+        ['TSG Hoffenheim', 3], ['1. FC Union Berlin', 2], ['FC Augsburg', 2], ['FC St. Pauli', 2],
+        ['1. FC Köln', 2], ['Hamburger SV', 2], ['1. FC Heidenheim', 1],
+      ],
+    },
+    {
+      id: 'fra1', noArticle: true, name: 'Ligue 1', country: 'France', nationality: 'French', level: 1, cup: 'Coupe de France',
+      clubs: [
+        ['Paris Saint-Germain', 5], ['Olympique de Marseille', 4], ['AS Monaco', 4], ['LOSC Lille', 4],
+        ['Olympique Lyonnais', 4], ['OGC Nice', 3], ['RC Lens', 3], ['Stade Rennais', 3],
+        ['RC Strasbourg', 3], ['Stade Brestois', 2], ['Toulouse', 2], ['FC Nantes', 2], ['AJ Auxerre', 2],
+        ['Paris FC', 2], ['Angers SCO', 1], ['Le Havre', 1], ['FC Lorient', 1], ['FC Metz', 1],
+      ],
+    },
+    {
+      id: 'ned1', name: 'Eredivisie', country: 'Netherlands', nationality: 'Dutch', level: 1, cup: 'KNVB Cup',
+      clubs: [
+        ['PSV', 4], ['Ajax', 4], ['Feyenoord', 4], ['AZ Alkmaar', 3], ['FC Twente', 3], ['FC Utrecht', 3],
+        ['NEC Nijmegen', 2], ['Go Ahead Eagles', 2], ['SC Heerenveen', 2], ['Sparta Rotterdam', 2],
+        ['Fortuna Sittard', 2], ['FC Groningen', 2], ['PEC Zwolle', 1], ['Heracles Almelo', 1],
+        ['NAC Breda', 1], ['Excelsior', 1], ['Telstar', 1], ['FC Volendam', 1],
+      ],
+    },
+    {
+      id: 'por1', noArticle: true, name: 'Liga Portugal', country: 'Portugal', nationality: 'Portuguese', level: 1, cup: 'Taça de Portugal',
+      clubs: [
+        ['SL Benfica', 4], ['FC Porto', 4], ['Sporting CP', 4], ['SC Braga', 3], ['Vitória SC', 2],
+        ['FC Famalicão', 2], ['Gil Vicente', 2], ['Moreirense', 1], ['Estoril Praia', 1], ['Rio Ave', 1],
+        ['Santa Clara', 1], ['Casa Pia', 1], ['FC Arouca', 1], ['CD Nacional', 1], ['Estrela Amadora', 1],
+        ['AVS', 1], ['CD Tondela', 1], ['FC Alverca', 1],
+      ],
+    },
+    {
+      id: 'sco1', name: 'Scottish Premiership', country: 'Scotland', nationality: 'Scottish', level: 1, cup: 'Scottish Cup',
+      clubs: [
+        ['Celtic', 3], ['Rangers', 3], ['Heart of Midlothian', 2], ['Aberdeen', 2], ['Hibernian', 2],
+        ['Motherwell', 1], ['Dundee United', 1], ['St Mirren', 1], ['Kilmarnock', 1], ['Dundee', 1],
+        ['Falkirk', 1], ['Livingston', 1],
+      ],
+    },
+    {
+      id: 'usa1', name: 'MLS', country: 'USA', nationality: 'American', level: 1, cup: 'U.S. Open Cup',
+      continental: 'CONCACAF Champions Cup', continentalShort: 'CONCACAF Champions Cup', secondary: 'Leagues Cup',
+      // MLS has no relegation, so its season targets read differently.
+      goals: [
+        'Make the MLS Cup Playoffs',
+        'Finish in the top 4 of your conference',
+        'Reach the conference final',
+        'Win your conference',
+        'Win the MLS Cup',
+        "Win the MLS Cup and the Supporters' Shield",
+        "Win the MLS Cup, the Supporters' Shield and the CONCACAF Champions Cup",
+      ],
+      clubs: [
+        ['Inter Miami CF', 3], ['LAFC', 3], ['LA Galaxy', 2], ['Columbus Crew', 2], ['FC Cincinnati', 2],
+        ['Seattle Sounders FC', 2], ['Philadelphia Union', 2], ['Orlando City', 2], ['Atlanta United', 2],
+        ['New York City FC', 2], ['New York Red Bulls', 2], ['Vancouver Whitecaps', 2], ['Nashville SC', 2],
+        ['Minnesota United', 2], ['Austin FC', 1], ['Charlotte FC', 1], ['Chicago Fire', 1], ['Toronto FC', 1],
+        ['CF Montréal', 1], ['D.C. United', 1], ['Houston Dynamo', 1], ['FC Dallas', 1], ['Colorado Rapids', 1],
+        ['Portland Timbers', 1], ['Real Salt Lake', 1], ['San Jose Earthquakes', 1], ['Sporting Kansas City', 1],
+        ['St. Louis CITY SC', 1], ['New England Revolution', 1], ['San Diego FC', 1],
+      ],
+    },
+    {
+      id: 'ksa1', name: 'ROSHN Saudi League', country: 'Saudi Arabia', nationality: 'Saudi', level: 1, cup: "King's Cup",
+      continental: 'AFC Champions League Elite', continentalShort: 'AFC Champions League Elite', secondary: 'AFC Champions League Two',
+      clubs: [
+        ['Al Hilal', 4], ['Al Nassr', 4], ['Al Ittihad', 4], ['Al Ahli', 4], ['Al Qadsiah', 3], ['Al Ettifaq', 2],
+        ['Al Shabab', 2], ['Al Taawoun', 2], ['Al Fateh', 1], ['Al Khaleej', 1], ['Al Riyadh', 1], ['Al Fayha', 1],
+        ['Al Kholood', 1], ['Al Okhdood', 1], ['Damac', 1], ['Al Hazem', 1], ['Al Najma', 1], ['NEOM SC', 1],
+      ],
+    },
+    {
+      id: 'ger2', name: '2. Bundesliga', country: 'Germany', nationality: 'German', level: 2, cup: 'DFB-Pokal',
+      clubs: [
+        ['FC Schalke 04', 2], ['Hertha BSC', 2], ['Hannover 96', 1], ['1. FC Kaiserslautern', 1],
+        ['Fortuna Düsseldorf', 1], ['1. FC Nürnberg', 1], ['Karlsruher SC', 1], ['SC Paderborn 07', 1],
+        ['SV Darmstadt 98', 1], ['1. FC Magdeburg', 1], ['SV Elversberg', 1], ['Holstein Kiel', 1],
+        ['VfL Bochum', 1], ['SpVgg Greuther Fürth', 1], ['Preußen Münster', 1], ['Eintracht Braunschweig', 1],
+        ['Arminia Bielefeld', 1], ['Dynamo Dresden', 1],
+      ],
+    },
+    {
+      id: 'ita2', name: 'Serie B', noArticle: true, country: 'Italy', nationality: 'Italian', level: 2, cup: 'Coppa Italia',
+      clubs: [
+        ['Monza', 2], ['Palermo', 2], ['Venezia', 1], ['Empoli', 1], ['Sampdoria', 1], ['Bari', 1],
+        ['Spezia', 1], ['Modena', 1], ['Cesena', 1], ['Catanzaro', 1], ['Juve Stabia', 1], ['Südtirol', 1],
+        ['Carrarese', 1], ['Reggiana', 1], ['Mantova', 1], ['Frosinone', 1], ['Padova', 1],
+        ['Virtus Entella', 1], ['Avellino', 1], ['Pescara', 1],
+      ],
+    },
+    {
+      id: 'esp2', name: 'LALIGA HYPERMOTION', noArticle: true, country: 'Spain', nationality: 'Spanish', level: 2, cup: 'Copa del Rey',
+      clubs: [
+        ['UD Las Palmas', 1], ['CD Leganés', 1], ['Real Valladolid', 1], ['Deportivo de La Coruña', 1],
+        ['Sporting Gijón', 1], ['Racing Santander', 1], ['Málaga CF', 1], ['Real Zaragoza', 1],
+        ['UD Almería', 1], ['Cádiz CF', 1], ['SD Eibar', 1], ['Granada CF', 1], ['SD Huesca', 1],
+        ['CD Mirandés', 1], ['Albacete', 1], ['Burgos CF', 1], ['CD Castellón', 1], ['Córdoba CF', 1],
+        ['FC Andorra', 1], ['AD Ceuta', 1], ['Cultural Leonesa', 1], ['Real Sociedad B', 1],
+      ],
+    },
+    {
+      id: 'fra2', name: 'Ligue 2', noArticle: true, country: 'France', nationality: 'French', level: 2, cup: 'Coupe de France',
+      clubs: [
+        ['AS Saint-Étienne', 2], ['Montpellier HSC', 1], ['Stade de Reims', 1], ['SC Bastia', 1],
+        ['EA Guingamp', 1], ['Stade Lavallois', 1], ['FC Annecy', 1], ['Grenoble Foot 38', 1],
+        ['Amiens SC', 1], ['Pau FC', 1], ['Rodez AF', 1], ['Red Star FC', 1], ['ES Troyes AC', 1],
+        ['Clermont Foot', 1], ['USL Dunkerque', 1], ['Le Mans FC', 1], ['AS Nancy Lorraine', 1], ['US Boulogne', 1],
+      ],
+    },
+    {
+      id: 'bel1', name: 'Belgian Pro League', country: 'Belgium', nationality: 'Belgian', level: 1, cup: 'Belgian Cup',
+      clubs: [
+        ['Club Brugge', 3], ['Union Saint-Gilloise', 3], ['RSC Anderlecht', 3], ['KRC Genk', 3],
+        ['Royal Antwerp', 2], ['KAA Gent', 2], ['Standard Liège', 2], ['KV Mechelen', 1], ['KVC Westerlo', 1],
+        ['Cercle Brugge', 1], ['Sporting Charleroi', 1], ['OH Leuven', 1], ['Sint-Truidense VV', 1],
+        ['FCV Dender EH', 1], ['RAAL La Louvière', 1], ['SV Zulte Waregem', 1],
+      ],
+    },
+    {
+      id: 'tur1', name: 'Süper Lig', country: 'Türkiye', nationality: 'Turkish', level: 1, cup: 'Turkish Cup',
+      clubs: [
+        ['Galatasaray', 4], ['Fenerbahçe', 4], ['Beşiktaş', 3], ['Trabzonspor', 3], ['Başakşehir', 2],
+        ['Samsunspor', 2], ['Göztepe', 2], ['Eyüpspor', 1], ['Kasımpaşa', 1], ['Kocaelispor', 1],
+        ['Gençlerbirliği', 1], ['Konyaspor', 1], ['Antalyaspor', 1], ['Alanyaspor', 1], ['Kayserispor', 1],
+        ['Çaykur Rizespor', 1], ['Gaziantep FK', 1], ['Fatih Karagümrük', 1],
+      ],
+    },
+    {
+      id: 'nor1', name: 'Eliteserien', noArticle: true, country: 'Norway', nationality: 'Norwegian', level: 1, cup: 'Norwegian Cup',
+      clubs: [
+        ['Bodø/Glimt', 2], ['Brann', 1], ['Viking', 1], ['Rosenborg', 1], ['Molde', 1], ['Fredrikstad', 1],
+        ['Sarpsborg 08', 1], ['Vålerenga', 1], ['Tromsø', 1], ['Sandefjord', 1], ['HamKam', 1],
+        ['KFUM Oslo', 1], ['Strømsgodset', 1], ['Kristiansund', 1], ['Haugesund', 1], ['Bryne', 1],
+      ],
+    },
+    {
+      id: 'den1', name: 'Danish Superliga', country: 'Denmark', nationality: 'Danish', level: 1, cup: 'Danish Cup',
+      clubs: [
+        ['FC Copenhagen', 2], ['FC Midtjylland', 2], ['Brøndby IF', 2], ['AGF', 1], ['FC Nordsjælland', 1],
+        ['Randers FC', 1], ['Silkeborg IF', 1], ['Viborg FF', 1], ['OB', 1], ['Vejle BK', 1],
+        ['FC Fredericia', 1], ['Sønderjyske', 1],
+      ],
+    },
+    {
+      id: 'aut1', name: 'Austrian Bundesliga', country: 'Austria', nationality: 'Austrian', level: 1, cup: 'ÖFB Cup',
+      clubs: [
+        ['Red Bull Salzburg', 3], ['Sturm Graz', 2], ['Rapid Wien', 2], ['Austria Wien', 1], ['LASK', 1],
+        ['Wolfsberger AC', 1], ['TSV Hartberg', 1], ['Blau-Weiß Linz', 1], ['SCR Altach', 1], ['SV Ried', 1],
+        ['WSG Tirol', 1], ['Grazer AK', 1],
+      ],
+    },
+  ];
+
+  const nations = [
+    ['Brazil', 'Brazilian'], ['Argentina', 'Argentine'], ['France', 'French'], ['Spain', 'Spanish'],
+    ['Portugal', 'Portuguese'], ['Netherlands', 'Dutch'], ['Germany', 'German'], ['Italy', 'Italian'],
+    ['England', 'English'], ['Belgium', 'Belgian'], ['Norway', 'Norwegian'], ['Denmark', 'Danish'],
+    ['Sweden', 'Swedish'], ['Japan', 'Japanese'], ['South Korea', 'South Korean'], ['USA', 'American'],
+    ['Nigeria', 'Nigerian'], ['Senegal', 'Senegalese'], ['Morocco', 'Moroccan'], ['Ghana', 'Ghanaian'],
+    ['Ivory Coast', 'Ivorian'], ['Cameroon', 'Cameroonian'], ['Croatia', 'Croatian'], ['Serbia', 'Serbian'],
+    ['Uruguay', 'Uruguayan'], ['Colombia', 'Colombian'], ['Ecuador', 'Ecuadorian'], ['Mexico', 'Mexican'],
+    ['Canada', 'Canadian'], ['Scotland', 'Scottish'], ['Wales', 'Welsh'], ['Republic of Ireland', 'Irish'],
+    ['Austria', 'Austrian'], ['Switzerland', 'Swiss'], ['Poland', 'Polish'], ['Türkiye', 'Turkish'],
+    ['Algeria', 'Algerian'], ['Egypt', 'Egyptian'],
+  ].map(([name, adj]) => ({ name, adj }));
+
+  const formations = [
+    '4-3-3 (Attack)', '4-3-3 (Holding)', '4-2-3-1 (Wide)', '4-4-2 (Flat)', '4-4-2 (Holding)',
+    '4-1-2-1-2 (Narrow)', '4-2-2-2', '4-3-2-1', '4-5-1 (Flat)', '3-5-2', '3-4-3', '3-4-2-1',
+    '5-3-2', '5-2-1-2', '4-1-4-1', '3-1-4-2',
+  ];
+
+  const regions = [
+    'South America', 'Africa', 'Asia or Oceania', 'the Nordic countries', 'Eastern Europe',
+    'North & Central America', 'the British Isles', 'the Balkans',
+  ];
+
+  const difficulties = [
+    { level: 1, name: 'Casual', blurb: 'Relaxed rules, generous targets.' },
+    { level: 2, name: 'Pro', blurb: 'A proper test without being cruel.' },
+    { level: 3, name: 'World Class', blurb: 'Tight limits, real consequences.' },
+    { level: 4, name: 'Legendary', blurb: 'One slip and the save is over.' },
+  ];
+
+  const tierNames = { 5: 'Giant', 4: 'Strong', 3: 'Mid-table', 2: 'Underdog', 1: 'Minnow' };
+
+  FC26.data = { leagues, nations, formations, regions, difficulties, tierNames };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/heritage/england.js */
+/*
+ * Club Heritage challenges: England (all four EFL/PL divisions).
+ * Keyed by the club name used in data.js. Field reference: see the
+ * 'club-heritage' archetype in rules.js.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  Object.assign((FC26.heritage = FC26.heritage || {}), {
+    // ---------- Premier League ----------
+    'Arsenal': {
+      name: 'The Invincibles', icon: '🏅',
+      tagline: 'Played 38, won 26, drawn 12, lost 0.',
+      history: "Arsène Wenger's Arsenal went the entire 2003–04 Premier League season unbeaten, built around French stars like Henry, Vieira and Pirès. They have never won the Champions League, losing the 2006 final.",
+      seasons: [3, 5],
+      blockTags: ['sim'],
+      core: (c) => [
+        `At least ${c.byD([2, 3, 3, 4])} French players in every matchday squad.`,
+        'Play every league match: no simming.',
+      ],
+      finalGoal: (c) => (c.d >= 3
+        ? 'Go a whole Premier League season unbeaten and win the Champions League.'
+        : 'Go a whole Premier League season unbeaten.'),
+    },
+    'Manchester United': {
+      name: "Class of '92", icon: '👶',
+      tagline: "You can't win anything with kids.",
+      history: "Beckham, Giggs, Scholes, Butt and the Neville brothers won the 1992 FA Youth Cup together, then formed the core of Sir Alex Ferguson's 1999 treble winners. In 1995 Alan Hansen said 'you can't win anything with kids', and they won the double that season.",
+      seasons: [4, 7],
+      blockTags: ['academy', 'academy-promote'],
+      core: (c) => [
+        `Promote at least ${c.byD([4, 5, 6, 6])} academy players to the first team during season 1.`,
+        `At least ${c.byD([3, 4, 5, 6])} academy graduates in every matchday squad.`,
+      ],
+      finalGoal: (c) => `Win the treble (Premier League, FA Cup, Champions League) with ${c.byD([3, 4, 5, 6])}+ academy graduates in the starting XI.`,
+    },
+    'Liverpool': {
+      name: 'Number Seven', icon: '🔴',
+      tagline: 'This Is Anfield.',
+      history: "Liverpool's Boot Room dynasty under Shankly, Paisley and Fagan won four European Cups between 1977 and 1984. The miracle of Istanbul in 2005 and the 2019 win in Madrid took the total to six.",
+      seasons: [3, 6],
+      blockTags: ['rivals'],
+      core: () => [
+        'Go unbeaten at Anfield in the league every season.',
+        'Never sign a player from Everton or Manchester United.',
+      ],
+      finalGoal: (c) => (c.d >= 3
+        ? 'Win a seventh European Cup and the Premier League in the same season.'
+        : 'Win a seventh European Cup.'),
+    },
+    'Chelsea': {
+      name: 'Cobham Loan Empire', icon: '🌐',
+      tagline: 'Buy them, loan them, sell them.',
+      history: "Chelsea became famous for their 'loan army', with more than 30 players out on loan in some seasons. Cobham graduates such as Mason Mount and Reece James came through that system, and Chelsea won the Champions League in 2012 and 2021.",
+      seasons: [4, 7],
+      core: (c) => [
+        `Keep at least ${c.byD([6, 8, 10, 12])} players out on loan during every season.`,
+        'Every summer, sell at least one player returning from a loan.',
+      ],
+      finalGoal: (c) => `Win the Champions League with ${c.byD([2, 3, 4, 5])}+ starters you previously sent out on loan.`,
+    },
+    'Manchester City': {
+      name: 'The Centurions', icon: '💯',
+      tagline: '100 points.',
+      history: "Pep Guardiola's 2017–18 Manchester City were the first Premier League side to reach 100 points. In 2022–23 they won the club's first Champions League as part of a treble.",
+      seasons: [3, 5],
+      core: (c) => [
+        `Average ${c.byD([55, 58, 60, 62])}%+ possession over every league season.`,
+        'Never play with fewer than four midfielders.',
+      ],
+      finalGoal: (c) => (c.d >= 3
+        ? 'Reach 100+ league points and win the treble in the same season.'
+        : 'Reach 100+ league points in a season.'),
+    },
+    'Tottenham Hotspur': {
+      name: 'To Dare Is To Do', icon: '🐓',
+      tagline: 'Audere est facere.',
+      history: 'In 1960–61 Spurs were the first club of the 20th century to win the English league and FA Cup double. They have not won the league since, though the 2025 Europa League ended a 17-year wait for a trophy.',
+      seasons: [3, 6],
+      blockTags: ['formation'],
+      core: (c) => [
+        'Attack-minded only: no five-at-the-back formations.',
+        `Score ${c.byD([60, 70, 80, 90])}+ league goals every season.`,
+      ],
+      finalGoal: () => 'Win the league and FA Cup double, like the 1961 side.',
+    },
+    'Newcastle United': {
+      name: 'Number Nine', icon: '9️⃣',
+      tagline: 'Wor Jackie, Supermac, Shearer…',
+      history: "Newcastle's No.9 shirt is legendary: Jackie Milburn, Malcolm Macdonald and Alan Shearer, the Premier League's all-time top scorer, all wore it. The club's last league title came in 1927.",
+      seasons: [4, 7],
+      blockTags: ['quota'],
+      core: (c) => [
+        'Your No.9 must be English and your top league scorer every season. If not, sell them and sign a new English No.9.',
+        `At least ${c.byD([2, 3, 4, 5])} English players in every starting XI.`,
+      ],
+      finalGoal: () => 'Win the Premier League for the first time since 1927, with your English No.9 as top scorer.',
+    },
+    'Nottingham Forest': {
+      name: "Old Big 'Ead", icon: '🌳',
+      tagline: 'Promoted, champions, kings of Europe.',
+      history: 'Brian Clough took Forest up in 1977, won the league as a newly promoted side in 1978, then won back-to-back European Cups in 1979 and 1980 with a small, tight squad.',
+      seasons: [3, 6],
+      blockTags: ['squad-size', 'count'],
+      core: (c) => [
+        `Senior squad capped at ${c.byD([22, 21, 20, 19])} players.`,
+        `No more than ${c.byD([3, 3, 2, 2])} signings per summer window.`,
+      ],
+      finalGoal: () => 'Win the Premier League, then back-to-back Champions Leagues.',
+    },
+    'Brighton & Hove Albion': {
+      name: 'The Brighton Model', icon: '🔍',
+      tagline: 'Scout smarter, sell bigger.',
+      history: 'Brighton rose from near-bankruptcy to European football with data-led scouting, signing players like Moisés Caicedo and Alexis Mac Allister cheaply and selling them for huge profits.',
+      seasons: [4, 6],
+      blockTags: ['fee', 'profit', 'rivals', 'origin'],
+      core: (c) => [
+        'Only sign players from leagues outside England, Spain, Italy, Germany and France.',
+        `No single transfer fee above ${c.feeCap()}.`,
+        'Finish every season with a positive net transfer spend.',
+      ],
+      finalGoal: (c) => `Qualify for the Champions League and sell a player for ${c.money(c.byD([60, 80, 100, 120]))}+.`,
+    },
+    'Everton': {
+      name: "Dixie Dean's 60", icon: '🍬',
+      tagline: 'Nil satis nisi optimum.',
+      history: 'Dixie Dean scored 60 league goals for Everton in 1927–28, a top-flight record that still stands. The Toffees’ last major trophy was the 1995 FA Cup, and in 2025 they left Goodison Park for a new stadium at Bramley-Moore Dock.',
+      seasons: [3, 6],
+      core: (c) => [
+        `Your main striker must score ${c.byD([20, 25, 30, 35])}+ league goals every season, or be sold.`,
+        'Never sign a player from Liverpool.',
+      ],
+      finalGoal: (c) => (c.d >= 3
+        ? 'Have a player score 60 league goals in a season and win a major trophy.'
+        : `Win Everton's first major trophy since 1995, with a ${c.byD([25, 30, 35, 40])}-goal striker.`),
+    },
+    'Aston Villa': {
+      name: 'Fourteen Men', icon: '🟣',
+      tagline: 'Prepared.',
+      history: 'Aston Villa won the 1980–81 league title using just 14 players all season, then beat Bayern Munich to win the European Cup in 1982.',
+      seasons: [3, 5],
+      blockTags: ['rotation', 'squad-size'],
+      core: (c) => [
+        `No more than ${c.byD([20, 18, 16, 14])} different players may appear in league matches each season.`,
+        'No signings in the January window.',
+      ],
+      finalGoal: () => 'Win the Premier League, then the Champions League the following season.',
+    },
+    'West Ham United': {
+      name: 'Academy of Football', icon: '⚒️',
+      tagline: "I'm Forever Blowing Bubbles.",
+      history: "West Ham's youth system earned the nickname 'the Academy of Football': Bobby Moore, Geoff Hurst and Martin Peters won the 1966 World Cup, and later graduates include Frank Lampard, Rio Ferdinand, Joe Cole and Michael Carrick. They won the Conference League in 2023.",
+      seasons: [4, 7],
+      blockTags: ['academy', 'quota'],
+      core: (c) => [
+        `At least ${c.byD([2, 3, 4, 5])} academy graduates in every matchday squad.`,
+        `At least ${c.byD([3, 4, 5, 6])} English players in every starting XI.`,
+      ],
+      finalGoal: (c) => (c.d >= 3
+        ? `Win the Premier League, something West Ham have never done, with ${c.byD([3, 4, 5, 6])}+ academy graduates in the XI.`
+        : `Win a major trophy with ${c.byD([3, 4, 5, 6])}+ academy graduates in the starting XI.`),
+    },
+    'Crystal Palace': {
+      name: 'Glad All Over', icon: '🦅',
+      tagline: 'South London and proud.',
+      history: 'Crystal Palace won the first major trophy in their history in 2025, beating Manchester City 1–0 in the FA Cup final. Their recruitment has leaned on talent from the EFL, with Eberechi Eze arriving from QPR and Michael Olise from Reading.',
+      seasons: [3, 6],
+      blockTags: ['academy-promote'],
+      core: () => [
+        'At least half of your signings each window must come from Championship, League One or League Two clubs.',
+        'Promote at least one academy player every season.',
+      ],
+      finalGoal: () => 'Win the FA Cup again and qualify for the Champions League.',
+    },
+    'Wolverhampton Wanderers': {
+      name: 'The Portuguese Pack', icon: '🟠',
+      tagline: 'Out of darkness cometh light.',
+      history: "Stan Cullis's Wolves won three league titles in the 1950s, the last in 1959, and their floodlit wins over sides like Honvéd helped inspire the European Cup. Under Nuno Espírito Santo from 2017 they built a team around Portuguese players such as Rúben Neves, João Moutinho and Diogo Jota.",
+      seasons: [4, 6],
+      blockTags: ['origin'],
+      core: (c) => [
+        `At least ${c.byD([3, 4, 5, 6])} Portuguese players in every starting XI.`,
+        'Sign at least one Portuguese player every summer.',
+      ],
+      finalGoal: () => 'Win the league for the first time since 1959 with a Portuguese core.',
+    },
+    'Brentford': {
+      name: 'The B Team', icon: '📊',
+      tagline: 'Moneyball in west London.',
+      history: 'In 2016 Brentford scrapped their academy and replaced it with a B team of players released by other clubs. Using data-led recruitment they reached the top flight in 2021 for the first time since 1947.',
+      seasons: [4, 6],
+      blockTags: ['academy', 'academy-promote', 'fee'],
+      noAcademy: true,
+      core: (c) => [
+        'No academy promotions: sell or release every youth player.',
+        'Every player you sign aged 21 or under must be a free agent.',
+        `No single transfer fee above ${c.feeCap()}.`,
+      ],
+      finalGoal: (c) => `Qualify for Europe and sell a player for ${c.money(c.byD([40, 60, 80, 100]))}+.`,
+    },
+    'Leeds United': {
+      name: 'Bielsa Ball', icon: '⚪',
+      tagline: 'Marching On Together.',
+      history: "Marcelo Bielsa's relentless pressing and 'murderball' training sessions ended Leeds' 16-year exile from the top flight in 2020. Don Revie's Leeds were champions in 1969 and 1974, and the club's last title came in 1992.",
+      seasons: [3, 6],
+      blockTags: ['formation', 'squad-size'],
+      core: (c) => [
+        'Play 4-1-4-1 in every match.',
+        `Senior squad capped at ${c.byD([24, 22, 21, 20])} players.`,
+      ],
+      finalGoal: () => 'Win the league for the first time since 1992.',
+    },
+    'Sunderland': {
+      name: "Sunderland 'Til I Die", icon: '🐈',
+      tagline: "Ha'way the Lads.",
+      history: 'In 1973 second-tier Sunderland beat the mighty Leeds in the FA Cup final, one of the great shocks. After back-to-back relegations down to League One, they returned to the Premier League through the 2025 play-offs.',
+      seasons: [3, 6],
+      blockTags: ['avg-age'],
+      core: (c) => [
+        'Never lose to Newcastle United: every derby defeat counts as a broken rule.',
+        `Your starting XI must average ${c.byD([27, 26, 25, 24])} or younger.`,
+      ],
+      finalGoal: () => 'Win the FA Cup, like the 1973 underdogs, and finish above Newcastle that season.',
+    },
+    'AFC Bournemouth': {
+      name: 'Minus 17', icon: '🍒',
+      tagline: 'From the brink to the big time.',
+      history: 'Bournemouth began the 2008–09 League Two season on minus 17 points and nearly dropped out of the Football League. Eddie Howe kept them up, then led them all the way to the Premier League in 2015.',
+      seasons: [3, 5],
+      blockTags: ['fee'],
+      core: (c) => [
+        'Every season starts on a virtual −17 points: your targets must still be met after taking 17 points off your total.',
+        `No single transfer fee above ${c.feeCap()}.`,
+      ],
+      finalGoal: () => 'Qualify for the Champions League, even with the −17 handicap.',
+    },
+
+    // ---------- Championship ----------
+    'Leicester City': {
+      name: '5000-1', icon: '🦊',
+      tagline: 'Dilly ding, dilly dong.',
+      history: 'In 2015–16 Leicester City, 5000-1 outsiders, won the Premier League with a cheap, counter-attacking 4-4-2 built around Vardy, Mahrez and Kanté.',
+      seasons: [3, 5],
+      forcePromotion: true,
+      finalTitle: true,
+      blockTags: ['formation', 'fee'],
+      core: (c) => [
+        'Play 4-4-2 (Flat) in every match.',
+        `No single transfer fee above ${c.feeCap()}.`,
+      ],
+      finalGoal: (c) => `Win promotion, then win the Premier League within ${c.seasons} seasons.`,
+    },
+    'Wrexham': {
+      name: 'Welcome to Wrexham', icon: '🐉',
+      tagline: 'Four promotions in a row?',
+      history: 'After Ryan Reynolds and Rob McElhenney bought the club in 2021, Wrexham became the first club to win three straight promotions from the fifth tier, reaching the Championship in 2025.',
+      seasons: [3, 6],
+      forcePromotion: true,
+      core: (c) => [
+        'Sign at least one Welsh player every summer.',
+        `Keep at least ${c.byD([2, 2, 3, 3])} Welsh players in every matchday squad.`,
+      ],
+      finalGoal: () => 'Win promotion to the Premier League in season 1 (a fourth straight promotion), then qualify for Europe.',
+    },
+    'Ipswich Town': {
+      name: "Ramsey's Miracle", icon: '🚜',
+      tagline: 'Up and champions at the first attempt.',
+      history: 'Alf Ramsey took Ipswich up as Second Division champions in 1961, then won the First Division in 1961–62, their first ever top-flight season. Bobby Robson later won the 1981 UEFA Cup with them.',
+      seasons: [2, 4],
+      forcePromotion: true,
+      blockTags: ['origin', 'count'],
+      seasonGoal: (c, s) => (s === 2 ? 'Win the Premier League in your first season up, as Ramsey did in 1962.' : null),
+      core: (c) => [
+        'Only sign players from England, Scotland, Wales or Ireland.',
+        `No more than ${c.byD([5, 4, 3, 2])} signings per window.`,
+      ],
+      finalGoal: () => 'Win promotion, then the Premier League at the first attempt.',
+    },
+    'Southampton': {
+      name: 'Staplewood Academy', icon: '😇',
+      tagline: 'Made in Southampton.',
+      history: "Southampton's academy produced Gareth Bale, Theo Walcott, Alex Oxlade-Chamberlain, Adam Lallana, Luke Shaw and James Ward-Prowse. In 1976, as a Second Division side, they beat Manchester United to win the FA Cup.",
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['academy'],
+      core: (c) => [
+        `At least ${c.byD([3, 4, 5, 6])} academy graduates in every matchday squad.`,
+        `Sell an academy graduate for ${c.money(c.byD([20, 30, 40, 50]))}+ at least once every three seasons.`,
+      ],
+      finalGoal: () => 'Win promotion and the FA Cup, with academy graduates making up half your starting XI.',
+    },
+    'Watford': {
+      name: 'Taylor & Elton', icon: '🎹',
+      tagline: 'From the Fourth Division to the First.',
+      history: 'With Elton John as chairman, Graham Taylor took Watford from the Fourth Division in 1977 to second place in the First Division in 1982–83, their first top-flight season, and on to the 1984 FA Cup final.',
+      seasons: [2, 4],
+      forcePromotion: true,
+      blockTags: ['formation', 'quota'],
+      seasonGoal: (c, s) => (s === 2 ? "Finish in the top two of the Premier League in your first season up, like Taylor's 1983 side." : null),
+      core: (c) => [
+        'Play 4-4-2 (Flat) in every match.',
+        `At least ${c.byD([3, 4, 5, 6])} English players in every starting XI.`,
+      ],
+      finalGoal: () => 'Win promotion, finish in the top two in your first top-flight season, then reach the FA Cup final.',
+    },
+    'Blackburn Rovers': {
+      name: "Uncle Jack's Millions", icon: '🌹',
+      tagline: 'Arte et labore.',
+      history: "Steel magnate Jack Walker bankrolled Blackburn's rise, breaking the British transfer record for Alan Shearer in 1992. Shearer and Chris Sutton, the 'SAS', fired Rovers to the 1994–95 Premier League title.",
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['formation'],
+      core: (c) => [
+        'Play with two strikers in every match.',
+        `Break your club's transfer record for a striker at least once every ${c.byD([3, 2, 2, 1])} season(s).`,
+      ],
+      finalGoal: () => 'Win promotion, then the Premier League with a strike pair scoring 40+ league goals between them.',
+    },
+    'Preston North End': {
+      name: 'The Original Invincibles', icon: '🐑',
+      tagline: 'The first champions of England.',
+      history: 'In 1888–89 Preston won the first ever Football League title without losing a match, and the FA Cup without conceding a goal: the first double and the original Invincibles.',
+      seasons: [3, 6],
+      blockTags: ['sim'],
+      core: (c) => [
+        'Play every league match: no simming.',
+        `Lose no more than ${c.byD([6, 5, 4, 3])} league matches in any season.`,
+      ],
+      finalGoal: () => 'Go a whole league season unbeaten and win the FA Cup in the same season.',
+    },
+    'Birmingham City': {
+      name: 'The 111 Club', icon: '📈',
+      tagline: 'Keep right on.',
+      history: 'Backed by new owners and NFL legend Tom Brady, Birmingham won League One in 2024–25 with 111 points, a record for English professional football.',
+      seasons: [2, 4],
+      forcePromotion: true,
+      core: (c) => [
+        `Earn at least ${c.byD([1.7, 1.9, 2.0, 2.1])} points per league game every season.`,
+        `Score ${c.byD([60, 70, 80, 90])}+ league goals every season.`,
+      ],
+      finalGoal: () => 'Win the Championship with 100+ points, then finish in the top half of the Premier League.',
+    },
+    'Swansea City': {
+      name: 'Swansealona', icon: '🦢',
+      tagline: 'Pass, pass, pass.',
+      history: 'Swansea avoided dropping out of the Football League on the final day of the 2002–03 season. Eight years later, playing patient passing football, they became the first Welsh club in the Premier League, and in 2013 they won the League Cup.',
+      seasons: [3, 5],
+      forcePromotion: true,
+      core: (c) => [
+        `Average ${c.byD([55, 58, 60, 62])}%+ possession over every league season.`,
+        `At least ${c.byD([1, 2, 2, 3])} Welsh player(s) in every matchday squad.`,
+      ],
+      finalGoal: () => 'Reach the Premier League and win the League Cup.',
+    },
+    'Portsmouth': {
+      name: 'Play Up Pompey', icon: '⚓',
+      tagline: 'From FA Cup winners to the fourth tier and back.',
+      history: 'Portsmouth won the FA Cup in 2008, then became the first Premier League club to go into administration in 2010. They fell to League Two, were rescued by their own fans in 2013, and returned to the Championship in 2024.',
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['wage', 'profit'],
+      core: (c) => [
+        `No player may earn more than ${c.wageCap()}/week.`,
+        'Finish every season with a positive net transfer spend.',
+      ],
+      finalGoal: () => 'Reach the Premier League and win the FA Cup without ever posting a negative net spend.',
+    },
+
+    // ---------- League One ----------
+    'Cardiff City': {
+      name: 'The Cup Leaves England', icon: '🐦',
+      tagline: 'The only FA Cup to leave England.',
+      history: 'In 1927 Cardiff City beat Arsenal to become the only club from outside England ever to win the FA Cup.',
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['quota'],
+      core: (c) => [
+        `At least ${c.byD([2, 3, 4, 5])} Welsh players in every starting XI.`,
+        'Sign at least one Welsh player every summer.',
+      ],
+      finalGoal: () => 'Reach the Premier League and win the FA Cup with a Welsh-majority starting XI.',
+    },
+    'Bolton Wanderers': {
+      name: "Big Sam's Bolton", icon: '🧓',
+      tagline: 'Experience is everything.',
+      history: 'Sam Allardyce built a Bolton side full of veteran stars on cheap deals, including Jay-Jay Okocha, Youri Djorkaeff, Fernando Hierro and Iván Campo, and took them into the UEFA Cup in 2005.',
+      seasons: [4, 6],
+      forcePromotion: true,
+      blockTags: ['age', 'fee', 'avg-age'],
+      core: (c) => [
+        `Every signing must be aged ${c.byD([29, 30, 31, 32])} or older.`,
+        'Free transfers and loans only: no transfer fees.',
+      ],
+      finalGoal: () => 'Reach the Premier League and qualify for Europe with a starting XI averaging 30+.',
+    },
+    'Huddersfield Town': {
+      name: "Chapman's Three in a Row", icon: '🐶',
+      tagline: 'The first to win three titles in a row.',
+      history: 'Under Herbert Chapman, Huddersfield became the first English club to win three consecutive league titles, in 1924, 1925 and 1926.',
+      seasons: [5, 7],
+      forcePromotion: true,
+      blockTags: ['squad-size', 'loans'],
+      seasonGoal: (c, s) => {
+        const first = c.seasons - 2;
+        return s >= first && s >= c.club.level ? `Win the Premier League (${s - first + 1} of 3 in a row).` : null;
+      },
+      core: (c) => [
+        `Senior squad capped at ${c.byD([24, 22, 21, 20])} players.`,
+        'No loan signings.',
+      ],
+      finalGoal: () => 'Reach the Premier League and win three titles in a row.',
+    },
+    'Wigan Athletic': {
+      name: 'Cup Kings', icon: '🏆',
+      tagline: 'They did it in 2013.',
+      history: 'Wigan only joined the Football League in 1978. In 2013 they beat Manchester City to win the FA Cup and were relegated from the Premier League days later, the only club to win the Cup and go down in the same season.',
+      seasons: [3, 6],
+      blockTags: ['sim'],
+      core: () => [
+        'Play your strongest XI in every FA Cup match.',
+        'Play every FA Cup match yourself: no simming.',
+      ],
+      finalGoal: () => 'Win the FA Cup as a club outside the Premier League.',
+    },
+    'Barnsley': {
+      name: 'Just Like Watching Brazil', icon: '🎶',
+      tagline: "It's just like watching Brazil!",
+      history: "During Barnsley's only Premier League season, 1997–98, their fans famously sang 'It's just like watching Brazil'.",
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['origin'],
+      core: (c) => [
+        `At least ${c.byD([2, 2, 3, 3])} Brazilian players in every starting XI.`,
+        `Score ${c.byD([60, 70, 75, 80])}+ league goals every season.`,
+      ],
+      finalGoal: () => 'Reach the Premier League and finish in the top half with Brazilian flair.',
+    },
+    'Bradford City': {
+      name: 'Giant-killers', icon: '⚔️',
+      tagline: 'Fourth tier, Wembley final.',
+      history: 'In 2013 Bradford became the first fourth-tier club to reach a major final at Wembley, knocking Arsenal and Aston Villa out of the League Cup on the way.',
+      seasons: [3, 5],
+      blockTags: ['fee'],
+      core: (c) => [
+        'Play your strongest XI in every League Cup and FA Cup match.',
+        `No single transfer fee above ${c.feeCap()}.`,
+      ],
+      finalGoal: () => 'Win the League Cup while still outside the Premier League.',
+    },
+    'Blackpool': {
+      name: 'The Matthews Final', icon: '🎡',
+      tagline: 'Age is just a number.',
+      history: "In the 1953 'Matthews Final', 38-year-old Stanley Matthews inspired Blackpool's comeback from 3–1 down to beat Bolton 4–3 in the FA Cup. Matthews kept playing top-flight football until he was 50.",
+      seasons: [3, 6],
+      forcePromotion: true,
+      core: (c) => [
+        `A player aged ${c.byD([33, 34, 35, 36])}+ must start every league match.`,
+        'Your oldest outfield player takes every free kick and corner.',
+      ],
+      finalGoal: () => 'Reach the Premier League and win the FA Cup with a 35+ player in your starting XI.',
+    },
+    'AFC Wimbledon': {
+      name: 'The Crazy Gang', icon: '🤪',
+      tagline: 'Founded by fans, for fans.',
+      history: "When Wimbledon FC were allowed to relocate to Milton Keynes in 2002, fans founded AFC Wimbledon in the ninth tier. They reached the Football League in 2011 and League One in 2025. The original 'Crazy Gang' beat Liverpool in the 1988 FA Cup final.",
+      seasons: [4, 7],
+      forcePromotion: true,
+      blockTags: ['formation', 'wage'],
+      core: (c) => [
+        'Play 4-4-2 (Flat) in every match.',
+        `No player may earn more than ${c.wageCap()}/week.`,
+      ],
+      finalGoal: () => 'Reach the Premier League and win the FA Cup, like the 1988 Crazy Gang.',
+    },
+    'Luton Town': {
+      name: 'Kenilworth Road', icon: '🎩',
+      tagline: 'Non-league to the Premier League.',
+      history: 'Luton spent five seasons in non-league football from 2009 before climbing all the way to the Premier League in 2023, still playing at tiny Kenilworth Road. Back-to-back relegations followed in 2024 and 2025.',
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['wage', 'sim'],
+      core: (c) => [
+        `No player may earn more than ${c.wageCap()}/week.`,
+        'Play every home league match yourself: no simming at Kenilworth Road.',
+      ],
+      finalGoal: () => 'Get back to the Premier League and stay this time: finish in the top half.',
+    },
+    'Exeter City': {
+      name: "Brazil's First Opponent", icon: '🌴',
+      tagline: 'Fan-owned and proud.',
+      history: "In 1914 Exeter City, on tour in South America, played the Brazil national team's first ever match. Today the club is owned by its supporters' trust.",
+      seasons: [3, 6],
+      blockTags: ['wage'],
+      core: (c) => [
+        'Sign at least one Brazilian player every season.',
+        `No player may earn more than ${c.wageCap()}/week.`,
+      ],
+      finalGoal: (c) => (c.d >= 3
+        ? 'Reach the Premier League with a Brazilian as your top scorer.'
+        : 'Reach the Championship with a Brazilian as your top scorer.'),
+    },
+
+    // ---------- League Two ----------
+    'Notts County': {
+      name: 'The Oldest of Them All', icon: '🕰️',
+      tagline: 'Founded 1862.',
+      history: 'Notts County, founded in 1862, are the oldest professional football club in the world. In 1903 Juventus borrowed their black-and-white striped shirts and still wear them today.',
+      seasons: [4, 7],
+      forcePromotion: true,
+      blockTags: ['academy-promote'],
+      core: () => [
+        'Sign at least one Italian player every season.',
+        'Promote at least one academy player every season.',
+      ],
+      finalGoal: () => 'Reach the Premier League and sign a player from Juventus.',
+    },
+    'Accrington Stanley': {
+      name: 'Who Are They?', icon: '🥛',
+      tagline: 'Accrington Stanley? Who are they? Exactly.',
+      history: "The original Accrington Stanley resigned from the Football League in 1962 and later folded. The reformed club worked its way back into the League in 2006, and is still remembered for a 1980s milk advert: 'Accrington Stanley? Who are they?' 'Exactly.'",
+      seasons: [4, 7],
+      blockTags: ['wage', 'squad-size'],
+      core: (c) => [
+        `No player may earn more than ${c.wageCap()}/week.`,
+        `Senior squad capped at ${c.byD([24, 22, 21, 20])} players.`,
+      ],
+      finalGoal: (c) => (c.d >= 3
+        ? 'Reach the Premier League.'
+        : 'Reach the Championship and knock a Premier League club out of the FA Cup.'),
+    },
+    'Salford City': {
+      name: "The Class of '92 Club", icon: '🤝',
+      tagline: "Owned by the Class of '92.",
+      history: 'Gary Neville, Ryan Giggs, Paul Scholes, Nicky Butt and Phil Neville bought non-league Salford City in 2014, with David Beckham joining later. The club reached the Football League for the first time in 2019.',
+      seasons: [5, 8],
+      forcePromotion: true,
+      blockTags: ['academy-promote'],
+      core: (c) => [
+        'Sign at least one current or former Manchester United player every season (loans count).',
+        `Promote at least ${c.byD([1, 2, 2, 3])} academy player(s) every season.`,
+      ],
+      finalGoal: () => 'Reach the Premier League and beat Manchester United.',
+    },
+    'Crewe Alexandra': {
+      name: "Gradi's Academy", icon: '🚂',
+      tagline: "Develop, don't buy.",
+      history: 'Dario Gradi managed Crewe for 24 years from 1983, turning a tiny club into one of England’s best talent factories and producing players such as Danny Murphy and Dean Ashton.',
+      seasons: [4, 7],
+      blockTags: ['fee', 'academy'],
+      core: (c) => [
+        'No transfer fees: free agents, loans and academy players only.',
+        `At least ${c.byD([3, 4, 5, 6])} academy graduates in every matchday squad.`,
+      ],
+      finalGoal: (c) => `Reach the Championship and sell an academy graduate for ${c.money(c.byD([5, 10, 15, 20]))}+.`,
+    },
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/heritage/spain.js */
+/*
+ * Club Heritage challenges: Spain (LALIGA EA SPORTS and LALIGA HYPERMOTION).
+ * Keyed by the club name used in data.js. Field reference: see the
+ * 'club-heritage' archetype in rules.js.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  Object.assign((FC26.heritage = FC26.heritage || {}), {
+    // ---------- LALIGA EA SPORTS ----------
+    'Athletic Club': {
+      name: 'La Cantera', icon: '🦁',
+      tagline: 'Con cantera y afición, no hace falta importación.',
+      history: 'For over a century Athletic Club have only fielded players born or raised in the Basque Country, and they have never been relegated from LaLiga. Their eighth and last league title came in 1983–84, and winning the 2024 Copa del Rey ended a 40-year wait for that trophy.',
+      seasons: [5, 8],
+      blockTags: ['origin', 'quota', 'rivals', 'academy-promote'],
+      core: (c) => [
+        'Only sign players born in the Basque Country or Navarre, or who came through a Basque academy (check the real player if unsure).',
+        `Promote at least ${c.byD([1, 2, 2, 3])} Lezama academy player(s) to the first team every season.`,
+        'Never get relegated.',
+      ],
+      finalGoal: (c) => (c.d <= 2
+        ? 'Win LaLiga for the first time since 1984 with an all-Basque squad.'
+        : 'Win LaLiga and the Champions League with an all-Basque squad.'),
+    },
+    'Real Sociedad': {
+      name: 'Txuri-urdin Roots', icon: '🔵',
+      tagline: 'Back to the Basque way.',
+      history: 'Real Sociedad fielded only Basque players until they signed John Aldridge in 1989. With that all-Basque team they won back-to-back LaLiga titles in 1980–81 and 1981–82, and the Zubieta academy still produces much of the first team.',
+      seasons: [5, 8],
+      blockTags: ['origin', 'quota', 'rivals', 'academy'],
+      core: (c) => [
+        'Only sign players born in the Basque Country or Navarre, or who came through a Basque academy.',
+        `At least ${c.byD([3, 4, 5, 6])} Zubieta academy graduates in every starting XI.`,
+      ],
+      finalGoal: () => 'Win LaLiga with an all-Basque starting XI, as in 1981 and 1982.',
+    },
+    'FC Barcelona': {
+      name: 'La Masia Dream Team', icon: '🎓',
+      tagline: 'Més que un club.',
+      history: "Johan Cruyff brought Total Football and the 4-3-3 to Barcelona, and La Masia produced Xavi, Iniesta and Messi. Pep Guardiola's 2009 side won all six trophies it competed for, and Barça won the treble again in 2015.",
+      seasons: [4, 7],
+      blockTags: ['formation', 'academy', 'age'],
+      core: (c) => [
+        'Play 4-3-3 in every match.',
+        `At least ${c.byD([3, 4, 5, 6])} La Masia graduates must start every league match.`,
+        `Only sign players aged ${c.byD([25, 24, 23, 23])} or younger: no ready-made superstars.`,
+      ],
+      finalGoal: (c) => `Win the treble (LaLiga, Copa del Rey, Champions League) with ${c.byD([4, 5, 6, 7])}+ La Masia graduates in the XI.`,
+    },
+    'Real Madrid': {
+      name: 'Kings of Europe', icon: '👑',
+      tagline: 'Fifteen European Cups and counting.',
+      history: "Real Madrid have won the European Cup a record 15 times, including five in a row from 1956 to 1960 and three in a row from 2016 to 2018. Florentino Pérez's Galácticos era brought in a superstar almost every summer: Figo, Zidane, Ronaldo, Beckham.",
+      seasons: [4, 6],
+      blockTags: ['ovr', 'fee'],
+      core: (c) => [
+        `Sign one ${c.byD([86, 87, 88, 89])}+ OVR Galáctico every summer.`,
+        'If you finish a season without a trophy, sell your three highest-paid players.',
+      ],
+      finalGoal: (c) => `Win the Champions League ${c.byD([2, 3, 3, 3])} seasons in a row.`,
+    },
+    'Atlético de Madrid': {
+      name: 'Cholismo', icon: '🛡️',
+      tagline: 'Partido a partido.',
+      history: 'Under Diego Simeone, Atlético broke the Madrid–Barcelona duopoly to win LaLiga in 2014 and 2021 with ferocious defending. The European Cup still eludes them: they lost finals in 1974, 2014 and 2016.',
+      seasons: [3, 6],
+      blockTags: ['formation'],
+      core: () => [
+        'Play 4-4-2 (Flat) or 4-4-2 (Holding) in every match.',
+        'Concede the fewest goals in the league every season.',
+      ],
+      finalGoal: () => 'Win the Champions League, the one trophy Atlético have never won.',
+    },
+    'Sevilla': {
+      name: "Monchi's Method", icon: '💹',
+      tagline: 'Buy low, sell high, win the Europa League.',
+      history: 'Sevilla have won the UEFA Cup and Europa League a record seven times. Sporting director Monchi made his name finding cheap talent such as Dani Alves and Ivan Rakitić and selling them for huge profits.',
+      seasons: [4, 6],
+      blockTags: ['profit', 'sell-star'],
+      core: () => [
+        'Finish every season with a positive net transfer spend.',
+        'Sell your highest-rated player every summer.',
+      ],
+      finalGoal: (c) => (c.byD([1, 2, 2, 3]) === 1 ? 'Win the Europa League.' : `Win the Europa League ${c.byD([1, 2, 2, 3])} times.`),
+    },
+    'Villarreal': {
+      name: 'Yellow Submarine', icon: '🟡',
+      tagline: 'A town of 50,000, a club for Europe.',
+      history: 'Villarreal, from a town of around 50,000 people, reached the Champions League semi-finals in 2006 and 2022 and won the Europa League in 2021.',
+      seasons: [4, 6],
+      blockTags: ['fee', 'academy-promote'],
+      core: (c) => [
+        `No single transfer fee above ${c.feeCap()}.`,
+        `Promote at least ${c.byD([1, 2, 2, 3])} academy player(s) every season.`,
+      ],
+      finalGoal: (c) => (c.d <= 2 ? 'Reach the Champions League final.' : 'Win the Champions League.'),
+    },
+    'Real Betis': {
+      name: 'Manque Pierda', icon: '💚',
+      tagline: '¡Viva el Betis manque pierda!',
+      history: "Betis fans' famous motto means 'Long live Betis, even if they lose'. The club's only LaLiga title came in 1934–35, and they won the Copa del Rey in 2022.",
+      seasons: [4, 7],
+      blockTags: ['rivals'],
+      core: (c) => [
+        `Score ${c.byD([50, 55, 60, 65])}+ league goals every season.`,
+        'Never sign a player from Sevilla.',
+      ],
+      finalGoal: () => 'Win LaLiga for the first time since 1935.',
+    },
+    'Real Oviedo': {
+      name: "Cazorla's Homecoming", icon: '🏡',
+      tagline: 'Back in LaLiga after 24 years.',
+      history: 'Financial collapse sent Real Oviedo down to the fourth tier in 2003, and fans around the world bought shares to save the club in 2012. Academy graduate Santi Cazorla came home in 2023 on a minimum salary, and in 2025 Oviedo returned to LaLiga after 24 years away.',
+      seasons: [3, 6],
+      blockTags: ['wage', 'captain'],
+      core: (c) => [
+        'Your captain must be your oldest player, aged 34+. Sign one if you have to.',
+        `No player may earn more than ${c.wageCap()}/week.`,
+      ],
+      finalGoal: () => 'Stay in LaLiga every season and qualify for Europe.',
+    },
+    'Deportivo Alavés': {
+      name: 'Golden Goal', icon: '🥅',
+      tagline: 'Debutants in a European final.',
+      history: 'In their first ever European campaign, Alavés reached the 2001 UEFA Cup final and lost 5–4 to Liverpool to a golden goal, one of the great European finals.',
+      seasons: [4, 6],
+      blockTags: ['ovr', 'sim'],
+      core: (c) => [
+        `No signing anyone rated above ${c.ovrCap()} OVR.`,
+        'Play every European match yourself: no simming.',
+      ],
+      finalGoal: () => 'Win a European trophy.',
+    },
+    'Rayo Vallecano': {
+      name: 'Barrio Spirit', icon: '🌩️',
+      tagline: 'The club of Vallecas.',
+      history: 'Rayo Vallecano are the club of Vallecas, a working-class district of Madrid. In 2014 their players and fans paid the rent of an 85-year-old local woman who had been evicted from her home.',
+      seasons: [3, 6],
+      blockTags: ['wage'],
+      core: (c) => [
+        `No player may earn more than ${c.wageCap()}/week.`,
+        'Never sign a player from Real Madrid or Atlético de Madrid.',
+      ],
+      finalGoal: () => 'Qualify for Europe and finish above both Real Madrid and Atlético in the same season.',
+    },
+
+    // ---------- LALIGA HYPERMOTION ----------
+    'Deportivo de La Coruña': {
+      name: 'Súper Depor', icon: '🌬️',
+      tagline: 'Riazor will rise again.',
+      history: "Super Depor won LaLiga in 2000, and in 2004 overturned a 4–1 first-leg defeat to beat Milan 4–0 in the Champions League quarter-finals. Debts later dragged them down to the third tier before they returned to the second division in 2024.",
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['academy', 'fee'],
+      core: (c) => [
+        `At least ${c.byD([2, 3, 4, 5])} academy graduates in every matchday squad.`,
+        `No single transfer fee above ${c.feeCap()}.`,
+      ],
+      finalGoal: () => 'Return to LaLiga and win it again, like 2000.',
+    },
+    'Real Zaragoza': {
+      name: "Nayim's Lob", icon: '🎯',
+      tagline: 'From the halfway line.',
+      history: "Zaragoza won the 1995 Cup Winners' Cup when Nayim lobbed Arsenal's David Seaman from near the halfway line in the last minute of extra time.",
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['fee', 'academy-promote'],
+      core: (c) => [
+        'Promote at least one academy player every season.',
+        `No single transfer fee above ${c.feeCap()}.`,
+      ],
+      finalGoal: () => 'Return to LaLiga and win a European trophy.',
+    },
+    'Sporting Gijón': {
+      name: 'Mareo', icon: '🧱',
+      tagline: 'Where Villa and Luis Enrique began.',
+      history: "Sporting's Mareo academy produced Luis Enrique, David Villa and Abelardo, among many others.",
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['academy', 'origin'],
+      core: (c) => [
+        `At least ${c.byD([3, 4, 5, 6])} Mareo graduates in every matchday squad.`,
+        'Only sign Spanish players.',
+      ],
+      finalGoal: () => 'Reach LaLiga and qualify for Europe with 5+ Mareo graduates in the starting XI.',
+    },
+    'SD Eibar': {
+      name: 'Small Town, Big League', icon: '🏘️',
+      tagline: 'A town of 27,000 in LaLiga.',
+      history: 'Eibar, from a Basque town of around 27,000 people, reached LaLiga for the first time in 2014 and stayed for seven seasons on one of the smallest budgets in the division.',
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['wage', 'fee'],
+      core: (c) => [
+        `No player may earn more than ${c.wageCap()}/week.`,
+        `No single transfer fee above ${c.feeCap()}.`,
+      ],
+      finalGoal: () => 'Return to LaLiga and qualify for Europe.',
+    },
+    'FC Andorra': {
+      name: "Piqué's Project", icon: '🏔️',
+      tagline: 'A club from the Pyrenees in Spain.',
+      history: "Gerard Piqué's investment group bought FC Andorra in 2018, when the club was playing in Spain's regional leagues. They have since climbed into the second division, most recently winning promotion in 2025.",
+      seasons: [2, 5],
+      forcePromotion: true,
+      blockTags: ['squad-size'],
+      core: (c) => [
+        'Sign at least one current or former Barcelona player every season.',
+        `Senior squad capped at ${c.byD([25, 24, 23, 22])} players.`,
+      ],
+      finalGoal: (c) => (c.d >= 3
+        ? 'Reach LaLiga for the first time in club history and stay up.'
+        : 'Reach LaLiga for the first time in club history.'),
+    },
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/heritage/italy.js */
+/*
+ * Club Heritage challenges: Italy (Serie A and Serie B).
+ * Keyed by the club name used in data.js. Field reference: see the
+ * 'club-heritage' archetype in rules.js.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  Object.assign((FC26.heritage = FC26.heritage || {}), {
+    // ---------- Serie A ----------
+    'Juventus': {
+      name: 'Nove di fila', icon: '🦓',
+      tagline: 'Fino alla fine.',
+      history: 'Juventus won nine Serie A titles in a row from 2012 to 2020, built on an Italian core of Buffon, Chiellini and Bonucci.',
+      seasons: (d) => [[4, 5, 6, 9][d - 1], [4, 5, 6, 9][d - 1] + 1],
+      blockTags: ['quota'],
+      seasonGoal: (c) => `Win ${c.topLeagueRef}.`,
+      core: (c) => [
+        `At least ${c.byD([4, 5, 5, 6])} Italian players in every starting XI.`,
+        'Any season you fail to win Serie A counts as a broken rule.',
+      ],
+      finalGoal: (c) => `Win ${c.byD([4, 5, 6, 9])} Serie A titles in a row.`,
+    },
+    'AC Milan': {
+      name: 'Dutch Masters', icon: '🌷',
+      tagline: "Sacchi's Milan.",
+      history: "Arrigo Sacchi's Milan, led by the Dutch trio of Gullit, van Basten and Rijkaard, pressed high in a 4-4-2 and won back-to-back European Cups in 1989 and 1990.",
+      seasons: [3, 5],
+      blockTags: ['formation'],
+      core: (c) => [
+        'Play 4-4-2 (Flat) in every match.',
+        `Sign ${c.byD([2, 3, 3, 3])} Dutch players and make them regular starters.`,
+      ],
+      finalGoal: () => 'Win back-to-back Champions Leagues.',
+    },
+    'Inter': {
+      name: 'Triplete', icon: '🐍',
+      tagline: "Mourinho's 2010.",
+      history: "José Mourinho's Inter won Serie A, the Coppa Italia and the Champions League in 2010, the only treble in Italian football history, without a single Italian in the starting XI for the final.",
+      seasons: [3, 5],
+      blockTags: ['age', 'quota'],
+      core: (c) => [
+        'No Italian players in your starting XI, ever.',
+        `No signing players under ${c.byD([24, 25, 26, 27])}: experience wins trebles.`,
+      ],
+      finalGoal: () => 'Win the treble: Serie A, Coppa Italia and Champions League in one season.',
+    },
+    'Napoli': {
+      name: "Diego's Heir", icon: '💙',
+      tagline: 'One genius can carry a city.',
+      history: 'Diego Maradona carried Napoli to their first two Scudetti in 1987 and 1990 and the 1989 UEFA Cup, and the club retired his No.10. Napoli won the title again in 2023 and 2025.',
+      seasons: [3, 6],
+      core: () => [
+        'Sign an Argentine attacking midfielder or forward and build around them: they start every league match when fit.',
+        'No other player may earn more than your Argentine star.',
+      ],
+      finalGoal: () => 'Win Serie A and a European trophy, with your Argentine star as top scorer.',
+    },
+    'Roma': {
+      name: 'Er Capitano', icon: '🐺',
+      tagline: 'One club, one city.',
+      history: 'Francesco Totti spent his whole 25-year career at Roma and captained them to the 2001 Scudetto. Roma won the first UEFA Conference League in 2022.',
+      seasons: [4, 8],
+      blockTags: ['captain'],
+      core: () => [
+        'Before your first match, make your best academy graduate captain. They can never be sold or loaned.',
+        'Never sell a player to another Serie A club.',
+      ],
+      finalGoal: () => 'Win Serie A with your academy captain still leading the team.',
+    },
+    'Atalanta': {
+      name: 'La Dea', icon: '🏹',
+      tagline: 'Zingonia makes them, the back three makes them fly.',
+      history: "Atalanta's Zingonia academy has produced players like Alessandro Bastoni and Dejan Kulusevski. With Gian Piero Gasperini's man-marking back three they won the 2024 Europa League, ending Leverkusen's unbeaten season in the final.",
+      seasons: [4, 7],
+      blockTags: ['formation', 'academy'],
+      core: (c) => [
+        'Play a back three (3-4-2-1, 3-4-3 or 3-5-2) in every match.',
+        `At least ${c.byD([2, 3, 4, 5])} academy graduates in every matchday squad.`,
+      ],
+      finalGoal: () => 'Win Serie A for the first time in club history.',
+    },
+    'Torino': {
+      name: 'Il Grande Torino', icon: '🐂',
+      tagline: 'Five titles in a row.',
+      history: "Il Grande Torino, captained by Valentino Mazzola, won five consecutive Serie A titles in the 1940s before the 1949 Superga air disaster killed almost the entire team. Torino's last title came in 1976.",
+      seasons: [4, 8],
+      blockTags: ['quota', 'academy-promote'],
+      core: (c) => [
+        `At least ${c.byD([4, 5, 6, 7])} Italian players in every starting XI.`,
+        'Promote at least one academy player every season.',
+      ],
+      finalGoal: (c) => `Win ${c.byD([2, 3, 4, 5])} Serie A titles in a row.`,
+    },
+    'Hellas Verona': {
+      name: 'The Miracle of 1985', icon: '🟨',
+      tagline: "Bagnoli's Scudetto.",
+      history: "Osvaldo Bagnoli's unfancied Hellas Verona won Serie A in 1984–85, one of the biggest shocks in Italian football history.",
+      seasons: [4, 7],
+      blockTags: ['ovr', 'fee'],
+      core: (c) => [
+        `No signing anyone rated above ${c.ovrCap()} OVR.`,
+        `No single transfer fee above ${c.feeCap()}.`,
+      ],
+      finalGoal: () => 'Win Serie A.',
+    },
+    'Cagliari': {
+      name: "Riva's Island", icon: '🏝️',
+      tagline: "Sardinia's only Scudetto.",
+      history: 'Gigi Riva fired Cagliari to the 1970 Serie A title, still the only Scudetto won by a Sardinian club. He turned down repeated offers from Juventus to stay on the island.',
+      seasons: [4, 7],
+      blockTags: ['sell-star'],
+      core: () => [
+        'Never sell your highest-rated player.',
+        'Never sell a player to Juventus, Inter or AC Milan.',
+      ],
+      finalGoal: () => 'Win Serie A with a star who has spent the whole save at the club.',
+    },
+    'Parma': {
+      name: 'The Phoenix', icon: '🔥',
+      tagline: 'From Serie D to Serie A in three years.',
+      history: "Parma's golden era brought UEFA Cups in 1995 and 1999. After bankruptcy in 2015 the club restarted in Serie D, and three straight promotions took them back to Serie A by 2018.",
+      seasons: [4, 7],
+      blockTags: ['profit', 'wage'],
+      core: (c) => [
+        'Finish every season with a positive net transfer spend.',
+        `No player may earn more than ${c.wageCap()}/week.`,
+      ],
+      finalGoal: () => 'Win a European trophy, like the 1990s side.',
+    },
+    'Genoa': {
+      name: 'English Roots', icon: '🫖',
+      tagline: "Italy's oldest club.",
+      history: 'Genoa Cricket and Football Club was founded by Englishmen in 1893 and is the oldest active football club in Italy. They won nine league titles, the last in 1924.',
+      seasons: [4, 7],
+      core: (c) => [
+        `At least ${c.byD([1, 2, 2, 3])} English player(s) in every starting XI.`,
+        'Never sign a player from Sampdoria.',
+      ],
+      finalGoal: () => 'Win Serie A for the first time since 1924.',
+    },
+    'Bologna': {
+      name: 'Lo Squadrone', icon: '🗼',
+      tagline: 'The team that makes the world tremble.',
+      history: "In the 1930s Bologna were 'lo squadrone che tremare il mondo fa', the team that makes the world tremble. Their last Scudetto came in 1964, and the 2025 Coppa Italia was their first major trophy in 51 years.",
+      seasons: [4, 7],
+      blockTags: ['fee'],
+      core: (c) => [
+        `No single transfer fee above ${c.feeCap()}.`,
+        `At least ${c.byD([3, 4, 5, 6])} Italian players in every matchday squad.`,
+      ],
+      finalGoal: () => 'Win Serie A for the first time since 1964.',
+    },
+    'Como': {
+      name: 'Lake Como Project', icon: '⛵',
+      tagline: 'Serie D to Serie A.',
+      history: 'Como went bankrupt and dropped into Serie D in 2017. Bought by the Hartono brothers and later coached by Cesc Fàbregas, they reached Serie A in 2024 for the first time in 21 years.',
+      seasons: [4, 6],
+      blockTags: ['age'],
+      core: (c) => [
+        `Only sign players aged ${c.byD([25, 24, 23, 22])} or younger.`,
+        `Average ${c.byD([55, 57, 59, 61])}%+ possession over every league season.`,
+      ],
+      finalGoal: () => 'Qualify for the Champions League with a squad averaging under 25.',
+    },
+
+    // ---------- Serie B ----------
+    'Sampdoria': {
+      name: 'I Gemelli del Gol', icon: '👯',
+      tagline: 'The goal twins.',
+      history: "Gianluca Vialli and Roberto Mancini, 'the goal twins', led Sampdoria to the 1990 Cup Winners' Cup, their only Serie A title in 1991 and the European Cup final in 1992.",
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['formation'],
+      core: (c) => [
+        'Play with two strikers in every match.',
+        `Your two main strikers must score ${c.byD([20, 25, 30, 35])}+ league goals between them every season.`,
+      ],
+      finalGoal: () => 'Return to Serie A and win it again.',
+    },
+    'Palermo': {
+      name: 'City in Sicily', icon: '🌋',
+      tagline: 'Rosanero reborn.',
+      history: 'Palermo were refounded in Serie D in 2019 after bankruptcy, and City Football Group, owners of Manchester City, bought the club in 2022.',
+      seasons: [3, 5],
+      forcePromotion: true,
+      blockTags: ['loans', 'academy-promote'],
+      core: () => [
+        'Take at least one loan from Manchester City, Girona or New York City FC every season.',
+        'Promote at least one academy player every season.',
+      ],
+      finalGoal: () => 'Reach Serie A and qualify for Europe.',
+    },
+    'Monza': {
+      name: "Berlusconi's Monza", icon: '🏎️',
+      tagline: "The men behind Milan's golden era.",
+      history: "Silvio Berlusconi and Adriano Galliani, the duo behind AC Milan's golden era, bought Monza in 2018 and took them into Serie A in 2022 for the first time in the club's 110-year history.",
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['quota'],
+      core: (c) => [
+        `At least ${c.byD([5, 6, 7, 8])} Italian players in every starting XI.`,
+        'Sign at least one current or former AC Milan player every season.',
+      ],
+      finalGoal: () => 'Return to Serie A and qualify for the Champions League.',
+    },
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/heritage/germany.js */
+/*
+ * Club Heritage challenges: Germany (Bundesliga and 2. Bundesliga).
+ * Keyed by the club name used in data.js. Field reference: see the
+ * 'club-heritage' archetype in rules.js.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  Object.assign((FC26.heritage = FC26.heritage || {}), {
+    // ---------- Bundesliga ----------
+    'FC Bayern München': {
+      name: 'Mia san mia', icon: '🏰',
+      tagline: 'Rekordmeister.',
+      history: 'Bayern have won a record 34 German titles, including 11 in a row from 2013 to 2023, often by signing the best players from their Bundesliga rivals: Götze, Lewandowski, Hummels and Neuer among them.',
+      seasons: (d) => [[3, 4, 5, 5][d - 1], [3, 4, 5, 5][d - 1] + 2],
+      blockTags: ['rivals'],
+      seasonGoal: (c) => `Win ${c.topLeagueRef}.`,
+      core: () => [
+        'Every summer, sign the highest-rated player you can from a Bundesliga rival.',
+        'Win the Bundesliga every season. Second place counts as a broken rule.',
+      ],
+      finalGoal: (c) => `Win ${c.byD([3, 4, 5, 5])} Bundesliga titles in a row and the Champions League.`,
+    },
+    'Borussia Dortmund': {
+      name: 'Develop & Sell', icon: '🐝',
+      tagline: 'Echte Liebe.',
+      history: "Dortmund are Europe's finishing school, developing young stars like Sancho, Haaland and Bellingham and selling them for huge fees. They won the Champions League in 1997.",
+      seasons: [5, 7],
+      blockTags: ['age', 'sell-star'],
+      core: (c) => [
+        `Only sign players aged ${c.byD([21, 20, 20, 19])} or younger.`,
+        `Every summer, sell your most valuable player aged ${c.byD([23, 22, 22, 21])} or over.`,
+      ],
+      finalGoal: (c) => `Win the Champions League and sell a player for ${c.money(c.byD([80, 100, 110, 120]))}+.`,
+    },
+    'Bayer 04 Leverkusen': {
+      name: 'Neverlosen', icon: '🧪',
+      tagline: 'From Neverkusen to Neverlosen.',
+      history: "Once mocked as 'Neverkusen' for finishing second so often, Leverkusen went the entire 2023–24 Bundesliga season unbeaten under Xabi Alonso and won the double.",
+      seasons: [2, 4],
+      blockTags: ['formation'],
+      core: () => [
+        'Play a back three (3-4-2-1, 3-4-3, 3-5-2 or 3-1-4-2) in every match.',
+      ],
+      finalGoal: (c) => (c.d >= 3
+        ? 'Go a whole Bundesliga season unbeaten and win the DFB-Pokal and the Champions League.'
+        : 'Go a whole Bundesliga season unbeaten and win the DFB-Pokal.'),
+    },
+    'Eintracht Frankfurt': {
+      name: 'Europapokal Nights', icon: '🦅',
+      tagline: 'Frankfurt goes on tour.',
+      history: "Around 30,000 Frankfurt fans took over Barcelona's Camp Nou on the way to winning the 2022 Europa League. The club keeps selling star strikers, from Luka Jović to Randal Kolo Muani and Omar Marmoush, for big fees.",
+      seasons: [4, 6],
+      blockTags: ['sim'],
+      core: () => [
+        "Every summer, sell last season's top league scorer.",
+        'Play every European match yourself: no simming.',
+      ],
+      finalGoal: () => 'Win the Bundesliga for the first time since 1959.',
+    },
+    '1. FC Union Berlin': {
+      name: 'Eisern Union', icon: '🔨',
+      tagline: 'Built by its fans.',
+      history: "Union fans gave blood to raise money for the club in 2004 ('Bleed for Union'), and volunteers rebuilt the Stadion An der Alten Försterei in 2008–09. The club then rose from the third tier to the Champions League in 2023.",
+      seasons: [3, 6],
+      blockTags: ['wage', 'sim'],
+      core: (c) => [
+        `No player may earn more than ${c.wageCap()}/week.`,
+        'Play every home match yourself: no simming at the Alte Försterei.',
+      ],
+      finalGoal: () => 'Qualify for the Champions League again and reach the knockout stage.',
+    },
+    'FC St. Pauli': {
+      name: 'Kult', icon: '☠️',
+      tagline: 'Not like the others.',
+      history: "St. Pauli, from Hamburg's harbour district, are famous for their skull-and-crossbones flag and politically active fans. In 2024 they began selling shares to supporters through a fan-owned cooperative.",
+      seasons: [3, 6],
+      core: () => [
+        'No player may earn more than three times your lowest-paid first-team player.',
+        'Never sign a player from Hamburger SV.',
+      ],
+      finalGoal: () => 'Finish above Hamburger SV every season and qualify for Europe.',
+    },
+    '1. FC Heidenheim': {
+      name: "Schmidt's Heidenheim", icon: '🪨',
+      tagline: 'One coach since 2007.',
+      history: 'Frank Schmidt has coached Heidenheim since 2007, the longest-serving coach in German professional football. He took them from the fifth tier to the Bundesliga in 2023 and into the Conference League in 2024–25.',
+      seasons: [4, 8],
+      blockTags: ['count'],
+      core: (c) => [
+        'Stay at Heidenheim for the whole save: no job switching.',
+        `No more than ${c.byD([5, 4, 3, 2])} signings per summer window.`,
+      ],
+      finalGoal: () => 'Qualify for the Champions League.',
+    },
+    'SC Freiburg': {
+      name: 'The Long Game', icon: '🌲',
+      tagline: 'Patience is a tactic.',
+      history: 'Freiburg are known for patience: Volker Finke coached them for 16 years and Christian Streich for over 12. They reached their first DFB-Pokal final in 2022 but have never won a major trophy.',
+      seasons: [4, 8],
+      blockTags: ['academy'],
+      core: (c) => [
+        'Stay at Freiburg for the whole save: no job switching.',
+        `At least ${c.byD([2, 3, 4, 5])} academy graduates in every matchday squad.`,
+      ],
+      finalGoal: () => "Win Freiburg's first major trophy, then qualify for the Champions League.",
+    },
+    'VfB Stuttgart': {
+      name: 'Junge Wilde', icon: '🐎',
+      tagline: 'The young wild ones.',
+      history: "Stuttgart's 'Junge Wilde' (young wild ones) generation won the Bundesliga in 2007. In 2023 they survived a relegation play-off, then finished second in 2023–24 and won the 2025 DFB-Pokal.",
+      seasons: [4, 6],
+      blockTags: ['age', 'avg-age'],
+      core: (c) => [
+        `Only sign players aged ${c.byD([23, 22, 21, 21])} or younger.`,
+        `Your starting XI must average ${c.byD([26, 25, 25, 24])} or younger.`,
+      ],
+      finalGoal: () => 'Win the Bundesliga with a starting XI averaging under 25.',
+    },
+    'Hamburger SV': {
+      name: 'The Clock', icon: '⏱️',
+      tagline: 'Never relegated, until 2018.',
+      history: 'Hamburg were the only club to have played in every Bundesliga season, with a stadium clock counting their time in the top flight, until relegation in 2018. They won the European Cup in 1983 and returned to the Bundesliga in 2025.',
+      seasons: [4, 7],
+      core: () => [
+        'Never get relegated: it ends the challenge.',
+        'Never sign a player from St. Pauli or Werder Bremen.',
+      ],
+      finalGoal: () => 'Win the Bundesliga for the first time since 1983.',
+    },
+    'RB Leipzig': {
+      name: 'Red Bull Pipeline', icon: '🥤',
+      tagline: 'Young, fast, for sale.',
+      history: 'Founded in 2009 with Red Bull backing, Leipzig rose from the fifth tier to the Bundesliga by 2016, recruiting young players, many of them via Red Bull Salzburg. They won the DFB-Pokal in 2022 and 2023.',
+      seasons: [4, 6],
+      blockTags: ['age'],
+      core: (c) => [
+        `Only sign players aged ${c.byD([23, 22, 21, 21])} or younger.`,
+        'Sign at least one player from Red Bull Salzburg every season.',
+      ],
+      finalGoal: () => 'Win the Bundesliga for the first time.',
+    },
+
+    // ---------- 2. Bundesliga ----------
+    'FC Schalke 04': {
+      name: 'Meister der Herzen', icon: '⛏️',
+      tagline: 'Champions of hearts.',
+      history: "Schalke, the miners' club from Gelsenkirchen, won the 1997 UEFA Cup with their 'Eurofighters'. In 2001 they were Bundesliga champions for four minutes until Bayern's late equaliser elsewhere, and their last German title came in 1958.",
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['quota', 'academy-promote'],
+      core: (c) => [
+        `At least ${c.byD([3, 4, 5, 6])} German players in every starting XI.`,
+        'Promote at least one Knappenschmiede academy player every season.',
+      ],
+      finalGoal: () => 'Return to the Bundesliga and win it for the first time.',
+    },
+    '1. FC Kaiserslautern': {
+      name: 'The Rehhagel Miracle', icon: '😈',
+      tagline: 'Promoted and champions.',
+      history: "Otto Rehhagel's Kaiserslautern won the Bundesliga in 1997–98 straight after promotion, the only newly promoted side ever to do it. Fritz Walter, captain of West Germany's 1954 World Cup winners, is their greatest legend.",
+      seasons: [2, 4],
+      forcePromotion: true,
+      blockTags: ['quota'],
+      seasonGoal: (c, s) => (s === 2 ? 'Win the Bundesliga as a newly promoted side, like 1998.' : null),
+      core: (c) => [
+        `At least ${c.byD([4, 5, 5, 6])} German players in every starting XI.`,
+      ],
+      finalGoal: () => 'Win promotion, then the Bundesliga at the first attempt.',
+    },
+    '1. FC Nürnberg': {
+      name: 'Der Club', icon: '🏯',
+      tagline: "Don't do a Nürnberg.",
+      history: 'Nürnberg, nine-time German champions, are the only club ever relegated from the Bundesliga as reigning champions, in 1969.',
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['academy-promote'],
+      core: () => [
+        'Promote at least one academy player every season.',
+        'Never sell a player to Bayern Munich.',
+      ],
+      finalGoal: () => 'Return to the Bundesliga, win it, and finish in the top half the season after.',
+    },
+    '1. FC Magdeburg': {
+      name: 'Europapokal 1974', icon: '🎖️',
+      tagline: "East Germany's European champions.",
+      history: "Magdeburg beat holders AC Milan in the 1974 Cup Winners' Cup final, the only European trophy ever won by an East German club.",
+      seasons: [4, 7],
+      forcePromotion: true,
+      blockTags: ['quota', 'fee'],
+      core: (c) => [
+        `At least ${c.byD([4, 5, 6, 7])} German players in every starting XI.`,
+        `No single transfer fee above ${c.feeCap()}.`,
+      ],
+      finalGoal: () => 'Reach the Bundesliga and win a European trophy.',
+    },
+    'Arminia Bielefeld': {
+      name: 'Cup Run', icon: '🏃',
+      tagline: 'Third tier to the cup final.',
+      history: 'In 2025 third-tier Arminia Bielefeld knocked out four Bundesliga clubs, including holders Leverkusen, to reach the DFB-Pokal final, and won promotion to the 2. Bundesliga the same season.',
+      seasons: [3, 6],
+      blockTags: ['fee'],
+      core: (c) => [
+        'Play your strongest XI in every DFB-Pokal match.',
+        `No single transfer fee above ${c.feeCap()}.`,
+      ],
+      finalGoal: () => 'Win the DFB-Pokal, then reach the Bundesliga.',
+    },
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/heritage/france.js */
+/*
+ * Club Heritage challenges: France (Ligue 1 and Ligue 2).
+ * Keyed by the club name used in data.js. Field reference: see the
+ * 'club-heritage' archetype in rules.js.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  Object.assign((FC26.heritage = FC26.heritage || {}), {
+    // ---------- Ligue 1 ----------
+    'Olympique de Marseille': {
+      name: 'À jamais les premiers', icon: '🌊',
+      tagline: 'Forever the first.',
+      history: "In 1993 Marseille became the first French club to win the Champions League, hence the motto 'À jamais les premiers'. PSG only matched them in 2025.",
+      seasons: [3, 6],
+      blockTags: ['quota'],
+      core: (c) => [
+        `At least ${c.byD([3, 4, 5, 5])} French players in every starting XI.`,
+        'Finish above Paris Saint-Germain every season.',
+      ],
+      finalGoal: () => 'Win Ligue 1 and the Champions League.',
+    },
+    'Paris Saint-Germain': {
+      name: 'No More Galácticos', icon: '🏙️',
+      tagline: 'The team is the star.',
+      history: "After years of chasing the Champions League with superstars like Neymar, Messi and Mbappé, PSG finally won it in 2025 with Luis Enrique's young, hard-pressing team, beating Inter 5–0 in the final.",
+      seasons: [3, 5],
+      blockTags: ['age'],
+      core: (c) => [
+        'No player may earn more than twice your second-highest earner.',
+        `Only sign players aged ${c.byD([25, 24, 23, 23])} or younger.`,
+      ],
+      finalGoal: () => 'Win the Champions League in back-to-back seasons.',
+    },
+    'Olympique Lyonnais': {
+      name: 'Sept à la suite', icon: '7️⃣',
+      tagline: 'Seven in a row.',
+      history: "Lyon won seven consecutive Ligue 1 titles from 2002 to 2008, driven by Juninho Pernambucano's free kicks and an academy that produced Karim Benzema.",
+      seasons: (d) => [[3, 4, 5, 7][d - 1], [3, 4, 5, 7][d - 1] + 1],
+      blockTags: ['academy'],
+      seasonGoal: (c) => `Win ${c.topLeagueRef}.`,
+      core: (c) => [
+        `At least ${c.byD([2, 3, 4, 5])} academy graduates in every matchday squad.`,
+        'Sign at least one Brazilian player every season.',
+      ],
+      finalGoal: (c) => `Win ${c.byD([3, 4, 5, 7])} Ligue 1 titles in a row.`,
+    },
+    'AS Monaco': {
+      name: 'La Turbie Talent', icon: '💎',
+      tagline: 'Develop the next Mbappé.',
+      history: "Monaco's academy has produced Thierry Henry, David Trezeguet and Kylian Mbappé. In 2017 a young side starring Mbappé won Ligue 1 and reached the Champions League semi-finals.",
+      seasons: [4, 7],
+      blockTags: ['age', 'sell-star'],
+      core: (c) => [
+        `Only sign players aged ${c.byD([22, 21, 20, 20])} or younger.`,
+        'Sell your highest-valued player every summer.',
+      ],
+      finalGoal: (c) => `Win Ligue 1 and sell an academy graduate for ${c.money(c.byD([60, 80, 100, 120]))}+.`,
+    },
+    'AJ Auxerre': {
+      name: "Guy Roux's Auxerre", icon: '🧣',
+      tagline: 'One manager, four decades.',
+      history: 'Guy Roux coached Auxerre for over four decades, taking a small-town club from the amateur leagues to the 1996 league and cup double while developing players like Eric Cantona and Djibril Cissé.',
+      seasons: [5, 9],
+      blockTags: ['academy'],
+      core: (c) => [
+        'Stay at Auxerre for the whole save: no job switching.',
+        `At least ${c.byD([3, 4, 5, 6])} academy graduates in every matchday squad.`,
+      ],
+      finalGoal: () => 'Win the Ligue 1 and Coupe de France double, like 1996.',
+    },
+    'LOSC Lille': {
+      name: 'Sell to Win', icon: '🐕',
+      tagline: 'Develop stars, beat PSG.',
+      history: 'Lille sell big, from Eden Hazard to Victor Osimhen and Rafael Leão, yet in 2021 they beat PSG’s superstars to the Ligue 1 title.',
+      seasons: [4, 6],
+      blockTags: ['sell-star', 'profit'],
+      core: () => [
+        'Sell your highest-valued player every summer.',
+        'Finish every season with a positive net transfer spend.',
+      ],
+      finalGoal: () => 'Win Ligue 1 ahead of PSG with a positive all-time net spend.',
+    },
+
+    // ---------- Ligue 2 ----------
+    'AS Saint-Étienne': {
+      name: 'Les Verts', icon: '🟩',
+      tagline: 'Square posts and broken hearts.',
+      history: "Saint-Étienne have won ten French titles. In the 1976 European Cup final they hit Hampden Park's square goalposts twice and lost 1–0 to Bayern Munich. Their last league title came in 1981.",
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['quota', 'academy'],
+      core: (c) => [
+        `At least ${c.byD([3, 4, 5, 6])} French players in every starting XI.`,
+        `At least ${c.byD([2, 3, 3, 4])} academy graduates in every matchday squad.`,
+      ],
+      finalGoal: () => 'Return to Ligue 1, win it again, and reach a European final.',
+    },
+    'Stade de Reims': {
+      name: 'Kopa & Fontaine', icon: '🥂',
+      tagline: 'Champagne football.',
+      history: "Raymond Kopa's Reims reached the first European Cup final in 1956, and Just Fontaine's side the 1959 final, losing both to Real Madrid. Reims won six French titles between 1949 and 1962.",
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['quota'],
+      core: (c) => [
+        `At least ${c.byD([3, 4, 5, 6])} French players in every starting XI.`,
+        `Your two main attackers must score ${c.byD([25, 30, 35, 40])}+ league goals between them every season.`,
+      ],
+      finalGoal: () => 'Return to Ligue 1 and reach the Champions League final.',
+    },
+    'Red Star FC': {
+      name: "Jules Rimet's Club", icon: '✴️',
+      tagline: 'Founded by the father of the World Cup.',
+      history: 'Red Star were founded in 1897 by Jules Rimet, who later created the FIFA World Cup. The club from Saint-Ouen, just outside Paris, have won five Coupes de France.',
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['academy-promote'],
+      core: (c) => [
+        `Your squad must include players from at least ${c.byD([3, 4, 5, 5])} different continents.`,
+        'Promote at least one academy player every season.',
+      ],
+      finalGoal: () => 'Reach Ligue 1 and win the Coupe de France.',
+    },
+    'EA Guingamp': {
+      name: 'The Smallest Big Club', icon: '🥖',
+      tagline: 'A town of 7,000, two Coupes de France.',
+      history: 'Guingamp, from a Breton town of about 7,000 people, won the Coupe de France in 2009 as a second-division side, and again in 2014.',
+      seasons: [3, 6],
+      forcePromotion: true,
+      blockTags: ['wage', 'origin'],
+      core: (c) => [
+        `No player may earn more than ${c.wageCap()}/week.`,
+        'Only sign French players.',
+      ],
+      finalGoal: () => 'Reach Ligue 1 and win the Coupe de France.',
+    },
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/heritage/europe.js */
+/*
+ * Club Heritage challenges: the rest of Europe (Netherlands, Portugal,
+ * Scotland, Belgium, Türkiye, Norway, Denmark, Austria).
+ * Keyed by the club name used in data.js. Field reference: see the
+ * 'club-heritage' archetype in rules.js.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  Object.assign((FC26.heritage = FC26.heritage || {}), {
+    // ---------- Netherlands ----------
+    'Ajax': {
+      name: 'Total Football', icon: '🌀',
+      tagline: 'De Toekomst is the future.',
+      history: "Ajax pioneered Total Football under Rinus Michels and Johan Cruyff and won three straight European Cups from 1971 to 1973. In 1995 Louis van Gaal's young side, built largely from the academy, won the Champions League.",
+      seasons: [5, 8],
+      blockTags: ['formation', 'academy'],
+      core: (c) => [
+        'Play 4-3-3 in every match.',
+        `At least ${c.byD([4, 5, 6, 7])} academy graduates in every matchday squad.`,
+      ],
+      finalGoal: () => 'Win the Champions League with a starting XI averaging under 25.',
+    },
+    'PSV': {
+      name: 'Brazilian Nines', icon: '💡',
+      tagline: "Romário, Ronaldo… who's next?",
+      history: 'PSV won the European Cup as part of a treble in 1988, then signed Brazilian strikers Romário and Ronaldo before they became world stars.',
+      seasons: [4, 6],
+      blockTags: ['age'],
+      core: (c) => [
+        'Your first-choice striker must be Brazilian.',
+        `Only sign players aged ${c.byD([23, 22, 22, 21])} or younger.`,
+      ],
+      finalGoal: () => 'Win the Eredivisie, KNVB Cup and Champions League treble, like 1988.',
+    },
+    'Feyenoord': {
+      name: 'Geen woorden maar daden', icon: '🚢',
+      tagline: 'No words, but deeds.',
+      history: 'Feyenoord became the first Dutch club to win the European Cup in 1970, and won the UEFA Cup in 1974 and 2002.',
+      seasons: [4, 7],
+      blockTags: ['quota', 'academy-promote'],
+      core: (c) => [
+        `At least ${c.byD([3, 4, 5, 6])} Dutch players in every starting XI.`,
+        'Promote at least one academy player every season.',
+      ],
+      finalGoal: () => 'Win the Champions League.',
+    },
+    'AZ Alkmaar': {
+      name: "Van Gaal's Upset", icon: '🧀',
+      tagline: 'Breaking the big three.',
+      history: "Louis van Gaal's AZ won the 2008–09 Eredivisie, breaking the grip of Ajax, PSV and Feyenoord, and the club's academy is one of the best in the Netherlands.",
+      seasons: [4, 7],
+      blockTags: ['academy'],
+      core: (c) => [
+        `At least ${c.byD([2, 3, 4, 5])} academy graduates in every matchday squad.`,
+        'Never sign a player from Ajax, PSV or Feyenoord.',
+      ],
+      finalGoal: () => 'Win the Eredivisie twice, finishing above Ajax, PSV and Feyenoord both times.',
+    },
+
+    // ---------- Portugal ----------
+    'FC Porto': {
+      name: 'Dragão Trading', icon: '🔷',
+      tagline: 'Buy in South America, sell to the world.',
+      history: "Porto have made a fortune scouting South America, from Hulk and Falcao to James Rodríguez, and selling on. José Mourinho's Porto won the Champions League in 2004.",
+      seasons: [4, 7],
+      blockTags: ['origin', 'age', 'profit'],
+      core: (c) => [
+        `Every signing must be South American and aged ${c.byD([24, 23, 22, 21])} or younger.`,
+        'Finish every season with a positive net transfer spend.',
+      ],
+      finalGoal: () => 'Win the Champions League with a positive all-time net spend.',
+    },
+    'SL Benfica': {
+      name: "Guttmann's Curse", icon: '🦅',
+      tagline: 'A hundred years without a European trophy?',
+      history: 'Legend says coach Béla Guttmann left Benfica in 1962 after a pay dispute and declared they would not win a European trophy for 100 years. Since their 1961 and 1962 European Cups they have lost eight European finals.',
+      seasons: [3, 6],
+      blockTags: ['quota', 'academy-promote'],
+      core: (c) => [
+        `At least ${c.byD([3, 4, 5, 6])} Portuguese players in every starting XI.`,
+        `Promote at least ${c.byD([1, 2, 2, 3])} Seixal academy player(s) every season.`,
+      ],
+      finalGoal: (c) => `Break the curse: win the ${c.d <= 2 ? 'Europa League' : 'Champions League'}.`,
+    },
+    'Sporting CP': {
+      name: 'Alcochete Academy', icon: '🌟',
+      tagline: 'Where Figo and Ronaldo began.',
+      history: "Sporting's academy produced Luís Figo, Cristiano Ronaldo, Nani and João Moutinho, and it is still the backbone of the club.",
+      seasons: [5, 8],
+      blockTags: ['age', 'academy'],
+      core: (c) => [
+        `Only sign players aged ${c.byD([20, 19, 19, 18])} or younger.`,
+        `At least ${c.byD([3, 4, 5, 6])} academy graduates must start every league match.`,
+      ],
+      finalGoal: (c) => `Win Liga Portugal and develop an academy graduate into a ${c.byD([85, 87, 88, 90])}+ OVR player.`,
+    },
+    'SC Braga': {
+      name: 'Break the Big Three', icon: '🔱',
+      tagline: 'Arsenalistas.',
+      history: 'Only Belenenses (1946) and Boavista (2001) have won the Portuguese league outside Benfica, Porto and Sporting. Braga, Europa League finalists in 2011, are still chasing their first title.',
+      seasons: [4, 7],
+      blockTags: ['fee'],
+      core: (c) => [
+        'Never sign a player from Benfica, Porto or Sporting CP.',
+        `No single transfer fee above ${c.feeCap()}.`,
+      ],
+      finalGoal: () => 'Win Liga Portugal for the first time in club history.',
+    },
+
+    // ---------- Scotland ----------
+    'Celtic': {
+      name: 'The Lisbon Lions', icon: '🍀',
+      tagline: '30 miles from Parkhead.',
+      history: "In 1967 Celtic became the first British club to win the European Cup. Every player in Jock Stein's Lisbon Lions was born within 30 miles of Celtic Park.",
+      seasons: [5, 9],
+      blockTags: ['origin', 'quota'],
+      seasonGoal: (c) => `Win ${c.topLeagueRef}.`,
+      core: () => [
+        'Only sign Scottish players.',
+        'Win the Scottish Premiership every season.',
+      ],
+      finalGoal: () => 'Win the Champions League with an all-Scottish starting XI.',
+    },
+    'Rangers': {
+      name: 'From the Bottom', icon: '🦁',
+      tagline: 'Ready.',
+      history: "After the club's liquidation in 2012, Rangers restarted in Scotland's fourth tier and climbed back. In 2020–21, under Steven Gerrard, they won the league unbeaten to stop Celtic's bid for ten in a row.",
+      seasons: [3, 6],
+      blockTags: ['quota'],
+      core: (c) => [
+        `At least ${c.byD([2, 3, 4, 5])} Scottish players in every starting XI.`,
+        'Finish above Celtic every season.',
+      ],
+      finalGoal: () => 'Win the Scottish Premiership unbeaten and reach the Champions League knockout stage.',
+    },
+    'Aberdeen': {
+      name: "Fergie's Dons", icon: '🐟',
+      tagline: 'Gothenburg 1983.',
+      history: "Alex Ferguson's Aberdeen broke the Old Firm's grip to win three league titles in the 1980s and beat Real Madrid in the 1983 Cup Winners' Cup final in Gothenburg.",
+      seasons: [4, 7],
+      blockTags: ['quota'],
+      core: (c) => [
+        `At least ${c.byD([4, 5, 6, 7])} Scottish players in every starting XI.`,
+        'Never sign a player from Celtic or Rangers.',
+      ],
+      finalGoal: () => 'Win the league ahead of Celtic and Rangers, and win a European trophy.',
+    },
+    'Dundee United': {
+      name: "McLean's Terrors", icon: '🍊',
+      tagline: 'Champions, semi-finalists, finalists.',
+      history: "Jim McLean's Dundee United won the Scottish title in 1983, reached the European Cup semi-finals in 1984 and the UEFA Cup final in 1987.",
+      seasons: [4, 7],
+      blockTags: ['quota', 'academy-promote'],
+      core: (c) => [
+        `At least ${c.byD([4, 5, 6, 7])} Scottish players in every starting XI.`,
+        'Promote at least one academy player every season.',
+      ],
+      finalGoal: () => 'Win the Scottish Premiership and reach a European semi-final.',
+    },
+    'Hibernian': {
+      name: 'Sunshine on Leith', icon: '☀️',
+      tagline: '114 years in the making.',
+      history: 'In 2016 Hibernian won the Scottish Cup for the first time since 1902, ending a 114-year wait. Their last league title came in 1952.',
+      seasons: [4, 7],
+      blockTags: ['quota'],
+      core: (c) => [
+        `At least ${c.byD([3, 4, 5, 6])} Scottish players in every starting XI.`,
+        'Finish above Hearts every season.',
+      ],
+      finalGoal: () => 'Win the Scottish Premiership for the first time since 1952.',
+    },
+
+    // ---------- Belgium ----------
+    'Union Saint-Gilloise': {
+      name: 'Union Revival', icon: '💛',
+      tagline: 'Champions again after 90 years.',
+      history: 'Union dominated Belgian football in the 1930s, including a 60-match unbeaten run, then spent 48 years outside the top flight. Under Brighton owner Tony Bloom they returned in 2021 and won the 2024–25 title, their first since 1935.',
+      seasons: [3, 6],
+      blockTags: ['fee', 'sell-star'],
+      core: (c) => [
+        `No single transfer fee above ${c.feeCap()}.`,
+        'Sell your highest-valued player every summer.',
+      ],
+      finalGoal: () => 'Win the league and reach the Champions League knockout stage.',
+    },
+    'RSC Anderlecht': {
+      name: 'Neerpede', icon: '🟣',
+      tagline: "Belgium's talent factory.",
+      history: "Anderlecht are Belgium's most successful club, and their Neerpede academy produced Vincent Kompany, Romelu Lukaku, Youri Tielemans and Jérémy Doku.",
+      seasons: [4, 7],
+      blockTags: ['academy', 'academy-promote'],
+      core: (c) => [
+        `Promote at least ${c.byD([1, 2, 2, 3])} academy player(s) every season.`,
+        `At least ${c.byD([3, 4, 5, 6])} academy graduates in every matchday squad.`,
+      ],
+      finalGoal: () => 'Win the Belgian league with 6+ academy graduates in the starting XI.',
+    },
+    'KRC Genk': {
+      name: 'Talent Factory', icon: '⛏️',
+      tagline: 'Where De Bruyne and Courtois began.',
+      history: "Genk's academy produced Kevin De Bruyne and Thibaut Courtois, and the club from the old mining region of Limburg has won the Belgian league four times.",
+      seasons: [4, 7],
+      blockTags: ['age'],
+      core: (c) => [
+        `Only sign players aged ${c.byD([22, 21, 20, 20])} or younger.`,
+        `Sell an academy graduate for ${c.money(c.byD([10, 15, 20, 25]))}+ at least once every ${c.byD([3, 3, 2, 2])} seasons.`,
+      ],
+      finalGoal: (c) => `Win the Belgian league and sell an academy graduate for ${c.money(c.byD([30, 40, 50, 60]))}+.`,
+    },
+    'Royal Antwerp': {
+      name: 'The Great Old', icon: '1️⃣',
+      tagline: 'Matricule No. 1.',
+      history: "Founded in 1880, Antwerp are Belgium's oldest club and hold the federation's registration number 1. In 2023 they won the league for the first time since 1957.",
+      seasons: [4, 6],
+      blockTags: ['quota'],
+      core: (c) => [
+        `At least ${c.byD([3, 4, 5, 6])} Belgian players in every starting XI.`,
+        'Never sign a player from Club Brugge or Anderlecht.',
+      ],
+      finalGoal: () => 'Win the Belgian league and reach the Champions League knockout stage.',
+    },
+
+    // ---------- Türkiye ----------
+    'Galatasaray': {
+      name: 'Istanbul 2000', icon: '🦁',
+      tagline: 'The first Turkish European champions.',
+      history: 'Galatasaray won the 2000 UEFA Cup, beating Arsenal on penalties, then the UEFA Super Cup against Real Madrid: the first European trophies won by a Turkish club.',
+      seasons: [3, 6],
+      blockTags: ['quota'],
+      core: (c) => [
+        `At least ${c.byD([3, 4, 5, 5])} Turkish players in every starting XI.`,
+        'Finish above Fenerbahçe every season.',
+      ],
+      finalGoal: () => 'Win the Champions League.',
+    },
+    'Trabzonspor': {
+      name: 'Anatolian Storm', icon: '⛈️',
+      tagline: "Breaking Istanbul's grip.",
+      history: 'In 1976 Trabzonspor became the first club from outside Istanbul to win the Turkish league, and won six titles in their first ten top-flight seasons.',
+      seasons: [4, 7],
+      blockTags: ['quota'],
+      core: (c) => [
+        `At least ${c.byD([4, 5, 6, 7])} Turkish players in every starting XI.`,
+        'Never sign a player from Galatasaray, Fenerbahçe or Beşiktaş.',
+      ],
+      finalGoal: () => 'Win the Süper Lig ahead of all three Istanbul giants.',
+    },
+
+    // ---------- Norway ----------
+    'Bodø/Glimt': {
+      name: 'Arctic Miracle', icon: '❄️',
+      tagline: 'Football north of the Arctic Circle.',
+      history: "Bodø/Glimt, from a town of around 50,000 north of the Arctic Circle, won their first league title in 2020, beat José Mourinho's Roma 6–1 in 2021, and in 2025 became the first Norwegian club to reach a European semi-final.",
+      seasons: [4, 7],
+      blockTags: ['quota', 'fee'],
+      core: (c) => [
+        `At least ${c.byD([4, 5, 6, 7])} Norwegian players in every starting XI.`,
+        `No single transfer fee above ${c.feeCap()}.`,
+      ],
+      finalGoal: (c) => (c.d <= 2 ? 'Reach a European final.' : 'Win a European trophy.'),
+    },
+    'Rosenborg': {
+      name: 'Thirteen in a Row', icon: '♟️',
+      tagline: "Norway's kings of the 1990s.",
+      history: 'Rosenborg won 13 straight Norwegian titles from 1992 to 2004 and were Champions League regulars, famously beating AC Milan at San Siro in 1996.',
+      seasons: (d) => [[3, 5, 7, 9][d - 1], [3, 5, 7, 9][d - 1] + 1],
+      blockTags: ['quota'],
+      seasonGoal: (c) => `Win ${c.topLeagueRef}.`,
+      core: (c) => [
+        `At least ${c.byD([4, 5, 6, 7])} Norwegian players in every starting XI.`,
+      ],
+      finalGoal: (c) => `Win ${c.byD([3, 5, 7, 9])} league titles in a row and reach the Champions League knockout stage.`,
+    },
+
+    // ---------- Denmark ----------
+    'FC Midtjylland': {
+      name: 'Moneyball Denmark', icon: '📐',
+      tagline: 'Data wins titles.',
+      history: 'Bought in 2014 by Matthew Benham, also the owner of Brentford, Midtjylland used statistical analysis and specialist set-piece coaching to win their first Danish title in 2015.',
+      seasons: [4, 6],
+      blockTags: ['fee', 'profit'],
+      core: (c) => [
+        `No single transfer fee above ${c.feeCap()}.`,
+        'Finish every season with a positive net transfer spend.',
+      ],
+      finalGoal: () => 'Win the Danish Superliga and reach the Champions League league phase.',
+    },
+    'FC Nordsjælland': {
+      name: 'Right to Dream', icon: '🌍',
+      tagline: "One of Europe's youngest teams.",
+      history: "Owned since 2016 by the Right to Dream academy from Ghana, Nordsjælland field one of Europe's youngest teams, mixing Danish and West African talent such as Mohammed Kudus.",
+      seasons: [4, 7],
+      blockTags: ['age', 'origin'],
+      core: (c) => [
+        `Only sign players aged ${c.byD([21, 20, 19, 19])} or younger.`,
+        'Every signing must be Danish or African.',
+      ],
+      finalGoal: () => 'Win the Danish Superliga with a starting XI averaging under 23.',
+    },
+
+    // ---------- Austria ----------
+    'Red Bull Salzburg': {
+      name: 'The Stepping Stone', icon: '🎢',
+      tagline: 'Next stop: the big leagues.',
+      history: 'Salzburg won ten straight Austrian titles from 2014 to 2023 while developing future stars such as Erling Haaland, Sadio Mané and Dominik Szoboszlai, then selling them on.',
+      seasons: [4, 7],
+      blockTags: ['age', 'sell-star'],
+      core: (c) => [
+        `Only sign players aged ${c.byD([21, 20, 20, 19])} or younger.`,
+        'Sell your highest-valued player every summer.',
+      ],
+      finalGoal: (c) => `Win ${c.byD([3, 4, 5, 6])} league titles in a row and sell a player for ${c.money(c.byD([40, 50, 60, 80]))}+.`,
+    },
+    'Rapid Wien': {
+      name: 'Rapid-Viertelstunde', icon: '⏰',
+      tagline: 'The Rapid quarter-hour.',
+      history: "For over a century Rapid fans have clapped in the 75th minute to start the 'Rapid-Viertelstunde', the quarter-hour in which the team is expected to turn games around. Rapid are Austria's record champions and reached Cup Winners' Cup finals in 1985 and 1996.",
+      seasons: [4, 6],
+      blockTags: ['subs', 'quota'],
+      core: (c) => [
+        'Make all your substitutions in the 75th minute or later (injuries excepted).',
+        `At least ${c.byD([4, 5, 6, 7])} Austrian players in every starting XI.`,
+      ],
+      finalGoal: () => 'Win the Austrian Bundesliga for the first time since 2008.',
+    },
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/heritage/world.js */
+/*
+ * Club Heritage challenges: outside Europe (MLS, ROSHN Saudi League).
+ * Keyed by the club name used in data.js. Field reference: see the
+ * 'club-heritage' archetype in rules.js.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  Object.assign((FC26.heritage = FC26.heritage || {}), {
+    // ---------- MLS ----------
+    'LA Galaxy': {
+      name: 'Designated Players', icon: '🌌',
+      tagline: 'Beckham started it.',
+      history: "David Beckham's move to the Galaxy in 2007 led MLS to create the Designated Player rule, letting clubs pay a few stars above the salary cap. The Galaxy have won a record six MLS Cups, the latest in 2024.",
+      seasons: [3, 6],
+      blockTags: ['wage'],
+      core: (c) => [
+        `Only three players may earn more than ${c.wageCap()}/week: your Designated Players.`,
+        'Every summer, sign one Designated Player aged 29 or older.',
+      ],
+      finalGoal: () => 'Win a seventh MLS Cup.',
+    },
+    'Inter Miami CF': {
+      name: 'Barça Reunion', icon: '🦩',
+      tagline: 'Messi and friends.',
+      history: "Co-owned by David Beckham, Inter Miami signed Lionel Messi in 2023 and reunited him with former Barcelona teammates Sergio Busquets, Jordi Alba and Luis Suárez. They won the Leagues Cup in 2023 and the Supporters' Shield in 2024.",
+      seasons: [3, 5],
+      core: (c) => [
+        'Every signing aged 30 or over must have played in LaLiga.',
+        `At least ${c.byD([2, 3, 3, 4])} players aged 33+ in every starting XI.`,
+      ],
+      finalGoal: () => 'Win the MLS Cup and the CONCACAF Champions Cup.',
+    },
+    'Toronto FC': {
+      name: 'Treble North', icon: '🍁',
+      tagline: 'The first MLS treble.',
+      history: "In 2017 Toronto FC won the Supporters' Shield, the Canadian Championship and the MLS Cup, the first domestic treble in MLS history.",
+      seasons: [3, 6],
+      blockTags: ['quota'],
+      core: (c) => [
+        `At least ${c.byD([2, 3, 4, 5])} Canadian players in every starting XI.`,
+        'Sign at least one Canadian player every season.',
+      ],
+      finalGoal: () => "Win the MLS Cup and the Supporters' Shield in the same season with a Canadian core.",
+    },
+    'New York Red Bulls': {
+      name: 'Finally', icon: '🗽',
+      tagline: 'An MLS Cup at last?',
+      history: "Founded as the NY/NJ MetroStars for MLS's first season in 1996, the Red Bulls have won three Supporters' Shields but never the MLS Cup, losing the 2024 final to LA Galaxy.",
+      seasons: [3, 6],
+      blockTags: ['age'],
+      core: (c) => [
+        `Only sign players aged ${c.byD([25, 24, 23, 23])} or younger.`,
+        'Sign at least one player from RB Leipzig or Red Bull Salzburg every season.',
+      ],
+      finalGoal: () => 'Win the MLS Cup for the first time in club history.',
+    },
+    'Seattle Sounders FC': {
+      name: 'Kings of CONCACAF', icon: '☕',
+      tagline: 'The first MLS club to rule CONCACAF.',
+      history: 'In 2022 Seattle became the first MLS club to win the CONCACAF Champions League in its modern format, beating Pumas in the final. They have also won the MLS Cup twice, in 2016 and 2019.',
+      seasons: [3, 6],
+      blockTags: ['quota', 'sim'],
+      core: (c) => [
+        `At least ${c.byD([2, 3, 4, 5])} American players in every starting XI.`,
+        'Play every CONCACAF Champions Cup match yourself: no simming.',
+      ],
+      finalGoal: () => 'Win the CONCACAF Champions Cup and the MLS Cup.',
+    },
+    'St. Louis CITY SC': {
+      name: 'Expansion Shock', icon: '🌁',
+      tagline: 'Top of the West in year one.',
+      history: 'St. Louis CITY joined MLS in 2023 and finished top of the Western Conference in their first season, one of the best expansion debuts in league history.',
+      seasons: [3, 5],
+      blockTags: ['wage'],
+      seasonGoal: (c, s) => (s === 1 ? 'Win your conference in your first season.' : null),
+      core: (c) => [
+        `No player may earn more than ${c.wageCap()}/week.`,
+      ],
+      finalGoal: () => 'Win your conference in season 1, then win the MLS Cup.',
+    },
+
+    // ---------- ROSHN Saudi League ----------
+    'Al Hilal': {
+      name: '34 in a Row', icon: '🌙',
+      tagline: 'A world-record winning streak.',
+      history: "Al Hilal won 34 consecutive matches in 2023–24, a world record, and have won Asia's top club competition a record four times.",
+      seasons: [3, 5],
+      blockTags: ['sim'],
+      core: (c) => [
+        `Lose no more than ${c.byD([4, 3, 2, 1])} league match(es) per season.`,
+        'Play every league match yourself: no simming.',
+      ],
+      finalGoal: () => 'Win 34+ matches in a row in all competitions.',
+    },
+    'Al Nassr': {
+      name: 'The Ronaldo Project', icon: '🐐',
+      tagline: 'Build around a legend.',
+      history: "Cristiano Ronaldo joined Al Nassr in January 2023, kicking off the Saudi league's wave of star signings.",
+      seasons: [3, 5],
+      core: () => [
+        'Your oldest outfield player must start every league match when fit.',
+        'Every summer, sign at least one 30+ star from a big-five European league.',
+      ],
+      finalGoal: () => 'Win the ROSHN Saudi League and the AFC Champions League Elite.',
+    },
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/rules.js */
+/*
+ * Challenge content: archetypes (the theme of a save), the pool of extra
+ * rules, side objectives and random season events.
+ *
+ * Text builders receive a context `c` (see generator.js `makeContext`) with
+ * the club, difficulty `c.d` (1-4) and helpers such as `c.byD([...])`, which
+ * picks the value for the current difficulty.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  const heritage = FC26.heritage || {};
+  const european = (club) => !club.continental;
+  const tierIn = (club, min, max) => club.tier >= min && club.tier <= max;
+
+  const archetypes = [
+    {
+      id: 'road-to-glory', name: 'Road to Glory', icon: '🪜',
+      tagline: 'From the bottom of the pyramid to the top of Europe.',
+      desc: 'Take a lower-league club and drag them all the way to the top-flight title.',
+      clubFilter: (club) => club.level >= 3 || (club.level === 2 && club.tier === 1),
+      seasonRange: (club) => [club.level + 1, club.level + 3],
+      forcePromotion: true,
+      finalTitle: true,
+      // Fixed caps make no sense for a club that changes division every year.
+      blockTags: ['ovr', 'fee', 'wage'],
+      core: (c) => [
+        `Stay at ${c.club.name} for the whole save — no job switching.`,
+        `Spend only the board's budget: no custom starting budget.`,
+      ],
+      finalGoal: (c) => (c.d >= 3
+        ? `Win ${c.topLeagueRef} and the ${c.continental} with ${c.club.name}.`
+        : `Win ${c.topLeagueRef} with ${c.club.name}.`),
+    },
+    {
+      id: 'youth-revolution', name: 'Youth Revolution', icon: '🌱',
+      tagline: 'Your academy is your transfer market.',
+      desc: 'Build a team of teenagers and academy graduates and grow them into champions.',
+      clubFilter: (club) => tierIn(club, 2, 4) && club.level <= 2,
+      seasonRange: () => [4, 7],
+      blockTags: ['age', 'academy', 'academy-promote', 'avg-age'],
+      core: (c) => [
+        `No signing anyone older than ${c.byD([22, 21, 20, 19])}.`,
+        `Promote at least ${c.byD([2, 3, 3, 4])} youth academy players to the first team every season.`,
+        `From season 2, at least ${c.byD([2, 3, 4, 5])} academy graduates must start every league match.`,
+      ],
+      finalGoal: (c) => `Win ${c.topLeagueRef} with ${c.byD([4, 5, 6, 7])}+ academy graduates in the starting XI.`,
+    },
+    {
+      id: 'moneyball', name: 'Moneyball', icon: '💰',
+      tagline: 'Buy low, sell high, win anyway.',
+      desc: 'Ignore the board budget and run the club purely on the money you make from player trading.',
+      clubFilter: (club) => tierIn(club, 1, 3) && club.level <= 2,
+      seasonRange: () => [4, 6],
+      blockTags: ['fee', 'profit'],
+      core: (c) => [
+        'Your only spending money is what you raise from player sales — the starting budget is off-limits.',
+        `No single transfer fee above ${c.feeCap()}.`,
+        'Sell (or release) every player in the summer after they turn 30.',
+      ],
+      finalGoal: (c) => (c.club.level > 1
+        ? `Reach ${c.topLeagueRef} and qualify for the ${c.continental} with a positive all-time net spend.`
+        : `Qualify for the ${c.continental} with a positive all-time net spend.`),
+    },
+    {
+      id: 'fallen-giant', name: 'Fallen Giant', icon: '🏚️',
+      tagline: 'Tear it down. Build it back.',
+      desc: 'A giant has lost its stars. Gut the squad on day one and rebuild it into a champion.',
+      clubFilter: (club) => club.tier >= 4 && club.level === 1,
+      seasonRange: () => [3, 6],
+      blockTags: ['sell-star'],
+      core: (c) => [
+        `Before your first competitive match, sell or release your ${c.byD([3, 4, 5, 6])} highest-rated players.`,
+        'Each window you may only spend money raised from sales.',
+        'Never re-sign a player you sold.',
+      ],
+      finalGoal: (c) => `Win ${c.topLeagueRef} within ${c.seasons} seasons.`,
+    },
+    {
+      id: 'homegrown', name: 'Homegrown Heroes', icon: '🏠',
+      tagline: 'Local lads only.',
+      desc: "Every signing must share your club's nationality. Win it all with home-grown talent.",
+      clubFilter: (club) => club.level <= 2 && european(club) && club.tier >= 2,
+      seasonRange: () => [4, 8],
+      blockTags: ['origin', 'quota'],
+      core: (c) => [
+        `Only sign ${c.club.nationality} players.`,
+        `Non-${c.club.nationality} players already at the club may stay, but you can't renew their contracts.`,
+      ],
+      finalGoal: (c) => `Win ${c.topLeagueRef} with an all-${c.club.nationality} starting XI.`,
+    },
+    {
+      id: 'loan-army', name: 'Loan Army', icon: '🔁',
+      tagline: "Borrowed boots, real trophies.",
+      desc: 'No transfer fees, ever. Build the squad from loans and free agents.',
+      clubFilter: (club) => tierIn(club, 1, 3),
+      seasonRange: () => [3, 5],
+      blockTags: ['fee', 'loans', 'profit'],
+      core: (c) => [
+        'No transfer fees — loans and free agents only.',
+        'You may sell players, but the money can only be spent on wages.',
+        `At least ${c.byD([1, 2, 3, 4])} loanees must start every league match.`,
+      ],
+      finalGoal: (c) => (c.club.level > 1
+        ? `Win promotion to ${c.topLeagueRef} with a loan-built squad.`
+        : `Qualify for the ${c.continental} with a squad built on loans and free agents.`),
+    },
+    {
+      id: 'journeyman', name: 'Journeyman', icon: '🧳',
+      tagline: 'New country, new club, same hunger.',
+      desc: 'Hop between countries every few seasons and collect league titles around the world.',
+      clubFilter: (club) => tierIn(club, 1, 3) && club.level <= 2,
+      seasonRange: () => [6, 9],
+      core: (c) => [
+        `Every ${c.moveEvery} seasons, take a job at a club in a different country.`,
+        'Your next club must be one that offers you a job or accepts your application.',
+        'Never return to a club you have already managed.',
+      ],
+      finalGoal: (c) => `Win league titles in ${c.byD([2, 3, 3, 4])} different countries.`,
+    },
+    {
+      id: 'galacticos', name: 'Galácticos', icon: '⭐',
+      tagline: 'Stars, stars and more stars.',
+      desc: 'Spend big, sign the best and settle for nothing less than everything.',
+      clubFilter: (club) => club.tier >= 4 && club.level === 1,
+      seasonRange: () => [3, 5],
+      blockTags: ['ovr', 'fee', 'age'],
+      core: (c) => [
+        `Sign at least one player rated ${c.byD([84, 85, 86, 87])}+ OVR every summer.`,
+        `Break your club's transfer record at least once every ${c.byD([3, 2, 2, 1])} season(s).`,
+        `Every first-team player must be ${c.byD([76, 78, 80, 82])}+ OVR — sell anyone below by the end of each summer window.`,
+      ],
+      finalGoal: (c) => `Win the treble: ${c.topLeague.name}, ${c.cup} and ${c.continental}.`,
+    },
+    {
+      id: 'underdog-europe', name: 'Underdog in Europe', icon: '🦊',
+      tagline: 'Nobody gave them a chance.',
+      desc: 'Take a mid-sized club and win a European trophy with a modest squad.',
+      clubFilter: (club) => tierIn(club, 2, 3) && club.level === 1 && european(club),
+      seasonRange: () => [3, 6],
+      blockTags: ['ovr'],
+      core: (c) => [
+        `No signing anyone rated above ${c.ovrCap() + 2} OVR.`,
+        `At least ${c.byD([3, 4, 5, 6])} of your season-1 starters must still be at the club when you lift the trophy.`,
+      ],
+      finalGoal: (c) => (c.d <= 2 ? `Win the Europa League with ${c.club.name}.` : `Win the Champions League with ${c.club.name}.`),
+    },
+    {
+      id: 'one-nation', name: 'One Nation', icon: '🧩',
+      tagline: 'One passport, one dream.',
+      desc: 'Every signing comes from a single, randomly drawn country.',
+      clubFilter: (club) => club.tier >= 2 && club.level === 1,
+      seasonRange: () => [4, 7],
+      blockTags: ['origin'],
+      core: (c) => [
+        `Every signing must be ${c.nation.adj}.`,
+        `By the final season at least ${c.byD([5, 6, 7, 8])} ${c.nation.adj} players must start every league match.`,
+      ],
+      finalGoal: (c) => `Win ${c.topLeagueRef} with ${c.byD([6, 7, 8, 9])}+ ${c.nation.adj} starters.`,
+    },
+    {
+      id: 'veterans', name: "Dad's Army", icon: '👴',
+      tagline: 'Experience wins titles.',
+      desc: 'Sign only thirty-somethings and prove that old legs still have it.',
+      clubFilter: (club) => tierIn(club, 1, 4) && club.level <= 2,
+      seasonRange: () => [3, 5],
+      blockTags: ['age', 'avg-age', 'academy', 'academy-promote'],
+      noAcademy: true,
+      core: (c) => [
+        `Only sign players aged ${c.byD([29, 30, 31, 32])} or older.`,
+        'No academy promotions — youth players must be sold or released.',
+      ],
+      finalGoal: () => 'Win a major trophy with a starting XI averaging 30+ years old.',
+    },
+    {
+      id: 'wonderkid-factory', name: 'Wonderkid Factory', icon: '🏭',
+      tagline: 'Develop. Sell. Repeat.',
+      desc: 'Sign teenagers, turn them into stars and cash in at their peak.',
+      clubFilter: (club) => tierIn(club, 2, 4) && club.level === 1,
+      seasonRange: () => [5, 8],
+      blockTags: ['age', 'flip'],
+      core: (c) => [
+        `Only sign players aged ${c.byD([21, 20, 19, 19])} or younger.`,
+        `Sell every player in the summer after they turn ${c.byD([26, 25, 24, 23])}.`,
+      ],
+      finalGoal: (c) => `Sell a player you signed as a teenager for ${c.money(c.byD([60, 80, 100, 120]))} or more, and win a trophy.`,
+    },
+    {
+      // Placeholder: the generator swaps in the club's entry from js/heritage/.
+      // Entries take the same fields as an archetype, plus `history`, an
+      // optional `seasons` ([min, max] or a function of difficulty) and an
+      // optional `seasonGoal(c, season)` that replaces a season's main target.
+      id: 'club-heritage', name: 'Club Heritage', icon: '🏛️',
+      tagline: "Play it the club's way.",
+      desc: "A challenge built on the club's real history and identity.",
+      clubFilter: (club) => Boolean(heritage[club.name]),
+      perClub: true,
+      seasonRange: () => [4, 6],
+      core: () => [],
+      finalGoal: () => '',
+    },
+    {
+      id: 'chaos', name: 'Pure Chaos', icon: '🎲',
+      tagline: 'Let the dice decide.',
+      desc: 'No theme, just a pile of random rules and a season full of surprises.',
+      clubFilter: () => true,
+      seasonRange: () => [3, 6],
+      bonusRules: 2,
+      eventBoost: 2,
+      core: () => [],
+      finalGoal: (c) => (c.d >= 3
+        ? `Win ${c.topLeagueRef} at least once without getting sacked.`
+        : 'Win at least one trophy without getting sacked.'),
+    },
+  ];
+
+  // Extra rules layered on top of an archetype. Rules sharing a tag never
+  // appear together, and archetypes block tags they already cover.
+  const rules = [
+    { id: 'fee-cap', cat: 'Transfers', tags: ['fee'], text: (c) => `No single transfer fee above ${c.feeCap()}.` },
+    { id: 'max-signings', cat: 'Transfers', tags: ['count'], text: (c) => `Maximum ${c.byD([5, 4, 3, 2])} permanent signings per window.` },
+    { id: 'age-cap', cat: 'Transfers', tags: ['age'], text: (c) => `Only sign players aged ${c.byD([25, 24, 23, 22])} or younger.` },
+    // Also tagged avg-age: a 30+ signing policy can't coexist with a young-XI rule.
+    { id: 'age-floor', cat: 'Transfers', tags: ['age', 'avg-age'], minD: 2, text: (c) => `Only sign players aged ${c.byD([27, 28, 29, 30])} or older.` },
+    { id: 'ovr-cap', cat: 'Transfers', tags: ['ovr'], text: (c) => `No signing anyone rated above ${c.ovrCap()} OVR.` },
+    { id: 'nation-only', cat: 'Transfers', tags: ['origin'], minD: 2, text: (c) => `Every signing must be ${c.nation.adj}.` },
+    { id: 'region-only', cat: 'Transfers', tags: ['origin'], text: (c) => `Signings must come from ${c.rng.pick(c.data.regions)}.` },
+    { id: 'no-loans', cat: 'Transfers', tags: ['loans'], text: () => 'No loan signings — permanent deals only.' },
+    { id: 'one-in-one-out', cat: 'Transfers', tags: ['count'], text: () => 'One in, one out: sell or release a player before every signing.' },
+    { id: 'deadline-day', cat: 'Transfers', tags: ['deadline'], minD: 2, text: () => 'Incoming transfers only on the final day of each window.' },
+    { id: 'no-league-rivals', cat: 'Transfers', tags: ['rivals'], text: () => 'No signing players from clubs in your own league.' },
+    { id: 'scout-only', cat: 'Transfers', tags: ['scouting'], text: () => 'Only sign players your scouts have found — no using the player search.' },
+    { id: 'no-flip', cat: 'Transfers', tags: ['flip'], text: () => 'No selling a player in the same season you signed them.' },
+    { id: 'wage-cap', cat: 'Finance', tags: ['wage'], text: (c) => `No player may earn more than ${c.wageCap()}/week.` },
+    { id: 'profit-window', cat: 'Finance', tags: ['profit'], text: () => 'Finish every transfer window with zero or positive net spend.' },
+    { id: 'sell-star', cat: 'Finance', tags: ['sell-star'], minD: 2, text: () => 'Sell your highest-rated player every summer.' },
+    { id: 'squad-size', cat: 'Squad', tags: ['squad-size'], text: (c) => `Senior squad capped at ${c.byD([26, 24, 23, 21])} players.` },
+    { id: 'academy-matchday', cat: 'Squad', tags: ['academy'], text: (c) => `At least ${c.byD([1, 2, 3, 4])} academy graduate(s) in every matchday squad.` },
+    { id: 'youth-promote', cat: 'Squad', tags: ['academy-promote'], text: (c) => `Promote at least ${c.byD([1, 2, 2, 3])} youth academy player(s) to the first team every season.` },
+    { id: 'home-quota', cat: 'Squad', tags: ['quota'], text: (c) => `At least ${c.byD([2, 3, 4, 5])} ${c.club.nationality} players in every starting XI.` },
+    { id: 'rotation', cat: 'Squad', tags: ['rotation'], text: (c) => `No outfield player may start more than ${c.byD([85, 80, 75, 70])}% of league matches.` },
+    { id: 'young-xi', cat: 'Squad', tags: ['avg-age'], minD: 2, text: (c) => `Your starting XI must average ${c.byD([27, 26, 25, 24])} years old or younger.` },
+    { id: 'captain-loyalty', cat: 'Squad', tags: ['captain'], text: () => 'Your captain can never be sold, loaned or dropped while fit.' },
+    { id: 'no-retraining', cat: 'Squad', tags: ['training'], text: () => 'No retraining players into new positions.' },
+    { id: 'formation-lock', cat: 'Tactics', tags: ['formation'], text: (c) => `Play ${c.formation} in every match — no formation changes.` },
+    { id: 'late-subs', cat: 'Tactics', tags: ['subs'], text: (c) => `No substitutions before the ${c.byD([55, 60, 65, 70])}th minute (injuries excepted).` },
+    { id: 'no-sim', cat: 'Tactics', tags: ['sim'], text: (c) => (c.d >= 3 ? 'Play every competitive match — no simming.' : 'Play every league match — cup games may be simmed.') },
+  ];
+
+  // Optional extra targets sprinkled into seasons. Each is used at most once.
+  const sideObjectives = [
+    { id: 'cup-semi', when: (c) => c.club.level <= 2, text: (c) => `Reach the ${c.cup} semi-finals.` },
+    { id: 'cup-win', minD: 3, when: (c) => c.club.level === 1 && c.club.tier >= 3, text: (c) => `Win the ${c.cup}.` },
+    { id: 'academy-apps', when: (c) => !c.archetype.noAcademy, text: (c) => `Give ${c.byD([2, 3, 3, 4])} academy graduates 10+ appearances.` },
+    { id: 'develop', text: (c) => `Develop a player to ${c.byD([74, 77, 80, 83]) + (c.club.tier - 3) * 2}+ OVR.` },
+    { id: 'scorer', text: (c) => `Have a player score ${c.byD([15, 18, 22, 25])}+ league goals.` },
+    { id: 'clean-sheets', text: (c) => `Keep ${c.byD([10, 12, 14, 16])}+ league clean sheets.` },
+    { id: 'net-spend', when: (c) => !(c.archetype.blockTags || []).includes('profit'), text: () => 'Finish the season with a positive net transfer spend.' },
+    { id: 'home-unbeaten', minD: 3, text: () => 'Go unbeaten at home in the league.' },
+    { id: 'fast-start', text: (c) => `Stay unbeaten in your first ${c.byD([4, 6, 8, 10])} league matches.` },
+    { id: 'continental-ko', when: (c) => c.club.level === 1 && c.club.tier >= 3, text: (c) => `Reach the knockout stage of the ${c.continental}.` },
+  ];
+
+  const events = [
+    { id: 'budget-cut', text: () => 'Board crisis: your transfer budget is halved this summer.' },
+    { id: 'unsettled-star', text: () => 'Unsettled star: sell your highest-rated player before the summer window closes.' },
+    { id: 'january-freeze', text: () => 'January freeze: no incoming transfers in the winter window.' },
+    { id: 'youth-push', when: (c) => !c.archetype.noAcademy, text: (c) => `Youth push: hand debuts to ${c.byD([1, 2, 2, 3])} academy player(s).` },
+    { id: 'fire-sale', text: (c) => `Fire sale: sell ${c.byD([2, 2, 3, 4])} first-team players this summer.` },
+    { id: 'tactical-reset', text: (c) => `Tactical reset: play ${c.rng.pick(c.data.formations)} for the whole season (overrides any formation rule).` },
+    { id: 'armband', text: () => 'Armband shake-up: your youngest regular starter is captain for the season.' },
+    { id: 'wildcard', text: () => 'Wildcard: you may break one rule, once, this season.' },
+    { id: 'marquee', text: () => 'Marquee moment: one signing this season may ignore your fee and rating limits.' },
+    { id: 'old-legend', text: () => 'Old legend: sign a free agent aged 32+ and give them 10+ appearances.' },
+    { id: 'cup-fever', text: (c) => `Cup fever: the board demands at least a ${c.cup} semi-final.` },
+    { id: 'fast-start-or-sell', text: () => 'Fast start: stay unbeaten in your first 6 league matches or sell your most expensive player.' },
+    { id: 'striker-benched', minSeason: 2, text: () => "Striker slump: last season's top scorer can't start the first 5 league matches." },
+    { id: 'keeper-swap', text: () => 'Goalkeeper shake-up: your current No.1 must lose the starting spot for the season.' },
+    { id: 'rival-raid', text: () => 'Rival raid: sign at least one player from a club in your own league.' },
+  ];
+
+  FC26.content = { archetypes, rules, sideObjectives, events };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/generator.js */
+/*
+ * Challenge generator. Pure logic with no DOM access, so it runs in the
+ * browser and under Node (see tests/).
+ *
+ * Every random choice draws from its own RNG stream derived from the seed
+ * (e.g. "AB12CD:club"), so locking one part of a challenge and rerolling
+ * the rest keeps the locked part stable and the result reproducible.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const { data, content } = FC26;
+
+  // ---------- Random numbers ----------
+
+  function hashString(str) {
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    // murmur3 finaliser so similar seeds give unrelated streams
+    h ^= h >>> 16;
+    h = Math.imul(h, 0x85ebca6b);
+    h ^= h >>> 13;
+    h = Math.imul(h, 0xc2b2ae35);
+    h ^= h >>> 16;
+    return h >>> 0;
+  }
+
+  // mulberry32
+  function createRng(seed) {
+    let a = hashString(String(seed));
+    const next = () => {
+      a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    return {
+      next,
+      int: (min, max) => min + Math.floor(next() * (max - min + 1)),
+      pick: (arr) => arr[Math.floor(next() * arr.length)],
+      chance: (p) => next() < p,
+      shuffle: (arr) => {
+        const out = arr.slice();
+        for (let i = out.length - 1; i > 0; i--) {
+          const j = Math.floor(next() * (i + 1));
+          [out[i], out[j]] = [out[j], out[i]];
+        }
+        return out;
+      },
+    };
+  }
+
+  const SEED_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  function randomSeed() {
+    let s = '';
+    for (let i = 0; i < 6; i++) s += SEED_CHARS[Math.floor(Math.random() * SEED_CHARS.length)];
+    return s;
+  }
+
+  // ---------- Lookups ----------
+
+  const CLUBS = data.leagues.flatMap((l) => l.clubs.map(([name, tier]) => ({
+    name,
+    tier,
+    leagueId: l.id,
+    league: l.name,
+    country: l.country,
+    nationality: l.nationality,
+    level: l.level,
+    continental: l.continental || null,
+  })));
+
+  const leagueById = Object.fromEntries(data.leagues.map((l) => [l.id, l]));
+  const archetypeById = Object.fromEntries(content.archetypes.map((a) => [a.id, a]));
+  const ruleById = Object.fromEntries(content.rules.map((r) => [r.id, r]));
+  const heritage = FC26.heritage || {};
+
+  // Club Heritage is one archetype whose content comes from the club's entry.
+  function resolveArchetype(arch, club) {
+    const h = arch.perClub && club && heritage[club.name];
+    if (!h) return arch;
+    return Object.assign({}, arch, h, {
+      id: arch.id,
+      typeName: arch.name,
+      seasonRange: (c, d) => (typeof h.seasons === 'function' ? h.seasons(d) : h.seasons || [4, 6]),
+    });
+  }
+
+  function leagueAt(country, level) {
+    return data.leagues.find((l) => l.country === country && l.level === level) || null;
+  }
+
+  // "the Premier League" but "Serie A".
+  function leagueRef(league) {
+    return league.noArticle ? league.name : `the ${league.name}`;
+  }
+
+  function findClub(name, leagueId) {
+    return CLUBS.find((c) => c.name === name && (!leagueId || c.leagueId === leagueId)) || null;
+  }
+
+  // ---------- Scaling helpers ----------
+
+  // Rough budget in €M by club tier, scaled down for lower divisions.
+  const TIER_BUDGET = { 1: 4, 2: 12, 3: 30, 4: 65, 5: 120 };
+  const LEVEL_FACTOR = { 1: 1, 2: 0.5, 3: 0.15, 4: 0.08 };
+  const TIER_WAGE = { 1: 10, 2: 30, 3: 70, 4: 150, 5: 300 }; // €K/week
+  const TIER_OVR = { 1: 68, 2: 75, 3: 79, 4: 84, 5: 88 };
+
+  function money(millions) {
+    if (millions >= 1) {
+      const v = millions >= 20 ? Math.round(millions / 5) * 5 : Math.round(millions);
+      return `€${v}M`;
+    }
+    return `€${Math.max(50, Math.round((millions * 1000) / 50) * 50)}K`;
+  }
+
+  function makeContext({ club, d, seasons, archetype, nation, formation }) {
+    const topLeague = leagueAt(club.country, 1) || leagueById[club.leagueId];
+    const league = leagueById[club.leagueId];
+    const byD = (arr) => arr[d - 1];
+    const budget = TIER_BUDGET[club.tier] * (LEVEL_FACTOR[club.level] || 1);
+    return {
+      data,
+      club,
+      d,
+      seasons,
+      archetype,
+      nation,
+      formation,
+      topLeague,
+      topLeagueRef: leagueRef(topLeague),
+      cup: (league && league.cup) || 'domestic cup',
+      continental: topLeague.continental || 'Champions League',
+      moveEvery: byD([3, 3, 2, 2]),
+      byD,
+      money,
+      feeCap: () => money(budget * byD([0.6, 0.4, 0.25, 0.15])),
+      wageCap: () => {
+        const k = TIER_WAGE[club.tier] * (LEVEL_FACTOR[club.level] || 1) * byD([1, 0.75, 0.55, 0.4]);
+        return k >= 1 ? `€${Math.max(1, Math.round(k))}K` : `€${Math.max(100, Math.round((k * 1000) / 100) * 100)}`;
+      },
+      ovrCap: () => TIER_OVR[club.tier] - (club.level - 1) * 3 - byD([0, 2, 4, 6]),
+      rng: null,
+    };
+  }
+
+  const withRng = (ctx, rng) => Object.assign({}, ctx, { rng });
+
+  // ---------- Options ----------
+
+  const DEFAULT_OPTIONS = {
+    difficulty: 'random', // 1-4 or 'random'
+    archetype: 'any',
+    club: 'any', // "leagueId|Club name"
+    league: 'any',
+    tier: 'any',
+    seasons: 'auto',
+    ruleCount: 'auto',
+    events: true,
+  };
+
+  function normalizeOptions(options) {
+    const o = Object.assign({}, DEFAULT_OPTIONS, options || {});
+    if (o.difficulty !== 'random') o.difficulty = Math.min(4, Math.max(1, Number(o.difficulty) || 2));
+    if (o.archetype !== 'any' && !archetypeById[o.archetype]) o.archetype = 'any';
+    if (o.league !== 'any' && !leagueById[o.league]) o.league = 'any';
+    if (o.club !== 'any') {
+      const [leagueId, ...rest] = String(o.club).split('|');
+      if (!findClub(rest.join('|'), leagueId)) o.club = 'any';
+    }
+    if (o.tier !== 'any') o.tier = Math.min(5, Math.max(1, Number(o.tier) || 3));
+    if (o.seasons !== 'auto') o.seasons = Math.min(15, Math.max(1, Number(o.seasons) || 5));
+    if (o.ruleCount !== 'auto') o.ruleCount = Math.min(8, Math.max(0, Number(o.ruleCount) || 0));
+    o.events = o.events !== false;
+    return o;
+  }
+
+  // ---------- Season goals ----------
+
+  function topFlightGoal(league, cont, cup, eff) {
+    const ref = leagueRef(league);
+    const goals = league.goals || [
+      `Avoid relegation from ${ref}`,
+      `Finish in the top half of ${ref}`,
+      'Qualify for European football',
+      `Finish in the ${cont} places`,
+      `Win ${ref}`,
+      `Win ${ref} and reach the ${cont} semi-finals`,
+      `Win the treble: ${league.name}, ${cup} and ${cont}`,
+    ];
+    let text = goals[Math.min(goals.length, Math.max(1, eff)) - 1];
+    if (!league.goals && league.continental && eff === 3) text = `Qualify for the ${league.secondary || league.continental}`;
+    return text + '.';
+  }
+
+  function buildRoadmap(ctx, rng) {
+    const { club, d, seasons, archetype } = ctx;
+    // "Effort" scale: 1 = survive ... 7 = treble. Starts from club strength
+    // and difficulty, then climbs towards a difficulty-dependent finale.
+    const start = club.tier - 1 + d * 0.5;
+    const ceiling = [5, 5, 6, 7][d - 1];
+    const finale = Math.max(start, Math.min(ceiling, club.tier + [1.5, 2.5, 3.5, 4.5][d - 1], start + seasons * 1.25));
+    const effAt = (s) => (seasons <= 1 ? start + 0.5 : start + ((finale - start) * (s - 1)) / (seasons - 1));
+
+    const sideChance = [0.35, 0.5, 0.65, 0.8][d - 1];
+    const eventChance = Math.min(0.9, [0.15, 0.3, 0.45, 0.6][d - 1] * (archetype.eventBoost || 1));
+    const usedSide = new Set();
+    const usedEvents = new Set();
+    const roadmap = [];
+
+    let level = club.level;
+    let topFlightFrom = club.level === 1 ? 1 : null;
+
+    for (let s = 1; s <= seasons; s++) {
+      const e = effAt(s);
+      const objectives = [];
+      let main;
+
+      if (level > 1) {
+        const here = leagueAt(club.country, level);
+        const above = leagueAt(club.country, level - 1);
+        const hereName = here ? leagueRef(here) : 'your division';
+        if (archetype.forcePromotion || e >= 2.5) {
+          main = `Win promotion to ${above ? leagueRef(above) : 'the next division'}.`;
+          level -= 1;
+          if (level === 1) topFlightFrom = s + 1;
+        } else if (e >= 1.5) {
+          main = `Finish in the play-off places in ${hereName}.`;
+        } else {
+          main = `Avoid relegation from ${hereName}.`;
+        }
+      } else {
+        let eff = Math.round(e);
+        if (club.level > 1) {
+          // Newly promoted: start by surviving, then build up.
+          eff = Math.min(eff, 1 + Math.floor((s - topFlightFrom) * (d >= 3 ? 1.5 : 1)));
+          if (archetype.finalTitle && s === seasons) eff = Math.max(eff, 5);
+        }
+        main = topFlightGoal(ctx.topLeague, ctx.continental, ctx.cup, Math.min(7, Math.max(1, eff)));
+      }
+      const custom = archetype.seasonGoal && archetype.seasonGoal(ctx, s);
+      if (custom) main = custom;
+      objectives.push({ text: main, type: 'main' });
+
+      if (archetype.id === 'journeyman' && s % ctx.moveEvery === 0 && s < seasons) {
+        objectives.push({ text: 'End of season: move to a club in a different country.', type: 'side' });
+      } else if (rng.chance(sideChance)) {
+        const pool = content.sideObjectives.filter((o) => !usedSide.has(o.id)
+          && (!o.minD || d >= o.minD) && (!o.when || o.when(ctx)));
+        if (pool.length) {
+          const pick = rng.pick(pool);
+          usedSide.add(pick.id);
+          objectives.push({ text: pick.text(withRng(ctx, rng)), type: 'side' });
+        }
+      }
+
+      const events = [];
+      if (ctx.eventsOn && rng.chance(eventChance)) {
+        const pool = content.events.filter((ev) => !usedEvents.has(ev.id)
+          && (!ev.minSeason || s >= ev.minSeason) && (!ev.when || ev.when(ctx)));
+        if (pool.length) {
+          const pick = rng.pick(pool);
+          usedEvents.add(pick.id);
+          events.push(pick.text(withRng(ctx, rng)));
+        }
+      }
+
+      roadmap.push({ season: s, objectives, events });
+    }
+    return roadmap;
+  }
+
+  // ---------- Rules ----------
+
+  function eligibleRule(def, ctx, blocked, used) {
+    return !used.has(def.id)
+      && (!def.minD || ctx.d >= def.minD)
+      && !def.tags.some((t) => blocked.has(t));
+  }
+
+  function makeRule(def, ctx, seed) {
+    return { id: def.id, cat: def.cat, text: def.text(withRng(ctx, createRng(`${seed}:rule:${def.id}`))) };
+  }
+
+  function pickRules(ctx, seed, count, lockedIds) {
+    const blocked = new Set(ctx.archetype.blockTags || []);
+    const used = new Set();
+    const rules = [];
+    for (const id of lockedIds || []) {
+      const def = ruleById[id];
+      if (!def || used.has(id)) continue;
+      rules.push(makeRule(def, ctx, seed));
+      used.add(id);
+      def.tags.forEach((t) => blocked.add(t));
+    }
+    for (const def of createRng(`${seed}:rules`).shuffle(content.rules)) {
+      if (rules.length >= count) break;
+      if (!eligibleRule(def, ctx, blocked, used)) continue;
+      rules.push(makeRule(def, ctx, seed));
+      used.add(def.id);
+      def.tags.forEach((t) => blocked.add(t));
+    }
+    return rules;
+  }
+
+  // ---------- Main entry point ----------
+
+  /**
+   * Build a challenge.
+   * @param {object} options  see DEFAULT_OPTIONS
+   * @param {string} seed     any string; same seed + options + locks = same challenge
+   * @param {object} locks    { club: {name, leagueId}, archetypeId, seasons, difficulty, ruleIds: [] }
+   */
+  function generateChallenge(options, seed, locks) {
+    seed = String(seed || randomSeed());
+    locks = locks || {};
+    const opts = normalizeOptions(options);
+    const r = (label) => createRng(`${seed}:${label}`);
+    const notes = [];
+
+    let d = opts.difficulty === 'random' ? r('difficulty').int(1, 4) : opts.difficulty;
+    if (locks.difficulty) d = Math.min(4, Math.max(1, Number(locks.difficulty) || d));
+    const userFilter = (c) => (opts.club !== 'any'
+      ? `${c.leagueId}|${c.name}` === opts.club
+      : (opts.league === 'any' || c.leagueId === opts.league) && (opts.tier === 'any' || c.tier === opts.tier));
+
+    let club = locks.club ? (findClub(locks.club.name, locks.club.leagueId) || null) : null;
+    let archetype = locks.archetypeId ? archetypeById[locks.archetypeId] : null;
+
+    if (!archetype) {
+      const pool = opts.archetype !== 'any' ? [archetypeById[opts.archetype]] : content.archetypes;
+      let candidates = pool.filter((a) => (club ? a.clubFilter(club) : CLUBS.some((c) => a.clubFilter(c) && userFilter(c))));
+      if (!candidates.length) {
+        candidates = pool;
+        notes.push('That challenge type doesn\'t suit your club filters, so the filters were loosened.');
+      }
+      archetype = r('archetype').pick(candidates);
+    }
+
+    if (archetype.perClub && club && !archetype.clubFilter(club)) {
+      notes.push(`${club.name} has no Club Heritage challenge yet, so another club was picked.`);
+      club = null;
+    }
+
+    if (!club) {
+      let pool = CLUBS.filter((c) => archetype.clubFilter(c) && userFilter(c));
+      if (!pool.length) {
+        pool = CLUBS.filter(archetype.clubFilter);
+        if (!notes.length) notes.push(`No club matched both ${archetype.name} and your filters, so the filters were loosened.`);
+      }
+      club = r('club').pick(pool.length ? pool : CLUBS);
+    }
+    archetype = resolveArchetype(archetype, club);
+
+    let seasons = locks.seasons ? Math.min(15, Math.max(1, Number(locks.seasons))) : null;
+    seasons = seasons || (opts.seasons !== 'auto' ? opts.seasons : null);
+    const [minS, maxS] = archetype.seasonRange(club, d);
+    if (!seasons) seasons = r('seasons').int(minS, maxS);
+    if (archetype.forcePromotion && seasons < club.level) {
+      notes.push(`${seasons} season(s) is not enough to reach the top flight from ${leagueRef(leagueById[club.leagueId])} — try ${club.level + 1} or more.`);
+    }
+
+    const nation = r('nation').pick(data.nations.filter((n) => n.adj !== club.nationality));
+    const formation = r('formation').pick(data.formations);
+    const ctx = makeContext({ club, d, seasons, archetype, nation, formation });
+
+    const ruleCount = opts.ruleCount === 'auto' ? [1, 2, 3, 4][d - 1] + (archetype.bonusRules || 0) : opts.ruleCount;
+    const coreRules = archetype.core(withRng(ctx, r('core'))).map((text) => ({ text }));
+    const rules = pickRules(ctx, seed, ruleCount, locks.ruleIds);
+    ctx.eventsOn = opts.events;
+
+    const roadmap = buildRoadmap(ctx, r('roadmap'));
+
+    const difficulty = data.difficulties[d - 1];
+    return {
+      version: 1,
+      seed,
+      options: opts,
+      difficulty: d,
+      difficultyName: difficulty.name,
+      title: `${archetype.name}: ${club.name}`,
+      archetype: {
+        id: archetype.id, name: archetype.name, icon: archetype.icon, tagline: archetype.tagline, desc: archetype.desc,
+        typeName: archetype.typeName || archetype.name, history: archetype.history || null,
+      },
+      club: {
+        name: club.name, league: club.league, leagueId: club.leagueId, country: club.country,
+        nationality: club.nationality, tier: club.tier, tierName: data.tierNames[club.tier],
+      },
+      seasons,
+      coreRules,
+      rules,
+      roadmap,
+      finalGoal: archetype.finalGoal(withRng(ctx, r('final'))),
+      failConditions: failConditions(d),
+      scoring: scoring(d),
+      settings: settings(d),
+      notes,
+    };
+  }
+
+  /** Swap one extra rule for a different eligible one. Returns a new challenge. */
+  function rerollRule(challenge, index, seed) {
+    const club = findClub(challenge.club.name, challenge.club.leagueId);
+    const archetype = archetypeById[challenge.archetype.id] && resolveArchetype(archetypeById[challenge.archetype.id], club);
+    if (!club || !archetype || !challenge.rules[index]) return challenge;
+    const ctx = makeContext({
+      club, d: challenge.difficulty, seasons: challenge.seasons, archetype,
+      nation: createRng(`${challenge.seed}:nation`).pick(data.nations.filter((n) => n.adj !== club.nationality)),
+      formation: createRng(`${challenge.seed}:formation`).pick(data.formations),
+    });
+    const blocked = new Set(archetype.blockTags || []);
+    const used = new Set(challenge.rules.map((x) => x.id));
+    challenge.rules.forEach((x, i) => {
+      if (i !== index && ruleById[x.id]) ruleById[x.id].tags.forEach((t) => blocked.add(t));
+    });
+    const pool = content.rules.filter((def) => eligibleRule(def, ctx, blocked, used));
+    if (!pool.length) return challenge;
+    const def = createRng(`${seed || randomSeed()}:swap`).pick(pool);
+    const rules = challenge.rules.slice();
+    // Rule text uses the challenge seed so share links can rebuild it from the id.
+    rules[index] = makeRule(def, ctx, challenge.seed);
+    return Object.assign({}, challenge, { rules });
+  }
+
+  function failConditions(d) {
+    return [
+      'Getting sacked ends the challenge.',
+      [
+        'Breaking a rule costs 10 points — then carry on.',
+        'Breaking a rule costs 20 points, and you must undo it where you can (e.g. sell the player).',
+        'Breaking a rule twice ends the challenge.',
+        'Break any rule and the challenge is over.',
+      ][d - 1],
+      ...(d >= 3 ? [d === 4
+        ? 'Missing the main objective in any season ends the challenge.'
+        : 'Missing the main objective in two seasons in a row ends the challenge.'] : []),
+    ];
+  }
+
+  function scoring(d) {
+    return [
+      { label: 'Main season objective', points: 10 },
+      { label: 'Side objective', points: 5 },
+      { label: 'Major trophy won', points: 15 },
+      { label: 'Final goal achieved', points: 50 },
+      { label: 'Rule broken', points: -[10, 20, 30, 50][d - 1] },
+    ];
+  }
+
+  function settings(d) {
+    return [
+      { label: 'Game difficulty', value: ['Professional', 'World Class', 'Legendary', 'Ultimate'][d - 1] },
+      { label: 'Half length', value: ['6 minutes', '8 minutes', '10 minutes', '10+ minutes'][d - 1] },
+      { label: 'Injuries', value: d >= 3 ? 'On, frequency high' : 'On' },
+      { label: 'Saves', value: d === 4 ? 'Ironman: no reloading after bad results' : 'Reload only after crashes' },
+    ];
+  }
+
+  /**
+   * Compact description of a challenge: seed, options and every choice
+   * pinned as a lock. `fromShareKey` rebuilds the identical challenge.
+   */
+  function toShareKey(ch) {
+    return {
+      v: 1,
+      s: ch.seed,
+      o: Object.assign({}, ch.options, { seasons: 'auto', ruleCount: 'auto' }),
+      c: [ch.club.name, ch.club.leagueId],
+      a: ch.archetype.id,
+      n: ch.seasons,
+      d: ch.difficulty,
+      r: ch.rules.map((x) => x.id),
+    };
+  }
+
+  function fromShareKey(key) {
+    if (!key || key.v !== 1 || !key.s || !Array.isArray(key.r) || !Array.isArray(key.c)) return null;
+    const options = Object.assign({}, key.o, { ruleCount: key.r.length });
+    const ch = generateChallenge(options, key.s, {
+      club: { name: String(key.c[0]), leagueId: String(key.c[1]) },
+      archetypeId: archetypeById[key.a] ? key.a : null,
+      seasons: Number(key.n) || null,
+      difficulty: Number(key.d) || null,
+      ruleIds: key.r.map(String),
+    });
+    ch.options = Object.assign({}, ch.options, { ruleCount: 'auto' });
+    return ch;
+  }
+
+  /** Plain-text version for pasting into Reddit, Discord, etc. */
+  function challengeToText(ch) {
+    const lines = [];
+    lines.push(`${ch.archetype.icon} ${ch.title}`);
+    lines.push(`${ch.difficultyName} · ${ch.seasons} season${ch.seasons === 1 ? '' : 's'} · ${ch.club.league} · Seed ${ch.seed}`);
+    lines.push('', ch.archetype.history || ch.archetype.desc, '', 'RULES');
+    ch.coreRules.concat(ch.rules).forEach((x) => lines.push(`- ${x.text}`));
+    lines.push('', 'ROADMAP');
+    ch.roadmap.forEach((s) => {
+      lines.push(`Season ${s.season}:`);
+      s.objectives.forEach((o) => lines.push(`  ${o.type === 'main' ? '•' : '+'} ${o.text}`));
+      s.events.forEach((e) => lines.push(`  ⚡ ${e}`));
+    });
+    lines.push('', `FINAL GOAL: ${ch.finalGoal}`, '', 'FAIL CONDITIONS');
+    ch.failConditions.forEach((f) => lines.push(`- ${f}`));
+    return lines.join('\n');
+  }
+
+  FC26.generator = {
+    createRng,
+    randomSeed,
+    generateChallenge,
+    rerollRule,
+    toShareKey,
+    fromShareKey,
+    challengeToText,
+    normalizeOptions,
+    money,
+    CLUBS,
+    DEFAULT_OPTIONS,
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/app.js */
+/* UI for the FC 26 Career Challenge Builder. */
+(function () {
+  'use strict';
+  const { data, content, generator: G } = window.FC26;
+
+  const STORE_KEY = 'fc26-challenges-v1';
+  const OPTIONS_KEY = 'fc26-options-v1';
+
+  const $ = (sel, el = document) => el.querySelector(sel);
+  const $$ = (sel, el = document) => Array.from(el.querySelectorAll(sel));
+
+  const state = {
+    challenge: null,
+    locks: { club: false, archetype: false, seasons: false, difficulty: false, rules: new Set() },
+  };
+
+  // ---------- Helpers ----------
+
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  }
+
+  function storageGet(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function storageSet(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const el = $('#toast');
+    el.textContent = msg;
+    el.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.hidden = true; }, 2200);
+  }
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+      ta.remove();
+      return ok;
+    }
+  }
+
+  function encodeKey(obj) {
+    const bytes = new TextEncoder().encode(JSON.stringify(obj));
+    let bin = '';
+    bytes.forEach((b) => { bin += String.fromCharCode(b); });
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function decodeKey(str) {
+    try {
+      const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/'));
+      const bytes = Uint8Array.from(bin, (ch) => ch.charCodeAt(0));
+      return JSON.parse(new TextDecoder().decode(bytes));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function shareUrl(ch) {
+    const url = new URL(window.location.href);
+    url.hash = 'c=' + encodeKey(G.toShareKey(ch));
+    return url.toString();
+  }
+
+  // ---------- Options form ----------
+
+  function populateOptions() {
+    const arch = $('#opt-archetype');
+    content.archetypes.forEach((a) => arch.add(new Option(`${a.icon} ${a.name}`, a.id)));
+
+    const club = $('#opt-club');
+    data.leagues.forEach((l) => {
+      const group = document.createElement('optgroup');
+      group.label = l.name;
+      l.clubs.map(([name]) => name).sort((a, b) => a.localeCompare(b)).forEach((name) => {
+        group.appendChild(new Option(`${window.FC26.heritage[name] ? '🏛️ ' : ''}${name}`, `${l.id}|${name}`));
+      });
+      club.appendChild(group);
+    });
+
+    const league = $('#opt-league');
+    data.leagues.forEach((l) => league.add(new Option(`${l.name} (${l.country})`, l.id)));
+
+    const seasons = $('#opt-seasons');
+    for (let i = 1; i <= 10; i++) seasons.add(new Option(String(i), String(i)));
+
+    const rules = $('#opt-rules');
+    for (let i = 0; i <= 6; i++) rules.add(new Option(String(i), String(i)));
+
+    const saved = storageGet(OPTIONS_KEY, null);
+    if (saved) {
+      const form = $('#options');
+      ['archetype', 'club', 'league', 'tier', 'seasons', 'ruleCount'].forEach((name) => {
+        const el = form.elements[name];
+        if (saved[name] != null && $$('option', el).some((o) => o.value === String(saved[name]))) el.value = String(saved[name]);
+      });
+      const radio = $(`input[name="difficulty"][value="${saved.difficulty}"]`, form);
+      if (radio) radio.checked = true;
+      form.elements.events.checked = saved.events !== false;
+    }
+  }
+
+  function readOptions() {
+    const form = $('#options');
+    const opts = {
+      difficulty: form.elements.difficulty.value,
+      archetype: form.elements.archetype.value,
+      club: form.elements.club.value,
+      league: form.elements.league.value,
+      tier: form.elements.tier.value,
+      seasons: form.elements.seasons.value,
+      ruleCount: form.elements.ruleCount.value,
+      events: form.elements.events.checked,
+    };
+    storageSet(OPTIONS_KEY, opts);
+    return opts;
+  }
+
+  // League and size filters don't apply once a specific club is chosen.
+  function syncClubFilters() {
+    const specific = $('#opt-club').value !== 'any';
+    $$('#club-filters select').forEach((el) => { el.disabled = specific; });
+    $('#club-filters').classList.toggle('is-disabled', specific);
+  }
+
+  // ---------- Generating ----------
+
+  function resetLocks() {
+    state.locks = { club: false, archetype: false, seasons: false, difficulty: false, rules: new Set() };
+  }
+
+  function currentLocks() {
+    const ch = state.challenge;
+    const { locks } = state;
+    if (!ch) return {};
+    return {
+      club: locks.club ? { name: ch.club.name, leagueId: ch.club.leagueId } : null,
+      archetypeId: locks.archetype ? ch.archetype.id : null,
+      seasons: locks.seasons ? ch.seasons : null,
+      difficulty: locks.difficulty ? ch.difficulty : null,
+      ruleIds: ch.rules.filter((r) => locks.rules.has(r.id)).map((r) => r.id),
+    };
+  }
+
+  function generate(seed, useLocks) {
+    const opts = readOptions();
+    const locks = useLocks ? currentLocks() : {};
+    state.challenge = G.generateChallenge(opts, seed || G.randomSeed(), locks);
+    if (!useLocks) resetLocks();
+    // Drop rule locks for rules that didn't survive (e.g. blocked by a new archetype).
+    const ids = new Set(state.challenge.rules.map((r) => r.id));
+    state.locks.rules.forEach((id) => { if (!ids.has(id)) state.locks.rules.delete(id); });
+    renderBuilder(true);
+  }
+
+  // ---------- Rendering ----------
+
+  const diffClass = (d) => `diff-${d}`;
+
+  function lockBtn(target, locked, id) {
+    return `<button type="button" class="icon-btn lock ${locked ? 'is-locked' : ''}" data-action="lock" data-target="${target}"${id ? ` data-id="${esc(id)}"` : ''} title="${locked ? 'Unlock' : 'Lock'}" aria-pressed="${locked}">${locked ? '🔒' : '🔓'}</button>`;
+  }
+
+  function stars(tier) {
+    return '★'.repeat(tier) + '<span class="star-off">' + '★'.repeat(5 - tier) + '</span>';
+  }
+
+  /**
+   * Render a challenge card.
+   * mode 'builder' shows lock/reroll controls; mode 'saved' shows progress checkboxes.
+   */
+  function renderCard(ch, mode, entry) {
+    const builder = mode === 'builder';
+    const progress = (entry && entry.progress) || {};
+    const L = state.locks;
+
+    const check = (key) => (mode === 'saved'
+      ? `<input type="checkbox" class="obj-check" data-action="toggle" data-key="${esc(key)}" ${progress[key] ? 'checked' : ''} aria-label="Mark done">`
+      : '');
+
+    const rulesHtml = ch.coreRules.map((r) => `
+        <li class="rule core"><span class="rule-tag">Core</span><span class="rule-text">${esc(r.text)}</span></li>`).join('')
+      + ch.rules.map((r, i) => `
+        <li class="rule ${builder && L.rules.has(r.id) ? 'is-locked' : ''}">
+          <span class="rule-tag cat-${esc(r.cat.toLowerCase())}">${esc(r.cat)}</span>
+          <span class="rule-text">${esc(r.text)}</span>
+          ${builder ? `<span class="rule-actions">
+            <button type="button" class="icon-btn" data-action="reroll-rule" data-index="${i}" title="Swap this rule">🔄</button>
+            ${lockBtn('rule', L.rules.has(r.id), r.id)}
+          </span>` : ''}
+        </li>`).join('');
+
+    const roadmapHtml = ch.roadmap.map((s) => `
+      <li class="season">
+        <div class="season-num"><span>S${s.season}</span></div>
+        <div class="season-body">
+          ${s.objectives.map((o, i) => `
+            <label class="objective ${o.type}">
+              ${check(`s${s.season}-${i}`)}
+              <span class="obj-icon">${o.type === 'main' ? '🎯' : '➕'}</span>
+              <span>${esc(o.text)}</span>
+            </label>`).join('')}
+          ${s.events.map((e) => `<div class="event"><span class="obj-icon">⚡</span><span>${esc(e)}</span></div>`).join('')}
+        </div>
+      </li>`).join('');
+
+    return `
+    <article class="card panel ${diffClass(ch.difficulty)}">
+      <header class="card-head">
+        <div class="arch-icon">${esc(ch.archetype.icon)}</div>
+        <div class="card-title">
+          <div class="eyebrow">
+            ${ch.archetype.history ? `${esc(ch.archetype.typeName)} · ` : ''}${esc(ch.archetype.name)}
+            ${builder ? lockBtn('archetype', L.archetype) : ''}
+          </div>
+          <h2>${esc(ch.club.name)}</h2>
+          <p class="tagline">${esc(ch.archetype.tagline)}</p>
+        </div>
+        <div class="badges">
+          <span class="badge-row">${builder ? lockBtn('difficulty', L.difficulty) : ''}<span class="badge diff">${esc(ch.difficultyName)}</span></span>
+          <span class="badge seed" title="Seed">#${esc(ch.seed)}</span>
+        </div>
+      </header>
+
+      ${ch.notes && ch.notes.length ? `<div class="notes">${ch.notes.map((n) => `<p>ℹ️ ${esc(n)}</p>`).join('')}</div>` : ''}
+
+      <div class="facts">
+        <div class="fact">
+          <span class="fact-label">Club ${builder ? lockBtn('club', L.club) : ''}</span>
+          <span class="fact-value">${esc(ch.club.name)}</span>
+          <span class="fact-sub">${esc(ch.club.league)} · ${esc(ch.club.country)}</span>
+        </div>
+        <div class="fact">
+          <span class="fact-label">Club size</span>
+          <span class="fact-value stars" title="${esc(ch.club.tierName)}">${stars(ch.club.tier)}</span>
+          <span class="fact-sub">${esc(ch.club.tierName)}</span>
+        </div>
+        <div class="fact">
+          <span class="fact-label">Length ${builder ? lockBtn('seasons', L.seasons) : ''}</span>
+          <span class="fact-value">${ch.seasons}</span>
+          <span class="fact-sub">season${ch.seasons === 1 ? '' : 's'}</span>
+        </div>
+      </div>
+
+      ${ch.archetype.history
+    ? `<section class="history"><h3>📖 The history</h3><p>${esc(ch.archetype.history)}</p></section>`
+    : `<p class="desc">${esc(ch.archetype.desc)}</p>`}
+
+      <section class="block">
+        <h3>📜 Rules</h3>
+        <ul class="rules">${rulesHtml}</ul>
+      </section>
+
+      <section class="block">
+        <h3>🗺️ Season roadmap</h3>
+        <ol class="roadmap">${roadmapHtml}</ol>
+      </section>
+
+      <section class="block final">
+        <h3>🏆 Final goal</h3>
+        <label class="objective final-goal">${check('final')}<span>${esc(ch.finalGoal)}</span></label>
+      </section>
+
+      <div class="grid-2">
+        <section class="block">
+          <h3>💀 Fail conditions</h3>
+          <ul class="plain">${ch.failConditions.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>
+        </section>
+        <section class="block">
+          <h3>⚙️ Suggested settings</h3>
+          <dl class="settings">${ch.settings.map((s) => `<dt>${esc(s.label)}</dt><dd>${esc(s.value)}</dd>`).join('')}</dl>
+        </section>
+      </div>
+
+      ${mode === 'saved' ? renderScore(ch, entry) : `
+      <section class="block">
+        <h3>🧮 Scoring</h3>
+        <ul class="scoring">${ch.scoring.map((s) => `<li><span>${esc(s.label)}</span><strong class="${s.points < 0 ? 'neg' : 'pos'}">${s.points > 0 ? '+' : ''}${s.points}</strong></li>`).join('')}</ul>
+      </section>`}
+
+      <footer class="card-actions">
+        ${builder ? `
+          <button type="button" class="btn btn-primary" data-action="reroll">🎲 Reroll unlocked</button>
+          <button type="button" class="btn" data-action="save">💾 Save</button>` : ''}
+        <button type="button" class="btn" data-action="copy">📋 Copy text</button>
+        <button type="button" class="btn" data-action="share">🔗 Share link</button>
+        ${mode === 'saved' ? '<button type="button" class="btn btn-danger" data-action="delete">🗑️ Delete</button>' : ''}
+      </footer>
+    </article>`;
+  }
+
+  function scoreFor(ch, entry) {
+    const p = entry.progress || {};
+    const pts = Object.fromEntries(ch.scoring.map((s) => [s.label, s.points]));
+    let total = 0;
+    ch.roadmap.forEach((s) => s.objectives.forEach((o, i) => {
+      if (p[`s${s.season}-${i}`]) total += o.type === 'main' ? pts['Main season objective'] : pts['Side objective'];
+    }));
+    if (p.final) total += pts['Final goal achieved'];
+    total += (entry.trophies || 0) * pts['Major trophy won'];
+    total += (entry.breaks || 0) * pts['Rule broken'];
+    return total;
+  }
+
+  function renderScore(ch, entry) {
+    const rulePts = ch.scoring.find((s) => s.label === 'Rule broken').points;
+    return `
+      <section class="block scoreboard">
+        <h3>🧮 Scoreboard</h3>
+        <div class="score-row">
+          <div class="counter">
+            <span>🏆 Trophies (+15)</span>
+            <div><button type="button" class="icon-btn" data-action="count" data-field="trophies" data-delta="-1">−</button>
+            <strong>${entry.trophies || 0}</strong>
+            <button type="button" class="icon-btn" data-action="count" data-field="trophies" data-delta="1">+</button></div>
+          </div>
+          <div class="counter">
+            <span>🚫 Rules broken (${rulePts})</span>
+            <div><button type="button" class="icon-btn" data-action="count" data-field="breaks" data-delta="-1">−</button>
+            <strong>${entry.breaks || 0}</strong>
+            <button type="button" class="icon-btn" data-action="count" data-field="breaks" data-delta="1">+</button></div>
+          </div>
+          <div class="counter total"><span>Total score</span><strong>${scoreFor(ch, entry)}</strong></div>
+        </div>
+      </section>`;
+  }
+
+  function renderBuilder(scroll) {
+    const el = $('#result');
+    el.innerHTML = renderCard(state.challenge, 'builder');
+    if (scroll && window.innerWidth < 900) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ---------- Saved challenges ----------
+
+  const loadSaved = () => storageGet(STORE_KEY, []).filter((e) => e && e.challenge && e.id);
+  const writeSaved = (list) => storageSet(STORE_KEY, list);
+
+  function progressOf(entry) {
+    const ch = entry.challenge;
+    const total = ch.roadmap.reduce((n, s) => n + s.objectives.length, 0) + 1;
+    const done = Object.values(entry.progress || {}).filter(Boolean).length;
+    return { done: Math.min(done, total), total };
+  }
+
+  function renderSaved(openId) {
+    const list = loadSaved();
+    $('#saved-count').textContent = list.length;
+    const el = $('#saved-list');
+    if (!list.length) {
+      el.innerHTML = '<div class="panel empty"><div class="empty-ball">📂</div><h2>No saved challenges yet</h2><p>Generate one in the Builder and hit 💾 Save.</p></div>';
+      return;
+    }
+    el.innerHTML = list.map((entry) => {
+      const ch = entry.challenge;
+      const { done, total } = progressOf(entry);
+      const pct = Math.round((done / total) * 100);
+      return `
+      <details class="saved-item panel" data-id="${esc(entry.id)}" ${entry.id === openId ? 'open' : ''}>
+        <summary>
+          <span class="arch-icon small">${esc(ch.archetype.icon)}</span>
+          <span class="saved-title">
+            <strong>${esc(ch.title)}</strong>
+            <small>${esc(ch.difficultyName)} · ${ch.seasons} seasons · saved ${esc(new Date(entry.savedAt).toLocaleDateString())}</small>
+          </span>
+          <span class="progress" title="${done}/${total} objectives">
+            <span class="progress-bar"><span style="width:${pct}%"></span></span>
+            <small>${done}/${total} · ${scoreFor(ch, entry)} pts</small>
+          </span>
+        </summary>
+        <div class="saved-body">${renderCard(ch, 'saved', entry)}</div>
+      </details>`;
+    }).join('');
+  }
+
+  function saveCurrent() {
+    const list = loadSaved();
+    const ch = state.challenge;
+    const key = JSON.stringify(G.toShareKey(ch));
+    if (list.some((e) => JSON.stringify(G.toShareKey(e.challenge)) === key)) {
+      toast('Already in My Challenges');
+      return;
+    }
+    const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+    list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, trophies: 0, breaks: 0 });
+    if (writeSaved(list)) {
+      $('#saved-count').textContent = list.length;
+      toast('Saved to My Challenges 💾');
+    } else {
+      toast("Couldn't save — browser storage is unavailable");
+    }
+  }
+
+  function updateEntry(id, fn) {
+    const list = loadSaved();
+    const entry = list.find((e) => e.id === id);
+    if (!entry) return;
+    fn(entry);
+    writeSaved(list);
+    renderSaved(id);
+  }
+
+  // ---------- Events ----------
+
+  function showView(view) {
+    $$('.tab').forEach((t) => {
+      const active = t.dataset.view === view;
+      t.classList.toggle('is-active', active);
+      t.setAttribute('aria-selected', String(active));
+    });
+    $('#view-builder').hidden = view !== 'builder';
+    $('#view-saved').hidden = view !== 'saved';
+    if (view === 'saved') renderSaved();
+  }
+
+  async function shareChallenge(ch) {
+    // A link to a file on this device is useless to anyone else.
+    if (window.location.protocol === 'file:') {
+      const ok = await copyText(G.challengeToText(ch));
+      toast(ok ? 'Share links need the hosted version, so the challenge text was copied instead 📋' : 'Share links need the hosted version');
+      return;
+    }
+    const url = shareUrl(ch);
+    if (navigator.share && window.matchMedia('(pointer: coarse)').matches) {
+      try {
+        await navigator.share({ title: ch.title, text: `FC 26 career challenge: ${ch.title}`, url });
+        return;
+      } catch (e) { /* fall back to copying */ }
+    }
+    toast((await copyText(url)) ? 'Share link copied 🔗' : url);
+  }
+
+  function onBuilderClick(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn || !state.challenge) return;
+    const { action } = btn.dataset;
+    const L = state.locks;
+    if (action === 'lock') {
+      const t = btn.dataset.target;
+      if (t === 'rule') {
+        if (L.rules.has(btn.dataset.id)) L.rules.delete(btn.dataset.id);
+        else L.rules.add(btn.dataset.id);
+      } else {
+        L[t] = !L[t];
+      }
+      renderBuilder();
+    } else if (action === 'reroll') {
+      generate(G.randomSeed(), true);
+    } else if (action === 'reroll-rule') {
+      const i = Number(btn.dataset.index);
+      const oldId = state.challenge.rules[i].id;
+      const next = G.rerollRule(state.challenge, i);
+      if (next.rules[i].id === oldId) {
+        toast('No other rule fits here');
+        return;
+      }
+      L.rules.delete(oldId);
+      state.challenge = next;
+      renderBuilder();
+    } else if (action === 'save') {
+      saveCurrent();
+    } else if (action === 'copy') {
+      copyText(G.challengeToText(state.challenge)).then((ok) => toast(ok ? 'Copied to clipboard 📋' : 'Copy failed'));
+    } else if (action === 'share') {
+      shareChallenge(state.challenge);
+    }
+  }
+
+  function onSavedClick(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const item = btn.closest('.saved-item');
+    if (!item) return;
+    const { id } = item.dataset;
+    const entry = loadSaved().find((x) => x.id === id);
+    if (!entry) return;
+    const { action } = btn.dataset;
+    if (action === 'toggle') {
+      updateEntry(id, (en) => {
+        en.progress = en.progress || {};
+        en.progress[btn.dataset.key] = btn.checked;
+      });
+    } else if (action === 'count') {
+      updateEntry(id, (en) => {
+        const f = btn.dataset.field;
+        en[f] = Math.max(0, (en[f] || 0) + Number(btn.dataset.delta));
+      });
+    } else if (action === 'delete') {
+      if (window.confirm(`Delete "${entry.challenge.title}"?`)) {
+        writeSaved(loadSaved().filter((x) => x.id !== id));
+        renderSaved();
+        toast('Challenge deleted');
+      }
+    } else if (action === 'copy') {
+      copyText(G.challengeToText(entry.challenge)).then((ok) => toast(ok ? 'Copied to clipboard 📋' : 'Copy failed'));
+    } else if (action === 'share') {
+      shareChallenge(entry.challenge);
+    }
+  }
+
+  function loadFromHash() {
+    const m = window.location.hash.match(/^#c=([A-Za-z0-9_-]+)$/);
+    if (!m) return false;
+    const key = decodeKey(m[1]);
+    const ch = key && G.fromShareKey(key);
+    if (!ch) {
+      toast("That share link couldn't be read");
+      return false;
+    }
+    state.challenge = ch;
+    resetLocks();
+    renderBuilder();
+    toast('Loaded shared challenge');
+    return true;
+  }
+
+  function init() {
+    populateOptions();
+    syncClubFilters();
+    $('#opt-club').addEventListener('change', syncClubFilters);
+    $('#options').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const seed = $('#opt-seed').value.trim();
+      generate(seed || null, false);
+      if (window.location.hash) history.replaceState(null, '', window.location.pathname + window.location.search);
+    });
+    $('#result').addEventListener('click', onBuilderClick);
+    $('#saved-list').addEventListener('click', onSavedClick);
+    $$('.tab').forEach((t) => t.addEventListener('click', () => showView(t.dataset.view)));
+    window.addEventListener('hashchange', loadFromHash);
+    $('#saved-count').textContent = loadSaved().length;
+    loadFromHash();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

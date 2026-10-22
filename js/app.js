@@ -440,6 +440,12 @@
   }
 
   async function shareChallenge(ch) {
+    // A link to a file on this device is useless to anyone else.
+    if (window.location.protocol === 'file:') {
+      const ok = await copyText(G.challengeToText(ch));
+      toast(ok ? 'Share links need the hosted version, so the challenge text was copied instead 📋' : 'Share links need the hosted version');
+      return;
+    }
     const url = shareUrl(ch);
     if (navigator.share && window.matchMedia('(pointer: coarse)').matches) {
       try {

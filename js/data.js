@@ -148,6 +148,86 @@
         ['Al Kholood', 1], ['Al Okhdood', 1], ['Damac', 1], ['Al Hazem', 1], ['Al Najma', 1], ['NEOM SC', 1],
       ],
     },
+    {
+      id: 'ger2', name: '2. Bundesliga', country: 'Germany', nationality: 'German', level: 2, cup: 'DFB-Pokal',
+      clubs: [
+        ['FC Schalke 04', 2], ['Hertha BSC', 2], ['Hannover 96', 1], ['1. FC Kaiserslautern', 1],
+        ['Fortuna Düsseldorf', 1], ['1. FC Nürnberg', 1], ['Karlsruher SC', 1], ['SC Paderborn 07', 1],
+        ['SV Darmstadt 98', 1], ['1. FC Magdeburg', 1], ['SV Elversberg', 1], ['Holstein Kiel', 1],
+        ['VfL Bochum', 1], ['SpVgg Greuther Fürth', 1], ['Preußen Münster', 1], ['Eintracht Braunschweig', 1],
+        ['Arminia Bielefeld', 1], ['Dynamo Dresden', 1],
+      ],
+    },
+    {
+      id: 'ita2', name: 'Serie B', noArticle: true, country: 'Italy', nationality: 'Italian', level: 2, cup: 'Coppa Italia',
+      clubs: [
+        ['Monza', 2], ['Palermo', 2], ['Venezia', 1], ['Empoli', 1], ['Sampdoria', 1], ['Bari', 1],
+        ['Spezia', 1], ['Modena', 1], ['Cesena', 1], ['Catanzaro', 1], ['Juve Stabia', 1], ['Südtirol', 1],
+        ['Carrarese', 1], ['Reggiana', 1], ['Mantova', 1], ['Frosinone', 1], ['Padova', 1],
+        ['Virtus Entella', 1], ['Avellino', 1], ['Pescara', 1],
+      ],
+    },
+    {
+      id: 'esp2', name: 'LALIGA HYPERMOTION', noArticle: true, country: 'Spain', nationality: 'Spanish', level: 2, cup: 'Copa del Rey',
+      clubs: [
+        ['UD Las Palmas', 1], ['CD Leganés', 1], ['Real Valladolid', 1], ['Deportivo de La Coruña', 1],
+        ['Sporting Gijón', 1], ['Racing Santander', 1], ['Málaga CF', 1], ['Real Zaragoza', 1],
+        ['UD Almería', 1], ['Cádiz CF', 1], ['SD Eibar', 1], ['Granada CF', 1], ['SD Huesca', 1],
+        ['CD Mirandés', 1], ['Albacete', 1], ['Burgos CF', 1], ['CD Castellón', 1], ['Córdoba CF', 1],
+        ['FC Andorra', 1], ['AD Ceuta', 1], ['Cultural Leonesa', 1], ['Real Sociedad B', 1],
+      ],
+    },
+    {
+      id: 'fra2', name: 'Ligue 2', noArticle: true, country: 'France', nationality: 'French', level: 2, cup: 'Coupe de France',
+      clubs: [
+        ['AS Saint-Étienne', 2], ['Montpellier HSC', 1], ['Stade de Reims', 1], ['SC Bastia', 1],
+        ['EA Guingamp', 1], ['Stade Lavallois', 1], ['FC Annecy', 1], ['Grenoble Foot 38', 1],
+        ['Amiens SC', 1], ['Pau FC', 1], ['Rodez AF', 1], ['Red Star FC', 1], ['ES Troyes AC', 1],
+        ['Clermont Foot', 1], ['USL Dunkerque', 1], ['Le Mans FC', 1], ['AS Nancy Lorraine', 1], ['US Boulogne', 1],
+      ],
+    },
+    {
+      id: 'bel1', name: 'Belgian Pro League', country: 'Belgium', nationality: 'Belgian', level: 1, cup: 'Belgian Cup',
+      clubs: [
+        ['Club Brugge', 3], ['Union Saint-Gilloise', 3], ['RSC Anderlecht', 3], ['KRC Genk', 3],
+        ['Royal Antwerp', 2], ['KAA Gent', 2], ['Standard Liège', 2], ['KV Mechelen', 1], ['KVC Westerlo', 1],
+        ['Cercle Brugge', 1], ['Sporting Charleroi', 1], ['OH Leuven', 1], ['Sint-Truidense VV', 1],
+        ['FCV Dender EH', 1], ['RAAL La Louvière', 1], ['SV Zulte Waregem', 1],
+      ],
+    },
+    {
+      id: 'tur1', name: 'Süper Lig', country: 'Türkiye', nationality: 'Turkish', level: 1, cup: 'Turkish Cup',
+      clubs: [
+        ['Galatasaray', 4], ['Fenerbahçe', 4], ['Beşiktaş', 3], ['Trabzonspor', 3], ['Başakşehir', 2],
+        ['Samsunspor', 2], ['Göztepe', 2], ['Eyüpspor', 1], ['Kasımpaşa', 1], ['Kocaelispor', 1],
+        ['Gençlerbirliği', 1], ['Konyaspor', 1], ['Antalyaspor', 1], ['Alanyaspor', 1], ['Kayserispor', 1],
+        ['Çaykur Rizespor', 1], ['Gaziantep FK', 1], ['Fatih Karagümrük', 1],
+      ],
+    },
+    {
+      id: 'nor1', name: 'Eliteserien', noArticle: true, country: 'Norway', nationality: 'Norwegian', level: 1, cup: 'Norwegian Cup',
+      clubs: [
+        ['Bodø/Glimt', 2], ['Brann', 1], ['Viking', 1], ['Rosenborg', 1], ['Molde', 1], ['Fredrikstad', 1],
+        ['Sarpsborg 08', 1], ['Vålerenga', 1], ['Tromsø', 1], ['Sandefjord', 1], ['HamKam', 1],
+        ['KFUM Oslo', 1], ['Strømsgodset', 1], ['Kristiansund', 1], ['Haugesund', 1], ['Bryne', 1],
+      ],
+    },
+    {
+      id: 'den1', name: 'Danish Superliga', country: 'Denmark', nationality: 'Danish', level: 1, cup: 'Danish Cup',
+      clubs: [
+        ['FC Copenhagen', 2], ['FC Midtjylland', 2], ['Brøndby IF', 2], ['AGF', 1], ['FC Nordsjælland', 1],
+        ['Randers FC', 1], ['Silkeborg IF', 1], ['Viborg FF', 1], ['OB', 1], ['Vejle BK', 1],
+        ['FC Fredericia', 1], ['Sønderjyske', 1],
+      ],
+    },
+    {
+      id: 'aut1', name: 'Austrian Bundesliga', country: 'Austria', nationality: 'Austrian', level: 1, cup: 'ÖFB Cup',
+      clubs: [
+        ['Red Bull Salzburg', 3], ['Sturm Graz', 2], ['Rapid Wien', 2], ['Austria Wien', 1], ['LASK', 1],
+        ['Wolfsberger AC', 1], ['TSV Hartberg', 1], ['Blau-Weiß Linz', 1], ['SCR Altach', 1], ['SV Ried', 1],
+        ['WSG Tirol', 1], ['Grazer AK', 1],
+      ],
+    },
   ];
 
   const nations = [
