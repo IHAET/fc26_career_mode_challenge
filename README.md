@@ -5,7 +5,7 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 ## Features
 
 - **13 challenge types**: Road to Glory, Youth Revolution, Moneyball, Fallen Giant, Homegrown Heroes, Loan Army, Journeyman, Galácticos, Underdog in Europe, One Nation, Dad's Army, Wonderkid Factory and Pure Chaos.
-- **~280 clubs** from 13 leagues (2025/26 season): Premier League down to League Two, LALIGA, Serie A, Bundesliga, Ligue 1, Eredivisie, Liga Portugal, Scottish Premiership, MLS and the Saudi league.
+- **264 clubs** from 13 leagues (2025/26 season): Premier League down to League Two, LALIGA, Serie A, Bundesliga, Ligue 1, Eredivisie, Liga Portugal, Scottish Premiership, MLS and the Saudi league.
 - **4 difficulties** (Casual → Legendary) that scale fee caps, wage caps, rating limits, number of rules, season targets, events and fail conditions to the club's size and division.
 - **Lock & reroll**: lock the club, challenge type, length, difficulty or any rule, then reroll everything else. You can also swap a single rule.
 - **Seeds**: the same seed and options always give the same challenge.
