@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FC 26 Career Challenge Builder</title>
+  <meta name="description" content="Generate random EA SPORTS FC 26 Career Mode challenges: clubs, rules, season objectives and random events.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">FC26</span>
+      <div>
+        <h1>Career Challenge Builder</h1>
+        <p class="brand-sub">Random career mode challenges for EA SPORTS FC 26</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab is-active" role="tab" data-view="builder" aria-selected="true">Builder</button>
+      <button class="tab" role="tab" data-view="saved" aria-selected="false">My Challenges <span class="count" id="saved-count">0</span></button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="view-builder" class="view builder">
+      <form id="options" class="panel options" autocomplete="off">
+        <h2>Options</h2>
+
+        <fieldset>
+          <legend>Difficulty</legend>
+          <div class="segmented" id="difficulty">
+            <label><input type="radio" name="difficulty" value="random" checked><span>🎲 Any</span></label>
+            <label><input type="radio" name="difficulty" value="1"><span>Casual</span></label>
+            <label><input type="radio" name="difficulty" value="2"><span>Pro</span></label>
+            <label><input type="radio" name="difficulty" value="3"><span>World Class</span></label>
+            <label><input type="radio" name="difficulty" value="4"><span>Legendary</span></label>
+          </div>
+        </fieldset>
+
+        <label class="field">
+          <span>Challenge type</span>
+          <select name="archetype" id="opt-archetype"><option value="any">🎲 Surprise me</option></select>
+        </label>
+
+        <div class="field-row">
+          <label class="field">
+            <span>League</span>
+            <select name="league" id="opt-league"><option value="any">Any league</option></select>
+          </label>
+          <label class="field">
+            <span>Club size</span>
+            <select name="tier" id="opt-tier">
+              <option value="any">Any size</option>
+              <option value="5">Giant</option>
+              <option value="4">Strong</option>
+              <option value="3">Mid-table</option>
+              <option value="2">Underdog</option>
+              <option value="1">Minnow</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field-row">
+          <label class="field">
+            <span>Seasons</span>
+            <select name="seasons" id="opt-seasons"><option value="auto">Auto</option></select>
+          </label>
+          <label class="field">
+            <span>Extra rules</span>
+            <select name="ruleCount" id="opt-rules"><option value="auto">Auto</option></select>
+          </label>
+        </div>
+
+        <label class="toggle">
+          <input type="checkbox" name="events" checked>
+          <span>Random season events ⚡</span>
+        </label>
+
+        <label class="field">
+          <span>Seed <small>(same seed + options = same challenge)</small></span>
+          <input type="text" name="seed" id="opt-seed" placeholder="Leave blank for random" maxlength="32" spellcheck="false">
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-big">⚽ Generate challenge</button>
+        <p class="hint">Lock 🔒 the parts you like, then hit <strong>Reroll</strong> to change the rest.</p>
+      </form>
+
+      <div class="result" id="result" aria-live="polite">
+        <div class="empty panel">
+          <div class="empty-ball">⚽</div>
+          <h2>Ready when you are, gaffer.</h2>
+          <p>Pick some options (or don't) and generate your first FC 26 career mode challenge.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-saved" class="view saved" hidden>
+      <div class="saved-head">
+        <h2>My Challenges</h2>
+        <p class="muted">Saved on this device. Tick objectives off as you go.</p>
+      </div>
+      <div id="saved-list" class="saved-list"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Fan-made tool, not affiliated with EA SPORTS. Club list based on the 2025/26 season; club sizes are approximate.
+  </footer>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/rules.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
