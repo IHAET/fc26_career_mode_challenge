@@ -1004,6 +1004,8 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
   .sr-fit { white-space: normal; }
   .sr-actions .btn { flex: 1; }
 }
+.btn.btn-spotify-soft { border-color: rgba(30, 215, 96, 0.45); color: var(--sp-on); background: rgba(30, 215, 96, 0.1); }
+.btn.btn-spotify-soft:hover { background: rgba(30, 215, 96, 0.18); }
 </style>
   <script>
     // Theme before first paint: the saved choice, else the system's.
@@ -7029,6 +7031,7 @@ Aleksei Miranchuk|Russian|CAM
             <select data-tracker="season" aria-label="Current season">${opts(Array.from({ length: seasons }, (_, i) => [i + 1, `Season ${i + 1}`]), t.season)}</select>
             ${isPlayer(entry) ? '' : `<select data-tracker="window" aria-label="Current transfer window">${opts([['summer', 'Summer window'], ['winter', 'January window']], t.window)}</select>`}
           </span>
+          <button type="button" class="btn btn-small btn-spotify-soft" data-action="open-soundtrack" title="Make a Spotify playlist for this save">🎧 Soundtrack</button>
           <div class="tracker-tabs" role="tablist">
             ${tabBtn('challenge', '📋 Challenge')}
             ${isPlayer(entry)
@@ -10431,6 +10434,11 @@ Aleksei Miranchuk|Russian|CAM
       showView('transfers');
     } else if (action === 'soundtrack') {
       openSoundtrack(item);
+    } else if (action === 'open-soundtrack') {
+      // From the bar on any tab: show the challenge and open its soundtrack panel.
+      const tab = $('.ttab[data-tab="challenge"]', item);
+      if (tab && !tab.classList.contains('is-active')) tab.click();
+      openSoundtrack(item, true);
     } else if (action === 'delete') {
       if (window.confirm(`Delete "${entry.challenge.title}"?`)) {
         writeSaved(loadSaved().filter((x) => x.id !== id));

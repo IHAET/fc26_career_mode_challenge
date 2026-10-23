@@ -992,3 +992,5 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
   .sr-fit { white-space: normal; }
   .sr-actions .btn { flex: 1; }
 }
+.btn.btn-spotify-soft { border-color: rgba(30, 215, 96, 0.45); color: var(--sp-on); background: rgba(30, 215, 96, 0.1); }
+.btn.btn-spotify-soft:hover { background: rgba(30, 215, 96, 0.18); }

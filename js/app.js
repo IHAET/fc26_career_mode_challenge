@@ -1385,6 +1385,11 @@
       showView('transfers');
     } else if (action === 'soundtrack') {
       openSoundtrack(item);
+    } else if (action === 'open-soundtrack') {
+      // From the bar on any tab: show the challenge and open its soundtrack panel.
+      const tab = $('.ttab[data-tab="challenge"]', item);
+      if (tab && !tab.classList.contains('is-active')) tab.click();
+      openSoundtrack(item, true);
     } else if (action === 'delete') {
       if (window.confirm(`Delete "${entry.challenge.title}"?`)) {
         writeSaved(loadSaved().filter((x) => x.id !== id));
