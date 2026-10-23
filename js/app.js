@@ -830,24 +830,143 @@
     return { done: Math.min(done, total), total };
   }
 
+  // ---------- My Challenges: dashboard, search, achievements, backups ----------
+
+  const fold = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+  /** The saves the search box, filter and sort currently show. */
+  function filterSaved(list) {
+    const q = fold($('#saved-search').value.trim());
+    const filter = $('#saved-filter').value;
+    const sort = $('#saved-sort').value;
+    const pct = (e) => { const p = progressOf(e); return p.done / p.total; };
+    const shown = list.filter((e) => {
+      const ch = e.challenge;
+      if (q && !fold([ch.title, ch.club.name, ch.club.league, ch.archetype.name, ch.difficultyName].join(' ')).includes(q)) return false;
+      const finished = currentSeason(e) === 'Finished';
+      return filter === 'all' || (filter === 'active' && !finished) || (filter === 'finished' && finished)
+        || (filter === 'manager' && ch.mode !== 'player') || (filter === 'player' && ch.mode === 'player') || (filter === 'daily' && ch.daily);
+    });
+    const by = {
+      new: (a, b) => (b.savedAt || 0) - (a.savedAt || 0),
+      old: (a, b) => (a.savedAt || 0) - (b.savedAt || 0),
+      progress: (a, b) => pct(b) - pct(a),
+      score: (a, b) => scoreFor(b.challenge, b) - scoreFor(a.challenge, a),
+      name: (a, b) => a.challenge.title.localeCompare(b.challenge.title),
+    };
+    return shown.sort(by[sort] || by.new);
+  }
+
+  function renderDashboard(list) {
+    const stats = $('#saved-stats');
+    stats.hidden = !list.length;
+    if (list.length) {
+      const trophies = list.reduce((n, e) => n + trophiesOf(e), 0);
+      const ticked = list.reduce((n, e) => n + progressOf(e).done, 0);
+      const moves = list.reduce((n, e) => n + ((e.tracker && e.tracker.transfers) || []).length, 0);
+      const finished = list.filter((e) => currentSeason(e) === 'Finished').length;
+      const best = Math.max(0, ...list.map((e) => scoreFor(e.challenge, e)));
+      stats.innerHTML = [['📂', list.length, 'challenges'], ['🏁', finished, 'finished'], ['✅', ticked, 'objectives ticked'],
+        ['🏆', trophies, 'trophies'], ['🔁', moves, 'transfers logged'], ['⭐', best, 'best score']]
+        .map(([icon, v, label]) => `<div class="stat"><span class="stat-icon">${icon}</span><strong>${v}</strong><small>${label}</small></div>`).join('');
+    }
+    const box = $('#achievements');
+    const all = window.FC26.achievements.evaluate(list, {
+      broken: (e) => Compliance.tally(Compliance.checkChallenge(e.challenge, e.tracker)).broken,
+      dailyBest: Daily.streak(loadCheckins(), Daily.dateKey()).best,
+    });
+    const won = all.filter((a) => a.unlocked).length;
+    box.innerHTML = `
+      <summary><span>🏅 Achievements</span><span class="ach-count">${won} / ${all.length}</span>
+        <span class="progress-bar ach-bar"><span style="width:${Math.round((won / all.length) * 100)}%"></span></span></summary>
+      <div class="ach-grid">${all.map((a) => `
+        <div class="ach ${a.unlocked ? 'is-won' : ''}" title="${esc(a.desc)}">
+          <span class="ach-icon" aria-hidden="true">${a.unlocked ? a.icon : '🔒'}</span>
+          <span class="ach-text"><strong>${esc(a.name)}</strong><small>${esc(a.desc)}${!a.unlocked && a.progress ? ` (${a.progress.have}/${a.progress.need})` : ''}</small></span>
+        </div>`).join('')}</div>`;
+  }
+
   function renderSaved(openId) {
     const list = loadSaved();
     $('#saved-count').textContent = list.length;
+    renderDashboard(list);
+    $('#saved-filters').hidden = list.length < 2;
     const el = $('#saved-list');
     if (!list.length) {
-      el.innerHTML = '<div class="panel empty"><div class="empty-ball">📂</div><h2>No saved challenges yet</h2><p>Generate one in the Builder and hit 💾 Save.</p></div>';
+      el.innerHTML = '<div class="panel empty"><div class="empty-ball">📂</div><h2>No saved challenges yet</h2><p>Generate one in the Builder and hit 💾 Save, or restore a backup.</p></div>';
       return;
     }
-    el.innerHTML = list.map((entry) => {
+    let shown = filterSaved(list);
+    // Opening a particular challenge clears a search that would hide it.
+    if (openId && !shown.some((e) => e.id === openId)) {
+      $('#saved-search').value = '';
+      $('#saved-filter').value = 'all';
+      shown = filterSaved(list);
+    }
+    if (!shown.length) {
+      el.innerHTML = '<div class="panel empty-note">No challenges match. <button type="button" class="link-btn" data-clear-filters>Show them all</button></div>';
+      return;
+    }
+    el.innerHTML = shown.map((entry) => {
       const ch = entry.challenge;
-      const { done, total } = progressOf(entry);
-      const pct = Math.round((done / total) * 100);
       return `
       <details class="saved-item panel" data-id="${esc(entry.id)}" data-club="${esc(ch.club.name)}" ${entry.id === openId ? 'open' : ''}>
         <summary>${savedSummary(entry)}</summary>
         <div class="saved-body">${Tracker.renderTracker(entry, renderCard(ch, 'saved', entry))}</div>
       </details>`;
     }).join('');
+  }
+
+  function exportBackup() {
+    const data = {
+      app: 'fc26-challenge-builder', v: 1, exported: new Date().toISOString(),
+      entries: loadSaved(), deleted: storageGet(DELETED_KEY, {}), known: storageGet(KNOWN_KEY, []),
+    };
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));
+    a.download = `fc26-challenges-${Daily.dateKey()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    toast(`Backed up ${data.entries.length} challenge${data.entries.length === 1 ? '' : 's'} ⬇️`);
+  }
+
+  // A well-formed saved challenge keeps everything; anything odd goes through the same clean-up as edited share links.
+  function importedChallenge(c) {
+    const ok = c && typeof c.title === 'string' && c.club && typeof c.club.name === 'string' && c.archetype && typeof c.archetype.name === 'string'
+      && Array.isArray(c.rules) && Array.isArray(c.coreRules) && Array.isArray(c.scoring) && Array.isArray(c.roadmap) && c.roadmap.length
+      && c.roadmap.every((s) => s && Array.isArray(s.objectives) && Array.isArray(s.events));
+    return ok ? c : G.sanitizeChallenge(c);
+  }
+
+  async function importBackup(file) {
+    let data = null;
+    try { data = JSON.parse(await file.text()); } catch (err) { data = null; }
+    if (!data || data.app !== 'fc26-challenge-builder' || !Array.isArray(data.entries)) {
+      toast("That file isn't a backup from this app");
+      return;
+    }
+    const entries = data.entries.slice(0, 500)
+      .filter((e) => e && typeof e.id === 'string' && e.id && e.challenge && typeof e.challenge === 'object')
+      .map((e) => Object.assign({}, e, { id: e.id.slice(0, 40), savedAt: Number(e.savedAt) || Date.now(), challenge: importedChallenge(e.challenge) }))
+      .filter((e) => e.challenge)
+      .map(migrateEntry);
+    const known = (Array.isArray(data.known) ? data.known : []).filter((k) => k && typeof k.name === 'string')
+      .slice(0, 500).map((k) => ({ name: k.name.slice(0, 40), nat: String(k.nat || '').slice(0, 30), pos: String(k.pos || '').slice(0, 4) }));
+    const before = loadSaved();
+    // Restoring brings back challenges deleted here since the backup; newer copies here still win.
+    const deleted = storageGet(DELETED_KEY, {});
+    entries.forEach((e) => { delete deleted[e.id]; });
+    const merged = Account.mergeSaves({ entries: before, deleted, known: storageGet(KNOWN_KEY, []) }, { entries, deleted: {}, known });
+    storageSet(STORE_KEY, merged.entries);
+    storageSet(DELETED_KEY, merged.deleted);
+    storageSet(KNOWN_KEY, merged.known.slice(-500));
+    merged.known.forEach((k) => PlayerDB.addKnown(k.name, k.nat, k.pos));
+    Account.changed();
+    renderSaved();
+    const added = merged.entries.length - before.length;
+    toast(`Restored ${entries.length} challenge${entries.length === 1 ? '' : 's'} (${added} new) ⬆️`);
   }
 
   function savedSummary(entry) {
@@ -897,6 +1016,7 @@
     const panel = $('[data-panel="challenge"]', item);
     if (panel) panel.innerHTML = renderCard(entry.challenge, 'saved', entry);
     $('summary', item).innerHTML = savedSummary(entry);
+    renderDashboard(loadSaved());
   }
 
   // Diary text fields save without re-rendering, so typing isn't interrupted.
@@ -1337,7 +1457,24 @@
       if (window.location.hash) history.replaceState(null, '', window.location.pathname + window.location.search);
     });
     $('#result').addEventListener('click', onBuilderClick);
-    $('#saved-list').addEventListener('click', onSavedClick);
+    $('#saved-list').addEventListener('click', (e) => {
+      if (e.target.closest('[data-clear-filters]')) {
+        $('#saved-search').value = '';
+        $('#saved-filter').value = 'all';
+        renderSaved();
+        return;
+      }
+      onSavedClick(e);
+    });
+    $('#saved-search').addEventListener('input', () => renderSaved());
+    $('#saved-filter').addEventListener('change', () => renderSaved());
+    $('#saved-sort').addEventListener('change', () => renderSaved());
+    $('#backup-export').addEventListener('click', exportBackup);
+    $('#backup-import').addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) importBackup(file);
+      e.target.value = '';
+    });
     $('#view-daily').addEventListener('click', onDailyClick);
     $$('.tab').forEach((t) => t.addEventListener('click', () => showView(t.dataset.view)));
     window.addEventListener('hashchange', () => {

@@ -84,6 +84,65 @@
     return bits.join(' · ');
   }
 
+  // ---------- Starting XI on a pitch ----------
+
+  // Pitch lines from attack down to goal; within a line, left to right.
+  const LINES = [['LW', 'ST', 'CF', 'RW'], ['CAM'], ['LM', 'CM', 'RM'], ['CDM'], ['LWB', 'LB', 'CB', 'RB', 'RWB'], ['GK']];
+  const lineOf = (pos) => { const i = LINES.findIndex((l) => l.includes(pos)); return i < 0 ? 2 : i; };
+  const surname = (name) => { const parts = String(name || '?').trim().split(/\s+/); return parts.length > 1 && parts[parts.length - 1].length > 2 ? parts[parts.length - 1] : parts.join(' '); };
+
+  function renderPitch(t) {
+    const xi = t.players.filter((p) => p.starter && !p.loanedOut);
+    const squad = t.players.filter((p) => !p.loanedOut);
+    if (!squad.length) return '';
+    const rows = LINES.map((line, i) => xi.filter((p) => lineOf(p.pos) === i)
+      .sort((a, b) => line.indexOf(a.pos) - line.indexOf(b.pos)));
+    const def = rows[4].length;
+    const att = xi.filter((p) => ['ST', 'CF', 'LW', 'RW'].includes(p.pos)).length;
+    const shape = xi.length ? `${def}-${xi.length - def - att - rows[5].length}-${att}` : '';
+    const avg = (key) => { const v = xi.map((p) => n(p[key])).filter((x) => x); return v.length ? (v.reduce((a, b) => a + b, 0) / v.length).toFixed(1) : null; };
+    const info = [
+      `⭐ XI ${xi.length}/11${xi.length === 11 && shape ? ` · ${shape}` : ''}`,
+      avg('ovr') && `avg OVR ${avg('ovr')}`,
+      avg('age') && `avg age ${avg('age')}`,
+      xi.length && `${new Set(xi.map((p) => p.nat).filter(Boolean)).size} nationalities`,
+    ].filter(Boolean).join(' · ');
+    return `
+      <div class="pitch-head">
+        <strong>Starting XI</strong><span class="muted">${esc(info)}</span>
+        <button type="button" class="btn btn-small" data-action="pick-xi" title="Pick 11 by OVR in a 4-3-3 shape (you can change them after)">⭐ Pick my best XI</button>
+      </div>
+      <div class="pitch" role="img" aria-label="Starting XI: ${esc(xi.map((p) => p.name).join(', ') || 'nobody picked yet')}">
+        ${xi.length ? rows.map((r) => (r.length ? `<div class="pitch-line">${r.map((p) => `
+          <div class="pp${p.regen ? ' is-regen' : ''}" title="${esc(`${p.name}${p.pos ? `, ${p.pos}` : ''}${p.ovr ? `, ${p.ovr} OVR` : ''}`)}">
+            <span class="pp-dot">${p.ovr ? esc(p.ovr) : esc(p.pos || '?')}</span><span class="pp-name">${esc(surname(p.name))}</span>
+          </div>`).join('')}</div>` : '')).join('')
+    : '<p class="pitch-empty">Tick ⭐ next to your starters, or press <strong>Pick my best XI</strong>.</p>'}
+      </div>`;
+  }
+
+  /** Eleven players in a 4-3-3: best by OVR (list order breaks ties) in each part of the pitch, gaps filled from the rest. */
+  function bestXI(players) {
+    const pool = players.filter((p) => !p.loanedOut).map((p, i) => ({ p, i, ovr: n(p.ovr) || 0 }))
+      .sort((a, b) => b.ovr - a.ovr || a.i - b.i);
+    const picked = new Set();
+    // Adds up to `count` of the best unpicked players in these positions; returns how many it found.
+    const take = (positions, count) => {
+      const got = pool.filter((x) => positions.includes(x.p.pos) && !picked.has(x.p.id)).slice(0, Math.max(0, count));
+      got.forEach((x) => picked.add(x.p.id));
+      return got.length;
+    };
+    take(['GK'], 1);
+    let def = take(['LB', 'LWB'], 1) + take(['RB', 'RWB'], 1) + take(['CB'], 2);
+    def += take(['CB', 'LB', 'RB', 'LWB', 'RWB'], 4 - def);
+    let mid = take(['CDM', 'CM', 'CAM'], 3);
+    mid += take(['LM', 'RM'], 3 - mid);
+    let att = take(['LW'], 1) + take(['RW'], 1) + take(['ST', 'CF'], 1);
+    att += take(['ST', 'CF', 'LW', 'RW', 'LM', 'RM'], 3 - att);
+    pool.filter((x) => x.p.pos !== 'GK' && !picked.has(x.p.id)).slice(0, Math.max(0, 11 - picked.size)).forEach((x) => picked.add(x.p.id));
+    return picked;
+  }
+
   function renderSquad(entry, t) {
     const real = realSquad(entry.challenge.club.name);
     const rows = t.players.map((p) => `
@@ -111,6 +170,7 @@
           ${real ? `<button type="button" class="btn btn-small${t.players.length ? '' : ' btn-primary'}" data-action="squad-load" title="${esc(SQUAD_SOURCE)}">⬇️ Load real squad (${esc(squadSize(real))})</button>` : ''}
           <span class="muted squad-stats">${esc(squadStats(t))}</span>
         </div>
+        <div class="pitch-wrap" data-pitch>${renderPitch(t)}</div>
         <div class="paste-box" hidden>
           <p class="muted">One player per line: <code>Name, Position, Age, Nationality, OVR, Wage</code>. Only the name is required, and the other values can come in any order. Copying a table from a ratings site works too.</p>
           <textarea rows="6" data-paste placeholder="Bukayo Saka, RW, 24, English, 87&#10;Jamie Gittens LW 21 English 80"></textarea>
@@ -443,6 +503,8 @@
     set('moves', t.moves.length);
     const stats = item.querySelector('.squad-stats');
     if (stats) stats.textContent = squadStats(t);
+    const pitch = item.querySelector('[data-pitch]');
+    if (pitch) pitch.innerHTML = renderPitch(t);
   }
 
   // Save a tracker change, then refresh rule checks and counts around it.
@@ -500,6 +562,17 @@
       const replace = box.querySelector('[data-paste-replace]').checked;
       change(item, (t) => { t.players = (replace ? [] : t.players).concat(players); }, ['squad']);
       deps.toast(`Imported ${players.length} player${players.length === 1 ? '' : 's'}`);
+      return true;
+    }
+    if (action === 'pick-xi') {
+      const t0 = trackerOf(deps.findEntry(id));
+      if (t0.players.some((p) => p.starter) && !root.confirm('Replace your current starting XI with the best 11 by OVR?')) return true;
+      change(item, (t) => {
+        const xi = bestXI(t.players);
+        t.players.forEach((p) => { p.starter = xi.has(p.id); });
+      }, ['squad']);
+      const rated = t0.players.some((p) => n(p.ovr));
+      deps.toast(rated ? 'Picked your best XI ⭐' : 'Picked an XI by position. Add OVRs and it picks your best players.');
       return true;
     }
     if (action === 'squad-load') {
@@ -667,5 +740,5 @@
     tabs[id] = tab;
   }
 
-  FC26.trackerUI = { init, renderTracker, renderTransferCentre, realSquadPlayers, setTab, onClick, onChange, onSubmit, onInput, parseSquad, POSITIONS };
+  FC26.trackerUI = { init, renderTracker, renderTransferCentre, realSquadPlayers, setTab, onClick, onChange, onSubmit, onInput, parseSquad, bestXI, POSITIONS };
 })(typeof window !== 'undefined' ? window : globalThis);

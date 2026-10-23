@@ -843,3 +843,39 @@ test('soundtrack genres come from the club, the challenge and the tracked squad'
   const custom = G.generateChallenge({ customClub: { name: 'Dulwich Hamlet', country: 'Iceland', level: 4, tier: 1 } }, 'SPOT3');
   assert.ok(S.saveGenres({ challenge: custom }).length >= 1);
 });
+
+// ---------- Achievements and the best XI ----------
+
+test('achievements unlock from what the saves contain', () => {
+  const A = globalThis.FC26.achievements;
+  const ch = G.generateChallenge({ archetype: 'club-heritage', club: 'rou1|Farul Constanța', difficulty: 4 }, 'ACH1');
+  const none = A.evaluate([], {});
+  assert.equal(none.filter((a) => a.unlocked).length, 0);
+  assert.deepEqual(none.find((a) => a.id === 'market').progress, { have: 0, need: 10 });
+  const squad = Array.from({ length: 12 }, (_, i) => ({ id: `p${i}`, name: `P${i}` }));
+  const transfers = Array.from({ length: 6 }, (_, i) => ({ dir: 'in', name: `T${i}`, regen: i === 0 }));
+  const entry = { id: 'e1', savedAt: 1, challenge: ch, progress: { 's1-0': true, 's1-1': true }, log: { 1: { finish: '1st', trophies: 3 } }, tracker: { players: squad, transfers }, soundtrack: { url: 'https://open.spotify.com/playlist/x', name: 'x' } };
+  const got = Object.fromEntries(A.evaluate([entry], { broken: () => 0, dailyBest: 4 }).map((a) => [a.id, a]));
+  ['first-save', 'heritage', 'legendary', 'romania', 'tracked', 'regen', 'diary', 'trophy', 'treble', 'clean', 'daily', 'soundtrack']
+    .forEach((id) => assert.ok(got[id].unlocked, id));
+  ['player', 'leagues', 'market', 'objectives', 'complete', 'cabinet'].forEach((id) => assert.ok(!got[id].unlocked, id));
+  assert.deepEqual(got.market.progress, { have: 6, need: 10 });
+  // A broken rule spoils "By the book"; junk entries are ignored.
+  assert.ok(!A.evaluate([entry, null, { challenge: {} }], { broken: () => 2 }).find((a) => a.id === 'clean').unlocked);
+});
+
+test('picking the best XI fills a 4-3-3 by OVR and skips loanees', () => {
+  const T = globalThis.FC26.trackerUI;
+  const mk = (id, pos, ovr, extra) => Object.assign({ id, name: id, pos, ovr }, extra);
+  const players = [
+    mk('gk1', 'GK', 80), mk('gk2', 'GK', 70), mk('lb', 'LB', 75), mk('rb', 'RB', 74), mk('cb1', 'CB', 82), mk('cb2', 'CB', 79), mk('cb3', 'CB', 60),
+    mk('cdm', 'CDM', 77), mk('cm1', 'CM', 81), mk('cam', 'CAM', 84), mk('cm2', 'CM', 65), mk('lw', 'LW', 83), mk('rw', 'RW', 78),
+    mk('st1', 'ST', 86), mk('st2', 'ST', 88, { loanedOut: true }),
+  ];
+  const xi = T.bestXI(players);
+  assert.equal(xi.size, 11);
+  assert.deepEqual([...xi].sort(), ['cam', 'cb1', 'cb2', 'cdm', 'cm1', 'gk1', 'lb', 'lw', 'rb', 'rw', 'st1']);
+  // Without a keeper or ratings it still names eleven outfield players in list order.
+  const xi2 = T.bestXI(Array.from({ length: 14 }, (_, i) => mk(`x${i}`, i % 2 ? 'CM' : 'CB', '')));
+  assert.equal(xi2.size, 11);
+});

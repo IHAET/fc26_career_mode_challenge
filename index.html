@@ -205,8 +205,27 @@
 
     <section id="view-saved" class="view saved" hidden>
       <div class="saved-head">
-        <h2>My Challenges</h2>
-        <p class="muted">Saved on this device. Tick objectives off as you go.</p>
+        <div>
+          <h2>My Challenges</h2>
+          <p class="muted">Saved on this device (and synced if you sign in). Tick objectives off as you go.</p>
+        </div>
+        <div class="backup-tools">
+          <button type="button" class="btn btn-small" id="backup-export" title="Download all your saves as a file">⬇️ Back up</button>
+          <label class="btn btn-small" title="Load saves from a backup file (merged with what's here)">⬆️ Restore<input type="file" id="backup-import" accept="application/json,.json" hidden></label>
+        </div>
+      </div>
+      <div class="stats-bar" id="saved-stats"></div>
+      <details class="panel achievements" id="achievements"></details>
+      <div class="saved-filters" id="saved-filters">
+        <input type="search" id="saved-search" placeholder="Search by club, challenge or league…" aria-label="Search your challenges" maxlength="60">
+        <select id="saved-filter" aria-label="Show">
+          <option value="all">All challenges</option><option value="active">In progress</option><option value="finished">Finished</option>
+          <option value="manager">Manager Career</option><option value="player">Player Career</option><option value="daily">Daily challenges</option>
+        </select>
+        <select id="saved-sort" aria-label="Sort by">
+          <option value="new">Newest first</option><option value="old">Oldest first</option><option value="progress">Most progress</option>
+          <option value="score">Highest score</option><option value="name">A to Z</option>
+        </select>
       </div>
       <div id="saved-list" class="saved-list"></div>
     </section>
@@ -248,6 +267,7 @@
   <script src="js/account.js"></script>
   <script src="js/login.js"></script>
   <script src="js/spotify.js"></script>
+  <script src="js/achievements.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

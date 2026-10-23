@@ -733,6 +733,60 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 /* ---------- Saved ---------- */
 
 .saved-head h2 { margin: 0; }
+.view.saved { display: flex; flex-direction: column; gap: 14px; }
+.view.saved .saved-list { margin-top: 0; }
+.saved-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.backup-tools { display: flex; gap: 8px; }
+.backup-tools label.btn { display: inline-flex; align-items: center; }
+
+.stats-bar { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 760px) { .stats-bar { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: center; }
+.stat-icon { grid-row: 1 / 3; font-size: 1.3rem; }
+.stat strong { font-size: 1.2rem; line-height: 1.1; }
+.stat small { color: var(--muted); font-size: 0.75rem; }
+
+.achievements { padding: 0; }
+.achievements > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: auto auto 1fr; gap: 12px; align-items: center; padding: 14px 18px; font-weight: 700; }
+.achievements > summary::-webkit-details-marker { display: none; }
+.ach-count { color: var(--accent); font-variant-numeric: tabular-nums; }
+.ach-bar { max-width: 260px; justify-self: end; }
+.ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; padding: 0 18px 18px; }
+.ach { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; border: 1px dashed var(--line); opacity: 0.6; }
+.ach.is-won { opacity: 1; border-style: solid; border-color: var(--accent); background: var(--accent-soft); }
+.ach-icon { font-size: 1.4rem; width: 32px; text-align: center; }
+.ach-text { display: flex; flex-direction: column; min-width: 0; }
+.ach-text strong { font-size: 0.88rem; }
+.ach-text small { color: var(--muted); font-size: 0.76rem; }
+
+.saved-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.saved-filters input[type="search"] { flex: 1 1 240px; width: auto; background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.saved-filters select { width: auto; flex: 0 0 auto; }
+
+/* ---------- Starting XI pitch ---------- */
+
+.pitch-wrap:empty { display: none; }
+.pitch-head { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.pitch-head .muted { font-size: 0.85rem; }
+.pitch-head .btn { margin-left: auto; }
+.pitch {
+  position: relative; border-radius: 14px; padding: 14px 8px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-around; gap: 10px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.35)) center / 100% 2px no-repeat,
+    radial-gradient(circle at center, transparent 54px, rgba(255, 255, 255, 0.35) 55px, rgba(255, 255, 255, 0.35) 57px, transparent 58px),
+    repeating-linear-gradient(180deg, #1f7a3e 0 44px, #237f43 44px 88px);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+}
+.pitch-line { display: flex; justify-content: space-evenly; gap: 6px; position: relative; }
+.pp { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; max-width: 84px; }
+.pp-dot {
+  width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 0.82rem;
+  background: #0b0f14; color: #fff; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+.pp.is-regen .pp-dot { border-color: #c49bff; }
+.pp-name { font-size: 0.74rem; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 84px; }
+.pitch-empty { margin: 0; text-align: center; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); padding: 24px 8px; }
+.squad .pitch-wrap { margin: 12px 0; }
 .muted { color: var(--muted); }
 .saved-list { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
 .saved-item > summary {
@@ -987,8 +1041,27 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 
     <section id="view-saved" class="view saved" hidden>
       <div class="saved-head">
-        <h2>My Challenges</h2>
-        <p class="muted">Saved on this device. Tick objectives off as you go.</p>
+        <div>
+          <h2>My Challenges</h2>
+          <p class="muted">Saved on this device (and synced if you sign in). Tick objectives off as you go.</p>
+        </div>
+        <div class="backup-tools">
+          <button type="button" class="btn btn-small" id="backup-export" title="Download all your saves as a file">⬇️ Back up</button>
+          <label class="btn btn-small" title="Load saves from a backup file (merged with what's here)">⬆️ Restore<input type="file" id="backup-import" accept="application/json,.json" hidden></label>
+        </div>
+      </div>
+      <div class="stats-bar" id="saved-stats"></div>
+      <details class="panel achievements" id="achievements"></details>
+      <div class="saved-filters" id="saved-filters">
+        <input type="search" id="saved-search" placeholder="Search by club, challenge or league…" aria-label="Search your challenges" maxlength="60">
+        <select id="saved-filter" aria-label="Show">
+          <option value="all">All challenges</option><option value="active">In progress</option><option value="finished">Finished</option>
+          <option value="manager">Manager Career</option><option value="player">Player Career</option><option value="daily">Daily challenges</option>
+        </select>
+        <select id="saved-sort" aria-label="Sort by">
+          <option value="new">Newest first</option><option value="old">Oldest first</option><option value="progress">Most progress</option>
+          <option value="score">Highest score</option><option value="name">A to Z</option>
+        </select>
       </div>
       <div id="saved-list" class="saved-list"></div>
     </section>
@@ -6726,6 +6799,65 @@ Aleksei Miranchuk|Russian|CAM
     return bits.join(' · ');
   }
 
+  // ---------- Starting XI on a pitch ----------
+
+  // Pitch lines from attack down to goal; within a line, left to right.
+  const LINES = [['LW', 'ST', 'CF', 'RW'], ['CAM'], ['LM', 'CM', 'RM'], ['CDM'], ['LWB', 'LB', 'CB', 'RB', 'RWB'], ['GK']];
+  const lineOf = (pos) => { const i = LINES.findIndex((l) => l.includes(pos)); return i < 0 ? 2 : i; };
+  const surname = (name) => { const parts = String(name || '?').trim().split(/\s+/); return parts.length > 1 && parts[parts.length - 1].length > 2 ? parts[parts.length - 1] : parts.join(' '); };
+
+  function renderPitch(t) {
+    const xi = t.players.filter((p) => p.starter && !p.loanedOut);
+    const squad = t.players.filter((p) => !p.loanedOut);
+    if (!squad.length) return '';
+    const rows = LINES.map((line, i) => xi.filter((p) => lineOf(p.pos) === i)
+      .sort((a, b) => line.indexOf(a.pos) - line.indexOf(b.pos)));
+    const def = rows[4].length;
+    const att = xi.filter((p) => ['ST', 'CF', 'LW', 'RW'].includes(p.pos)).length;
+    const shape = xi.length ? `${def}-${xi.length - def - att - rows[5].length}-${att}` : '';
+    const avg = (key) => { const v = xi.map((p) => n(p[key])).filter((x) => x); return v.length ? (v.reduce((a, b) => a + b, 0) / v.length).toFixed(1) : null; };
+    const info = [
+      `⭐ XI ${xi.length}/11${xi.length === 11 && shape ? ` · ${shape}` : ''}`,
+      avg('ovr') && `avg OVR ${avg('ovr')}`,
+      avg('age') && `avg age ${avg('age')}`,
+      xi.length && `${new Set(xi.map((p) => p.nat).filter(Boolean)).size} nationalities`,
+    ].filter(Boolean).join(' · ');
+    return `
+      <div class="pitch-head">
+        <strong>Starting XI</strong><span class="muted">${esc(info)}</span>
+        <button type="button" class="btn btn-small" data-action="pick-xi" title="Pick 11 by OVR in a 4-3-3 shape (you can change them after)">⭐ Pick my best XI</button>
+      </div>
+      <div class="pitch" role="img" aria-label="Starting XI: ${esc(xi.map((p) => p.name).join(', ') || 'nobody picked yet')}">
+        ${xi.length ? rows.map((r) => (r.length ? `<div class="pitch-line">${r.map((p) => `
+          <div class="pp${p.regen ? ' is-regen' : ''}" title="${esc(`${p.name}${p.pos ? `, ${p.pos}` : ''}${p.ovr ? `, ${p.ovr} OVR` : ''}`)}">
+            <span class="pp-dot">${p.ovr ? esc(p.ovr) : esc(p.pos || '?')}</span><span class="pp-name">${esc(surname(p.name))}</span>
+          </div>`).join('')}</div>` : '')).join('')
+    : '<p class="pitch-empty">Tick ⭐ next to your starters, or press <strong>Pick my best XI</strong>.</p>'}
+      </div>`;
+  }
+
+  /** Eleven players in a 4-3-3: best by OVR (list order breaks ties) in each part of the pitch, gaps filled from the rest. */
+  function bestXI(players) {
+    const pool = players.filter((p) => !p.loanedOut).map((p, i) => ({ p, i, ovr: n(p.ovr) || 0 }))
+      .sort((a, b) => b.ovr - a.ovr || a.i - b.i);
+    const picked = new Set();
+    // Adds up to `count` of the best unpicked players in these positions; returns how many it found.
+    const take = (positions, count) => {
+      const got = pool.filter((x) => positions.includes(x.p.pos) && !picked.has(x.p.id)).slice(0, Math.max(0, count));
+      got.forEach((x) => picked.add(x.p.id));
+      return got.length;
+    };
+    take(['GK'], 1);
+    let def = take(['LB', 'LWB'], 1) + take(['RB', 'RWB'], 1) + take(['CB'], 2);
+    def += take(['CB', 'LB', 'RB', 'LWB', 'RWB'], 4 - def);
+    let mid = take(['CDM', 'CM', 'CAM'], 3);
+    mid += take(['LM', 'RM'], 3 - mid);
+    let att = take(['LW'], 1) + take(['RW'], 1) + take(['ST', 'CF'], 1);
+    att += take(['ST', 'CF', 'LW', 'RW', 'LM', 'RM'], 3 - att);
+    pool.filter((x) => x.p.pos !== 'GK' && !picked.has(x.p.id)).slice(0, Math.max(0, 11 - picked.size)).forEach((x) => picked.add(x.p.id));
+    return picked;
+  }
+
   function renderSquad(entry, t) {
     const real = realSquad(entry.challenge.club.name);
     const rows = t.players.map((p) => `
@@ -6753,6 +6885,7 @@ Aleksei Miranchuk|Russian|CAM
           ${real ? `<button type="button" class="btn btn-small${t.players.length ? '' : ' btn-primary'}" data-action="squad-load" title="${esc(SQUAD_SOURCE)}">⬇️ Load real squad (${esc(squadSize(real))})</button>` : ''}
           <span class="muted squad-stats">${esc(squadStats(t))}</span>
         </div>
+        <div class="pitch-wrap" data-pitch>${renderPitch(t)}</div>
         <div class="paste-box" hidden>
           <p class="muted">One player per line: <code>Name, Position, Age, Nationality, OVR, Wage</code>. Only the name is required, and the other values can come in any order. Copying a table from a ratings site works too.</p>
           <textarea rows="6" data-paste placeholder="Bukayo Saka, RW, 24, English, 87&#10;Jamie Gittens LW 21 English 80"></textarea>
@@ -7085,6 +7218,8 @@ Aleksei Miranchuk|Russian|CAM
     set('moves', t.moves.length);
     const stats = item.querySelector('.squad-stats');
     if (stats) stats.textContent = squadStats(t);
+    const pitch = item.querySelector('[data-pitch]');
+    if (pitch) pitch.innerHTML = renderPitch(t);
   }
 
   // Save a tracker change, then refresh rule checks and counts around it.
@@ -7142,6 +7277,17 @@ Aleksei Miranchuk|Russian|CAM
       const replace = box.querySelector('[data-paste-replace]').checked;
       change(item, (t) => { t.players = (replace ? [] : t.players).concat(players); }, ['squad']);
       deps.toast(`Imported ${players.length} player${players.length === 1 ? '' : 's'}`);
+      return true;
+    }
+    if (action === 'pick-xi') {
+      const t0 = trackerOf(deps.findEntry(id));
+      if (t0.players.some((p) => p.starter) && !root.confirm('Replace your current starting XI with the best 11 by OVR?')) return true;
+      change(item, (t) => {
+        const xi = bestXI(t.players);
+        t.players.forEach((p) => { p.starter = xi.has(p.id); });
+      }, ['squad']);
+      const rated = t0.players.some((p) => n(p.ovr));
+      deps.toast(rated ? 'Picked your best XI ⭐' : 'Picked an XI by position. Add OVRs and it picks your best players.');
       return true;
     }
     if (action === 'squad-load') {
@@ -7309,7 +7455,7 @@ Aleksei Miranchuk|Russian|CAM
     tabs[id] = tab;
   }
 
-  FC26.trackerUI = { init, renderTracker, renderTransferCentre, realSquadPlayers, setTab, onClick, onChange, onSubmit, onInput, parseSquad, POSITIONS };
+  FC26.trackerUI = { init, renderTracker, renderTransferCentre, realSquadPlayers, setTab, onClick, onChange, onSubmit, onInput, parseSquad, bestXI, POSITIONS };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/share-image.js */
@@ -8388,6 +8534,69 @@ Aleksei Miranchuk|Russian|CAM
   FC26.spotify = { saveGenres, redirectUri, unavailableReason, connected, connect, handleRedirect, topGenres, buildPlaylist, disconnect, createPanel, STARTER_GENRES };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
+  <script>/* js/achievements.js */
+/*
+ * Achievements: badges earned from your saved challenges, worked out fresh
+ * from the saves each time (nothing extra is stored, so they sync for free).
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  const num = (v) => Number(v) || 0;
+  const players = (e) => ((e.tracker && e.tracker.players) || []);
+  const transfers = (e) => ((e.tracker && e.tracker.transfers) || []);
+  const logs = (e) => Object.values(e.log || {}).filter((l) => l && typeof l === 'object');
+  const ticked = (e) => Object.values(e.progress || {}).filter(Boolean).length;
+  const objectiveCount = (e) => e.challenge.roadmap.reduce((n, s) => n + s.objectives.length, 0) + 1;
+  const isMid = (text) => /^Mid-season\b/i.test(String(text));
+
+  // Each: id, icon, name, what to do, and test(entries, ctx) → true, or [have, need] for progress.
+  const DEFS = [
+    { id: 'first-save', icon: '💾', name: 'Signed on', desc: 'Save your first challenge.', test: (es) => [es.length, 1] },
+    { id: 'heritage', icon: '🏛️', name: 'History buff', desc: 'Save a Club Heritage challenge.', test: (es) => es.some((e) => e.challenge.archetype.id === 'club-heritage') },
+    { id: 'player', icon: '🎽', name: 'Boots on', desc: 'Save a Player Career challenge.', test: (es) => es.some((e) => e.challenge.mode === 'player') },
+    { id: 'legendary', icon: '💀', name: 'Glutton for punishment', desc: 'Save a Legendary challenge.', test: (es) => es.some((e) => num(e.challenge.difficulty) === 4) },
+    { id: 'leagues', icon: '🌍', name: 'Globetrotter', desc: 'Save challenges in 5 different leagues.', test: (es) => [new Set(es.map((e) => e.challenge.club.leagueId || e.challenge.club.league).filter(Boolean)).size, 5] },
+    { id: 'romania', icon: '🇷🇴', name: 'Romanian rhapsody', desc: 'Save a SuperLiga challenge.', test: (es) => es.some((e) => e.challenge.club.leagueId === 'rou1') },
+    { id: 'drama', icon: '🔥', name: 'Drama magnet', desc: 'Save a challenge with 3 or more mid-season dramas.', test: (es) => es.some((e) => e.challenge.roadmap.flatMap((s) => s.events || []).filter(isMid).length >= 3) },
+    { id: 'tracked', icon: '📒', name: 'Paperwork done', desc: 'Track a squad of 11 or more players.', test: (es) => es.some((e) => players(e).filter((p) => !p.loanedOut).length >= 11) },
+    { id: 'market', icon: '🔁', name: 'Wheeler-dealer', desc: 'Log 10 transfers.', test: (es) => [es.reduce((n, e) => n + transfers(e).length, 0), 10] },
+    { id: 'regen', icon: '🧬', name: 'Regen hunter', desc: 'Sign a regen.', test: (es) => es.some((e) => transfers(e).some((t) => t.dir === 'in' && t.regen)) },
+    { id: 'objectives', icon: '✅', name: 'Box ticker', desc: 'Tick off 10 objectives.', test: (es) => [es.reduce((n, e) => n + ticked(e), 0), 10] },
+    { id: 'complete', icon: '🎯', name: 'Mission accomplished', desc: 'Tick every objective in a challenge.', test: (es) => es.some((e) => ticked(e) >= objectiveCount(e)) },
+    { id: 'diary', icon: '📓', name: 'Dear diary', desc: "Log a season's finish in the diary.", test: (es) => es.some((e) => logs(e).some((l) => String(l.finish || '').trim())) },
+    { id: 'trophy', icon: '🏆', name: 'Silverware', desc: 'Log a trophy.', test: (es) => es.some((e) => logs(e).some((l) => num(l.trophies) > 0)) },
+    { id: 'cabinet', icon: '🗄️', name: 'Trophy cabinet', desc: 'Log 10 trophies across your saves.', test: (es) => [es.reduce((n, e) => n + logs(e).reduce((m, l) => m + num(l.trophies), 0), 0), 10] },
+    { id: 'treble', icon: '👑', name: 'Treble', desc: 'Log 3 trophies in one season.', test: (es) => es.some((e) => logs(e).some((l) => num(l.trophies) >= 3)) },
+    { id: 'clean', icon: '✨', name: 'By the book', desc: 'Log 5+ transfers in a challenge without breaking a rule.', test: (es, ctx) => es.some((e) => transfers(e).length >= 5 && ctx.broken(e) === 0) },
+    { id: 'daily', icon: '📅', name: 'Habit forming', desc: 'Check the daily challenge 3 days in a row.', test: (es, ctx) => [num(ctx.dailyBest), 3] },
+    { id: 'soundtrack', icon: '🎧', name: 'Matchday playlist', desc: 'Make a Spotify soundtrack for a save.', test: (es) => es.some((e) => e.soundtrack && e.soundtrack.url) },
+  ];
+
+  /**
+   * Every achievement with whether it's unlocked and, for counted ones, progress.
+   * ctx: { broken(entry) → rules broken, dailyBest }
+   */
+  function evaluate(entries, ctx) {
+    const es = (entries || []).filter((e) => e && e.challenge && Array.isArray(e.challenge.roadmap));
+    const c = Object.assign({ broken: () => 0, dailyBest: 0 }, ctx);
+    return DEFS.map((d) => {
+      let r;
+      try { r = d.test(es, c); } catch (err) { r = false; }
+      const counted = Array.isArray(r);
+      const have = counted ? Math.min(r[0], r[1]) : 0;
+      return {
+        id: d.id, icon: d.icon, name: d.name, desc: d.desc,
+        unlocked: counted ? r[0] >= r[1] : Boolean(r),
+        progress: counted && r[1] > 1 ? { have, need: r[1] } : null,
+      };
+    });
+  }
+
+  FC26.achievements = { evaluate, DEFS };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
   <script>/* js/app.js */
 /* UI for the FC 26 Career Challenge Builder. */
 (function () {
@@ -9221,24 +9430,143 @@ Aleksei Miranchuk|Russian|CAM
     return { done: Math.min(done, total), total };
   }
 
+  // ---------- My Challenges: dashboard, search, achievements, backups ----------
+
+  const fold = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+  /** The saves the search box, filter and sort currently show. */
+  function filterSaved(list) {
+    const q = fold($('#saved-search').value.trim());
+    const filter = $('#saved-filter').value;
+    const sort = $('#saved-sort').value;
+    const pct = (e) => { const p = progressOf(e); return p.done / p.total; };
+    const shown = list.filter((e) => {
+      const ch = e.challenge;
+      if (q && !fold([ch.title, ch.club.name, ch.club.league, ch.archetype.name, ch.difficultyName].join(' ')).includes(q)) return false;
+      const finished = currentSeason(e) === 'Finished';
+      return filter === 'all' || (filter === 'active' && !finished) || (filter === 'finished' && finished)
+        || (filter === 'manager' && ch.mode !== 'player') || (filter === 'player' && ch.mode === 'player') || (filter === 'daily' && ch.daily);
+    });
+    const by = {
+      new: (a, b) => (b.savedAt || 0) - (a.savedAt || 0),
+      old: (a, b) => (a.savedAt || 0) - (b.savedAt || 0),
+      progress: (a, b) => pct(b) - pct(a),
+      score: (a, b) => scoreFor(b.challenge, b) - scoreFor(a.challenge, a),
+      name: (a, b) => a.challenge.title.localeCompare(b.challenge.title),
+    };
+    return shown.sort(by[sort] || by.new);
+  }
+
+  function renderDashboard(list) {
+    const stats = $('#saved-stats');
+    stats.hidden = !list.length;
+    if (list.length) {
+      const trophies = list.reduce((n, e) => n + trophiesOf(e), 0);
+      const ticked = list.reduce((n, e) => n + progressOf(e).done, 0);
+      const moves = list.reduce((n, e) => n + ((e.tracker && e.tracker.transfers) || []).length, 0);
+      const finished = list.filter((e) => currentSeason(e) === 'Finished').length;
+      const best = Math.max(0, ...list.map((e) => scoreFor(e.challenge, e)));
+      stats.innerHTML = [['📂', list.length, 'challenges'], ['🏁', finished, 'finished'], ['✅', ticked, 'objectives ticked'],
+        ['🏆', trophies, 'trophies'], ['🔁', moves, 'transfers logged'], ['⭐', best, 'best score']]
+        .map(([icon, v, label]) => `<div class="stat"><span class="stat-icon">${icon}</span><strong>${v}</strong><small>${label}</small></div>`).join('');
+    }
+    const box = $('#achievements');
+    const all = window.FC26.achievements.evaluate(list, {
+      broken: (e) => Compliance.tally(Compliance.checkChallenge(e.challenge, e.tracker)).broken,
+      dailyBest: Daily.streak(loadCheckins(), Daily.dateKey()).best,
+    });
+    const won = all.filter((a) => a.unlocked).length;
+    box.innerHTML = `
+      <summary><span>🏅 Achievements</span><span class="ach-count">${won} / ${all.length}</span>
+        <span class="progress-bar ach-bar"><span style="width:${Math.round((won / all.length) * 100)}%"></span></span></summary>
+      <div class="ach-grid">${all.map((a) => `
+        <div class="ach ${a.unlocked ? 'is-won' : ''}" title="${esc(a.desc)}">
+          <span class="ach-icon" aria-hidden="true">${a.unlocked ? a.icon : '🔒'}</span>
+          <span class="ach-text"><strong>${esc(a.name)}</strong><small>${esc(a.desc)}${!a.unlocked && a.progress ? ` (${a.progress.have}/${a.progress.need})` : ''}</small></span>
+        </div>`).join('')}</div>`;
+  }
+
   function renderSaved(openId) {
     const list = loadSaved();
     $('#saved-count').textContent = list.length;
+    renderDashboard(list);
+    $('#saved-filters').hidden = list.length < 2;
     const el = $('#saved-list');
     if (!list.length) {
-      el.innerHTML = '<div class="panel empty"><div class="empty-ball">📂</div><h2>No saved challenges yet</h2><p>Generate one in the Builder and hit 💾 Save.</p></div>';
+      el.innerHTML = '<div class="panel empty"><div class="empty-ball">📂</div><h2>No saved challenges yet</h2><p>Generate one in the Builder and hit 💾 Save, or restore a backup.</p></div>';
       return;
     }
-    el.innerHTML = list.map((entry) => {
+    let shown = filterSaved(list);
+    // Opening a particular challenge clears a search that would hide it.
+    if (openId && !shown.some((e) => e.id === openId)) {
+      $('#saved-search').value = '';
+      $('#saved-filter').value = 'all';
+      shown = filterSaved(list);
+    }
+    if (!shown.length) {
+      el.innerHTML = '<div class="panel empty-note">No challenges match. <button type="button" class="link-btn" data-clear-filters>Show them all</button></div>';
+      return;
+    }
+    el.innerHTML = shown.map((entry) => {
       const ch = entry.challenge;
-      const { done, total } = progressOf(entry);
-      const pct = Math.round((done / total) * 100);
       return `
       <details class="saved-item panel" data-id="${esc(entry.id)}" data-club="${esc(ch.club.name)}" ${entry.id === openId ? 'open' : ''}>
         <summary>${savedSummary(entry)}</summary>
         <div class="saved-body">${Tracker.renderTracker(entry, renderCard(ch, 'saved', entry))}</div>
       </details>`;
     }).join('');
+  }
+
+  function exportBackup() {
+    const data = {
+      app: 'fc26-challenge-builder', v: 1, exported: new Date().toISOString(),
+      entries: loadSaved(), deleted: storageGet(DELETED_KEY, {}), known: storageGet(KNOWN_KEY, []),
+    };
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));
+    a.download = `fc26-challenges-${Daily.dateKey()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    toast(`Backed up ${data.entries.length} challenge${data.entries.length === 1 ? '' : 's'} ⬇️`);
+  }
+
+  // A well-formed saved challenge keeps everything; anything odd goes through the same clean-up as edited share links.
+  function importedChallenge(c) {
+    const ok = c && typeof c.title === 'string' && c.club && typeof c.club.name === 'string' && c.archetype && typeof c.archetype.name === 'string'
+      && Array.isArray(c.rules) && Array.isArray(c.coreRules) && Array.isArray(c.scoring) && Array.isArray(c.roadmap) && c.roadmap.length
+      && c.roadmap.every((s) => s && Array.isArray(s.objectives) && Array.isArray(s.events));
+    return ok ? c : G.sanitizeChallenge(c);
+  }
+
+  async function importBackup(file) {
+    let data = null;
+    try { data = JSON.parse(await file.text()); } catch (err) { data = null; }
+    if (!data || data.app !== 'fc26-challenge-builder' || !Array.isArray(data.entries)) {
+      toast("That file isn't a backup from this app");
+      return;
+    }
+    const entries = data.entries.slice(0, 500)
+      .filter((e) => e && typeof e.id === 'string' && e.id && e.challenge && typeof e.challenge === 'object')
+      .map((e) => Object.assign({}, e, { id: e.id.slice(0, 40), savedAt: Number(e.savedAt) || Date.now(), challenge: importedChallenge(e.challenge) }))
+      .filter((e) => e.challenge)
+      .map(migrateEntry);
+    const known = (Array.isArray(data.known) ? data.known : []).filter((k) => k && typeof k.name === 'string')
+      .slice(0, 500).map((k) => ({ name: k.name.slice(0, 40), nat: String(k.nat || '').slice(0, 30), pos: String(k.pos || '').slice(0, 4) }));
+    const before = loadSaved();
+    // Restoring brings back challenges deleted here since the backup; newer copies here still win.
+    const deleted = storageGet(DELETED_KEY, {});
+    entries.forEach((e) => { delete deleted[e.id]; });
+    const merged = Account.mergeSaves({ entries: before, deleted, known: storageGet(KNOWN_KEY, []) }, { entries, deleted: {}, known });
+    storageSet(STORE_KEY, merged.entries);
+    storageSet(DELETED_KEY, merged.deleted);
+    storageSet(KNOWN_KEY, merged.known.slice(-500));
+    merged.known.forEach((k) => PlayerDB.addKnown(k.name, k.nat, k.pos));
+    Account.changed();
+    renderSaved();
+    const added = merged.entries.length - before.length;
+    toast(`Restored ${entries.length} challenge${entries.length === 1 ? '' : 's'} (${added} new) ⬆️`);
   }
 
   function savedSummary(entry) {
@@ -9288,6 +9616,7 @@ Aleksei Miranchuk|Russian|CAM
     const panel = $('[data-panel="challenge"]', item);
     if (panel) panel.innerHTML = renderCard(entry.challenge, 'saved', entry);
     $('summary', item).innerHTML = savedSummary(entry);
+    renderDashboard(loadSaved());
   }
 
   // Diary text fields save without re-rendering, so typing isn't interrupted.
@@ -9728,7 +10057,24 @@ Aleksei Miranchuk|Russian|CAM
       if (window.location.hash) history.replaceState(null, '', window.location.pathname + window.location.search);
     });
     $('#result').addEventListener('click', onBuilderClick);
-    $('#saved-list').addEventListener('click', onSavedClick);
+    $('#saved-list').addEventListener('click', (e) => {
+      if (e.target.closest('[data-clear-filters]')) {
+        $('#saved-search').value = '';
+        $('#saved-filter').value = 'all';
+        renderSaved();
+        return;
+      }
+      onSavedClick(e);
+    });
+    $('#saved-search').addEventListener('input', () => renderSaved());
+    $('#saved-filter').addEventListener('change', () => renderSaved());
+    $('#saved-sort').addEventListener('change', () => renderSaved());
+    $('#backup-export').addEventListener('click', exportBackup);
+    $('#backup-import').addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) importBackup(file);
+      e.target.value = '';
+    });
     $('#view-daily').addEventListener('click', onDailyClick);
     $$('.tab').forEach((t) => t.addEventListener('click', () => showView(t.dataset.view)));
     window.addEventListener('hashchange', () => {

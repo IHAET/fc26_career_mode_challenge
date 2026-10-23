@@ -27,6 +27,9 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **👤 Accounts (optional)**: sign in with email and password or Google, and your saved challenges, trackers, diaries and confirmed players sync across your devices. Without an account (or before accounts are set up) everything stays on the device as before. See "Accounts and Spotify" below.
 - **Quick start**: one-click cards on the Builder (Surprise me, Club Heritage, Road to Glory, Player Career, Legendary, today's daily), and a short club reel while a challenge is drawn.
 - **Light and dark themes** (☀️/🌙 in the top bar; follows your system until you pick), and a bottom tab bar on phones.
+- **⚽ Starting XI pitch**: the Squad tab draws your ⭐ starters on a pitch with their shape, average OVR and age, and **Pick my best XI** fills a 4-3-3 from your ratings.
+- **📊 Dashboard and 🏅 achievements**: My Challenges shows your totals (challenges, finished, objectives, trophies, transfers, best score), 19 achievements to unlock (Romanian rhapsody, Treble, By the book, Regen hunter…), and search, filters and sorting for your saves.
+- **💾 Back up and restore**: download all your saves (with trackers, diaries and confirmed players) as one file, and load it on any device or browser. Restoring merges with what's there.
 - **My Challenges**: save challenges in your browser and tick off objectives. The **season diary** logs each season's finish, trophies and notes, and the score and "Season X of N" update as you go. Copy text includes your progress.
 
 ## Run it
@@ -127,6 +130,7 @@ npm test         # node --test (Node 18+)
 | `js/config.js` | Keys for the optional online features (Firebase accounts, Spotify) |
 | `js/account.js` | Accounts: sign-in through a swappable backend (Firebase by default) and merging saves between devices |
 | `js/login.js` | The sign-in screen and the account button |
+| `js/achievements.js` | Achievements worked out from your saves |
 | `js/spotify.js` | Spotify soundtracks: PKCE sign-in, genres for a save, playlist building and the panel on saved challenges |
 | `firestore.rules` | Firestore security rules: each user can only reach their own saves |
 | `styles.css` | Styling (responsive down to phone width) |
