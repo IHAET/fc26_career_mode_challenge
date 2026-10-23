@@ -994,3 +994,12 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
 }
 .btn.btn-spotify-soft { border-color: rgba(30, 215, 96, 0.45); color: var(--sp-on); background: rgba(30, 215, 96, 0.1); }
 .btn.btn-spotify-soft:hover { background: rgba(30, 215, 96, 0.18); }
+
+/* Likely starting XI on challenge cards */
+.xi-preview > summary { list-style: none; cursor: pointer; }
+.xi-preview > summary::-webkit-details-marker { display: none; }
+.xi-preview > summary h3::before { content: "▸"; color: var(--accent); margin-right: 2px; transition: transform 0.15s ease; display: inline-block; }
+.xi-preview[open] > summary h3::before { transform: rotate(90deg); }
+.xi-preview .pitch { min-height: 0; padding: 10px 6px; gap: 6px; }
+.xi-preview .pp-dot { width: 30px; height: 30px; font-size: 0.7rem; }
+.pitch-note { margin: 0 0 8px; font-size: 0.82rem; }

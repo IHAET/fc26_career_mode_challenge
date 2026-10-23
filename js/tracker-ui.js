@@ -163,9 +163,15 @@
   // Pitch lines from attack down to goal; within a line, left to right.
   const LINES = [['LW', 'ST', 'CF', 'RW'], ['CAM'], ['LM', 'CM', 'RM'], ['CDM'], ['LWB', 'LB', 'CB', 'RB', 'RWB'], ['GK']];
   const lineOf = (pos) => { const i = LINES.findIndex((l) => l.includes(pos)); return i < 0 ? 2 : i; };
-  const surname = (name) => { const parts = String(name || '?').trim().split(/\s+/); return parts.length > 1 && parts[parts.length - 1].length > 2 ? parts[parts.length - 1] : parts.join(' '); };
+  const surname = (name) => {
+    const parts = String(name || '?').trim().split(/\s+/);
+    if (parts.length < 2 || parts[parts.length - 1].length <= 2) return parts.join(' ');
+    let i = parts.length - 1;
+    while (i > 1 && /^\p{Ll}/u.test(parts[i - 1])) i--; // "ter Stegen", "van Dijk", "de Jong"
+    return parts.slice(i).join(' ');
+  };
 
-  function renderPitch(t) {
+  function renderPitch(t, preview) {
     const xi = t.players.filter((p) => p.starter && !p.loanedOut);
     const squad = t.players.filter((p) => !p.loanedOut);
     if (!squad.length) return '';
@@ -182,10 +188,10 @@
       xi.length && `${new Set(xi.map((p) => p.nat).filter(Boolean)).size} nationalities`,
     ].filter(Boolean).join(' · ');
     return `
-      <div class="pitch-head">
+      ${preview ? `<p class="pitch-note muted">${esc(info)} · a best guess from shirt numbers and star players; change it in the Squad tab once you track the save.</p>` : `<div class="pitch-head">
         <strong>Starting XI</strong><span class="muted">${esc(info)}</span>
         <button type="button" class="btn btn-small" data-action="pick-xi" title="Pick 11 by OVR in a 4-3-3 shape (you can change them after)">⭐ Pick my best XI</button>
-      </div>
+      </div>`}
       <div class="pitch" role="img" aria-label="Starting XI: ${esc(xi.map((p) => p.name).join(', ') || 'nobody picked yet')}">
         ${xi.length ? rows.map((r) => (r.length ? `<div class="pitch-line">${r.map((p) => `
           <div class="pp${p.regen ? ' is-regen' : ''}" title="${esc(`${p.name}${p.pos ? `, ${p.pos}` : ''}${p.ovr ? `, ${p.ovr} OVR` : ''}`)}">
@@ -275,14 +281,21 @@
         <div class="seg">
           <button type="button" class="${dir === 'in' ? 'is-on' : ''}" data-action="tr-dir" data-dir="in">⬇️ Signing</button>
           <button type="button" class="${dir === 'out' ? 'is-on' : ''}" data-action="tr-dir" data-dir="out">⬆️ Departure</button>
+          <button type="button" class="${dir === 'swap' ? 'is-on' : ''}" data-action="tr-dir" data-dir="swap" title="Give a player and get one back, with cash either way if you like">🔄 Swap</button>
         </div>
         <div class="tgrid">
+          ${dir === 'swap' ? `
+          <label class="f-wide"><span>You give</span><input name="give" type="text" maxlength="40" required value="${val('give')}" list="squad-names-${esc(entry.id)}" placeholder="Pick from your squad"></label>
+          <datalist id="squad-names-${esc(entry.id)}">${squadNames}</datalist>
+          <label class="f-wide"><span>You get</span><input name="name" type="text" maxlength="40" required value="${val('name')}" list="known-players" placeholder="Name"></label>
+          <label><span>Cash €M</span><input name="fee" type="number" step="0.1" placeholder="0" value="${val('fee')}" title="What you pay on top; a minus number if they pay you"></label>
+          <input type="hidden" name="type" value="swap">` : `
           <label class="f-wide"><span>Player</span><input name="name" type="text" maxlength="40" required value="${val('name')}" list="${dir === 'out' ? `squad-names-${esc(entry.id)}` : 'known-players'}" placeholder="${dir === 'out' ? 'Pick from your squad' : 'Name'}"></label>
           ${dir === 'out' ? `<datalist id="squad-names-${esc(entry.id)}">${squadNames}</datalist>` : ''}
           <label><span>Type</span><select name="type">${opts(types, v.type)}</select></label>
-          <label><span>Fee €M</span><input name="fee" type="number" min="0" step="0.1" placeholder="0" value="${val('fee')}"></label>
-          <label class="f-wide"><span>${dir === 'out' ? 'To club' : 'From club'}</span><input name="club" type="text" maxlength="40" value="${val('club')}"${owner('club')}></label>
-          ${dir === 'in' ? `
+          <label><span>Fee €M</span><input name="fee" type="number" min="0" step="0.1" placeholder="0" value="${val('fee')}"></label>`}
+          <label class="f-wide"><span>${dir === 'out' ? 'To club' : dir === 'swap' ? 'Their club' : 'From club'}</span><input name="club" type="text" maxlength="40" value="${val('club')}"${owner('club')}></label>
+          ${dir !== 'out' ? `
           <label><span>Pos</span><select name="pos"${owner('pos')}><option value=""></option>${opts(POSITIONS.map((x) => [x, x]), v.pos)}</select></label>
           <label><span>Age</span><input name="age" type="number" min="14" max="50" value="${val('age')}"${owner('age')}></label>
           <label><span>Nationality</span><input name="nat" type="text" list="nat-list" maxlength="30" value="${val('nat')}"${owner('nat')}></label>
@@ -292,9 +305,10 @@
           <label><span>Window</span><select name="window">${opts([['summer', 'Summer'], ['winter', 'January']], v.window || t.window)}</select></label>
         </div>
         <div class="recog" data-recog aria-live="polite"></div>
-        ${dir === 'in' ? '<label class="toggle regen-toggle"><input type="checkbox" name="regen"> 🧬 Regen (a player the game generated)</label>' : ''}
+        ${dir !== 'out' ? '<label class="toggle regen-toggle"><input type="checkbox" name="regen"> 🧬 Regen (a player the game generated)</label>' : ''}
+        ${dir === 'swap' ? '<p class="muted small">Cash: what you pay on top, or a minus number if they pay you. The player you give leaves your squad and the one you get joins it.</p>' : ''}
         <div class="precheck" data-precheck aria-live="polite"></div>
-        <button type="submit" class="btn btn-small btn-primary">${dir === 'out' ? 'Log departure' : 'Log signing'}</button>
+        <button type="submit" class="btn btn-small btn-primary">${dir === 'out' ? 'Log departure' : dir === 'swap' ? 'Log swap' : 'Log signing'}</button>
       </form>`;
   }
 
@@ -344,10 +358,10 @@
             <span class="muted">in ${money(spent)} · out ${money(made)} · <span class="${net < 0 ? 'neg' : 'pos'}">net ${net < 0 ? '−' : '+'}${money(Math.abs(net))}</span></span></div>
           ${items.slice().reverse().map((x) => `
           <div class="trow ${x.dir}" data-tid="${esc(x.id)}">
-            <span class="tdir">${x.dir === 'in' ? '⬇️' : '⬆️'}</span>
+            <span class="tdir">${x.type === 'swap' ? '🔄' : x.dir === 'in' ? '⬇️' : '⬆️'}</span>
             <span class="tmain"><strong>${esc(x.name)}</strong>${x.regen ? ' <span class="regen-badge" title="Regen: generated by the game">🧬 Regen</span>' : ''}
               <small class="muted">${[x.pos, x.age ? `${x.age}y` : '', x.nat ? C.normNat(x.nat) : '', x.ovr ? `${x.ovr} OVR` : ''].filter(Boolean).map(esc).join(' · ')}</small></span>
-            <span class="tmeta">${esc(((x.dir === 'in' ? IN_TYPES : OUT_TYPES).find(([v]) => v === x.type) || ['', x.type])[1])}${x.club ? ` · ${x.dir === 'in' ? 'from' : 'to'} ${esc(x.club)}` : ''}${n(x.fee) ? ` · <strong>${money(n(x.fee))}</strong>` : ''}</span>
+            <span class="tmeta">${x.type === 'swap' ? `${x.dir === 'in' ? 'Swap in' : 'Swap out'}${x.swapWith ? ` for ${esc(x.swapWith)}` : ''}` : esc(((x.dir === 'in' ? IN_TYPES : OUT_TYPES).find(([v]) => v === x.type) || ['', x.type])[1])}${x.club ? ` · ${x.dir === 'in' ? 'from' : 'to'} ${esc(x.club)}` : ''}${n(x.fee) ? ` · <strong>${money(n(x.fee))}</strong>` : ''}</span>
             <button type="button" class="icon-btn" data-action="tr-del" title="Delete this log entry (your squad list isn't changed)" aria-label="Delete">✕</button>
           </div>`).join('')}
         </div>`;
@@ -446,12 +460,23 @@
 
   // ---------- Live recognition and pre-check ----------
 
+  /** A swap as two moves: the player you give leaves (with any cash you receive), then the one you get arrives. */
+  function swapMoves(v) {
+    const swapId = uid();
+    const shared = { type: 'swap', club: v.club, season: v.season, window: v.window, swapId };
+    return [
+      Object.assign({ dir: 'out', name: v.give, fee: v.fee < 0 ? -v.fee : 0, swapWith: v.name }, shared),
+      Object.assign({ dir: 'in', name: v.name, fee: v.fee > 0 ? v.fee : 0, swapWith: v.give, pos: v.pos, age: v.age, nat: v.nat, ovr: v.ovr, wage: v.wage, regen: v.regen }, shared),
+    ].filter((m) => m.name);
+  }
+
   function formValues(form) {
     const f = Object.fromEntries(new FormData(form).entries());
     return {
       dir: form.dataset.dir,
       type: f.type,
       name: String(f.name || '').trim().slice(0, 40),
+      give: String(f.give || '').trim().slice(0, 40),
       fee: n(f.fee) || 0,
       club: String(f.club || '').trim().slice(0, 40),
       pos: f.pos || '',
@@ -547,12 +572,12 @@
     }
     const entry = deps.findEntry(item.dataset.id);
     if (!entry) return;
-    const res = A.precheck(entry.challenge, trackerOf(entry), Object.assign({}, v, { id: 'preview' }));
+    const res = A.precheck(entry.challenge, trackerOf(entry), v.dir === 'swap' ? swapMoves(v) : Object.assign({}, v, { id: 'preview' }));
     const breaks = res.breaks.map((b) => `<li><span>❌ <strong>${esc(b.text)}</strong></span><small>${b.details.slice(0, 3).map(esc).join(' · ')}</small></li>`).join('');
     const fixes = res.fixes.map((f) => `<li><span>✅ Completes: ${esc(f.text)}</span></li>`).join('');
     box.innerHTML = `
       <div class="verdict ${res.ok ? 'ok' : 'bad'}">
-        <strong>${res.ok ? `🤖 ✅ ${v.dir === 'in' ? 'This signing fits' : 'This move fits'} your rules` : `🤖 ❌ This would break ${res.breaks.length} rule${res.breaks.length === 1 ? '' : 's'}`}</strong>
+        <strong>${res.ok ? `🤖 ✅ ${({ in: 'This signing fits', swap: 'This swap fits' })[v.dir] || 'This move fits'} your rules` : `🤖 ❌ This would break ${res.breaks.length} rule${res.breaks.length === 1 ? '' : 's'}`}</strong>
         ${breaks || fixes ? `<ul>${breaks}${fixes}</ul>` : ''}
         <small class="muted">Checked against ${res.checked} rule${res.checked === 1 ? '' : 's'}${res.manual ? `; ✋ ${res.manual} you'll need to check yourself` : ''}.</small>
       </div>`;
@@ -763,7 +788,11 @@
     }
     if (action === 'tr-del') {
       const tid = btn.closest('[data-tid]').dataset.tid;
-      change(item, (t) => { t.transfers = t.transfers.filter((x) => x.id !== tid); }, ['transfers']);
+      change(item, (t) => {
+        const gone = t.transfers.find((x) => x.id === tid);
+        // Both halves of a swap go together.
+        t.transfers = t.transfers.filter((x) => x.id !== tid && !(gone && gone.swapId && x.swapId === gone.swapId));
+      }, ['transfers']);
       return true;
     }
     if (action === 'mv-del') {
@@ -793,11 +822,13 @@
       const tform = item.querySelector('[data-tform]');
       updateRecognition(tform, item, true);
       updatePrecheck(tform, item);
+      const swap = parsed.dir === 'swap';
       const bits = [
-        parsed.dir === 'in' ? ({ loan: 'loan signing', free: 'free transfer', promotion: 'academy promotion' }[parsed.type] || 'signing') : ({ loan: 'loan out', release: 'release' }[parsed.type] || 'sale'),
-        parsed.name || null,
-        parsed.club ? `${parsed.dir === 'in' ? 'from' : 'to'} ${parsed.club}` : null,
-        parsed.fee !== '' ? money(Number(parsed.fee)) : null,
+        swap ? 'swap' : parsed.dir === 'in' ? ({ loan: 'loan signing', free: 'free transfer', promotion: 'academy promotion' }[parsed.type] || 'signing') : ({ loan: 'loan out', release: 'release' }[parsed.type] || 'sale'),
+        swap && parsed.give ? `${parsed.give} out` : null,
+        parsed.name ? (swap ? `${parsed.name} in` : parsed.name) : null,
+        parsed.club ? `${swap ? 'with' : parsed.dir === 'in' ? 'from' : 'to'} ${parsed.club}` : null,
+        parsed.fee !== '' ? (Number(parsed.fee) < 0 ? `they pay ${money(-parsed.fee)}` : money(Number(parsed.fee))) : null,
         parsed.age ? `age ${parsed.age}` : null,
         parsed.ovr ? `${parsed.ovr} OVR` : null,
         parsed.window ? (parsed.window === 'winter' ? 'January' : 'summer') : null,
@@ -815,11 +846,17 @@
       updateRecognition(form, item, true);
       const v = formValues(form);
       if (!v.name) return true;
+      if (v.dir === 'swap' && !v.give) {
+        deps.toast('Pick the player you give from your squad first');
+        form.elements.give.focus();
+        return true;
+      }
       const known = DB.recognise(v.name);
       // Unticking "regen" for someone I didn't know means they're real: remember them.
-      if (v.dir === 'in' && !v.regen && v.type !== 'promotion' && !(known && known.player)) deps.rememberKnown(v.name, v.nat, v.pos);
-      change(item, (t) => C.applyTransfer(t, Object.assign({ id: uid(), playerId: uid() }, v)), ['transfers', 'squad']);
-      deps.toast(v.dir === 'in' ? `Signed ${v.name}${v.regen ? ' 🧬' : ''} ⬇️` : `${v.name} left ⬆️`);
+      if (v.dir !== 'out' && !v.regen && v.type !== 'promotion' && !(known && known.player)) deps.rememberKnown(v.name, v.nat, v.pos);
+      const moves = v.dir === 'swap' ? swapMoves(v) : [v];
+      change(item, (t) => moves.reduce((tr, m) => C.applyTransfer(tr, Object.assign({ id: uid(), playerId: uid() }, m)), t), ['transfers', 'squad']);
+      deps.toast(v.dir === 'swap' ? `Swapped ${v.give} for ${v.name}${v.regen ? ' 🧬' : ''} 🔄` : v.dir === 'in' ? `Signed ${v.name}${v.regen ? ' 🧬' : ''} ⬇️` : `${v.name} left ⬆️`);
       return true;
     }
     if (form.matches('[data-mform]')) {
@@ -916,12 +953,16 @@
     const real = realSquad(club);
     if (!real || real.filter((row) => !loanedOut(row)).length < (minimum || 1)) return [];
     const day = seasonDay(season);
-    return real.map(([name, pos, dob, nat, loan]) => {
+    const xi = new Set(((FC26.squads && FC26.squads.xi) || {})[club] || []);
+    return real.map(([name, pos, dob, nat, loan], i) => {
       // Squad lists often say just "forward"; the hand-written list knows Vinícius is a LW
       // (same name and nationality, so it's the same player).
       const known = DB.lookup(name);
       const sure = known && known.curated && known.pos && known.nat === C.normNat(nat);
-      return { id: uid(), name, pos: sure ? known.pos : pos, age: DB.ageOn(dob, day), nat: C.normNat(nat), loanIn: loan === 'in', loanedOut: loan === 'out' };
+      return {
+        id: uid(), name, pos: sure ? known.pos : pos, age: DB.ageOn(dob, day), nat: C.normNat(nat),
+        loanIn: loan === 'in', loanedOut: loan === 'out', starter: xi.has(i),
+      };
     });
   }
 
@@ -929,5 +970,11 @@
     tabs[id] = tab;
   }
 
-  FC26.trackerUI = { init, renderTracker, renderTransferCentre, realSquadPlayers, setTab, onClick, onChange, onSubmit, onInput, parseSquad, bestXI, POSITIONS };
+  /** The club's likely starting XI on a pitch (for challenge cards), or '' when there's no real squad. */
+  function defaultXIPitch(club) {
+    const players = realSquadPlayers(club, 1);
+    return players.some((p) => p.starter) ? renderPitch({ players }, true) : '';
+  }
+
+  FC26.trackerUI = { init, renderTracker, renderTransferCentre, realSquadPlayers, defaultXIPitch, setTab, onClick, onChange, onSubmit, onInput, parseSquad, bestXI, POSITIONS };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -283,7 +283,7 @@
     },
     maxSignings(c, t, ctx) {
       const details = windowsSoFar(ctx).filter((w) => !c.summerOnly || w.window === 'summer').map((w) => {
-        const n = signings(t).filter(inWindow(w)).filter((x) => !c.permanentOnly || x.type === 'permanent' || x.type === 'free').length;
+        const n = signings(t).filter(inWindow(w)).filter((x) => !c.permanentOnly || x.type === 'permanent' || x.type === 'free' || x.type === 'swap').length;
         return n > c.max ? `${n} signings in ${winLabel(w)} (max ${c.max})` : null;
       }).filter(Boolean);
       return details.length ? broken('Too many signings in a window', details) : ok(`No window over ${c.max}`);
@@ -381,7 +381,7 @@
       return everySeason(ctx, c.summer, (s) => signings(t).some((x) => x.season === s && (!c.summer || x.window !== 'winter') && natIs(x.nat, c.nat)), `a ${c.nat} signing`);
     },
     sellEverySummer(c, t, ctx) {
-      const res = everySeason(ctx, true, (s) => outs(t).some((x) => x.season === s && x.window !== 'winter' && x.type === 'sale'), 'a summer sale');
+      const res = everySeason(ctx, true, (s) => outs(t).some((x) => x.season === s && x.window !== 'winter' && (x.type === 'sale' || x.type === 'swap')), 'a summer sale');
       if (res.status === 'ok' && res.summary !== 'Nothing due yet') res.details.push('Make sure it was your best player each time.');
       return res;
     },

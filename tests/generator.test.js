@@ -932,3 +932,47 @@ test('extra-league squads are well-formed, recognised and scouted', () => {
   // Main-list players keep their main club.
   assert.equal(DB.recognise('Lamine Yamal').player.club, 'FC Barcelona');
 });
+
+// ---------- Default starting XI and swap deals ----------
+
+test('every club has a likely starting XI: eleven players, one keeper, no loanees out', () => {
+  const S = globalThis.FC26.squads;
+  const T = globalThis.FC26.trackerUI;
+  G.CLUBS.forEach((c) => {
+    const xi = S.xi[c.name];
+    assert.ok(Array.isArray(xi) && xi.length === 11, `${c.name}: ${xi && xi.length} starters`);
+    const rows = xi.map((i) => S.clubs[c.name][i]);
+    assert.ok(rows.every((r) => r && r[4] !== 'out'), `${c.name}: a loanee out starts`);
+    assert.ok(rows.filter((r) => r[1] === 'GK').length <= 1, `${c.name}: two keepers start`);
+  });
+  const loaded = T.realSquadPlayers('FC Barcelona', 1);
+  assert.equal(loaded.filter((p) => p.starter).length, 11);
+  assert.ok(loaded.find((p) => p.name === 'Lamine Yamal').starter);
+  T.init({ esc: (v) => String(v).replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`) });
+  assert.match(T.defaultXIPitch('FC Barcelona'), /Yamal/);
+  assert.equal(T.defaultXIPitch('Not A Club'), '');
+});
+
+test('a swap is read from a sentence, checked as two moves and logged as both', () => {
+  const squad = [{ name: 'Dušan Vlahović' }, { name: 'Young Yaw' }];
+  const p = A.parseTransfer('Swapped Dušan Vlahović for Victor Osimhen with Galatasaray, we pay €5m in January', { squad });
+  assert.deepEqual([p.dir, p.give, p.name, p.club, p.fee, p.window], ['swap', 'Dušan Vlahović', 'Victor Osimhen', 'Galatasaray', 5, 'winter']);
+  assert.equal(A.parseTransfer('Swap Young Yaw for Kid Talent, we receive 2m', { squad }).fee, -2);
+  const read = (text) => { const r = A.parseTransfer(text, { squad }); return [r.give, r.name, r.club, r.fee]; };
+  assert.deepEqual(read('swapped Vlahović with Manuel Locatelli at Juventus'), ['Dušan Vlahović', 'Manuel Locatelli', 'Juventus', '']);
+  assert.deepEqual(read('Got Osimhen from Galatasaray in a swap for Vlahović'), ['Dušan Vlahović', 'Victor Osimhen', 'Galatasaray', '']);
+  assert.deepEqual(read('swap Yaw for Jadon Sancho with Man United plus 3m'), ['Young Yaw', 'Jadon Sancho', 'Man United', 3]);
+  const ch = Object.assign({}, ch0, { coreRules: [{ text: 'Only sign players aged 31 or older.' }], rules: [{ text: 'Sell your highest-rated player every summer.' }] });
+  const t = tracker({ players: [player('Dušan Vlahović', { ovr: 84, age: 25 }), player('Young Yaw', { ovr: 70, age: 19 })] });
+  const moves = [
+    { dir: 'out', type: 'swap', name: 'Dušan Vlahović', season: 1, window: 'summer', swapId: 'x', swapWith: 'Victor Osimhen' },
+    { dir: 'in', type: 'swap', name: 'Victor Osimhen', age: 26, season: 1, window: 'summer', swapId: 'x', swapWith: 'Dušan Vlahović' },
+  ];
+  const res = A.precheck(ch, t, moves);
+  assert.equal(res.ok, false);
+  assert.match(res.breaks[0].details[0], /Victor Osimhen was 26/);
+  assert.deepEqual(res.fixes.map((f) => f.text), ['Sell your highest-rated player every summer.']); // the swap counts as his sale
+  const after = moves.reduce((tr, m) => C.applyTransfer(tr, Object.assign({ id: m.dir }, m)), C.normalizeTracker(JSON.parse(JSON.stringify(t))));
+  assert.deepEqual(after.players.map((x) => x.name).sort(), ['Victor Osimhen', 'Young Yaw']);
+  assert.equal(after.transfers.length, 2);
+});

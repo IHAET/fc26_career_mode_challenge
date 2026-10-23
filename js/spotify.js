@@ -174,7 +174,13 @@
         await new Promise((res) => setTimeout(res, (Number(r.headers.get('retry-after')) || 2) * 1000));
         continue;
       }
-      if (r.status === 403) throw new Error('Spotify refused: while the app is in development mode, only accounts added under "User Management" in its Spotify dashboard can use it.');
+      if (r.status === 403) {
+        // Say what Spotify said, with the fix for the usual causes.
+        const said = await r.text().then((body) => { try { return (JSON.parse(body).error || {}).message || body; } catch (e) { return body; } }).catch(() => '');
+        const why = String(said || '').trim().slice(0, 160);
+        if (/premium/i.test(why)) throw new Error(`Spotify refused (“${why}”). Spotify only lets apps in development mode work while the app's owner has Spotify Premium.`);
+        throw new Error(`Spotify refused${why ? ` (“${why}”)` : ''}. This Spotify account isn't on the app's user list yet: in the Spotify dashboard open the app, go to Settings → User Management, add the email this account logs in with, then press Disconnect Spotify below and connect again.`);
+      }
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
         throw new Error((j.error && j.error.message) || `Spotify error ${r.status}`);

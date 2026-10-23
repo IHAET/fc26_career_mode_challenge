@@ -319,7 +319,8 @@ function squadFromArticle(text) {
     const other = plain(p.other || '').toLowerCase();
     const loan = kind === 'out' || /^(at|on loan (to|at))\b/.test(other) ? 'out' : /^on loan from\b/.test(other) ? 'in' : '';
     const code = plain(p.nat || '').toUpperCase();
-    out.push({ name, link, group: plain(p.pos || '').toUpperCase(), nat: NAT_CODES[code] || plain(p.nat || ''), loan });
+    const num = Number(plain(p.no || '').replace(/\D/g, '')) || null;
+    out.push({ name, link, group: plain(p.pos || '').toUpperCase(), nat: NAT_CODES[code] || plain(p.nat || ''), loan, num });
   });
   return out;
 }
@@ -481,7 +482,7 @@ async function fetchSquads(clubs) {
       const f = (byTitle && byTitle.dob ? byTitle : byClub.get(`${p.name}|${clubs[club].qid}`) || byTitle) || { dob: '', positions: new Set() };
       // A name match can find the wrong person: drop dates that make no sense for a player.
       const age = f.dob ? ageOn(f.dob, SEASON_START) : 0;
-      return { name: p.name, pos: bestPosition(Array.from(f.positions), p.group), dob: age >= 15 && age <= 43 ? f.dob : '', nat: p.nat, loan: p.loan };
+      return { name: p.name, pos: bestPosition(Array.from(f.positions), p.group), dob: age >= 15 && age <= 43 ? f.dob : '', nat: p.nat, loan: p.loan, num: p.num };
     });
   });
   return squads;
@@ -507,8 +508,56 @@ function ageOn(dob, day) {
   return Y - y - (M < m || (M === m && D < d) ? 1 : 0);
 }
 
+/**
+ * A likely starting XI in a 4-3-3 (indexes into the club's rows). There are no
+ * ratings, so players are ranked by what hints at a regular starter: a shirt
+ * number from 1 to 11, being one of the well-known players in js/players.js,
+ * and an age in the prime years. Loanees out never start.
+ */
+function defaultXI(rows) {
+  const ranked = rows.map((r, i) => {
+    const [name, pos, dob, , loan] = r;
+    if (loan === 'out') return null;
+    const age = dob ? ageOn(dob, SEASON_START) : 25;
+    const num = r.num;
+    const known = CURATED.get(dbKey(name));
+    let score = num >= 1 && num <= 11 ? 40 - num : num >= 12 && num <= 30 ? 14 - (num - 12) * 0.4 : 0;
+    if (known) score += 28;
+    if (age >= 21 && age <= 33) score += 6;
+    if (age <= 18) score -= 12;
+    return { i, pos: (known && known.pos) || pos, score };
+  }).filter(Boolean).sort((a, b) => b.score - a.score || a.i - b.i);
+  const picked = new Set();
+  const take = (positions, count) => {
+    const got = ranked.filter((x) => positions.includes(x.pos) && !picked.has(x.i)).slice(0, Math.max(0, count));
+    got.forEach((x) => picked.add(x.i));
+    return got.length;
+  };
+  take(['GK'], 1);
+  let def = take(['LB', 'LWB'], 1) + take(['RB', 'RWB'], 1) + take(['CB'], 2);
+  def += take(['CB', 'LB', 'RB', 'LWB', 'RWB'], 4 - def);
+  let mid = take(['CDM', 'CM', 'CAM'], 3);
+  mid += take(['LM', 'RM'], 3 - mid);
+  let att = take(['LW'], 1) + take(['RW'], 1) + take(['ST', 'CF'], 1);
+  att += take(['ST', 'CF', 'LW', 'RW', 'LM', 'RM'], 3 - att);
+  ranked.filter((x) => x.pos !== 'GK' && !picked.has(x.i)).slice(0, Math.max(0, 11 - picked.size)).forEach((x) => picked.add(x.i));
+  return Array.from(picked).sort((a, b) => a - b);
+}
+
+// The hand-written list of well-known players (name → { pos }), for the default XI.
+const dbKey = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+const CURATED = (() => {
+  const prev = globalThis.FC26;
+  globalThis.FC26 = {};
+  require(path.join(ROOT, 'js', 'players.js'));
+  const map = new Map(globalThis.FC26.playerDB.curated.map((p) => [dbKey(p.name), p]));
+  globalThis.FC26 = prev;
+  return map;
+})();
+
 function writeSquads(squads) {
   const out = {};
+  const xi = {};
   let players = 0;
   const thin = [];
   Object.keys(squads).sort().forEach((club) => {
@@ -518,6 +567,7 @@ function writeSquads(squads) {
     // Loanees out are listed last, flagged "out"; loanees in are flagged "in".
     list.sort((a, b) => (a.loan === 'out') - (b.loan === 'out'));
     out[club] = list.map((p) => (p.loan ? [p.name, p.pos, p.dob, p.nat, p.loan] : [p.name, p.pos, p.dob, p.nat]));
+    xi[club] = defaultXI(list.map((p, i) => Object.assign(out[club][i].slice(), { num: p.num })));
     players += list.length;
   });
   const today = new Date().toISOString().slice(0, 10);
@@ -539,6 +589,8 @@ function writeSquads(squads) {
     fetched: ${lit(today)},
     seasonStart: ${lit(SEASON_START)},
     clubs: ${JSON.stringify(out)},
+    // A likely starting XI per club (row indexes), from shirt numbers and well-known players.
+    xi: ${JSON.stringify(xi)},
   };
 })(typeof window !== 'undefined' ? window : globalThis);
 `;

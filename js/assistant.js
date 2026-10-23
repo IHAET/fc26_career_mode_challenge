@@ -88,12 +88,77 @@
   }
 
   /**
+   * "Swapped Rabiot for Locatelli with Juventus, we pay €5m": the squad player
+   * you give, the player you get, their club and any cash (negative when you
+   * receive it).
+   */
+  function parseSwap(raw, opts) {
+    const out = { dir: 'swap', type: 'swap', give: '', name: '', fee: '', club: '', age: '', ovr: '', nat: '', pos: '', wage: '', window: '', season: '', known: null };
+    const squad = (opts.squad || []).filter((p) => p && p.name && p.name.trim().length > 1);
+    const lower = raw.toLowerCase();
+    const wordAt = (w) => {
+      const m = new RegExp(`(?:^|[^\\p{L}])(${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?![\\p{L}])`, 'u').exec(lower);
+      return m ? m.index + m[0].length - m[1].length : -1;
+    };
+    // The squad player you give: full name, else surname ("Rabiot" for Adrien Rabiot), else "swap X for".
+    let at = -1;
+    let typed = '';
+    const full = squad.find((p) => lower.includes(p.name.trim().toLowerCase()));
+    const bySurname = !full && squad.find((p) => {
+      const last = p.name.trim().split(/\s+/).pop();
+      return last.length > 2 && wordAt(last.toLowerCase()) >= 0;
+    });
+    if (full || bySurname) {
+      out.give = (full || bySurname).name.trim();
+      typed = full ? out.give : out.give.split(/\s+/).pop();
+      at = full ? lower.indexOf(typed.toLowerCase()) : wordAt(typed.toLowerCase());
+    } else {
+      const g = raw.match(/\b[Ss]wap(?:ped|s|ping)?\s+(\p{Lu}[\p{L}'’.\- ]+?)\s+(?:for|with)\b/u);
+      if (g) {
+        typed = g[1].trim();
+        at = g.index + g[0].indexOf(typed);
+        out.give = typed;
+      }
+    }
+    // "swap A for/with B": B is the player you get, and their club comes after him.
+    const tail = at >= 0 ? raw.slice(at + typed.length) : raw;
+    const pair = tail.match(/^\s*(?:for|with)\s+(\p{Lu}[\p{L}'’.\- ]+?)(?=\s+(?:from|with|at|plus|and|in|on|for)\b|[,+.;!?]|$)/u);
+    const rest = pair ? tail.slice(pair[0].length) : at >= 0 ? `${raw.slice(0, at)} ${tail}` : raw;
+    const club = rest.match(new RegExp(`\\b(?:from|with|at)\\s+(\\p{Lu}[\\p{L}\\p{N}.'’&\\- ]*?)(?=\\s+(?:plus|and)\\b|${STOP.source})`, 'u'));
+    if (club) out.club = club[1].trim();
+    const known = findKnownPlayer(pair ? pair[1] : rest, [out.club]);
+    if (known && known.name !== out.give) {
+      out.name = known.name;
+      out.known = known;
+      out.nat = known.nat;
+      out.pos = known.pos;
+    } else if (pair) {
+      out.name = pair[1].trim();
+    } else {
+      const g = rest.match(/\b(?:for|get|getting|got)\s+(\p{Lu}[\p{L}'’.\- ]+?)(?=\s+(?:from|with|at|plus|and|in|on)\b|[,+.;!?]|$)/u);
+      if (g && g[1].trim() !== out.give) out.name = g[1].trim();
+    }
+    const fee = raw.match(/(€|£|\$)\s*([\d.,]+)\s*(m|mil|mill?ions?|k)?\b/i) || raw.match(/\b([\d.,]+)\s*(m|mil|mill?ions?|k)\b/i);
+    if (fee) {
+      const value = fee.length === 4 ? parseMoney(fee[2], fee[3], true) : parseMoney(fee[1], fee[2], false);
+      // Cash we receive counts against the deal: negative.
+      if (value != null) out.fee = Math.round(value * 100) / 100 * (/\b(we|i)\s+(get|got|receive|received)\b|\bthey\s+pay\b|\bplus cash\b/i.test(raw) ? -1 : 1);
+    }
+    if (/\b(january|winter)\b/i.test(raw)) out.window = 'winter';
+    else if (/\bsummer\b/i.test(raw)) out.window = 'summer';
+    const season = raw.match(/\b(?:season|s)\s?(\d{1,2})\b/i);
+    if (season) out.season = Number(season[1]);
+    return out;
+  }
+
+  /**
    * Read a transfer sentence. Returns the fields it understood plus `notes`
    * (what it picked up) for the UI. Fields it couldn't find are left empty.
    */
   function parseTransfer(text, options) {
     const opts = options || {};
     const raw = String(text || '').trim();
+    if (/\bswap/i.test(raw)) return parseSwap(raw, opts);
     const out = { dir: 'in', type: 'permanent', name: '', fee: '', club: '', age: '', ovr: '', nat: '', pos: '', wage: '', window: '', season: '', known: null };
     if (!raw) return out;
 
@@ -171,7 +236,8 @@
     const c = cache || {};
     if (!c.before) c.before = C.checkChallenge(ch, C.normalizeTracker(clone(tracker)));
     const { before } = c;
-    const sim = C.applyTransfer(C.normalizeTracker(clone(tracker)), Object.assign({ id: 'preview' }, rec));
+    // A swap is two moves (the player out, then the player in), checked together.
+    const sim = [].concat(rec).reduce((t, r, i) => C.applyTransfer(t, Object.assign({ id: `preview-${i}` }, r)), C.normalizeTracker(clone(tracker)));
     const after = C.checkChallenge(ch, sim);
     const breaks = [];
     const fixes = [];

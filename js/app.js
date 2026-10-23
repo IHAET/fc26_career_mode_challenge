@@ -350,6 +350,12 @@
     return `<div class="crest${small ? ' small' : ''}" style="--crest-h:${h}" aria-hidden="true"><span class="crest-text">${esc(initials(club.name))}</span>${icon ? `<span class="crest-icon">${esc(icon)}</span>` : ''}</div>`;
   }
 
+  // The club's likely starting XI as FC 26 launched, folded under the facts.
+  function xiPreview(club) {
+    const pitch = Tracker.defaultXIPitch(club);
+    return pitch ? `<details class="block xi-preview" open><summary><h3>⚽ Likely starting XI</h3></summary>${pitch}</details>` : '';
+  }
+
   function stars(tier) {
     return '★'.repeat(tier) + '<span class="star-off">' + '★'.repeat(5 - tier) + '</span>';
   }
@@ -471,6 +477,8 @@
       ${ch.archetype.history
     ? `<section class="history"><h3>📖 The history</h3><p>${esc(ch.archetype.history)}</p></section>`
     : ch.archetype.desc ? `<p class="desc">${esc(ch.archetype.desc)}</p>` : ''}
+
+      ${mode !== 'saved' && !player ? xiPreview(ch.club.name) : ''}
 
       <section class="block">
         <h3>📜 Rules</h3>
