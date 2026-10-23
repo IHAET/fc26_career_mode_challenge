@@ -7550,18 +7550,22 @@ Aleksei Miranchuk|Russian|CAM
     const form = e.target.closest('[data-tform]');
     if (!form) return false;
     if (e.target.name === 'name' && form.dataset.dir === 'in') suggest(e.target.value);
-    if (e.target.name === 'regen') e.target.dataset.touched = '1';
-    // Typed by hand: this value belongs to whoever is named right now.
-    if (FOLLOW.includes(e.target.name)) {
-      e.target.dataset.for = DB.key(form.elements.name.value);
-      delete e.target.dataset.auto;
-    }
+    noteTyped(form, e.target);
     clearTimeout(liveTimer);
     liveTimer = setTimeout(() => {
       updateRecognition(form, item, e.target.name === 'name');
       updatePrecheck(form, item);
     }, 120);
     return true;
+  }
+
+  // Typed by hand: this value belongs to whoever is named right now.
+  function noteTyped(form, el) {
+    if (el.name === 'regen') el.dataset.touched = '1';
+    if (FOLLOW.includes(el.name)) {
+      el.dataset.for = DB.key(form.elements.name.value);
+      delete el.dataset.auto;
+    }
   }
 
   // ---------- Events ----------
@@ -7779,6 +7783,8 @@ Aleksei Miranchuk|Russian|CAM
     }
     if (form.matches('[data-tform]')) {
       e.preventDefault();
+      // Whatever events the browser sent, never log a player with someone else's details.
+      updateRecognition(form, item, true);
       const v = formValues(form);
       if (!v.name) return true;
       const known = DB.recognise(v.name);
@@ -7801,6 +7807,15 @@ Aleksei Miranchuk|Russian|CAM
 
   function onChange(e, item) {
     const el = e.target;
+    const tform = el.closest('[data-tform]');
+    if (tform) {
+      // Some browsers report a picked suggestion or autofill only as "change", not "input".
+      noteTyped(tform, el);
+      clearTimeout(liveTimer);
+      updateRecognition(tform, item, el.name === 'name');
+      updatePrecheck(tform, item);
+      return true;
+    }
     if (el.closest('[data-scout-form]')) {
       const s = scoutFilters(item.dataset.id);
       if (el.name === 'fits') s.fits = el.checked;
