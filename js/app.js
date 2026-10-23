@@ -336,6 +336,20 @@
     return `<button type="button" class="icon-btn lock ${locked ? 'is-locked' : ''}" data-action="lock" data-target="${target}"${id ? ` data-id="${esc(id)}"` : ''} title="${locked ? 'Unlock' : 'Lock'}" aria-pressed="${locked}">${locked ? '🔒' : '🔓'}</button>`;
   }
 
+  // A shield with the club's initials (colour from its name, not its real colours) and the challenge's icon.
+  const CREST_SKIP = new Set(['fc', 'afc', 'cf', 'sc', 'ac', 'as', 'ss', 'ssc', 'us', 'cd', 'ud', 'sd', 'rcd', 'fk', 'sk', 'bk', 'if', 'il', 'tsg', 'vfb', 'vfl', 'sv', '1.', 'ca', 'ogc', 'de', 'del', 'la', 'di', 'of', 'the', 'and', '&']);
+  function initials(name) {
+    const words = String(name || '?').split(/[\s\-/]+/).filter(Boolean);
+    const kept = words.length > 1 ? words.filter((w) => !CREST_SKIP.has(w.toLowerCase())) : words;
+    const use = kept.length ? kept : words;
+    return (use.length === 1 ? use[0].slice(0, 3) : use.slice(0, 3).map((w) => w[0]).join('')).toUpperCase();
+  }
+  function crest(club, icon, small) {
+    let h = 0;
+    for (const ch of String(club.name || '')) h = (h * 31 + ch.codePointAt(0)) % 360;
+    return `<div class="crest${small ? ' small' : ''}" style="--crest-h:${h}" aria-hidden="true"><span class="crest-text">${esc(initials(club.name))}</span>${icon ? `<span class="crest-icon">${esc(icon)}</span>` : ''}</div>`;
+  }
+
   function stars(tier) {
     return '★'.repeat(tier) + '<span class="star-off">' + '★'.repeat(5 - tier) + '</span>';
   }
@@ -415,7 +429,7 @@
     return `
     <article class="card panel ${diffClass(ch.difficulty)}">
       <header class="card-head">
-        <div class="arch-icon">${esc(ch.archetype.icon)}</div>
+        ${crest(ch.club, ch.archetype.icon)}
         <div class="card-title">
           <div class="eyebrow">
             ${ch.archetype.history && ch.archetype.typeName !== ch.archetype.name ? `${esc(ch.archetype.typeName)} · ` : ''}${esc(ch.archetype.name)}
@@ -983,7 +997,7 @@
       `saved ${esc(new Date(entry.savedAt).toLocaleDateString())}`,
     ].filter(Boolean).join(' · ');
     return `
-          <span class="arch-icon small">${esc(ch.archetype.icon)}</span>
+          ${crest(ch.club, ch.archetype.icon, true)}
           <span class="saved-title">
             <strong>${esc(ch.title)}</strong>
             <small>${tags}</small>

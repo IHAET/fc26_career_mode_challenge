@@ -279,7 +279,6 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
   .toast { bottom: calc(80px + env(safe-area-inset-bottom)); }
   .presets { grid-template-columns: 1fr 1fr; }
 }
-@media (min-width: 561px) { .tab .tab-icon { display: none; } }
 
 body.modal-open { overflow: hidden; }
 .modal {
@@ -833,3 +832,129 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 @media (max-width: 900px) {
   .topbar { position: static; }
 }
+
+/* =====================================================================
+   Pro layer: type, surfaces, header, buttons, card hero, numbers.
+   Sits last so it refines everything above in both themes.
+   ===================================================================== */
+
+:root {
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Barlow Condensed", "Oswald", "Arial Narrow", system-ui, sans-serif;
+  --radius: 16px;
+  --hairline: rgba(255, 255, 255, 0.05);
+  --accent-hi: #4cf3a8;
+  --glow: rgba(25, 230, 140, 0.35);
+}
+:root[data-theme="light"] {
+  --hairline: rgba(255, 255, 255, 0.9);
+  --accent-hi: #12a669;
+  --glow: rgba(10, 138, 84, 0.28);
+}
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-feature-settings: "cv11", "ss01"; letter-spacing: -0.005em; }
+
+/* Header */
+.brand h1 { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; font-size: 1.5rem; line-height: 1; }
+.brand-sub { font-size: 0.8rem; margin-top: 4px; }
+.brand-mark { box-shadow: 0 8px 22px -8px var(--glow); font-family: var(--font-display); font-size: 1.3rem; letter-spacing: 0; }
+.tabs { padding: 5px; gap: 4px; box-shadow: inset 0 1px 0 var(--hairline); }
+.tab { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; transition: color 0.15s ease, background 0.15s ease; }
+.tab:hover { color: var(--text); }
+.tab.is-active { color: var(--text); background: var(--panel-2); box-shadow: 0 1px 0 var(--hairline) inset, 0 4px 12px -6px rgba(0, 0, 0, 0.4); }
+.tab.is-active .tab-icon { color: var(--accent); }
+svg.tab-icon { width: 18px; height: 18px; flex: none; }
+@media (max-width: 560px) {
+  .tab { display: flex; gap: 2px; }
+  svg.tab-icon { width: 22px; height: 22px; }
+  .tab.is-active { background: transparent; box-shadow: none; color: var(--accent); }
+}
+
+/* Surfaces */
+.panel { border-radius: var(--radius); box-shadow: inset 0 1px 0 var(--hairline), var(--shadow); }
+:root[data-theme="light"] .panel { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.12); }
+.options h2, .saved-head h2, .daily-title h2, .tc-head h2 { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+.options h2 { font-size: 1.25rem; color: var(--text); }
+.saved-head h2 { font-size: 2rem; line-height: 1; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; border-radius: 11px; font-weight: 650; transition: transform 0.08s ease, background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
+.btn:hover { border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
+.btn-small { min-height: 32px; border-radius: 9px; }
+.btn-primary { background: linear-gradient(180deg, var(--accent-hi), var(--accent)); box-shadow: 0 8px 20px -10px var(--glow), inset 0 1px 0 rgba(255, 255, 255, 0.25); }
+.btn-primary:hover { background: linear-gradient(180deg, var(--accent-hi), var(--accent-hi)); }
+.btn-big { min-height: 52px; font-size: 1.05rem; letter-spacing: 0.01em; border-radius: 13px; }
+.options .btn-big { font-family: var(--font-display); text-transform: uppercase; font-size: 1.25rem; font-weight: 800; letter-spacing: 0.05em; }
+.btn:focus-visible, .preset:focus-visible, .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Empty Builder: hero */
+.welcome { padding: clamp(24px, 4vw, 44px); background:
+  radial-gradient(600px 240px at 50% -20%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%), var(--panel); }
+.hero-kicker { display: inline-block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); padding: 5px 12px; border-radius: 99px; }
+.hero-title { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 0.95; letter-spacing: 0.01em; margin: 14px 0 10px; }
+.hero-title span { background: linear-gradient(90deg, var(--accent), var(--d1)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero-sub { color: var(--muted); max-width: 560px; margin: 0 auto; }
+.preset { padding: 14px; gap: 2px 12px; }
+.preset-icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 1.35rem; background: var(--bg-2); border: 1px solid var(--line); }
+.preset:hover .preset-icon { background: var(--panel); }
+.preset strong { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+.feature-strip li { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Challenge card: hero band, crest, display type */
+.card { border-top: 0; overflow: hidden; }
+.card-head {
+  margin: calc(-1 * clamp(16px, 3vw, 28px)) calc(-1 * clamp(16px, 3vw, 28px)) 0;
+  padding: clamp(18px, 3vw, 28px) clamp(16px, 3vw, 28px) clamp(16px, 2.5vw, 22px);
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(90deg, var(--diff) 0 4px, transparent 4px),
+    radial-gradient(520px 220px at 0% 0%, color-mix(in srgb, var(--diff) 22%, transparent), transparent 70%),
+    repeating-linear-gradient(125deg, transparent 0 18px, color-mix(in srgb, var(--text) 2.5%, transparent) 18px 36px);
+}
+.card-title h2 { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: clamp(2rem, 4.6vw, 3rem); line-height: 0.95; letter-spacing: 0.01em; margin: 4px 0 6px; }
+.eyebrow { font-size: 0.74rem; letter-spacing: 0.12em; }
+.tagline { font-style: normal; font-size: 0.98rem; }
+.badge.diff { font-family: var(--font-display); font-size: 0.95rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 12px; box-shadow: 0 6px 16px -8px var(--diff); }
+.crest {
+  --c1: hsl(var(--crest-h) 62% 46%); --c2: hsl(calc(var(--crest-h) + 28) 70% 28%);
+  position: relative; flex: none; width: 72px; height: 80px; display: grid; place-items: center;
+  background: linear-gradient(160deg, var(--c1), var(--c2));
+  border-radius: 14px 14px 50% 50% / 14px 14px 38% 38%;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.18), inset 0 -10px 18px rgba(0, 0, 0, 0.18), 0 10px 24px -12px var(--c2);
+}
+.crest-text { font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 1.55rem; letter-spacing: 0.02em; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); margin-top: -6px; }
+.crest-icon { position: absolute; right: -8px; bottom: -6px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 0.95rem; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.4); }
+.crest.small { width: 40px; height: 44px; border-radius: 9px 9px 50% 50% / 9px 9px 38% 38%; }
+.crest.small .crest-text { font-size: 0.95rem; margin-top: -3px; }
+.crest.small .crest-icon { width: 20px; height: 20px; font-size: 0.65rem; right: -6px; bottom: -4px; }
+@media (max-width: 560px) { .crest { width: 58px; height: 64px; } .crest-text { font-size: 1.25rem; } }
+
+.fact-value { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; line-height: 1.1; letter-spacing: 0.01em; }
+.fact-value.stars { font-family: var(--font); font-size: 1.1rem; }
+.block h3 { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; }
+.block h3::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
+.history h3 { font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.06em; }
+.rule { transition: border-color 0.15s ease, background 0.15s ease; }
+.rule:hover { border-color: color-mix(in srgb, var(--diff) 35%, var(--line)); }
+.season-num span { font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; background: var(--panel); box-shadow: 0 0 0 4px var(--panel); }
+.final .final-goal { font-family: var(--font-display); font-size: 1.45rem; font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; line-height: 1.15; }
+.card-actions .btn { min-height: 38px; }
+
+/* Numbers that read like a scoreboard */
+.stat strong, .streak-num strong, .ach-count, .tc-status strong { font-family: var(--font-display); }
+.stat strong { font-size: 1.75rem; font-weight: 800; }
+.saved-title strong { font-weight: 700; }
+
+/* Footer */
+.footer { font-size: 0.82rem; }
+.preset { text-align: left; }
+
+/* Squad flags as toggle chips: the checkbox stays (for keyboards and screen readers) but is visually hidden. */
+.p-flags { gap: 4px; }
+.p-flags label { position: relative; width: 30px; height: 30px; justify-content: center; border-radius: 8px; border: 1px solid transparent; font-size: 0.95rem; transition: background 0.12s ease, border-color 0.12s ease, opacity 0.12s ease; }
+.p-flags label input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; }
+.p-flags label:not(:has(input:checked)) { opacity: 0.32; filter: grayscale(1); }
+.p-flags label:hover { opacity: 0.8; background: var(--panel-2); }
+.p-flags label:has(input:checked) { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+.p-flags label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (max-width: 560px) { .h1-long { display: none; } .brand h1 { font-size: 1.3rem; } }

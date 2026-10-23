@@ -17,7 +17,8 @@ let html = read('index.html');
 // Links to other files (e.g. the download link) only make sense on the hosted site.
 html = html.replace(/[ \t]*<!-- hosted-only -->[\s\S]*?<!-- \/hosted-only -->\n?/g, '');
 
-html = html.replace(/<link rel="stylesheet" href="([^"]+)">/g, (_, href) => `<style>\n${read(href)}</style>`);
+// Local stylesheets are inlined; web fonts stay as links (the file falls back to system fonts offline).
+html = html.replace(/<link rel="stylesheet" href="(?!https?:)([^"]+)">/g, (_, href) => `<style>\n${read(href)}</style>`);
 
 html = html.replace(/<script src="([^"]+)"><\/script>/g, (_, src) => {
   const js = read(src);
@@ -25,7 +26,7 @@ html = html.replace(/<script src="([^"]+)"><\/script>/g, (_, src) => {
   return `<script>/* ${src} */\n${js}</script>`;
 });
 
-const leftovers = html.match(/<(script|link)[^>]+(src|href)="(?!data:)[^"]+"/g);
+const leftovers = html.match(/<(script|link)[^>]+(src|href)="(?!data:|https:\/\/fonts\.(googleapis|gstatic)\.com)[^"]+"/g);
 if (leftovers) throw new Error(`Unbundled references left: ${leftovers.join(', ')}`);
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
