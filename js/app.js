@@ -1,11 +1,13 @@
 /* UI for the FC 26 Career Challenge Builder. */
 (function () {
   'use strict';
-  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker } = window.FC26;
+  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker, playerDB: PlayerDB } = window.FC26;
 
   const STORE_KEY = 'fc26-challenges-v1';
   const OPTIONS_KEY = 'fc26-options-v1';
   const DAILY_KEY = 'fc26-daily-v1';
+  const KNOWN_KEY = 'fc26-known-v1'; // players the user confirmed are real (not regens)
+  const TC_KEY = 'fc26-transfers-challenge-v1'; // challenge picked in the Transfers section
 
   const $ = (sel, el = document) => el.querySelector(sel);
   const $$ = (sel, el = document) => Array.from(el.querySelectorAll(sel));
@@ -443,6 +445,7 @@
 
       <footer class="card-actions">
         ${controls ? '<button type="button" class="btn btn-primary" data-action="reroll">🎲 Reroll unlocked</button>' : ''}
+        ${builder || mode === 'daily' ? '<button type="button" class="btn" data-action="track" title="Save it and open its squad and transfer tracker">📒 Track it</button>' : ''}
         ${builder ? `
           <button type="button" class="btn${ch.custom ? ' btn-primary' : ''}" data-action="save">💾 Save</button>
           <button type="button" class="btn" data-action="edit" title="Change any text, add or remove rules and seasons">✏️ Edit</button>` : ''}
@@ -452,6 +455,7 @@
         <button type="button" class="btn" data-action="copy">📋 Copy text</button>
         <button type="button" class="btn" data-action="share">🔗 Share link</button>
         <button type="button" class="btn" data-action="image" title="Save the challenge as a picture to post">🖼️ Image</button>
+        ${mode === 'saved' ? '<button type="button" class="btn" data-action="open-transfers" title="Log transfers for this challenge in the Transfers section">🔁 Transfers</button>' : ''}
         ${mode === 'saved' ? '<button type="button" class="btn btn-danger" data-action="delete">🗑️ Delete</button>' : ''}
       </footer>
     </article>`;
@@ -827,6 +831,10 @@
 
   // After a tracker change: re-check the rules (Challenge tab) and the summary row, leaving the edited panel alone.
   function refreshSavedItem(item, entry) {
+    if (item.id === 'tc-body') {
+      refreshTransfersHeader(entry);
+      return;
+    }
     const panel = $('[data-panel="challenge"]', item);
     if (panel) panel.innerHTML = renderCard(entry.challenge, 'saved', entry);
     $('summary', item).innerHTML = savedSummary(entry);
@@ -849,21 +857,75 @@
     $('summary', item).innerHTML = savedSummary(entry);
   }
 
-  function saveChallenge(ch) {
+  /** Save a challenge (unless it's already saved). Returns its id, or null if storage failed. */
+  function saveChallenge(ch, quiet) {
     const list = loadSaved();
     const key = challengeKey(ch);
-    if (list.some((e) => challengeKey(e.challenge) === key)) {
-      toast('Already in My Challenges');
-      return;
+    const existing = list.find((e) => challengeKey(e.challenge) === key);
+    if (existing) {
+      if (!quiet) toast('Already in My Challenges');
+      return existing.id;
     }
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-    list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, log: {}, breaks: 0 });
+    list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, log: {}, breaks: 0, tracker: Compliance.emptyTracker() });
     if (writeSaved(list)) {
       $('#saved-count').textContent = list.length;
-      toast('Saved to My Challenges 💾');
-    } else {
-      toast("Couldn't save — browser storage is unavailable");
+      if (!quiet) toast('Saved to My Challenges 💾');
+      return id;
     }
+    toast("Couldn't save — browser storage is unavailable");
+    return null;
+  }
+
+  // Save (if needed) and open the challenge's tracker on its Squad / Career moves tab.
+  function trackChallenge(ch) {
+    const id = saveChallenge(ch, true);
+    if (!id) return;
+    Tracker.setTab(id, ch.mode === 'player' ? 'moves' : 'squad');
+    storageSet(TC_KEY, id);
+    showView('saved', id);
+    const item = $(`.saved-item[data-id="${CSS.escape(id)}"]`);
+    if (item) item.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    toast('Tracking this challenge 📒');
+  }
+
+  // ---------- Transfers section ----------
+
+  function renderTransfersView() {
+    const list = loadSaved();
+    const picker = $('#tc-challenge');
+    const body = $('#tc-body');
+    if (!list.length) {
+      picker.innerHTML = '';
+      picker.disabled = true;
+      body.removeAttribute('data-id');
+      body.innerHTML = `<div class="empty"><div class="empty-ball">🔁</div><h2>No challenge to log for yet</h2><p>Transfers belong to a challenge. Generate one in the Builder and press 📒 Track it.</p>
+        <button type="button" class="btn btn-primary" data-goto="builder">Go to the Builder</button></div>`;
+      return;
+    }
+    let id = storageGet(TC_KEY, null);
+    if (!list.some((e) => e.id === id)) id = list[0].id;
+    picker.disabled = false;
+    picker.innerHTML = list.map((e) => `<option value="${esc(e.id)}" ${e.id === id ? 'selected' : ''}>${esc(e.challenge.archetype.icon)} ${esc(e.challenge.title)}${e.challenge.mode === 'player' ? ' (Player Career)' : ''}</option>`).join('');
+    const entry = list.find((e) => e.id === id);
+    body.dataset.id = id;
+    body.dataset.club = entry.challenge.club.name;
+    body.innerHTML = Tracker.renderTransferCentre(entry);
+    refreshTransfersHeader(entry);
+  }
+
+  function refreshTransfersHeader(entry) {
+    const t = Compliance.tally(Compliance.checkChallenge(entry.challenge, entry.tracker));
+    $('#tc-status').innerHTML = `${esc(entry.challenge.difficultyName)} · ${entry.challenge.seasons} seasons ·
+      <span class="check-pills"><span title="Kept">✅ ${t.ok}</span><span title="Broken">❌ ${t.broken}</span><span title="Needs attention">⚠️ ${t.warn}</span><span title="Check yourself">✋ ${t.manual}</span></span>`;
+  }
+
+  function rememberKnown(name, nat, pos) {
+    PlayerDB.addKnown(name, nat, pos);
+    const list = storageGet(KNOWN_KEY, []);
+    if (!Array.isArray(list) || list.some((x) => x && x.name === name)) return;
+    list.push({ name, nat: nat || '', pos: pos || '' });
+    storageSet(KNOWN_KEY, list.slice(-500));
   }
 
   function updateEntry(id, fn) {
@@ -877,7 +939,7 @@
 
   // ---------- Events ----------
 
-  function showView(view) {
+  function showView(view, openId) {
     $$('.tab').forEach((t) => {
       const active = t.dataset.view === view;
       t.classList.toggle('is-active', active);
@@ -886,7 +948,9 @@
     $('#view-builder').hidden = view !== 'builder';
     $('#view-daily').hidden = view !== 'daily';
     $('#view-saved').hidden = view !== 'saved';
-    if (view === 'saved') renderSaved();
+    $('#view-transfers').hidden = view !== 'transfers';
+    if (view === 'saved') renderSaved(openId);
+    if (view === 'transfers') renderTransfersView();
     if (view === 'daily') renderDaily(state.dailyKey || Daily.dateKey());
     // Keep #daily in the address bar so the tab can be bookmarked or linked.
     const hash = window.location.hash;
@@ -976,6 +1040,8 @@
     const { action } = btn.dataset;
     if (action === 'save') {
       saveChallenge(ch);
+    } else if (action === 'track') {
+      trackChallenge(ch);
     } else if (action === 'customise') {
       // Open in the Builder with everything locked, so the player can unlock and reroll parts.
       state.challenge = ch;
@@ -1059,6 +1125,8 @@
       renderBuilder();
     } else if (action === 'save') {
       saveChallenge(state.challenge);
+    } else if (action === 'track') {
+      trackChallenge(state.challenge);
     } else if (action === 'edit') {
       startEdit(state.challenge);
     } else if (action === 'image') {
@@ -1100,6 +1168,9 @@
       });
     } else if (action === 'image') {
       exportImage(entry.challenge);
+    } else if (action === 'open-transfers') {
+      storageSet(TC_KEY, id);
+      showView('transfers');
     } else if (action === 'delete') {
       if (window.confirm(`Delete "${entry.challenge.title}"?`)) {
         writeSaved(loadSaved().filter((x) => x.id !== id));
@@ -1155,7 +1226,30 @@
       const item = e.target.closest('.saved-item');
       if (item) Tracker.onSubmit(e, item);
     });
-    Tracker.init({ esc, toast, mutateEntry, findEntry, refresh: refreshSavedItem });
+    Tracker.init({ esc, toast, mutateEntry, findEntry, refresh: refreshSavedItem, rememberKnown });
+    const known = storageGet(KNOWN_KEY, []);
+    if (Array.isArray(known)) known.forEach((x) => x && x.name && PlayerDB.addKnown(x.name, x.nat, x.pos));
+    const knownList = $('#known-players');
+    PlayerDB.players.forEach((p) => knownList.appendChild(new Option(p.name)));
+    $('#saved-list').addEventListener('input', (e) => {
+      const item = e.target.closest('.saved-item');
+      if (item) Tracker.onInput(e, item);
+    });
+    // The Transfers section uses the same tracker handlers as a saved challenge.
+    const tc = $('#tc-body');
+    tc.addEventListener('click', (e) => {
+      const go = e.target.closest('[data-goto]');
+      if (go) return showView(go.dataset.goto);
+      if (tc.dataset.id) Tracker.onClick(e, tc);
+      return undefined;
+    });
+    tc.addEventListener('change', (e) => { if (tc.dataset.id) Tracker.onChange(e, tc); });
+    tc.addEventListener('input', (e) => { if (tc.dataset.id) Tracker.onInput(e, tc); });
+    tc.addEventListener('submit', (e) => { if (tc.dataset.id) Tracker.onSubmit(e, tc); });
+    $('#tc-challenge').addEventListener('change', (e) => {
+      storageSet(TC_KEY, e.target.value);
+      renderTransfersView();
+    });
     const natList = $('#nat-list');
     Compliance.NATIONALITIES.forEach((nat) => natList.appendChild(new Option(nat)));
     $('#options').addEventListener('submit', (e) => {

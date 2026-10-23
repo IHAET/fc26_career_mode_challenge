@@ -1,7 +1,8 @@
 /*
- * Season tracker UI inside a saved challenge: Squad, Transfers and (Player
- * Career) Career moves tabs. Rule checking itself lives in compliance.js;
- * app.js renders the results next to each rule.
+ * Season tracker UI: Squad, Transfers and (Player Career) Career moves, shown
+ * inside a saved challenge and, for transfers, in the stand-alone Transfers
+ * section. Rule checking lives in compliance.js and the transfer assistant
+ * in assistant.js; app.js renders rule results next to each rule.
  *
  * app.js calls init() with shared helpers, renders with renderTracker(),
  * and forwards click/change events from the saved list.
@@ -11,13 +12,15 @@
   const FC26 = (root.FC26 = root.FC26 || {});
   const C = FC26.compliance;
   const G = FC26.generator;
+  const A = FC26.assistant;
+  const DB = FC26.playerDB;
 
   const POSITIONS = ['GK', 'RB', 'LB', 'CB', 'RWB', 'LWB', 'CDM', 'CM', 'CAM', 'RM', 'LM', 'RW', 'LW', 'CF', 'ST'];
   const IN_TYPES = [['permanent', 'Permanent'], ['loan', 'Loan'], ['free', 'Free transfer'], ['promotion', 'Academy promotion']];
   const OUT_TYPES = [['sale', 'Sale'], ['loan', 'Loan out'], ['release', 'Release']];
   const MOVE_TYPES = [['permanent', 'Transfer'], ['loan', 'Loan'], ['free', 'Free transfer']];
 
-  let deps = null; // { esc, toast, mutateEntry, renderChallenge, refreshSummary }
+  let deps = null; // { esc, toast, mutateEntry, findEntry, refresh, rememberKnown }
   const tabs = {}; // saved entry id → open tab
 
   const esc = (v) => deps.esc(v == null ? '' : v);
@@ -90,6 +93,7 @@
             <label title="Academy graduate"><input type="checkbox" data-pfield="academy" ${p.academy ? 'checked' : ''}>🎓</label>
             <label title="On loan at your club"><input type="checkbox" data-pfield="loanIn" ${p.loanIn ? 'checked' : ''}>🔁</label>
             <label title="Loaned out to another club"><input type="checkbox" data-pfield="loanedOut" ${p.loanedOut ? 'checked' : ''}>✈️</label>
+            <label title="Regen: a player the game generated"><input type="checkbox" data-pfield="regen" ${p.regen ? 'checked' : ''}>🧬</label>
           </span>
           <button type="button" class="icon-btn" data-action="squad-del" title="Remove from the squad" aria-label="Remove ${esc(p.name)}">✕</button>
         </div>`).join('');
@@ -110,15 +114,18 @@
             <button type="button" class="btn btn-small" data-action="paste-cancel">Cancel</button>
           </div>
         </div>
-        ${t.players.length ? `<div class="phead" aria-hidden="true"><span>Name</span><span>Pos</span><span>Age</span><span>Nationality</span><span>OVR</span><span>€K/week</span><span>⭐ 🎓 🔁 ✈️</span><span></span></div>` : ''}
+        ${t.players.length ? `<div class="phead" aria-hidden="true"><span>Name</span><span>Pos</span><span>Age</span><span>Nationality</span><span>OVR</span><span>€K/week</span><span>⭐ 🎓 🔁 ✈️ 🧬</span><span></span></div>` : ''}
         <div class="plist">${rows || '<p class="muted empty-note">No players yet. Add them one by one, or paste your whole squad.</p>'}</div>
-        <p class="muted legend">⭐ starting XI · 🎓 academy graduate · 🔁 on loan at your club · ✈️ loaned out</p>
+        <p class="muted legend">⭐ starting XI · 🎓 academy graduate · 🔁 on loan at your club · ✈️ loaned out · 🧬 regen (generated player)</p>
       </div>`;
   }
 
-  function transferForm(entry, t, dir) {
+  function transferForm(entry, t, dir, pre) {
+    const v = Object.assign({}, pre || {});
     const types = dir === 'out' ? OUT_TYPES : IN_TYPES;
     const squadNames = t.players.map((p) => `<option value="${esc(p.name)}"></option>`).join('');
+    const val = (k) => (v[k] == null ? '' : esc(v[k]));
+    const seasons = Array.from({ length: Math.max(entry.challenge.seasons, t.season) }, (_, i) => [i + 1, `S${i + 1}`]);
     return `
       <form class="tform" data-tform data-dir="${dir}" autocomplete="off">
         <div class="seg">
@@ -126,22 +133,52 @@
           <button type="button" class="${dir === 'out' ? 'is-on' : ''}" data-action="tr-dir" data-dir="out">⬆️ Departure</button>
         </div>
         <div class="tgrid">
-          <label class="f-wide"><span>Player</span><input name="name" type="text" maxlength="40" required ${dir === 'out' ? 'list="squad-names-' + esc(entry.id) + '"' : ''} placeholder="${dir === 'out' ? 'Pick from your squad' : 'Name'}"></label>
+          <label class="f-wide"><span>Player</span><input name="name" type="text" maxlength="40" required value="${val('name')}" list="${dir === 'out' ? `squad-names-${esc(entry.id)}` : 'known-players'}" placeholder="${dir === 'out' ? 'Pick from your squad' : 'Name'}"></label>
           ${dir === 'out' ? `<datalist id="squad-names-${esc(entry.id)}">${squadNames}</datalist>` : ''}
-          <label><span>Type</span><select name="type">${opts(types)}</select></label>
-          <label><span>Fee €M</span><input name="fee" type="number" min="0" step="0.1" placeholder="0"></label>
-          <label class="f-wide"><span>${dir === 'out' ? 'To club' : 'From club'}</span><input name="club" type="text" maxlength="40"></label>
+          <label><span>Type</span><select name="type">${opts(types, v.type)}</select></label>
+          <label><span>Fee €M</span><input name="fee" type="number" min="0" step="0.1" placeholder="0" value="${val('fee')}"></label>
+          <label class="f-wide"><span>${dir === 'out' ? 'To club' : 'From club'}</span><input name="club" type="text" maxlength="40" value="${val('club')}"></label>
           ${dir === 'in' ? `
-          <label><span>Pos</span><select name="pos"><option value=""></option>${opts(POSITIONS.map((x) => [x, x]))}</select></label>
-          <label><span>Age</span><input name="age" type="number" min="14" max="50"></label>
-          <label><span>Nationality</span><input name="nat" type="text" list="nat-list" maxlength="30"></label>
-          <label><span>OVR</span><input name="ovr" type="number" min="1" max="99"></label>
-          <label><span>Wage €K/w</span><input name="wage" type="number" min="0" step="0.1"></label>` : ''}
-          <label><span>Season</span><select name="season">${opts(Array.from({ length: Math.max(entry.challenge.seasons, t.season) }, (_, i) => [i + 1, `S${i + 1}`]), t.season)}</select></label>
-          <label><span>Window</span><select name="window">${opts([['summer', 'Summer'], ['winter', 'January']], t.window)}</select></label>
+          <label><span>Pos</span><select name="pos"><option value=""></option>${opts(POSITIONS.map((x) => [x, x]), v.pos)}</select></label>
+          <label><span>Age</span><input name="age" type="number" min="14" max="50" value="${val('age')}"></label>
+          <label><span>Nationality</span><input name="nat" type="text" list="nat-list" maxlength="30" value="${val('nat')}"></label>
+          <label><span>OVR</span><input name="ovr" type="number" min="1" max="99" value="${val('ovr')}"></label>
+          <label><span>Wage €K/w</span><input name="wage" type="number" min="0" step="0.1" value="${val('wage')}"></label>` : ''}
+          <label><span>Season</span><select name="season">${opts(seasons, v.season || t.season)}</select></label>
+          <label><span>Window</span><select name="window">${opts([['summer', 'Summer'], ['winter', 'January']], v.window || t.window)}</select></label>
         </div>
+        <div class="recog" data-recog aria-live="polite"></div>
+        ${dir === 'in' ? '<label class="toggle regen-toggle"><input type="checkbox" name="regen"> 🧬 Regen (a player the game generated)</label>' : ''}
+        <div class="precheck" data-precheck aria-live="polite"></div>
         <button type="submit" class="btn btn-small btn-primary">${dir === 'out' ? 'Log departure' : 'Log signing'}</button>
       </form>`;
+  }
+
+  function assistantBox(entry) {
+    return `
+      <form class="assistant" data-assist-form autocomplete="off">
+        <div class="assistant-head">🤖 <strong>Transfer assistant</strong>
+          <span class="muted">Describe a move in your own words: I'll fill in the form and check it against ${esc(entry.challenge.title)}'s rules.</span></div>
+        <div class="assistant-row">
+          <input type="text" data-assist maxlength="200" placeholder="e.g. Signed Florian Wirtz from Leverkusen for €60m in January" aria-label="Describe a transfer">
+          <button type="submit" class="btn btn-small btn-primary">Read it</button>
+        </div>
+        <div class="assist-note muted" data-assist-note></div>
+      </form>`;
+  }
+
+  // The challenge this log belongs to, its signing rules and the assistant's to-do list.
+  function challengeContext(entry, t) {
+    const chips = A.signingRules(entry.challenge, t);
+    const steps = A.nextSteps(entry.challenge, t).slice(0, 5);
+    return `
+      <div class="tcontext">
+        <div>📒 Logging for <strong>${esc(entry.challenge.title)}</strong> · Season ${t.season} · ${t.window === 'winter' ? 'January' : 'Summer'} window</div>
+        ${chips.length ? `<div class="chips" title="This challenge's rules for signings">📜 ${chips.map((c) => `<span class="chip">${esc(c)}</span>`).join('')}</div>`
+    : '<div class="muted">This challenge has no rules about signings the assistant can check.</div>'}
+        ${steps.length ? `<div class="steps"><strong>🤖 What to do next</strong><ul>${steps.map((x) => `<li class="s-${x.status}">${x.status === 'broken' ? '❌' : '⚠️'} ${esc(x.summary)}<small class="muted">${esc(x.rule)}</small></li>`).join('')}</ul></div>`
+    : '<div class="steps ok">🤖 All the rules I can check are fine so far.</div>'}
+      </div>`;
   }
 
   function renderTransfers(entry, t) {
@@ -161,10 +198,10 @@
         <div class="tgroup">
           <div class="tgroup-head"><strong>Season ${season} · ${w === '2' ? 'January' : 'Summer'}</strong>
             <span class="muted">in ${money(spent)} · out ${money(made)} · <span class="${net < 0 ? 'neg' : 'pos'}">net ${net < 0 ? '−' : '+'}${money(Math.abs(net))}</span></span></div>
-          ${items.map((x) => `
+          ${items.slice().reverse().map((x) => `
           <div class="trow ${x.dir}" data-tid="${esc(x.id)}">
             <span class="tdir">${x.dir === 'in' ? '⬇️' : '⬆️'}</span>
-            <span class="tmain"><strong>${esc(x.name)}</strong>
+            <span class="tmain"><strong>${esc(x.name)}</strong>${x.regen ? ' <span class="regen-badge" title="Regen: generated by the game">🧬 Regen</span>' : ''}
               <small class="muted">${[x.pos, x.age ? `${x.age}y` : '', x.nat ? C.normNat(x.nat) : '', x.ovr ? `${x.ovr} OVR` : ''].filter(Boolean).map(esc).join(' · ')}</small></span>
             <span class="tmeta">${esc(((x.dir === 'in' ? IN_TYPES : OUT_TYPES).find(([v]) => v === x.type) || ['', x.type])[1])}${x.club ? ` · ${x.dir === 'in' ? 'from' : 'to'} ${esc(x.club)}` : ''}${n(x.fee) ? ` · <strong>${money(n(x.fee))}</strong>` : ''}</span>
             <button type="button" class="icon-btn" data-action="tr-del" title="Delete this log entry (your squad list isn't changed)" aria-label="Delete">✕</button>
@@ -173,8 +210,10 @@
     }).join('');
     return `
       <div class="transfers">
+        ${challengeContext(entry, t)}
+        ${assistantBox(entry)}
         ${transferForm(entry, t, 'in')}
-        <p class="muted legend">Logging a signing adds the player to your squad. A sale or release removes them; a loan out marks them ✈️.</p>
+        <p class="muted legend">Logging a signing adds the player to your squad. A sale or release removes them; a loan out marks them ✈️. Players I don't recognise are marked 🧬 regen; untick it and I'll remember the name.</p>
         ${list || '<p class="muted empty-note">No transfers logged yet.</p>'}
       </div>`;
   }
@@ -259,6 +298,103 @@
         wage: p.wage == null ? '' : p.wage,
       };
     }).filter((p) => p.name);
+  }
+
+  // ---------- Live recognition and pre-check ----------
+
+  function formValues(form) {
+    const f = Object.fromEntries(new FormData(form).entries());
+    return {
+      dir: form.dataset.dir,
+      type: f.type,
+      name: String(f.name || '').trim().slice(0, 40),
+      fee: n(f.fee) || 0,
+      club: String(f.club || '').trim().slice(0, 40),
+      pos: f.pos || '',
+      age: n(f.age) || '',
+      nat: f.nat ? C.normNat(String(f.nat).trim()) : '',
+      ovr: n(f.ovr) || '',
+      wage: n(f.wage) || '',
+      season: Number(f.season) || 1,
+      window: f.window === 'winter' ? 'winter' : 'summer',
+      regen: Boolean(form.elements.regen && form.elements.regen.checked),
+    };
+  }
+
+  // Under the name box: who this is, and whether they'll be logged as a regen.
+  function updateRecognition(form, item, autofill) {
+    const note = form.querySelector('[data-recog]');
+    if (!note) return;
+    const v = formValues(form);
+    const regen = form.elements.regen;
+    const setRegen = (on) => { if (regen && !regen.dataset.touched) regen.checked = on; };
+    if (!v.name) {
+      note.innerHTML = '';
+      setRegen(false);
+      return;
+    }
+    if (v.dir === 'out') {
+      const t = trackerOf(deps.findEntry(item.dataset.id));
+      const inSquad = t.players.some((p) => String(p.name).trim().toLowerCase() === v.name.toLowerCase());
+      note.innerHTML = inSquad ? '👥 In your squad: they\'ll be removed when you log this.' : '<span class="muted">Not in your squad list. The move will be logged, but no squad row changes.</span>';
+      return;
+    }
+    if (v.type === 'promotion') {
+      note.innerHTML = '🎓 Academy graduates are players the game generates, so this one is marked 🧬 regen.';
+      setRegen(true);
+      return;
+    }
+    const hit = DB.recognise(v.name);
+    if (hit && hit.player) {
+      const p = hit.player;
+      note.innerHTML = `👤 Recognised: <strong>${esc(p.name)}</strong>${p.nat ? ` · ${esc(p.nat)}` : ''}${p.pos ? ` · ${esc(p.pos)}` : ''}${p.custom ? ' <span class="muted">(you confirmed this one)</span>' : ''}`;
+      setRegen(false);
+      if (autofill) {
+        if (form.elements.nat && !form.elements.nat.value && p.nat) form.elements.nat.value = p.nat;
+        if (form.elements.pos && !form.elements.pos.value && p.pos) form.elements.pos.value = p.pos;
+      }
+    } else if (hit && hit.candidates) {
+      note.innerHTML = `Did you mean ${hit.candidates.map((p) => `<button type="button" class="link-btn" data-action="pick-player" data-name="${esc(p.name)}">${esc(p.name)}</button>`).join(', ')}?`;
+      setRegen(false);
+    } else {
+      note.innerHTML = '🧬 Not in my player list, so I\'ll log them as a <strong>regen</strong>. Untick below if they\'re a real player.';
+      setRegen(true);
+    }
+  }
+
+  // The verdict box: would this move break any of the challenge's rules?
+  function updatePrecheck(form, item) {
+    const box = form.querySelector('[data-precheck]');
+    if (!box) return;
+    const v = formValues(form);
+    if (!v.name) {
+      box.innerHTML = '';
+      return;
+    }
+    const entry = deps.findEntry(item.dataset.id);
+    if (!entry) return;
+    const res = A.precheck(entry.challenge, trackerOf(entry), Object.assign({}, v, { id: 'preview' }));
+    const breaks = res.breaks.map((b) => `<li><span>❌ <strong>${esc(b.text)}</strong></span><small>${b.details.slice(0, 3).map(esc).join(' · ')}</small></li>`).join('');
+    const fixes = res.fixes.map((f) => `<li><span>✅ Completes: ${esc(f.text)}</span></li>`).join('');
+    box.innerHTML = `
+      <div class="verdict ${res.ok ? 'ok' : 'bad'}">
+        <strong>${res.ok ? `🤖 ✅ ${v.dir === 'in' ? 'This signing fits' : 'This move fits'} your rules` : `🤖 ❌ This would break ${res.breaks.length} rule${res.breaks.length === 1 ? '' : 's'}`}</strong>
+        ${breaks || fixes ? `<ul>${breaks}${fixes}</ul>` : ''}
+        <small class="muted">Checked against ${res.checked} rule${res.checked === 1 ? '' : 's'}${res.manual ? `; ✋ ${res.manual} you'll need to check yourself` : ''}.</small>
+      </div>`;
+  }
+
+  let liveTimer = null;
+  function onInput(e, item) {
+    const form = e.target.closest('[data-tform]');
+    if (!form) return false;
+    if (e.target.name === 'regen') e.target.dataset.touched = '1';
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(() => {
+      updateRecognition(form, item, e.target.name === 'name');
+      updatePrecheck(form, item);
+    }, 120);
+    return true;
   }
 
   // ---------- Events ----------
@@ -357,7 +493,19 @@
     }
     if (action === 'tr-dir') {
       const entry = deps.findEntry(id);
-      btn.closest('[data-tform]').outerHTML = transferForm(entry, trackerOf(entry), btn.dataset.dir);
+      const old = btn.closest('[data-tform]');
+      const keep = { name: old.elements.name.value, club: old.elements.club.value, fee: old.elements.fee.value };
+      old.outerHTML = transferForm(entry, trackerOf(entry), btn.dataset.dir, keep);
+      const form = item.querySelector('[data-tform]');
+      updateRecognition(form, item, false);
+      updatePrecheck(form, item);
+      return true;
+    }
+    if (action === 'pick-player') {
+      const form = btn.closest('[data-tform]');
+      form.elements.name.value = btn.dataset.name;
+      updateRecognition(form, item, true);
+      updatePrecheck(form, item);
       return true;
     }
     if (action === 'tr-del') {
@@ -375,36 +523,44 @@
 
   function onSubmit(e, item) {
     const form = e.target;
+    if (form.matches('[data-assist-form]')) {
+      e.preventDefault();
+      const text = form.querySelector('[data-assist]').value;
+      const entry = deps.findEntry(item.dataset.id);
+      if (!entry || !text.trim()) return true;
+      const t = trackerOf(entry);
+      const parsed = A.parseTransfer(text, { squad: t.players });
+      const note = form.querySelector('[data-assist-note]');
+      const old = item.querySelector('[data-tform]');
+      old.outerHTML = transferForm(entry, t, parsed.dir, parsed);
+      const tform = item.querySelector('[data-tform]');
+      updateRecognition(tform, item, true);
+      updatePrecheck(tform, item);
+      const bits = [
+        parsed.dir === 'in' ? ({ loan: 'loan signing', free: 'free transfer', promotion: 'academy promotion' }[parsed.type] || 'signing') : ({ loan: 'loan out', release: 'release' }[parsed.type] || 'sale'),
+        parsed.name || null,
+        parsed.club ? `${parsed.dir === 'in' ? 'from' : 'to'} ${parsed.club}` : null,
+        parsed.fee !== '' ? money(Number(parsed.fee)) : null,
+        parsed.age ? `age ${parsed.age}` : null,
+        parsed.ovr ? `${parsed.ovr} OVR` : null,
+        parsed.window ? (parsed.window === 'winter' ? 'January' : 'summer') : null,
+        parsed.season ? `season ${parsed.season}` : null,
+      ].filter(Boolean);
+      note.innerHTML = parsed.name
+        ? `I understood: <strong>${bits.map(esc).join(' · ')}</strong>. Check the form, then log it.`
+        : `I couldn't find a player name in that. Type it into the form${bits.length ? ` (I did get: ${bits.map(esc).join(' · ')})` : ''}.`;
+      tform.elements[parsed.name ? 'fee' : 'name'].focus();
+      return true;
+    }
     if (form.matches('[data-tform]')) {
       e.preventDefault();
-      const f = Object.fromEntries(new FormData(form).entries());
-      const dir = form.dataset.dir;
-      const name = String(f.name || '').trim().slice(0, 40);
-      if (!name) return true;
-      change(item, (t) => {
-        const squadPlayer = t.players.find((p) => p.name.trim().toLowerCase() === name.toLowerCase());
-        const rec = {
-          id: uid(), dir, type: f.type, name, season: Number(f.season) || t.season, window: f.window === 'winter' ? 'winter' : 'summer',
-          fee: n(f.fee) || 0, club: String(f.club || '').trim().slice(0, 40),
-        };
-        if (dir === 'in') {
-          Object.assign(rec, { pos: f.pos || '', age: n(f.age) || '', nat: C.normNat(String(f.nat || '').trim()), ovr: n(f.ovr) || '' });
-          t.transfers.push(rec);
-          t.players.push({
-            id: uid(), name, pos: rec.pos, age: rec.age, nat: rec.nat, ovr: rec.ovr, wage: n(f.wage) || '',
-            academy: rec.type === 'promotion', loanIn: rec.type === 'loan',
-          });
-        } else {
-          // Snapshot the player's details at the time they left.
-          if (squadPlayer) Object.assign(rec, { pos: squadPlayer.pos, age: squadPlayer.age, nat: squadPlayer.nat, ovr: squadPlayer.ovr });
-          t.transfers.push(rec);
-          if (squadPlayer) {
-            if (rec.type === 'loan') squadPlayer.loanedOut = true;
-            else t.players = t.players.filter((p) => p !== squadPlayer);
-          }
-        }
-      }, ['transfers', 'squad']);
-      deps.toast(dir === 'in' ? `Signed ${name} ⬇️` : `${name} left ⬆️`);
+      const v = formValues(form);
+      if (!v.name) return true;
+      const known = DB.recognise(v.name);
+      // Unticking "regen" for someone I didn't know means they're real: remember them.
+      if (v.dir === 'in' && !v.regen && v.type !== 'promotion' && !(known && known.player)) deps.rememberKnown(v.name, v.nat, v.pos);
+      change(item, (t) => C.applyTransfer(t, Object.assign({ id: uid(), playerId: uid() }, v)), ['transfers', 'squad']);
+      deps.toast(v.dir === 'in' ? `Signed ${v.name}${v.regen ? ' 🧬' : ''} ⬇️` : `${v.name} left ⬆️`);
       return true;
     }
     if (form.matches('[data-mform]')) {
@@ -424,10 +580,7 @@
       change(item, (t) => {
         if (el.dataset.tracker === 'season') t.season = Number(el.value) || 1;
         else t.window = el.value === 'winter' ? 'winter' : 'summer';
-      }, []);
-      // Forms default to "now".
-      item.querySelectorAll('[data-tform] select[name=season], [data-mform] select[name=season]').forEach((s) => { if (el.dataset.tracker === 'season') s.value = el.value; });
-      item.querySelectorAll('[data-tform] select[name=window]').forEach((s) => { if (el.dataset.tracker === 'window') s.value = el.value; });
+      }, ['transfers', 'moves']);
       return true;
     }
     if (el.dataset.pfield) {
@@ -449,5 +602,25 @@
     return false;
   }
 
-  FC26.trackerUI = { init, renderTracker, onClick, onChange, onSubmit, parseSquad, POSITIONS };
+  /** The stand-alone Transfers section for one challenge. */
+  function renderTransferCentre(entry) {
+    const t = trackerOf(entry);
+    const seasons = Math.max(entry.challenge.seasons, t.season);
+    return `
+      <div class="tracker-bar">
+        <span class="tracker-now">📅 Now:
+          <select data-tracker="season" aria-label="Current season">${opts(Array.from({ length: seasons }, (_, i) => [i + 1, `Season ${i + 1}`]), t.season)}</select>
+          ${isPlayer(entry) ? '' : `<select data-tracker="window" aria-label="Current transfer window">${opts([['summer', 'Summer window'], ['winter', 'January window']], t.window)}</select>`}
+        </span>
+      </div>
+      ${isPlayer(entry)
+    ? `<div data-panel="moves">${renderMoves(entry, t)}</div>`
+    : `<div data-panel="transfers">${renderTransfers(entry, t)}</div>`}`;
+  }
+
+  function setTab(id, tab) {
+    tabs[id] = tab;
+  }
+
+  FC26.trackerUI = { init, renderTracker, renderTransferCentre, setTab, onClick, onChange, onSubmit, onInput, parseSquad, POSITIONS };
 })(typeof window !== 'undefined' ? window : globalThis);

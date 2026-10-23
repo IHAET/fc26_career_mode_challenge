@@ -83,7 +83,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
   transform: skewX(-8deg);
 }
 
-.tabs { display: flex; gap: 6px; background: var(--bg-2); padding: 4px; border-radius: 12px; border: 1px solid var(--line); }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; background: var(--bg-2); padding: 4px; border-radius: 12px; border: 1px solid var(--line); }
+@media (max-width: 560px) { .tabs { gap: 2px; width: 100%; } .tab { padding: 7px 9px; font-size: 0.86rem; flex: 1 1 auto; } }
 .tab {
   border: 0;
   background: transparent;
@@ -479,6 +480,42 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 .tmeta { font-size: 0.85rem; color: var(--muted); text-align: right; }
 @media (max-width: 560px) { .trow { grid-template-columns: 24px minmax(0, 1fr) 32px; } .tmeta { grid-column: 2; grid-row: 2; text-align: left; } }
 
+/* ---------- Transfers section and assistant ---------- */
+
+.transfers-view { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.tc-head { padding: 18px 20px; display: flex; flex-wrap: wrap; gap: 14px 24px; justify-content: space-between; align-items: flex-end; }
+.tc-head h2 { margin: 0 0 4px; }
+.tc-head p { margin: 0; max-width: 52ch; }
+.tc-pick { min-width: min(100%, 340px); flex: 1 1 300px; max-width: 460px; }
+.tc-pick small { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 6px; }
+.tc-body { padding: 18px 20px; }
+.tcontext { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); font-size: 0.9rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { padding: 3px 9px; border-radius: 99px; background: var(--panel); border: 1px solid var(--line); font-size: 0.8rem; font-weight: 700; }
+.steps ul { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.steps li { display: flex; flex-direction: column; font-weight: 600; }
+.steps li small { font-weight: 400; }
+.steps li.s-broken { color: var(--danger); }
+.steps li.s-warn { color: var(--warn); }
+.steps.ok { color: var(--accent); font-weight: 600; }
+.assistant { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(25, 230, 140, 0.35); background: linear-gradient(135deg, rgba(25, 230, 140, 0.07), rgba(77, 214, 255, 0.05)); }
+.assistant-head { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; font-size: 0.92rem; }
+.assistant-head .muted { font-size: 0.82rem; }
+.assistant-row { display: flex; gap: 8px; }
+.assistant-row input { flex: 1; min-width: 0; padding: 9px 11px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); }
+.assist-note { font-size: 0.85rem; }
+.assist-note:empty, .recog:empty, .precheck:empty { display: none; }
+.recog { font-size: 0.85rem; }
+.link-btn { border: 0; background: none; padding: 0; color: var(--accent); font-weight: 700; cursor: pointer; text-decoration: underline; }
+.regen-toggle { font-size: 0.85rem; font-weight: 600; }
+.verdict { padding: 10px 12px; border-radius: 10px; display: flex; flex-direction: column; gap: 6px; font-size: 0.88rem; }
+.verdict.ok { background: rgba(25, 230, 140, 0.08); border: 1px solid rgba(25, 230, 140, 0.4); }
+.verdict.bad { background: rgba(255, 92, 108, 0.08); border: 1px solid rgba(255, 92, 108, 0.5); }
+.verdict ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.verdict li { display: flex; flex-direction: column; }
+.verdict li small { color: var(--muted); }
+.regen-badge { display: inline-block; padding: 1px 7px; border-radius: 99px; font-size: 0.72rem; font-weight: 800; background: rgba(196, 155, 255, 0.15); color: #c49bff; border: 1px solid rgba(196, 155, 255, 0.4); vertical-align: middle; }
+
 /* ---------- Editor ---------- */
 
 .editor-head h2 { margin: 0 0 4px; }
@@ -584,6 +621,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     <nav class="tabs" role="tablist">
       <button class="tab is-active" role="tab" data-view="builder" aria-selected="true">Builder</button>
       <button class="tab" role="tab" data-view="daily" aria-selected="false">Daily <span class="dot" id="daily-dot" title="Today's challenge is waiting" hidden></span></button>
+      <button class="tab" role="tab" data-view="transfers" aria-selected="false">🔁 Transfers</button>
       <button class="tab" role="tab" data-view="saved" aria-selected="false">My Challenges <span class="count" id="saved-count">0</span></button>
     </nav>
   </header>
@@ -726,6 +764,21 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       <div id="daily-card" aria-live="polite"></div>
     </section>
 
+    <section id="view-transfers" class="view transfers-view" hidden>
+      <div class="panel tc-head">
+        <div>
+          <h2>🔁 Transfers</h2>
+          <p class="muted">Log every move for a challenge. The 🤖 assistant checks each one against that challenge's rules before you log it.</p>
+        </div>
+        <label class="field tc-pick">
+          <span>Challenge</span>
+          <select id="tc-challenge"></select>
+          <small class="muted" id="tc-status"></small>
+        </label>
+      </div>
+      <div class="panel tc-body" id="tc-body"></div>
+    </section>
+
     <section id="view-saved" class="view saved" hidden>
       <div class="saved-head">
         <h2>My Challenges</h2>
@@ -741,6 +794,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 
   <div class="toast" id="toast" role="status" hidden></div>
   <datalist id="nat-list"></datalist>
+  <datalist id="known-players"></datalist>
 
   <script>/* js/data.js */
 /*
@@ -4292,7 +4346,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
   const num = (s) => (WORDS[String(s).toLowerCase()] || Number(s));
   const toMillions = (n, unit) => (String(unit).toUpperCase() === 'K' ? Number(n) / 1000 : Number(n));
   const toThousands = (n, unit) => (String(unit).toUpperCase() === 'K' ? Number(n) : Number(n) / 1000);
-  const money = (m) => (m >= 1 ? `€${+m.toFixed(1)}M` : `€${Math.round(m * 1000)}K`);
+  const money = (m) => (m >= 1 ? `€${+m.toFixed(1)}M` : m > 0 ? `€${Math.round(m * 1000)}K` : '€0');
   const wage = (k) => (k >= 1 ? `€${+k.toFixed(1)}K` : `€${Math.round(k * 1000)}`);
   const plural = (n, word, many) => `${n} ${n === 1 ? word : many || `${word}s`}`;
   const winLabel = (t) => `S${t.season} ${t.window === 'winter' ? 'January' : 'summer'}`;
@@ -4808,18 +4862,1270 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       .concat(ch.rules.map((r) => Object.assign({ core: false, text: r.text }, evaluateRule(r.text, t, ch))));
   }
 
+  /**
+   * Log a transfer: record it and update the squad (a signing joins, a sale or
+   * release leaves, a loan out is marked ✈️). Mutates the tracker. Used for
+   * real logging and for the assistant's "what if" checks, so both agree.
+   */
+  function applyTransfer(tracker, rec) {
+    const t = tracker;
+    const name = String(rec.name || '').trim();
+    if (rec.dir === 'in') {
+      t.transfers.push(Object.assign({}, rec));
+      t.players.push({
+        id: rec.playerId || rec.id, name, pos: rec.pos || '', age: rec.age || '', nat: rec.nat || '', ovr: rec.ovr || '',
+        wage: rec.wage || '', academy: rec.type === 'promotion', loanIn: rec.type === 'loan', regen: Boolean(rec.regen),
+      });
+    } else {
+      const p = t.players.find((x) => String(x.name || '').trim().toLowerCase() === name.toLowerCase());
+      // Keep the player's details as they were when they left.
+      const out = Object.assign({}, rec, p ? { pos: p.pos, age: p.age, nat: p.nat, ovr: p.ovr, regen: Boolean(p.regen) } : {});
+      t.transfers.push(out);
+      if (p) {
+        if (rec.type === 'loan') p.loanedOut = true;
+        else t.players = t.players.filter((x) => x !== p);
+      }
+    }
+    return t;
+  }
+
   function tally(results) {
     return results.reduce((n, r) => Object.assign(n, { [r.status]: n[r.status] + 1 }), { ok: 0, broken: 0, warn: 0, manual: 0 });
   }
 
-  FC26.compliance = { interpret, evaluateRule, checkChallenge, tally, normNat, normalizeTracker, emptyTracker, NATIONALITIES, REGIONS };
+  FC26.compliance = { interpret, evaluateRule, checkChallenge, applyTransfer, tally, normNat, normalizeTracker, emptyTracker, NATIONALITIES, REGIONS, money };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/players.js */
+/*
+ * Known real players, used to tell real signings from regens (players the
+ * game generates). Names, nationalities and main positions only, no ratings.
+ * It's a list of well-known players, not a full database: anyone missing is
+ * treated as a possible regen, and the player can override that (the app
+ * then remembers the name as real).
+ *
+ * One player per line: Name|Nationality|Position|alias;alias
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  const LIST = `
+Bukayo Saka|English|RW
+Declan Rice|English|CM
+Jude Bellingham|English|CAM
+Harry Kane|English|ST
+Phil Foden|English|CAM
+Cole Palmer|English|CAM
+Trent Alexander-Arnold|English|RB|Trent
+John Stones|English|CB
+Marc Guéhi|English|CB
+Jordan Pickford|English|GK
+Kyle Walker|English|RB
+Reece James|English|RB
+Levi Colwill|English|CB
+Ollie Watkins|English|ST
+Anthony Gordon|English|LW
+Eberechi Eze|English|CAM
+Morgan Rogers|English|CAM
+Kobbie Mainoo|English|CM
+Jarrod Bowen|English|RW
+Conor Gallagher|English|CM
+Ezri Konsa|English|CB
+Dean Henderson|English|GK
+Aaron Ramsdale|English|GK
+James Trafford|English|GK
+Jordan Henderson|English|CM
+Jack Grealish|English|LW
+Marcus Rashford|English|LW
+Mason Mount|English|CAM
+Luke Shaw|English|LB
+Harry Maguire|English|CB
+Elliot Anderson|English|CM
+Adam Wharton|English|CM
+Curtis Jones|English|CM
+Jarell Quansah|English|CB
+Noni Madueke|English|RW
+Jadon Sancho|English|RW
+Dominic Solanke|English|ST
+Ivan Toney|English|ST
+Dominic Calvert-Lewin|English|ST
+Jamie Gittens|English|LW|Jamie Bynoe-Gittens
+Myles Lewis-Skelly|English|LB
+Ethan Nwaneri|English|CAM
+Rico Lewis|English|RB
+Tino Livramento|English|RB
+Dan Burn|English|CB
+Ben White|English|RB
+Callum Hudson-Odoi|English|LW
+Jobe Bellingham|English|CM
+Morgan Gibbs-White|English|CAM
+James Maddison|English|CAM
+Jarrad Branthwaite|English|CB
+Liam Delap|English|ST
+Raheem Sterling|English|LW
+Kieran Trippier|English|RB
+Lewis Hall|English|LB
+Tyrick Mitchell|English|LB
+Djed Spence|English|RB
+Fikayo Tomori|English|CB
+Eddie Nketiah|English|ST
+Emile Smith Rowe|English|CAM
+Kalvin Phillips|English|CDM
+Ben Chilwell|English|LB
+Joe Gomez|English|CB
+Nick Pope|English|GK
+Sam Johnstone|English|GK
+Tammy Abraham|English|ST
+Chris Wood|New Zealander|ST
+Kylian Mbappé|French|ST|Mbappe
+Ousmane Dembélé|French|RW
+Antoine Griezmann|French|ST
+William Saliba|French|CB
+Aurélien Tchouaméni|French|CDM
+Eduardo Camavinga|French|CM
+Mike Maignan|French|GK
+Theo Hernández|French|LB
+Jules Koundé|French|RB
+Dayot Upamecano|French|CB
+Ibrahima Konaté|French|CB
+Michael Olise|French|RW
+Bradley Barcola|French|LW
+Désiré Doué|French|RW
+Warren Zaïre-Emery|French|CM
+Marcus Thuram|French|ST
+Randal Kolo Muani|French|ST
+Kingsley Coman|French|LW
+Adrien Rabiot|French|CM
+N'Golo Kanté|French|CDM|Kante
+Rayan Cherki|French|CAM
+Manu Koné|French|CM
+Youssouf Fofana|French|CDM
+Lucas Hernández|French|CB
+Benjamin Pavard|French|CB
+Wesley Fofana|French|CB
+Malo Gusto|French|RB
+Lucas Chevalier|French|GK
+Hugo Ekitiké|French|ST
+Mathys Tel|French|ST
+Jean-Philippe Mateta|French|ST
+Olivier Giroud|French|ST
+Christopher Nkunku|French|CAM
+Lucas Digne|French|LB
+Leny Yoro|French|CB
+Castello Lukeba|French|CB
+Karim Benzema|French|ST
+Paul Pogba|French|CM
+Moussa Diaby|French|RW
+Michael Kayode|Italian|RB
+Lamine Yamal|Spanish|RW|Yamal
+Pedri|Spanish|CM
+Gavi|Spanish|CM
+Rodri|Spanish|CDM
+Dani Olmo|Spanish|CAM
+Nico Williams|Spanish|LW
+Mikel Oyarzabal|Spanish|ST
+Fabián Ruiz|Spanish|CM
+Martín Zubimendi|Spanish|CDM
+Mikel Merino|Spanish|CM
+Álvaro Morata|Spanish|ST
+Unai Simón|Spanish|GK
+David Raya|Spanish|GK
+Pau Cubarsí|Spanish|CB
+Robin Le Normand|Spanish|CB
+Aymeric Laporte|Spanish|CB
+Dani Carvajal|Spanish|RB
+Marc Cucurella|Spanish|LB
+Pedro Porro|Spanish|RB
+Alejandro Grimaldo|Spanish|LB
+Álex Baena|Spanish|CAM
+Ferran Torres|Spanish|ST
+Fermín López|Spanish|CAM
+Dean Huijsen|Spanish|CB
+Álvaro Carreras|Spanish|LB
+Joan García|Spanish|GK
+Marc Casadó|Spanish|CDM
+Alejandro Balde|Spanish|LB
+Marcos Llorente|Spanish|CM
+Koke|Spanish|CM
+Isco|Spanish|CAM
+Iago Aspas|Spanish|ST
+Ansu Fati|Spanish|LW
+Yeremy Pino|Spanish|RW
+Samu Aghehowa|Spanish|ST|Samu Omorodion
+Nico González|Spanish|CDM
+Dani Vivian|Spanish|CB
+Oihan Sancet|Spanish|CAM
+Raúl Asencio|Spanish|CB
+Sergio Ramos|Spanish|CB
+Jesús Vallejo|Spanish|CB
+Florian Wirtz|German|CAM
+Jamal Musiala|German|CAM
+Joshua Kimmich|German|CDM
+Kai Havertz|German|ST
+Leroy Sané|German|RW
+Antonio Rüdiger|German|CB
+Jonathan Tah|German|CB
+Nico Schlotterbeck|German|CB
+Marc-André ter Stegen|German|GK|ter Stegen
+Manuel Neuer|German|GK
+Leon Goretzka|German|CM
+Serge Gnabry|German|RW
+Niclas Füllkrug|German|ST
+Deniz Undav|German|ST
+Nick Woltemade|German|ST
+Karim Adeyemi|German|RW
+Aleksandar Pavlović|German|CDM
+Robert Andrich|German|CDM
+David Raum|German|LB
+Maximilian Mittelstädt|German|LB
+Pascal Groß|German|CM
+Chris Führich|German|LW
+Angelo Stiller|German|CM
+Tim Kleindienst|German|ST
+Felix Nmecha|German|CM
+Thomas Müller|German|CAM
+İlkay Gündoğan|German|CM|Gundogan
+Lennart Karl|German|RW
+Maximilian Beier|German|ST
+Waldemar Anton|German|CB
+Kevin Schade|German|LW
+Brajan Gruda|German|CAM
+Oliver Baumann|German|GK
+Nadiem Amiri|German|CAM
+Cristiano Ronaldo|Portuguese|ST|Ronaldo;CR7
+Bruno Fernandes|Portuguese|CAM
+Bernardo Silva|Portuguese|CAM
+Rúben Dias|Portuguese|CB
+João Cancelo|Portuguese|RB
+Vitinha|Portuguese|CM
+João Neves|Portuguese|CM
+Rafael Leão|Portuguese|LW
+Diogo Costa|Portuguese|GK
+Nuno Mendes|Portuguese|LB
+Gonçalo Ramos|Portuguese|ST
+João Félix|Portuguese|CAM
+Pedro Neto|Portuguese|RW
+Gonçalo Inácio|Portuguese|CB
+Francisco Conceição|Portuguese|RW
+Diogo Dalot|Portuguese|RB
+Rúben Neves|Portuguese|CDM
+João Palhinha|Portuguese|CDM
+Matheus Nunes|Portuguese|CM
+Francisco Trincão|Portuguese|RW|Trincão
+Pedro Gonçalves|Portuguese|CAM|Pote
+Renato Veiga|Portuguese|CB
+Rodrigo Mora|Portuguese|CAM
+Geovany Quenda|Portuguese|RW
+Nélson Semedo|Portuguese|RB
+António Silva|Portuguese|CB
+Tomás Araújo|Portuguese|CB
+Samu Costa|Portuguese|CDM
+Gianluigi Donnarumma|Italian|GK
+Nicolò Barella|Italian|CM
+Alessandro Bastoni|Italian|CB
+Federico Dimarco|Italian|LB
+Sandro Tonali|Italian|CM
+Riccardo Calafiori|Italian|CB
+Federico Chiesa|Italian|RW
+Mateo Retegui|Italian|ST
+Moise Kean|Italian|ST
+Giacomo Raspadori|Italian|ST
+Davide Frattesi|Italian|CM
+Lorenzo Pellegrini|Italian|CAM
+Giovanni Di Lorenzo|Italian|RB
+Alessandro Buongiorno|Italian|CB
+Guglielmo Vicario|Italian|GK
+Manuel Locatelli|Italian|CDM
+Samuele Ricci|Italian|CDM
+Andrea Cambiaso|Italian|LB
+Destiny Udogie|Italian|LB
+Federico Gatti|Italian|CB
+Matteo Politano|Italian|RW
+Gianluca Scamacca|Italian|ST
+Ciro Immobile|Italian|ST
+Lorenzo Insigne|Italian|LW
+Nicolò Fagioli|Italian|CM
+Francesco Pio Esposito|Italian|ST
+Marco Verratti|Italian|CM
+Mattia Zaccagni|Italian|LW
+Bryan Cristante|Italian|CDM
+Giorgio Scalvini|Italian|CB
+Matteo Darmian|Italian|RB
+Alex Meret|Italian|GK
+Virgil van Dijk|Dutch|CB
+Frenkie de Jong|Dutch|CM
+Cody Gakpo|Dutch|LW
+Xavi Simons|Dutch|CAM
+Ryan Gravenberch|Dutch|CDM
+Tijjani Reijnders|Dutch|CM
+Denzel Dumfries|Dutch|RB
+Micky van de Ven|Dutch|CB
+Matthijs de Ligt|Dutch|CB
+Nathan Aké|Dutch|CB
+Stefan de Vrij|Dutch|CB
+Jurriën Timber|Dutch|RB
+Memphis Depay|Dutch|ST|Memphis
+Donyell Malen|Dutch|RW
+Brian Brobbey|Dutch|ST
+Wout Weghorst|Dutch|ST
+Teun Koopmeiners|Dutch|CM
+Jeremie Frimpong|Dutch|RB
+Bart Verbruggen|Dutch|GK
+Jan Paul van Hecke|Dutch|CB
+Joshua Zirkzee|Dutch|ST
+Quinten Timber|Dutch|CM
+Justin Kluivert|Dutch|LW
+Jorrel Hato|Dutch|LB
+Ian Maatsen|Dutch|LB
+Steven Bergwijn|Dutch|LW
+Noa Lang|Dutch|LW
+Mats Wieffer|Dutch|CDM
+Lutsharel Geertruida|Dutch|RB
+Crysencio Summerville|Dutch|LW
+Kevin De Bruyne|Belgian|CAM|KDB
+Thibaut Courtois|Belgian|GK
+Romelu Lukaku|Belgian|ST
+Jérémy Doku|Belgian|LW
+Leandro Trossard|Belgian|LW
+Youri Tielemans|Belgian|CM
+Amadou Onana|Belgian|CDM
+Charles De Ketelaere|Belgian|CAM
+Loïs Openda|Belgian|ST
+Timothy Castagne|Belgian|RB
+Arthur Theate|Belgian|CB
+Zeno Debast|Belgian|CB
+Johan Bakayoko|Belgian|RW
+Axel Witsel|Belgian|CDM
+Yannick Carrasco|Belgian|LW
+Dodi Lukébakio|Belgian|RW
+Maxim De Cuyper|Belgian|LB
+Arthur Vermeeren|Belgian|CM
+Malick Fofana|Belgian|LW
+Vinícius Júnior|Brazilian|LW|Vinicius Jr;Vini Jr;Vinicius
+Rodrygo|Brazilian|RW
+Raphinha|Brazilian|LW
+Alisson|Brazilian|GK|Alisson Becker
+Ederson|Brazilian|GK|Ederson Moraes
+Marquinhos|Brazilian|CB
+Gabriel Magalhães|Brazilian|CB
+Éder Militão|Brazilian|CB
+Bruno Guimarães|Brazilian|CM
+Casemiro|Brazilian|CDM
+Lucas Paquetá|Brazilian|CAM
+Endrick|Brazilian|ST
+Estêvão|Brazilian|RW|Estevao Willian
+Gabriel Martinelli|Brazilian|LW
+Richarlison|Brazilian|ST
+Neymar|Brazilian|LW|Neymar Jr
+Antony|Brazilian|RW
+Matheus Cunha|Brazilian|ST
+João Pedro|Brazilian|ST
+Savinho|Brazilian|RW|Sávio
+Gabriel Jesus|Brazilian|ST
+Danilo|Brazilian|RB
+Gleison Bremer|Brazilian|CB|Bremer
+Douglas Luiz|Brazilian|CM
+André|Brazilian|CDM
+Joelinton|Brazilian|CM
+Igor Thiago|Brazilian|ST
+Vitor Roque|Brazilian|ST
+Wesley|Brazilian|RB|Wesley França
+Lucas Beraldo|Brazilian|CB
+Andreas Pereira|Brazilian|CM
+Thiago Silva|Brazilian|CB
+Philippe Coutinho|Brazilian|CAM
+Roberto Firmino|Brazilian|ST
+Malcom|Brazilian|RW
+Evanilson|Brazilian|ST
+Murillo|Brazilian|CB
+Luiz Henrique|Brazilian|RW
+Lionel Messi|Argentine|RW|Messi;Leo Messi
+Julián Álvarez|Argentine|ST
+Lautaro Martínez|Argentine|ST
+Emiliano Martínez|Argentine|GK|Dibu Martinez
+Enzo Fernández|Argentine|CM
+Alexis Mac Allister|Argentine|CM
+Rodrigo De Paul|Argentine|CM
+Cristian Romero|Argentine|CB|Cuti Romero
+Lisandro Martínez|Argentine|CB
+Nicolás Otamendi|Argentine|CB
+Nahuel Molina|Argentine|RB
+Nicolás Tagliafico|Argentine|LB
+Leandro Paredes|Argentine|CDM
+Giovani Lo Celso|Argentine|CAM
+Ángel Di María|Argentine|RW
+Paulo Dybala|Argentine|CAM
+Alejandro Garnacho|Argentine|LW
+Nico Paz|Argentine|CAM
+Franco Mastantuono|Argentine|RW
+Thiago Almada|Argentine|CAM
+Valentín Carboni|Argentine|CAM
+Nicolás González|Argentine|LW
+Exequiel Palacios|Argentine|CM
+Gonzalo Montiel|Argentine|RB
+Valentín Castellanos|Argentine|ST
+Claudio Echeverri|Argentine|CAM
+Leonardo Balerdi|Argentine|CB
+Facundo Buonanotte|Argentine|CAM
+Giuliano Simeone|Argentine|RW
+Matías Soulé|Argentine|RW
+Ángel Correa|Argentine|ST
+Gerónimo Rulli|Argentine|GK
+Marcos Acuña|Argentine|LB
+Guido Rodríguez|Argentine|CDM
+Santiago Castro|Argentine|ST
+Federico Valverde|Uruguayan|CM
+Darwin Núñez|Uruguayan|ST
+Ronald Araújo|Uruguayan|CB
+José María Giménez|Uruguayan|CB
+Rodrigo Bentancur|Uruguayan|CM
+Manuel Ugarte|Uruguayan|CDM
+Luis Suárez|Uruguayan|ST
+Facundo Pellistri|Uruguayan|RW
+Mathías Olivera|Uruguayan|LB
+Sergio Rochet|Uruguayan|GK
+Giorgian de Arrascaeta|Uruguayan|CAM
+Maximiliano Araújo|Uruguayan|LW
+Nicolás de la Cruz|Uruguayan|CAM
+Luis Díaz|Colombian|LW
+James Rodríguez|Colombian|CAM
+Jhon Durán|Colombian|ST
+Daniel Muñoz|Colombian|RB
+Jhon Arias|Colombian|RW
+Richard Ríos|Colombian|CM
+Davinson Sánchez|Colombian|CB
+Jefferson Lerma|Colombian|CDM
+Luis Sinisterra|Colombian|LW
+Jhon Lucumí|Colombian|CB
+Yerson Mosquera|Colombian|CB
+Rafael Santos Borré|Colombian|ST
+Juan Cuadrado|Colombian|RB
+Yerry Mina|Colombian|CB
+Camilo Vargas|Colombian|GK
+Moisés Caicedo|Ecuadorian|CDM
+Piero Hincapié|Ecuadorian|CB
+Pervis Estupiñán|Ecuadorian|LB
+Willian Pacho|Ecuadorian|CB
+Kendry Páez|Ecuadorian|CAM
+Enner Valencia|Ecuadorian|ST
+Gonzalo Plata|Ecuadorian|RW
+Kevin Rodríguez|Ecuadorian|ST
+Alexis Sánchez|Chilean|ST
+Arturo Vidal|Chilean|CM
+Miguel Almirón|Paraguayan|RW
+Julio Enciso|Paraguayan|CAM
+Diego Gómez|Paraguayan|CM
+Omar Alderete|Paraguayan|CB
+Salomón Rondón|Venezuelan|ST
+Yeferson Soteldo|Venezuelan|LW
+Luka Modrić|Croatian|CM
+Joško Gvardiol|Croatian|CB
+Mateo Kovačić|Croatian|CM
+Marcelo Brozović|Croatian|CDM
+Ivan Perišić|Croatian|LW
+Andrej Kramarić|Croatian|ST
+Mario Pašalić|Croatian|CM
+Luka Sučić|Croatian|CM
+Josip Stanišić|Croatian|RB
+Dominik Livaković|Croatian|GK
+Petar Sučić|Croatian|CM
+Martin Baturina|Croatian|CAM
+Josip Šutalo|Croatian|CB
+Lovro Majer|Croatian|CAM
+Ante Budimir|Croatian|ST
+Luka Vušković|Croatian|CB
+Dušan Vlahović|Serbian|ST
+Aleksandar Mitrović|Serbian|ST
+Sergej Milinković-Savić|Serbian|CM
+Dušan Tadić|Serbian|CAM
+Filip Kostić|Serbian|LW
+Strahinja Pavlović|Serbian|CB
+Nikola Milenković|Serbian|CB
+Vanja Milinković-Savić|Serbian|GK
+Lazar Samardžić|Serbian|CAM
+Ivan Ilić|Serbian|CM
+Christian Eriksen|Danish|CM
+Rasmus Højlund|Danish|ST
+Pierre-Emile Højbjerg|Danish|CDM
+Kasper Schmeichel|Danish|GK
+Andreas Christensen|Danish|CB
+Joachim Andersen|Danish|CB
+Morten Hjulmand|Danish|CDM
+Mikkel Damsgaard|Danish|CAM
+Victor Kristiansen|Danish|LB
+Patrick Dorgu|Danish|LB
+Jonas Wind|Danish|ST
+Gustav Isaksen|Danish|RW
+Kasper Dolberg|Danish|ST
+Morten Frendrup|Danish|CM
+Mika Biereth|Danish|ST
+Conrad Harder|Danish|ST
+Joakim Mæhle|Danish|RB
+Jannik Vestergaard|Danish|CB
+Albert Grønbæk|Danish|CAM
+Kasper Høgh|Danish|ST
+Erling Haaland|Norwegian|ST|Haaland
+Martin Ødegaard|Norwegian|CAM
+Alexander Sørloth|Norwegian|ST
+Antonio Nusa|Norwegian|LW
+Oscar Bobb|Norwegian|RW
+Sander Berge|Norwegian|CDM
+Kristoffer Ajer|Norwegian|CB
+Leo Østigård|Norwegian|CB
+Ørjan Nyland|Norwegian|GK
+Jørgen Strand Larsen|Norwegian|ST
+Patrick Berg|Norwegian|CDM
+Kristian Thorstvedt|Norwegian|CM
+Andreas Schjelderup|Norwegian|LW
+Julian Ryerson|Norwegian|RB
+Jens Petter Hauge|Norwegian|LW
+Fredrik Aursnes|Norwegian|CM
+Morten Thorsby|Norwegian|CM
+David Møller Wolfe|Norwegian|LB
+Alexander Isak|Swedish|ST
+Viktor Gyökeres|Swedish|ST
+Dejan Kulusevski|Swedish|RW
+Victor Lindelöf|Swedish|CB
+Emil Forsberg|Swedish|CAM
+Isak Hien|Swedish|CB
+Lucas Bergvall|Swedish|CM
+Yasin Ayari|Swedish|CM
+Anthony Elanga|Swedish|RW
+Hugo Larsson|Swedish|CM
+Jens Cajuste|Swedish|CM
+Robin Olsen|Swedish|GK
+Roony Bardghji|Swedish|RW
+Gabriel Gudmundsson|Swedish|LB
+Mattias Svanberg|Swedish|CM
+Benjamin Nygren|Swedish|CAM
+David Alaba|Austrian|CB
+Marcel Sabitzer|Austrian|CM
+Konrad Laimer|Austrian|CM
+Christoph Baumgartner|Austrian|CAM
+Marko Arnautović|Austrian|ST
+Kevin Danso|Austrian|CB
+Nicolas Seiwald|Austrian|CDM
+Xaver Schlager|Austrian|CM
+Philipp Lienhart|Austrian|CB
+Michael Gregoritsch|Austrian|ST
+Patrick Wimmer|Austrian|RW
+Romano Schmid|Austrian|CAM
+Phillipp Mwene|Austrian|LB
+Stefan Posch|Austrian|RB
+Maximilian Wöber|Austrian|CB
+Granit Xhaka|Swiss|CM
+Manuel Akanji|Swiss|CB
+Yann Sommer|Swiss|GK
+Gregor Kobel|Swiss|GK
+Breel Embolo|Swiss|ST
+Dan Ndoye|Swiss|RW
+Remo Freuler|Swiss|CM
+Ricardo Rodríguez|Swiss|LB
+Nico Elvedi|Swiss|CB
+Denis Zakaria|Swiss|CDM
+Ruben Vargas|Swiss|LW
+Johan Manzambi|Swiss|CM
+Fabian Rieder|Swiss|CAM
+Zeki Amdouni|Swiss|ST
+Xherdan Shaqiri|Swiss|CAM
+Robert Lewandowski|Polish|ST|Lewandowski
+Wojciech Szczęsny|Polish|GK
+Piotr Zieliński|Polish|CM
+Jakub Kiwior|Polish|CB
+Nicola Zalewski|Polish|LB
+Sebastian Szymański|Polish|CAM
+Jan Bednarek|Polish|CB
+Krzysztof Piątek|Polish|ST
+Jakub Moder|Polish|CM
+Matty Cash|Polish|RB
+Łukasz Skorupski|Polish|GK
+Kacper Urbański|Polish|CAM
+Jakub Kamiński|Polish|LW
+Karol Świderski|Polish|ST
+Patrik Schick|Czech|ST
+Tomáš Souček|Czech|CDM
+Vladimír Coufal|Czech|RB
+Adam Hložek|Czech|ST
+Ladislav Krejčí|Czech|CB
+Milan Škriniar|Slovak|CB
+Stanislav Lobotka|Slovak|CDM
+Dávid Hancko|Slovak|CB
+Martin Dúbravka|Slovak|GK
+Dominik Szoboszlai|Hungarian|CAM
+Milos Kerkez|Hungarian|LB
+Roland Sallai|Hungarian|RW
+Willi Orbán|Hungarian|CB
+Barnabás Varga|Hungarian|ST
+Péter Gulácsi|Hungarian|GK
+András Schäfer|Hungarian|CM
+Mykhailo Mudryk|Ukrainian|LW
+Oleksandr Zinchenko|Ukrainian|LB
+Artem Dovbyk|Ukrainian|ST
+Illia Zabarnyi|Ukrainian|CB
+Georgiy Sudakov|Ukrainian|CAM
+Anatoliy Trubin|Ukrainian|GK
+Andriy Lunin|Ukrainian|GK
+Viktor Tsygankov|Ukrainian|RW
+Vitaliy Mykolenko|Ukrainian|LB
+Khvicha Kvaratskhelia|Georgian|LW|Kvara
+Giorgi Mamardashvili|Georgian|GK
+Georges Mikautadze|Georgian|ST
+Arda Güler|Turkish|CAM
+Hakan Çalhanoğlu|Turkish|CDM
+Kenan Yıldız|Turkish|LW
+Ferdi Kadıoğlu|Turkish|LB
+Kerem Aktürkoğlu|Turkish|LW
+Orkun Kökçü|Turkish|CM
+Merih Demiral|Turkish|CB
+Barış Alper Yılmaz|Turkish|LW
+Uğurcan Çakır|Turkish|GK
+Abdülkerim Bardakcı|Turkish|CB
+İsmail Yüksek|Turkish|CDM
+Can Uzun|Turkish|CAM
+Semih Kılıçsoy|Turkish|ST
+Cengiz Ünder|Turkish|RW
+Zeki Çelik|Turkish|RB
+Andrew Robertson|Scottish|LB|Andy Robertson
+Scott McTominay|Scottish|CM
+John McGinn|Scottish|CM
+Billy Gilmour|Scottish|CM
+Kieran Tierney|Scottish|LB
+Che Adams|Scottish|ST
+Lewis Ferguson|Scottish|CM
+Angus Gunn|Scottish|GK
+Callum McGregor|Scottish|CM
+Lyndon Dykes|Scottish|ST
+Ryan Christie|Scottish|CAM
+Nathan Patterson|Scottish|RB
+Lawrence Shankland|Scottish|ST
+Ben Doak|Scottish|RW
+Jack Hendry|Scottish|CB
+Grant Hanley|Scottish|CB
+Brennan Johnson|Welsh|RW
+Harry Wilson|Welsh|RW
+Ethan Ampadu|Welsh|CDM
+Daniel James|Welsh|LW
+Kieffer Moore|Welsh|ST
+Neco Williams|Welsh|RB
+Joe Rodon|Welsh|CB
+Ben Davies|Welsh|CB
+Aaron Ramsey|Welsh|CM
+Danny Ward|Welsh|GK
+David Brooks|Welsh|RW
+Jordan James|Welsh|CM
+Connor Roberts|Welsh|RB
+Nathan Broadhead|Welsh|LW
+Mark Harris|Welsh|ST
+Karl Darlow|Welsh|GK
+Chris Mepham|Welsh|CB
+Sorba Thomas|Welsh|RW
+Rubin Colwill|Welsh|CAM
+Wes Burns|Welsh|RW
+Liam Cullen|Welsh|ST
+Lewis Koumas|Welsh|CAM
+Caoimhín Kelleher|Irish|GK
+Nathan Collins|Irish|CB
+Evan Ferguson|Irish|ST
+Matt Doherty|Irish|RB
+Seamus Coleman|Irish|RB
+Troy Parrott|Irish|ST
+Chiedozie Ogbene|Irish|RW
+Josh Cullen|Irish|CM
+Jayson Molumby|Irish|CM
+Mikey Johnston|Irish|LW
+Dara O'Shea|Irish|CB
+Andrew Omobamidele|Irish|CB
+Sammie Szmodics|Irish|CAM
+Conor Bradley|Northern Irish|RB
+Jonny Evans|Northern Irish|CB
+Bailey Peacock-Farrell|Northern Irish|GK
+Shea Charles|Northern Irish|CDM
+Isaac Price|Northern Irish|CAM
+Daniel Ballard|Northern Irish|CB
+Trai Hume|Northern Irish|RB
+Mohamed Salah|Egyptian|RW|Salah;Mo Salah
+Omar Marmoush|Egyptian|ST
+Mostafa Mohamed|Egyptian|ST
+Achraf Hakimi|Moroccan|RB
+Brahim Díaz|Moroccan|CAM
+Noussair Mazraoui|Moroccan|RB
+Sofyan Amrabat|Moroccan|CDM
+Youssef En-Nesyri|Moroccan|ST
+Hakim Ziyech|Moroccan|RW
+Yassine Bounou|Moroccan|GK|Bono
+Nayef Aguerd|Moroccan|CB
+Azzedine Ounahi|Moroccan|CM
+Bilal El Khannouss|Moroccan|CAM
+Eliesse Ben Seghir|Moroccan|CAM
+Abde Ezzalzouli|Moroccan|LW
+Ismael Saibari|Moroccan|CAM
+Amine Adli|Moroccan|LW
+Victor Osimhen|Nigerian|ST
+Ademola Lookman|Nigerian|LW
+Samuel Chukwueze|Nigerian|RW
+Alex Iwobi|Nigerian|CM
+Wilfred Ndidi|Nigerian|CDM
+Victor Boniface|Nigerian|ST
+Calvin Bassey|Nigerian|CB
+Ola Aina|Nigerian|RB
+Taiwo Awoniyi|Nigerian|ST
+Kelechi Iheanacho|Nigerian|ST
+Moses Simon|Nigerian|LW
+Frank Onyeka|Nigerian|CM
+Raphael Onyedika|Nigerian|CDM
+Tolu Arokodare|Nigerian|ST
+Fisayo Dele-Bashiru|Nigerian|CM
+Sadio Mané|Senegalese|LW
+Kalidou Koulibaly|Senegalese|CB
+Nicolas Jackson|Senegalese|ST
+Ismaïla Sarr|Senegalese|RW
+Idrissa Gueye|Senegalese|CDM
+Pape Matar Sarr|Senegalese|CM
+Édouard Mendy|Senegalese|GK
+Iliman Ndiaye|Senegalese|LW
+Lamine Camara|Senegalese|CM
+Habib Diarra|Senegalese|CM
+Boulaye Dia|Senegalese|ST
+Krépin Diatta|Senegalese|RW
+Moussa Niakhaté|Senegalese|CB
+El Hadji Malick Diouf|Senegalese|LB
+Pape Gueye|Senegalese|CM
+Mohammed Kudus|Ghanaian|RW
+Thomas Partey|Ghanaian|CDM
+Antoine Semenyo|Ghanaian|RW
+Jordan Ayew|Ghanaian|ST
+André Ayew|Ghanaian|RW
+Mohammed Salisu|Ghanaian|CB
+Tariq Lamptey|Ghanaian|RB
+Kamaldeen Sulemana|Ghanaian|LW
+Ernest Nuamah|Ghanaian|RW
+Abdul Fatawu|Ghanaian|RW
+Iñaki Williams|Ghanaian|ST
+Ibrahim Osman|Ghanaian|LW
+Sébastien Haller|Ivorian|ST
+Franck Kessié|Ivorian|CM
+Simon Adingra|Ivorian|LW
+Amad Diallo|Ivorian|RW|Amad
+Evan Ndicka|Ivorian|CB
+Odilon Kossounou|Ivorian|CB
+Wilfried Zaha|Ivorian|LW
+Nicolas Pépé|Ivorian|RW
+Seko Fofana|Ivorian|CM
+Ibrahim Sangaré|Ivorian|CDM
+Oumar Diakité|Ivorian|RW
+Jérémie Boga|Ivorian|LW
+Yan Diomande|Ivorian|LW
+Ousmane Diomande|Ivorian|CB
+Wilfried Singo|Ivorian|RB
+Ghislain Konan|Ivorian|LB
+André Onana|Cameroonian|GK
+Bryan Mbeumo|Cameroonian|RW
+Vincent Aboubakar|Cameroonian|ST
+Frank Anguissa|Cameroonian|CM|André-Frank Zambo Anguissa
+Carlos Baleba|Cameroonian|CDM
+Eric Maxim Choupo-Moting|Cameroonian|ST
+Karl Toko Ekambi|Cameroonian|LW
+Christopher Wooh|Cameroonian|CB
+Jean-Charles Castelletto|Cameroonian|CB
+Nouhou Tolo|Cameroonian|LB
+Riyad Mahrez|Algerian|RW
+Ismaël Bennacer|Algerian|CDM
+Rayan Aït-Nouri|Algerian|LB
+Amine Gouiri|Algerian|ST
+Houssem Aouar|Algerian|CM
+Mohamed Amoura|Algerian|ST
+Saïd Benrahma|Algerian|LW
+Ramy Bensebaini|Algerian|LB
+Aïssa Mandi|Algerian|CB
+Ibrahim Maza|Algerian|CAM
+Farès Chaïbi|Algerian|CAM
+Rafik Belghali|Algerian|RB
+Yves Bissouma|Malian|CDM
+Amadou Haidara|Malian|CM
+Mohamed Camara|Malian|CDM
+Kamory Doumbia|Malian|CAM
+Lassine Sinayoko|Malian|ST
+El Bilal Touré|Malian|ST
+Moussa Djenepo|Malian|LW
+Serhou Guirassy|Guinean|ST
+Naby Keïta|Guinean|CM
+Amadou Diawara|Guinean|CDM
+Mohamed Bayo|Guinean|ST
+Edmond Tapsoba|Burkinabé|CB
+Bertrand Traoré|Burkinabé|RW
+Dango Ouattara|Burkinabé|LW
+Lassina Traoré|Burkinabé|ST
+Yoane Wissa|Congolese|ST
+Chancel Mbemba|Congolese|CB
+Cédric Bakambu|Congolese|ST
+Arthur Masuaku|Congolese|LB
+Axel Tuanzebe|Congolese|CB
+Aaron Wan-Bissaka|Congolese|RB
+Noah Sadiki|Congolese|CM
+Pierre-Emerick Aubameyang|Gabonese|ST
+Mario Lemina|Gabonese|CDM
+Denis Bouanga|Gabonese|LW
+Ellyes Skhiri|Tunisian|CDM
+Hannibal Mejbri|Tunisian|CAM
+Montassar Talbi|Tunisian|CB
+Patson Daka|Zambian|ST
+Lyle Foster|South African|ST
+Percy Tau|South African|LW
+Yankuba Minteh|Gambian|RW
+Logan Costa|Cape Verdean|CB
+Marshall Munetsi|Zimbabwean|CM
+Jordan Zemura|Zimbabwean|LB
+Son Heung-min|South Korean|LW|Son;Heung-min Son
+Kim Min-jae|South Korean|CB
+Lee Kang-in|South Korean|CAM
+Hwang Hee-chan|South Korean|ST
+Lee Jae-sung|South Korean|CAM
+Hwang In-beom|South Korean|CM
+Oh Hyeon-gyu|South Korean|ST
+Bae Jun-ho|South Korean|CAM
+Takefusa Kubo|Japanese|RW
+Kaoru Mitoma|Japanese|LW
+Wataru Endo|Japanese|CDM
+Takehiro Tomiyasu|Japanese|RB
+Daichi Kamada|Japanese|CAM
+Ritsu Doan|Japanese|RW
+Takumi Minamino|Japanese|CAM
+Hiroki Ito|Japanese|CB
+Ayase Ueda|Japanese|ST
+Kou Itakura|Japanese|CB
+Junya Ito|Japanese|RW
+Zion Suzuki|Japanese|GK
+Ao Tanaka|Japanese|CM
+Yukinari Sugawara|Japanese|RB
+Keito Nakamura|Japanese|LW
+Hidemasa Morita|Japanese|CM
+Kyogo Furuhashi|Japanese|ST
+Reo Hatate|Japanese|CM
+Daizen Maeda|Japanese|LW
+Koki Machida|Japanese|CB
+Mehdi Taremi|Iranian|ST
+Sardar Azmoun|Iranian|ST
+Alireza Jahanbakhsh|Iranian|RW
+Mathew Ryan|Australian|GK
+Jackson Irvine|Australian|CM
+Harry Souttar|Australian|CB
+Alessandro Circati|Australian|CB
+Riley McGree|Australian|CAM
+Nestory Irankunda|Australian|RW
+Salem Al-Dawsari|Saudi|LW
+Firas Al-Buraikan|Saudi|ST
+Saud Abdulhamid|Saudi|RB
+Eldor Shomurodov|Uzbek|ST
+Abdukodir Khusanov|Uzbek|CB
+Abbosbek Fayzullaev|Uzbek|CAM
+Akram Afif|Qatari|LW
+Almoez Ali|Qatari|ST
+Wu Lei|Chinese|ST
+Christian Pulisic|American|RW
+Weston McKennie|American|CM
+Tyler Adams|American|CDM
+Gio Reyna|American|CAM|Giovanni Reyna
+Antonee Robinson|American|LB
+Sergiño Dest|American|RB
+Folarin Balogun|American|ST
+Timothy Weah|American|RW|Tim Weah
+Yunus Musah|American|CM
+Chris Richards|American|CB
+Matt Turner|American|GK
+Ricardo Pepi|American|ST
+Josh Sargent|American|ST
+Malik Tillman|American|CAM
+Brenden Aaronson|American|CAM
+Johnny Cardoso|American|CDM
+Haji Wright|American|ST
+Tim Ream|American|CB
+Cameron Carter-Vickers|American|CB
+Diego Luna|American|CAM
+Alphonso Davies|Canadian|LB
+Jonathan David|Canadian|ST
+Tajon Buchanan|Canadian|RW
+Stephen Eustáquio|Canadian|CM
+Cyle Larin|Canadian|ST
+Ismaël Koné|Canadian|CM
+Alistair Johnston|Canadian|RB
+Moïse Bombito|Canadian|CB
+Jonathan Osorio|Canadian|CM
+Derek Cornelius|Canadian|CB
+Maxime Crépeau|Canadian|GK
+Jacob Shaffelburg|Canadian|LW
+Promise David|Canadian|ST
+Tani Oluwaseyi|Canadian|ST
+Santiago Giménez|Mexican|ST
+Raúl Jiménez|Mexican|ST
+Edson Álvarez|Mexican|CDM
+Hirving Lozano|Mexican|RW|Chucky Lozano
+Guillermo Ochoa|Mexican|GK|Memo Ochoa
+César Montes|Mexican|CB
+Johan Vásquez|Mexican|CB
+Orbelín Pineda|Mexican|CAM
+Luis Chávez|Mexican|CM
+Julián Quiñones|Mexican|ST
+Henry Martín|Mexican|ST
+Jorge Sánchez|Mexican|RB
+Alexis Vega|Mexican|LW
+Raúl Rangel|Mexican|GK
+Gilberto Mora|Mexican|CAM
+Obed Vargas|Mexican|CM
+Keylor Navas|Costa Rican|GK
+Manfred Ugalde|Costa Rican|ST
+Michail Antonio|Jamaican|ST
+Leon Bailey|Jamaican|RW
+Demarai Gray|Jamaican|LW
+Bobby Decordova-Reid|Jamaican|RW|Bobby De Cordova-Reid
+Ethan Pinnock|Jamaican|CB
+Adalberto Carrasquilla|Panamanian|CM
+Michael Murillo|Panamanian|RB
+Ismael Díaz|Panamanian|ST
+Albert Guðmundsson|Icelandic|CAM|Albert Gudmundsson
+Hákon Arnar Haraldsson|Icelandic|CAM
+Orri Óskarsson|Icelandic|ST
+Teemu Pukki|Finnish|ST
+Lukáš Hrádecký|Finnish|GK
+Glen Kamara|Finnish|CM
+Konstantinos Tsimikas|Greek|LB
+Vangelis Pavlidis|Greek|ST
+Konstantinos Mavropanos|Greek|CB
+Christos Tzolis|Greek|LW
+Konstantinos Karetsas|Greek|RW
+Anastasios Bakasetas|Greek|CAM
+Armando Broja|Albanian|ST
+Kristjan Asllani|Albanian|CM
+Berat Djimsiti|Albanian|CB
+Elseid Hysaj|Albanian|RB
+Thomas Strakosha|Albanian|GK
+Edin Džeko|Bosnian|ST
+Sead Kolašinac|Bosnian|LB
+Ermedin Demirović|Bosnian|ST
+Benjamin Tahirović|Bosnian|CM
+Jan Oblak|Slovenian|GK
+Benjamin Šeško|Slovenian|ST
+Jaka Bijol|Slovenian|CB
+Stefan Savić|Montenegrin|CB
+Eljif Elmas|Macedonian|CAM
+Enis Bardhi|Macedonian|CAM
+Edon Zhegrova|Kosovan|RW
+Vedat Muriqi|Kosovan|ST
+Milot Rashica|Kosovan|LW
+Radu Drăgușin|Romanian|CB
+Nicolae Stanciu|Romanian|CAM
+Răzvan Marin|Romanian|CM
+Dennis Man|Romanian|RW
+Ianis Hagi|Romanian|CAM
+Aleksandr Golovin|Russian|CAM
+Matvey Safonov|Russian|GK
+Aleksei Miranchuk|Russian|CAM
+`;
+
+  // Lowercase, no accents or punctuation: "Mbappé" and "mbappe" are the same key.
+  const key = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '')
+    .replace(/ø/g, 'o').replace(/æ/g, 'ae').replace(/ł/g, 'l').replace(/ð/g, 'd').replace(/ı/g, 'i').replace(/ß/g, 'ss')
+    .replace(/['’.]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+
+  const players = LIST.trim().split('\n').map((line) => {
+    const [name, nat, pos, aliases] = line.split('|');
+    return { name, nat, pos, aliases: aliases ? aliases.split(';') : [] };
+  });
+
+  const byKey = new Map();
+  const byToken = new Map(); // single name parts → players, for "Saka" or "Gvardiol"
+  function index(p, custom) {
+    [p.name, ...p.aliases].forEach((n) => byKey.set(key(n), p));
+    key(p.name).split(' ').forEach((tok) => {
+      if (tok.length < 3) return;
+      if (!byToken.has(tok)) byToken.set(tok, []);
+      byToken.get(tok).push(p);
+    });
+    if (custom) p.custom = true;
+  }
+  players.forEach((p) => index(p));
+
+  /** Add a name the player confirmed is real (not a regen). */
+  function addKnown(name, nat, pos) {
+    const k = key(name);
+    if (!k || byKey.has(k)) return;
+    index({ name: String(name).trim(), nat: nat || '', pos: pos || '', aliases: [] }, true);
+  }
+
+  /**
+   * Who is this? Returns { player } for a confident match, { candidates } when
+   * a single name fits several players, or null when it isn't recognised.
+   */
+  function recognise(name) {
+    const k = key(name);
+    if (!k) return null;
+    if (byKey.has(k)) return { player: byKey.get(k) };
+    const tokens = k.split(' ').filter((t) => t.length >= 3);
+    if (!tokens.length) return null;
+    // Every typed part must belong to the same player's name.
+    let pool = byToken.get(tokens[0]) || [];
+    tokens.slice(1).forEach((tok) => { pool = pool.filter((p) => key(p.name).split(' ').includes(tok)); });
+    const unique = Array.from(new Set(pool));
+    if (unique.length === 1) return { player: unique[0] };
+    if (unique.length > 1) return { candidates: unique.slice(0, 5) };
+    return null;
+  }
+
+  FC26.playerDB = { players, recognise, addKnown, key };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/assistant.js */
+/*
+ * The transfer assistant: a small rule-based "AI" that runs in the browser
+ * with no internet connection.
+ *
+ * - parseTransfer() reads a sentence like "Signed Florian Wirtz from
+ *   Leverkusen for €60m in January" and turns it into a transfer.
+ * - precheck() simulates a transfer against the challenge's rules and says
+ *   what it would break or complete.
+ * - nextSteps() turns broken / pending rules into a to-do list.
+ * - signingRules() summarises the rules that apply to signings as chips.
+ * Pure logic, no DOM.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const C = FC26.compliance;
+  const DB = FC26.playerDB;
+
+  const clone = (x) => JSON.parse(JSON.stringify(x));
+
+  // ---------- Reading a sentence ----------
+
+  const POS_WORDS = [
+    [/\b(goal ?keeper|keeper|gk)\b/i, 'GK'],
+    [/\b(cent(?:re|er)[- ]?backs?|cb)\b/i, 'CB'],
+    [/\b(left[- ]?back|lb)\b/i, 'LB'],
+    [/\b(right[- ]?back|rb|full[- ]?back)\b/i, 'RB'],
+    [/\b(defensive midfielder|holding midfielder|cdm|dm)\b/i, 'CDM'],
+    [/\b(attacking midfielder|playmaker|number ?10|cam)\b/i, 'CAM'],
+    [/\b(left[- ]?winger|left wing|lw)\b/i, 'LW'],
+    [/\b(right[- ]?winger|right wing|rw|winger)\b/i, 'RW'],
+    [/\b(midfielder|cm)\b/i, 'CM'],
+    [/\b(striker|cent(?:re|er)[- ]?forward|forward|st|cf)\b/i, 'ST'],
+    [/\b(defender)\b/i, 'CB'],
+  ];
+
+  const DIRECTIONS = [
+    [/\b(loan(?:ed)? out|on loan to|loan(?:ed)? (?:\w+ )?to|sent (?:\w+ )?on loan)\b/i, 'out', 'loan'],
+    [/\b(on loan from|loan(?:ed)? in|loan from|borrow(?:ed)?|loan signing|loaned from)\b/i, 'in', 'loan'],
+    [/\b(releas(?:e|ed|ing)|let (?:\w+ )?go|terminat(?:e|ed)|mutual consent)\b/i, 'out', 'release'],
+    [/\b(promot(?:e|ed|ing)|youth (?:team|intake|graduate)|graduat(?:e|ed)|from the academy)\b/i, 'in', 'promotion'],
+    [/\b(sold|sell(?:ing)?|sale|transferr?(?:ed)? to|departed|left for|moved to|cashed in)\b/i, 'out', 'sale'],
+  ];
+  const IN_WORDS = /\b(sign(?:ed|ing|s)?|bought|buy|brought in|bring in|acquired?|added|landed|captured|snapped up)\b/i;
+  const FREE_WORDS = /\b(free transfer|free agent|on a free|for free|for nothing)\b/i;
+  const VERBS = /\b(?:signed|signs|sign|bought|buy|sold|sell|released|release|promoted|promote|loaned|loan|brought in|let go of|added|landed|captured)\s+(?:in\s+|out\s+|back\s+)?/i;
+  const PARTICLES = new Set(['de', 'da', 'di', 'van', 'von', 'der', 'den', 'ter', 'el', 'al', 'le', 'la', 'dos', 'del', 'mac', 'bin']);
+  const STOP = /\s+(?:from|to|for|on|in|at|aged|age|who|with|rated|as|back|out|after)\b|[,.;!?()]|$/;
+  const CAPS = /^\p{Lu}/u;
+
+  function parseMoney(numText, unit, hasCurrency) {
+    let s = String(numText);
+    s = /^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s) ? s.replace(/,/g, '') : s.replace(',', '.');
+    const v = parseFloat(s);
+    if (!Number.isFinite(v)) return null;
+    const u = String(unit || '').toLowerCase();
+    if (u.startsWith('b')) return v * 1000;
+    if (u.startsWith('m')) return v;
+    if (u.startsWith('k') || u.startsWith('t')) return v / 1000;
+    if (hasCurrency) return v >= 1000 ? v / 1e6 : v; // "€25" means millions; "€2500000" is euros
+    return null;
+  }
+
+  function findNationality(text) {
+    const words = text.split(/[^\p{L}'’-]+/u).filter(Boolean);
+    for (let i = 0; i < words.length; i++) {
+      const pair = words[i + 1] ? `${words[i]} ${words[i + 1]}` : '';
+      if (pair && C.NATIONALITIES.includes(C.normNat(pair)) && CAPS.test(words[i])) return C.normNat(pair);
+      if (CAPS.test(words[i]) && C.NATIONALITIES.includes(words[i])) return words[i];
+    }
+    return '';
+  }
+
+  // Longest run of words that names a known player ("Kevin De Bruyne", "Saka").
+  function findKnownPlayer(text, skip) {
+    const tokens = text.split(/\s+/).map((t) => t.replace(/^[^\p{L}]+|[^\p{L}'’-]+$/gu, '')).filter(Boolean);
+    for (let size = 4; size >= 1; size--) {
+      for (let i = 0; i + size <= tokens.length; i++) {
+        const words = tokens.slice(i, i + size);
+        if (!CAPS.test(words[0]) || !words.every((w) => CAPS.test(w) || PARTICLES.has(w.toLowerCase()))) continue;
+        const phrase = words.join(' ');
+        if (skip && skip.some((s) => s && s.toLowerCase().includes(phrase.toLowerCase()))) continue;
+        const hit = DB.recognise(phrase);
+        if (hit && hit.player) return hit.player;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Read a transfer sentence. Returns the fields it understood plus `notes`
+   * (what it picked up) for the UI. Fields it couldn't find are left empty.
+   */
+  function parseTransfer(text, options) {
+    const opts = options || {};
+    const raw = String(text || '').trim();
+    const out = { dir: 'in', type: 'permanent', name: '', fee: '', club: '', age: '', ovr: '', nat: '', pos: '', wage: '', window: '', season: '', known: null };
+    if (!raw) return out;
+
+    let matched = DIRECTIONS.find(([re]) => re.test(raw));
+    if (matched) [, out.dir, out.type] = matched;
+    else if (FREE_WORDS.test(raw)) out.type = 'free';
+    else if (!IN_WORDS.test(raw) && opts.defaultDir) out.dir = opts.defaultDir;
+    if (out.dir === 'out' && out.type === 'permanent') out.type = 'sale';
+    if (out.dir === 'in' && out.type === 'permanent' && FREE_WORDS.test(raw)) out.type = 'free';
+
+    const fee = raw.match(/(€|£|\$|eur(?:os?)?\s)\s*([\d.,]+)\s*(m|mil|mill?ions?|bn|billion|k|thousand)?\b/i)
+      || raw.match(/\b([\d.,]+)\s*(m|mil|mill?ions?|bn|k|thousand)\b(?!\s*(?:ovr|a week|\/w|per week|pw))/i);
+    if (fee) {
+      const value = fee.length === 4 ? parseMoney(fee[2], fee[3], true) : parseMoney(fee[1], fee[2], false);
+      if (value != null) out.fee = Math.round(value * 100) / 100;
+    }
+    if (FREE_WORDS.test(raw) && out.fee === '') out.fee = 0;
+
+    const wage = raw.match(/\b(?:on|wages? of|earning|paid)\s*(?:€|£|\$)?\s*([\d.]+)\s*k\s*(?:a|per|\/)?\s*(?:w|wk|week)\b/i);
+    if (wage) out.wage = Number(wage[1]);
+
+    const club = out.dir === 'in'
+      ? raw.match(new RegExp(`\\bfrom\\s+(\\p{Lu}[\\p{L}\\p{N}.'’&\\- ]*?)(?=${STOP.source})`, 'u'))
+      : raw.match(new RegExp(`\\bto\\s+(\\p{Lu}[\\p{L}\\p{N}.'’&\\- ]*?)(?=${STOP.source})`, 'u'));
+    if (club) out.club = club[1].trim();
+
+    const age = raw.match(/\b(?:aged|age)\s*(\d{2})\b|\b(\d{2})\s*(?:yo|y\/o|y\.o\.|years? old|-year-old)\b/i);
+    if (age) out.age = Number(age[1] || age[2]);
+    const ovr = raw.match(/\b(\d{2})\s*(?:ovr|overall|rated)\b|\b(?:rated|ovr)\s*(\d{2})\b/i);
+    if (ovr) out.ovr = Number(ovr[1] || ovr[2]);
+    if (/\b(january|winter)\b/i.test(raw)) out.window = 'winter';
+    else if (/\bsummer\b/i.test(raw)) out.window = 'summer';
+    const season = raw.match(/\b(?:season|s)\s?(\d{1,2})\b/i);
+    if (season) out.season = Number(season[1]);
+
+    // The player: someone in your squad (for departures), then a known player, then the words after the verb.
+    const squad = (opts.squad || []).filter((p) => p && p.name && p.name.trim().length > 1);
+    const inSquad = squad.find((p) => raw.toLowerCase().includes(p.name.trim().toLowerCase()));
+    const known = findKnownPlayer(raw, [out.club]);
+    if (out.dir === 'out' && inSquad) out.name = inSquad.name.trim();
+    else if (known) out.name = known.name;
+    else if (inSquad) out.name = inSquad.name.trim();
+    else {
+      const after = raw.split(VERBS)[1] || raw;
+      const words = after.split(STOP)[0].split(/\s+/).filter(Boolean);
+      // Drop leading descriptions: "Brazilian winger X", "the 19-year-old X".
+      while (words.length > 1 && (!CAPS.test(words[0]) || C.NATIONALITIES.includes(C.normNat(words[0])) || POS_WORDS.some(([re]) => re.test(words[0])))) words.shift();
+      out.name = words.filter((w) => CAPS.test(w) || PARTICLES.has(w.toLowerCase())).join(' ').slice(0, 40);
+    }
+
+    if (known && known.name === out.name) {
+      out.known = known;
+      out.nat = known.nat;
+      out.pos = known.pos;
+    }
+    const nat = findNationality(raw.replace(out.club, ''));
+    if (nat && !out.nat) out.nat = nat;
+    if (!out.pos) {
+      const pos = POS_WORDS.find(([re]) => re.test(raw.replace(out.name, '')));
+      if (pos) [, out.pos] = pos;
+    }
+    return out;
+  }
+
+  // ---------- Checking a move before logging it ----------
+
+  /**
+   * What would this transfer do to the challenge? Compares every rule before
+   * and after a simulated move. Rules that were already broken only count if
+   * the move adds a new problem.
+   */
+  function precheck(ch, tracker, rec) {
+    const base = C.normalizeTracker(clone(tracker));
+    const before = C.checkChallenge(ch, base);
+    const sim = C.applyTransfer(C.normalizeTracker(clone(tracker)), Object.assign({ id: 'preview' }, rec));
+    const after = C.checkChallenge(ch, sim);
+    const breaks = [];
+    const fixes = [];
+    after.forEach((a, i) => {
+      const b = before[i];
+      if (a.status === 'broken') {
+        const fresh = a.details.filter((d) => !b.details.includes(d));
+        if (b.status !== 'broken' || fresh.length) breaks.push({ text: a.text, summary: a.summary, details: fresh.length ? fresh : a.details });
+      } else if (a.status === 'ok' && (b.status === 'broken' || b.status === 'warn')) {
+        fixes.push({ text: a.text, summary: a.summary });
+      }
+    });
+    const manual = after.filter((a) => a.status === 'manual').length;
+    return { ok: breaks.length === 0, breaks, fixes, checked: after.length - manual, manual };
+  }
+
+  /** Broken rules first, then things still to do, as short to-do items. */
+  function nextSteps(ch, tracker) {
+    return C.checkChallenge(ch, tracker)
+      .filter((r) => r.status === 'broken' || r.status === 'warn')
+      .sort((a, b) => (a.status === 'broken' ? 0 : 1) - (b.status === 'broken' ? 0 : 1))
+      .map((r) => ({ status: r.status, rule: r.text, summary: r.summary, details: r.details }));
+  }
+
+  // ---------- The challenge's rules for signings ----------
+
+  function chipFor(c, t) {
+    const m = C.money;
+    switch (c.kind) {
+      case 'maxFee': return `Fee ≤ ${m(c.max)}`;
+      case 'noFees': return 'Frees and loans only';
+      case 'maxSignAge': return `Age ≤ ${c.max}`;
+      case 'minSignAge': return `Age ≥ ${c.min}`;
+      case 'maxSignOvr': return `OVR ≤ ${c.max}`;
+      case 'signNat': return `Only ${c.label}`;
+      case 'maxSignings': return `Max ${c.max} signing${c.max === 1 ? '' : 's'} per ${c.summerOnly ? 'summer ' : ''}window`;
+      case 'noLoansIn': return 'No loan signings';
+      case 'oneInOneOut': return 'One in, one out';
+      case 'profitWindow': return 'Break even every window';
+      case 'profitSeason': return 'Profit every season';
+      case 'spendFromSales': {
+        const balance = t.transfers.reduce((n, x) => n + (x.dir === 'out' ? 1 : -1) * (Number(x.fee) || 0), 0);
+        return `Sales money only: ${m(Math.max(0, balance))} to spend`;
+      }
+      case 'noLeagueRivals': return 'No signings from league rivals';
+      case 'noSignFrom': return `Not from ${c.clubs.join(', ')}`;
+      case 'noResign': return 'No re-signing sold players';
+      case 'signNatEvery': return `A ${c.nat} signing every ${c.summer ? 'summer' : 'season'}`;
+      case 'signOvrEverySummer': return `A ${c.min}+ OVR signing every summer`;
+      case 'signFromEvery': return `A ${c.loan ? 'loan' : 'signing'} from ${c.clubs.join(' or ')} every season`;
+      case 'wageCap': return `Wages ≤ ${c.max >= 1 ? `€${c.max}K` : `€${Math.round(c.max * 1000)}`}/week`;
+      case 'squadSize': return `Squad ≤ ${c.max} (now ${t.players.filter((p) => !p.loanedOut).length})`;
+      default: return null;
+    }
+  }
+
+  /** Short chips for every rule that limits signings, e.g. "Fee ≤ €12M", "Age ≤ 21". */
+  function signingRules(ch, tracker) {
+    const t = C.normalizeTracker(tracker);
+    const chips = [];
+    ch.coreRules.concat(ch.rules).forEach((r) => {
+      const c = C.interpret(r.text);
+      if (!c) return;
+      (c.kind === 'all' ? c.checks : [c]).forEach((sub) => {
+        const chip = chipFor(sub, t);
+        if (chip && !chips.includes(chip)) chips.push(chip);
+      });
+    });
+    return chips;
+  }
+
+  FC26.assistant = { parseTransfer, precheck, nextSteps, signingRules };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/tracker-ui.js */
 /*
- * Season tracker UI inside a saved challenge: Squad, Transfers and (Player
- * Career) Career moves tabs. Rule checking itself lives in compliance.js;
- * app.js renders the results next to each rule.
+ * Season tracker UI: Squad, Transfers and (Player Career) Career moves, shown
+ * inside a saved challenge and, for transfers, in the stand-alone Transfers
+ * section. Rule checking lives in compliance.js and the transfer assistant
+ * in assistant.js; app.js renders rule results next to each rule.
  *
  * app.js calls init() with shared helpers, renders with renderTracker(),
  * and forwards click/change events from the saved list.
@@ -4829,13 +6135,15 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
   const FC26 = (root.FC26 = root.FC26 || {});
   const C = FC26.compliance;
   const G = FC26.generator;
+  const A = FC26.assistant;
+  const DB = FC26.playerDB;
 
   const POSITIONS = ['GK', 'RB', 'LB', 'CB', 'RWB', 'LWB', 'CDM', 'CM', 'CAM', 'RM', 'LM', 'RW', 'LW', 'CF', 'ST'];
   const IN_TYPES = [['permanent', 'Permanent'], ['loan', 'Loan'], ['free', 'Free transfer'], ['promotion', 'Academy promotion']];
   const OUT_TYPES = [['sale', 'Sale'], ['loan', 'Loan out'], ['release', 'Release']];
   const MOVE_TYPES = [['permanent', 'Transfer'], ['loan', 'Loan'], ['free', 'Free transfer']];
 
-  let deps = null; // { esc, toast, mutateEntry, renderChallenge, refreshSummary }
+  let deps = null; // { esc, toast, mutateEntry, findEntry, refresh, rememberKnown }
   const tabs = {}; // saved entry id → open tab
 
   const esc = (v) => deps.esc(v == null ? '' : v);
@@ -4908,6 +6216,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
             <label title="Academy graduate"><input type="checkbox" data-pfield="academy" ${p.academy ? 'checked' : ''}>🎓</label>
             <label title="On loan at your club"><input type="checkbox" data-pfield="loanIn" ${p.loanIn ? 'checked' : ''}>🔁</label>
             <label title="Loaned out to another club"><input type="checkbox" data-pfield="loanedOut" ${p.loanedOut ? 'checked' : ''}>✈️</label>
+            <label title="Regen: a player the game generated"><input type="checkbox" data-pfield="regen" ${p.regen ? 'checked' : ''}>🧬</label>
           </span>
           <button type="button" class="icon-btn" data-action="squad-del" title="Remove from the squad" aria-label="Remove ${esc(p.name)}">✕</button>
         </div>`).join('');
@@ -4928,15 +6237,18 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
             <button type="button" class="btn btn-small" data-action="paste-cancel">Cancel</button>
           </div>
         </div>
-        ${t.players.length ? `<div class="phead" aria-hidden="true"><span>Name</span><span>Pos</span><span>Age</span><span>Nationality</span><span>OVR</span><span>€K/week</span><span>⭐ 🎓 🔁 ✈️</span><span></span></div>` : ''}
+        ${t.players.length ? `<div class="phead" aria-hidden="true"><span>Name</span><span>Pos</span><span>Age</span><span>Nationality</span><span>OVR</span><span>€K/week</span><span>⭐ 🎓 🔁 ✈️ 🧬</span><span></span></div>` : ''}
         <div class="plist">${rows || '<p class="muted empty-note">No players yet. Add them one by one, or paste your whole squad.</p>'}</div>
-        <p class="muted legend">⭐ starting XI · 🎓 academy graduate · 🔁 on loan at your club · ✈️ loaned out</p>
+        <p class="muted legend">⭐ starting XI · 🎓 academy graduate · 🔁 on loan at your club · ✈️ loaned out · 🧬 regen (generated player)</p>
       </div>`;
   }
 
-  function transferForm(entry, t, dir) {
+  function transferForm(entry, t, dir, pre) {
+    const v = Object.assign({}, pre || {});
     const types = dir === 'out' ? OUT_TYPES : IN_TYPES;
     const squadNames = t.players.map((p) => `<option value="${esc(p.name)}"></option>`).join('');
+    const val = (k) => (v[k] == null ? '' : esc(v[k]));
+    const seasons = Array.from({ length: Math.max(entry.challenge.seasons, t.season) }, (_, i) => [i + 1, `S${i + 1}`]);
     return `
       <form class="tform" data-tform data-dir="${dir}" autocomplete="off">
         <div class="seg">
@@ -4944,22 +6256,52 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
           <button type="button" class="${dir === 'out' ? 'is-on' : ''}" data-action="tr-dir" data-dir="out">⬆️ Departure</button>
         </div>
         <div class="tgrid">
-          <label class="f-wide"><span>Player</span><input name="name" type="text" maxlength="40" required ${dir === 'out' ? 'list="squad-names-' + esc(entry.id) + '"' : ''} placeholder="${dir === 'out' ? 'Pick from your squad' : 'Name'}"></label>
+          <label class="f-wide"><span>Player</span><input name="name" type="text" maxlength="40" required value="${val('name')}" list="${dir === 'out' ? `squad-names-${esc(entry.id)}` : 'known-players'}" placeholder="${dir === 'out' ? 'Pick from your squad' : 'Name'}"></label>
           ${dir === 'out' ? `<datalist id="squad-names-${esc(entry.id)}">${squadNames}</datalist>` : ''}
-          <label><span>Type</span><select name="type">${opts(types)}</select></label>
-          <label><span>Fee €M</span><input name="fee" type="number" min="0" step="0.1" placeholder="0"></label>
-          <label class="f-wide"><span>${dir === 'out' ? 'To club' : 'From club'}</span><input name="club" type="text" maxlength="40"></label>
+          <label><span>Type</span><select name="type">${opts(types, v.type)}</select></label>
+          <label><span>Fee €M</span><input name="fee" type="number" min="0" step="0.1" placeholder="0" value="${val('fee')}"></label>
+          <label class="f-wide"><span>${dir === 'out' ? 'To club' : 'From club'}</span><input name="club" type="text" maxlength="40" value="${val('club')}"></label>
           ${dir === 'in' ? `
-          <label><span>Pos</span><select name="pos"><option value=""></option>${opts(POSITIONS.map((x) => [x, x]))}</select></label>
-          <label><span>Age</span><input name="age" type="number" min="14" max="50"></label>
-          <label><span>Nationality</span><input name="nat" type="text" list="nat-list" maxlength="30"></label>
-          <label><span>OVR</span><input name="ovr" type="number" min="1" max="99"></label>
-          <label><span>Wage €K/w</span><input name="wage" type="number" min="0" step="0.1"></label>` : ''}
-          <label><span>Season</span><select name="season">${opts(Array.from({ length: Math.max(entry.challenge.seasons, t.season) }, (_, i) => [i + 1, `S${i + 1}`]), t.season)}</select></label>
-          <label><span>Window</span><select name="window">${opts([['summer', 'Summer'], ['winter', 'January']], t.window)}</select></label>
+          <label><span>Pos</span><select name="pos"><option value=""></option>${opts(POSITIONS.map((x) => [x, x]), v.pos)}</select></label>
+          <label><span>Age</span><input name="age" type="number" min="14" max="50" value="${val('age')}"></label>
+          <label><span>Nationality</span><input name="nat" type="text" list="nat-list" maxlength="30" value="${val('nat')}"></label>
+          <label><span>OVR</span><input name="ovr" type="number" min="1" max="99" value="${val('ovr')}"></label>
+          <label><span>Wage €K/w</span><input name="wage" type="number" min="0" step="0.1" value="${val('wage')}"></label>` : ''}
+          <label><span>Season</span><select name="season">${opts(seasons, v.season || t.season)}</select></label>
+          <label><span>Window</span><select name="window">${opts([['summer', 'Summer'], ['winter', 'January']], v.window || t.window)}</select></label>
         </div>
+        <div class="recog" data-recog aria-live="polite"></div>
+        ${dir === 'in' ? '<label class="toggle regen-toggle"><input type="checkbox" name="regen"> 🧬 Regen (a player the game generated)</label>' : ''}
+        <div class="precheck" data-precheck aria-live="polite"></div>
         <button type="submit" class="btn btn-small btn-primary">${dir === 'out' ? 'Log departure' : 'Log signing'}</button>
       </form>`;
+  }
+
+  function assistantBox(entry) {
+    return `
+      <form class="assistant" data-assist-form autocomplete="off">
+        <div class="assistant-head">🤖 <strong>Transfer assistant</strong>
+          <span class="muted">Describe a move in your own words: I'll fill in the form and check it against ${esc(entry.challenge.title)}'s rules.</span></div>
+        <div class="assistant-row">
+          <input type="text" data-assist maxlength="200" placeholder="e.g. Signed Florian Wirtz from Leverkusen for €60m in January" aria-label="Describe a transfer">
+          <button type="submit" class="btn btn-small btn-primary">Read it</button>
+        </div>
+        <div class="assist-note muted" data-assist-note></div>
+      </form>`;
+  }
+
+  // The challenge this log belongs to, its signing rules and the assistant's to-do list.
+  function challengeContext(entry, t) {
+    const chips = A.signingRules(entry.challenge, t);
+    const steps = A.nextSteps(entry.challenge, t).slice(0, 5);
+    return `
+      <div class="tcontext">
+        <div>📒 Logging for <strong>${esc(entry.challenge.title)}</strong> · Season ${t.season} · ${t.window === 'winter' ? 'January' : 'Summer'} window</div>
+        ${chips.length ? `<div class="chips" title="This challenge's rules for signings">📜 ${chips.map((c) => `<span class="chip">${esc(c)}</span>`).join('')}</div>`
+    : '<div class="muted">This challenge has no rules about signings the assistant can check.</div>'}
+        ${steps.length ? `<div class="steps"><strong>🤖 What to do next</strong><ul>${steps.map((x) => `<li class="s-${x.status}">${x.status === 'broken' ? '❌' : '⚠️'} ${esc(x.summary)}<small class="muted">${esc(x.rule)}</small></li>`).join('')}</ul></div>`
+    : '<div class="steps ok">🤖 All the rules I can check are fine so far.</div>'}
+      </div>`;
   }
 
   function renderTransfers(entry, t) {
@@ -4979,10 +6321,10 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
         <div class="tgroup">
           <div class="tgroup-head"><strong>Season ${season} · ${w === '2' ? 'January' : 'Summer'}</strong>
             <span class="muted">in ${money(spent)} · out ${money(made)} · <span class="${net < 0 ? 'neg' : 'pos'}">net ${net < 0 ? '−' : '+'}${money(Math.abs(net))}</span></span></div>
-          ${items.map((x) => `
+          ${items.slice().reverse().map((x) => `
           <div class="trow ${x.dir}" data-tid="${esc(x.id)}">
             <span class="tdir">${x.dir === 'in' ? '⬇️' : '⬆️'}</span>
-            <span class="tmain"><strong>${esc(x.name)}</strong>
+            <span class="tmain"><strong>${esc(x.name)}</strong>${x.regen ? ' <span class="regen-badge" title="Regen: generated by the game">🧬 Regen</span>' : ''}
               <small class="muted">${[x.pos, x.age ? `${x.age}y` : '', x.nat ? C.normNat(x.nat) : '', x.ovr ? `${x.ovr} OVR` : ''].filter(Boolean).map(esc).join(' · ')}</small></span>
             <span class="tmeta">${esc(((x.dir === 'in' ? IN_TYPES : OUT_TYPES).find(([v]) => v === x.type) || ['', x.type])[1])}${x.club ? ` · ${x.dir === 'in' ? 'from' : 'to'} ${esc(x.club)}` : ''}${n(x.fee) ? ` · <strong>${money(n(x.fee))}</strong>` : ''}</span>
             <button type="button" class="icon-btn" data-action="tr-del" title="Delete this log entry (your squad list isn't changed)" aria-label="Delete">✕</button>
@@ -4991,8 +6333,10 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     }).join('');
     return `
       <div class="transfers">
+        ${challengeContext(entry, t)}
+        ${assistantBox(entry)}
         ${transferForm(entry, t, 'in')}
-        <p class="muted legend">Logging a signing adds the player to your squad. A sale or release removes them; a loan out marks them ✈️.</p>
+        <p class="muted legend">Logging a signing adds the player to your squad. A sale or release removes them; a loan out marks them ✈️. Players I don't recognise are marked 🧬 regen; untick it and I'll remember the name.</p>
         ${list || '<p class="muted empty-note">No transfers logged yet.</p>'}
       </div>`;
   }
@@ -5077,6 +6421,103 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
         wage: p.wage == null ? '' : p.wage,
       };
     }).filter((p) => p.name);
+  }
+
+  // ---------- Live recognition and pre-check ----------
+
+  function formValues(form) {
+    const f = Object.fromEntries(new FormData(form).entries());
+    return {
+      dir: form.dataset.dir,
+      type: f.type,
+      name: String(f.name || '').trim().slice(0, 40),
+      fee: n(f.fee) || 0,
+      club: String(f.club || '').trim().slice(0, 40),
+      pos: f.pos || '',
+      age: n(f.age) || '',
+      nat: f.nat ? C.normNat(String(f.nat).trim()) : '',
+      ovr: n(f.ovr) || '',
+      wage: n(f.wage) || '',
+      season: Number(f.season) || 1,
+      window: f.window === 'winter' ? 'winter' : 'summer',
+      regen: Boolean(form.elements.regen && form.elements.regen.checked),
+    };
+  }
+
+  // Under the name box: who this is, and whether they'll be logged as a regen.
+  function updateRecognition(form, item, autofill) {
+    const note = form.querySelector('[data-recog]');
+    if (!note) return;
+    const v = formValues(form);
+    const regen = form.elements.regen;
+    const setRegen = (on) => { if (regen && !regen.dataset.touched) regen.checked = on; };
+    if (!v.name) {
+      note.innerHTML = '';
+      setRegen(false);
+      return;
+    }
+    if (v.dir === 'out') {
+      const t = trackerOf(deps.findEntry(item.dataset.id));
+      const inSquad = t.players.some((p) => String(p.name).trim().toLowerCase() === v.name.toLowerCase());
+      note.innerHTML = inSquad ? '👥 In your squad: they\'ll be removed when you log this.' : '<span class="muted">Not in your squad list. The move will be logged, but no squad row changes.</span>';
+      return;
+    }
+    if (v.type === 'promotion') {
+      note.innerHTML = '🎓 Academy graduates are players the game generates, so this one is marked 🧬 regen.';
+      setRegen(true);
+      return;
+    }
+    const hit = DB.recognise(v.name);
+    if (hit && hit.player) {
+      const p = hit.player;
+      note.innerHTML = `👤 Recognised: <strong>${esc(p.name)}</strong>${p.nat ? ` · ${esc(p.nat)}` : ''}${p.pos ? ` · ${esc(p.pos)}` : ''}${p.custom ? ' <span class="muted">(you confirmed this one)</span>' : ''}`;
+      setRegen(false);
+      if (autofill) {
+        if (form.elements.nat && !form.elements.nat.value && p.nat) form.elements.nat.value = p.nat;
+        if (form.elements.pos && !form.elements.pos.value && p.pos) form.elements.pos.value = p.pos;
+      }
+    } else if (hit && hit.candidates) {
+      note.innerHTML = `Did you mean ${hit.candidates.map((p) => `<button type="button" class="link-btn" data-action="pick-player" data-name="${esc(p.name)}">${esc(p.name)}</button>`).join(', ')}?`;
+      setRegen(false);
+    } else {
+      note.innerHTML = '🧬 Not in my player list, so I\'ll log them as a <strong>regen</strong>. Untick below if they\'re a real player.';
+      setRegen(true);
+    }
+  }
+
+  // The verdict box: would this move break any of the challenge's rules?
+  function updatePrecheck(form, item) {
+    const box = form.querySelector('[data-precheck]');
+    if (!box) return;
+    const v = formValues(form);
+    if (!v.name) {
+      box.innerHTML = '';
+      return;
+    }
+    const entry = deps.findEntry(item.dataset.id);
+    if (!entry) return;
+    const res = A.precheck(entry.challenge, trackerOf(entry), Object.assign({}, v, { id: 'preview' }));
+    const breaks = res.breaks.map((b) => `<li><span>❌ <strong>${esc(b.text)}</strong></span><small>${b.details.slice(0, 3).map(esc).join(' · ')}</small></li>`).join('');
+    const fixes = res.fixes.map((f) => `<li><span>✅ Completes: ${esc(f.text)}</span></li>`).join('');
+    box.innerHTML = `
+      <div class="verdict ${res.ok ? 'ok' : 'bad'}">
+        <strong>${res.ok ? `🤖 ✅ ${v.dir === 'in' ? 'This signing fits' : 'This move fits'} your rules` : `🤖 ❌ This would break ${res.breaks.length} rule${res.breaks.length === 1 ? '' : 's'}`}</strong>
+        ${breaks || fixes ? `<ul>${breaks}${fixes}</ul>` : ''}
+        <small class="muted">Checked against ${res.checked} rule${res.checked === 1 ? '' : 's'}${res.manual ? `; ✋ ${res.manual} you'll need to check yourself` : ''}.</small>
+      </div>`;
+  }
+
+  let liveTimer = null;
+  function onInput(e, item) {
+    const form = e.target.closest('[data-tform]');
+    if (!form) return false;
+    if (e.target.name === 'regen') e.target.dataset.touched = '1';
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(() => {
+      updateRecognition(form, item, e.target.name === 'name');
+      updatePrecheck(form, item);
+    }, 120);
+    return true;
   }
 
   // ---------- Events ----------
@@ -5175,7 +6616,19 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     }
     if (action === 'tr-dir') {
       const entry = deps.findEntry(id);
-      btn.closest('[data-tform]').outerHTML = transferForm(entry, trackerOf(entry), btn.dataset.dir);
+      const old = btn.closest('[data-tform]');
+      const keep = { name: old.elements.name.value, club: old.elements.club.value, fee: old.elements.fee.value };
+      old.outerHTML = transferForm(entry, trackerOf(entry), btn.dataset.dir, keep);
+      const form = item.querySelector('[data-tform]');
+      updateRecognition(form, item, false);
+      updatePrecheck(form, item);
+      return true;
+    }
+    if (action === 'pick-player') {
+      const form = btn.closest('[data-tform]');
+      form.elements.name.value = btn.dataset.name;
+      updateRecognition(form, item, true);
+      updatePrecheck(form, item);
       return true;
     }
     if (action === 'tr-del') {
@@ -5193,36 +6646,44 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 
   function onSubmit(e, item) {
     const form = e.target;
+    if (form.matches('[data-assist-form]')) {
+      e.preventDefault();
+      const text = form.querySelector('[data-assist]').value;
+      const entry = deps.findEntry(item.dataset.id);
+      if (!entry || !text.trim()) return true;
+      const t = trackerOf(entry);
+      const parsed = A.parseTransfer(text, { squad: t.players });
+      const note = form.querySelector('[data-assist-note]');
+      const old = item.querySelector('[data-tform]');
+      old.outerHTML = transferForm(entry, t, parsed.dir, parsed);
+      const tform = item.querySelector('[data-tform]');
+      updateRecognition(tform, item, true);
+      updatePrecheck(tform, item);
+      const bits = [
+        parsed.dir === 'in' ? ({ loan: 'loan signing', free: 'free transfer', promotion: 'academy promotion' }[parsed.type] || 'signing') : ({ loan: 'loan out', release: 'release' }[parsed.type] || 'sale'),
+        parsed.name || null,
+        parsed.club ? `${parsed.dir === 'in' ? 'from' : 'to'} ${parsed.club}` : null,
+        parsed.fee !== '' ? money(Number(parsed.fee)) : null,
+        parsed.age ? `age ${parsed.age}` : null,
+        parsed.ovr ? `${parsed.ovr} OVR` : null,
+        parsed.window ? (parsed.window === 'winter' ? 'January' : 'summer') : null,
+        parsed.season ? `season ${parsed.season}` : null,
+      ].filter(Boolean);
+      note.innerHTML = parsed.name
+        ? `I understood: <strong>${bits.map(esc).join(' · ')}</strong>. Check the form, then log it.`
+        : `I couldn't find a player name in that. Type it into the form${bits.length ? ` (I did get: ${bits.map(esc).join(' · ')})` : ''}.`;
+      tform.elements[parsed.name ? 'fee' : 'name'].focus();
+      return true;
+    }
     if (form.matches('[data-tform]')) {
       e.preventDefault();
-      const f = Object.fromEntries(new FormData(form).entries());
-      const dir = form.dataset.dir;
-      const name = String(f.name || '').trim().slice(0, 40);
-      if (!name) return true;
-      change(item, (t) => {
-        const squadPlayer = t.players.find((p) => p.name.trim().toLowerCase() === name.toLowerCase());
-        const rec = {
-          id: uid(), dir, type: f.type, name, season: Number(f.season) || t.season, window: f.window === 'winter' ? 'winter' : 'summer',
-          fee: n(f.fee) || 0, club: String(f.club || '').trim().slice(0, 40),
-        };
-        if (dir === 'in') {
-          Object.assign(rec, { pos: f.pos || '', age: n(f.age) || '', nat: C.normNat(String(f.nat || '').trim()), ovr: n(f.ovr) || '' });
-          t.transfers.push(rec);
-          t.players.push({
-            id: uid(), name, pos: rec.pos, age: rec.age, nat: rec.nat, ovr: rec.ovr, wage: n(f.wage) || '',
-            academy: rec.type === 'promotion', loanIn: rec.type === 'loan',
-          });
-        } else {
-          // Snapshot the player's details at the time they left.
-          if (squadPlayer) Object.assign(rec, { pos: squadPlayer.pos, age: squadPlayer.age, nat: squadPlayer.nat, ovr: squadPlayer.ovr });
-          t.transfers.push(rec);
-          if (squadPlayer) {
-            if (rec.type === 'loan') squadPlayer.loanedOut = true;
-            else t.players = t.players.filter((p) => p !== squadPlayer);
-          }
-        }
-      }, ['transfers', 'squad']);
-      deps.toast(dir === 'in' ? `Signed ${name} ⬇️` : `${name} left ⬆️`);
+      const v = formValues(form);
+      if (!v.name) return true;
+      const known = DB.recognise(v.name);
+      // Unticking "regen" for someone I didn't know means they're real: remember them.
+      if (v.dir === 'in' && !v.regen && v.type !== 'promotion' && !(known && known.player)) deps.rememberKnown(v.name, v.nat, v.pos);
+      change(item, (t) => C.applyTransfer(t, Object.assign({ id: uid(), playerId: uid() }, v)), ['transfers', 'squad']);
+      deps.toast(v.dir === 'in' ? `Signed ${v.name}${v.regen ? ' 🧬' : ''} ⬇️` : `${v.name} left ⬆️`);
       return true;
     }
     if (form.matches('[data-mform]')) {
@@ -5242,10 +6703,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       change(item, (t) => {
         if (el.dataset.tracker === 'season') t.season = Number(el.value) || 1;
         else t.window = el.value === 'winter' ? 'winter' : 'summer';
-      }, []);
-      // Forms default to "now".
-      item.querySelectorAll('[data-tform] select[name=season], [data-mform] select[name=season]').forEach((s) => { if (el.dataset.tracker === 'season') s.value = el.value; });
-      item.querySelectorAll('[data-tform] select[name=window]').forEach((s) => { if (el.dataset.tracker === 'window') s.value = el.value; });
+      }, ['transfers', 'moves']);
       return true;
     }
     if (el.dataset.pfield) {
@@ -5267,7 +6725,27 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     return false;
   }
 
-  FC26.trackerUI = { init, renderTracker, onClick, onChange, onSubmit, parseSquad, POSITIONS };
+  /** The stand-alone Transfers section for one challenge. */
+  function renderTransferCentre(entry) {
+    const t = trackerOf(entry);
+    const seasons = Math.max(entry.challenge.seasons, t.season);
+    return `
+      <div class="tracker-bar">
+        <span class="tracker-now">📅 Now:
+          <select data-tracker="season" aria-label="Current season">${opts(Array.from({ length: seasons }, (_, i) => [i + 1, `Season ${i + 1}`]), t.season)}</select>
+          ${isPlayer(entry) ? '' : `<select data-tracker="window" aria-label="Current transfer window">${opts([['summer', 'Summer window'], ['winter', 'January window']], t.window)}</select>`}
+        </span>
+      </div>
+      ${isPlayer(entry)
+    ? `<div data-panel="moves">${renderMoves(entry, t)}</div>`
+    : `<div data-panel="transfers">${renderTransfers(entry, t)}</div>`}`;
+  }
+
+  function setTab(id, tab) {
+    tabs[id] = tab;
+  }
+
+  FC26.trackerUI = { init, renderTracker, renderTransferCentre, setTab, onClick, onChange, onSubmit, onInput, parseSquad, POSITIONS };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/share-image.js */
@@ -5567,11 +7045,13 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 /* UI for the FC 26 Career Challenge Builder. */
 (function () {
   'use strict';
-  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker } = window.FC26;
+  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker, playerDB: PlayerDB } = window.FC26;
 
   const STORE_KEY = 'fc26-challenges-v1';
   const OPTIONS_KEY = 'fc26-options-v1';
   const DAILY_KEY = 'fc26-daily-v1';
+  const KNOWN_KEY = 'fc26-known-v1'; // players the user confirmed are real (not regens)
+  const TC_KEY = 'fc26-transfers-challenge-v1'; // challenge picked in the Transfers section
 
   const $ = (sel, el = document) => el.querySelector(sel);
   const $$ = (sel, el = document) => Array.from(el.querySelectorAll(sel));
@@ -6009,6 +7489,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 
       <footer class="card-actions">
         ${controls ? '<button type="button" class="btn btn-primary" data-action="reroll">🎲 Reroll unlocked</button>' : ''}
+        ${builder || mode === 'daily' ? '<button type="button" class="btn" data-action="track" title="Save it and open its squad and transfer tracker">📒 Track it</button>' : ''}
         ${builder ? `
           <button type="button" class="btn${ch.custom ? ' btn-primary' : ''}" data-action="save">💾 Save</button>
           <button type="button" class="btn" data-action="edit" title="Change any text, add or remove rules and seasons">✏️ Edit</button>` : ''}
@@ -6018,6 +7499,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
         <button type="button" class="btn" data-action="copy">📋 Copy text</button>
         <button type="button" class="btn" data-action="share">🔗 Share link</button>
         <button type="button" class="btn" data-action="image" title="Save the challenge as a picture to post">🖼️ Image</button>
+        ${mode === 'saved' ? '<button type="button" class="btn" data-action="open-transfers" title="Log transfers for this challenge in the Transfers section">🔁 Transfers</button>' : ''}
         ${mode === 'saved' ? '<button type="button" class="btn btn-danger" data-action="delete">🗑️ Delete</button>' : ''}
       </footer>
     </article>`;
@@ -6393,6 +7875,10 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 
   // After a tracker change: re-check the rules (Challenge tab) and the summary row, leaving the edited panel alone.
   function refreshSavedItem(item, entry) {
+    if (item.id === 'tc-body') {
+      refreshTransfersHeader(entry);
+      return;
+    }
     const panel = $('[data-panel="challenge"]', item);
     if (panel) panel.innerHTML = renderCard(entry.challenge, 'saved', entry);
     $('summary', item).innerHTML = savedSummary(entry);
@@ -6415,21 +7901,75 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     $('summary', item).innerHTML = savedSummary(entry);
   }
 
-  function saveChallenge(ch) {
+  /** Save a challenge (unless it's already saved). Returns its id, or null if storage failed. */
+  function saveChallenge(ch, quiet) {
     const list = loadSaved();
     const key = challengeKey(ch);
-    if (list.some((e) => challengeKey(e.challenge) === key)) {
-      toast('Already in My Challenges');
-      return;
+    const existing = list.find((e) => challengeKey(e.challenge) === key);
+    if (existing) {
+      if (!quiet) toast('Already in My Challenges');
+      return existing.id;
     }
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-    list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, log: {}, breaks: 0 });
+    list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, log: {}, breaks: 0, tracker: Compliance.emptyTracker() });
     if (writeSaved(list)) {
       $('#saved-count').textContent = list.length;
-      toast('Saved to My Challenges 💾');
-    } else {
-      toast("Couldn't save — browser storage is unavailable");
+      if (!quiet) toast('Saved to My Challenges 💾');
+      return id;
     }
+    toast("Couldn't save — browser storage is unavailable");
+    return null;
+  }
+
+  // Save (if needed) and open the challenge's tracker on its Squad / Career moves tab.
+  function trackChallenge(ch) {
+    const id = saveChallenge(ch, true);
+    if (!id) return;
+    Tracker.setTab(id, ch.mode === 'player' ? 'moves' : 'squad');
+    storageSet(TC_KEY, id);
+    showView('saved', id);
+    const item = $(`.saved-item[data-id="${CSS.escape(id)}"]`);
+    if (item) item.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    toast('Tracking this challenge 📒');
+  }
+
+  // ---------- Transfers section ----------
+
+  function renderTransfersView() {
+    const list = loadSaved();
+    const picker = $('#tc-challenge');
+    const body = $('#tc-body');
+    if (!list.length) {
+      picker.innerHTML = '';
+      picker.disabled = true;
+      body.removeAttribute('data-id');
+      body.innerHTML = `<div class="empty"><div class="empty-ball">🔁</div><h2>No challenge to log for yet</h2><p>Transfers belong to a challenge. Generate one in the Builder and press 📒 Track it.</p>
+        <button type="button" class="btn btn-primary" data-goto="builder">Go to the Builder</button></div>`;
+      return;
+    }
+    let id = storageGet(TC_KEY, null);
+    if (!list.some((e) => e.id === id)) id = list[0].id;
+    picker.disabled = false;
+    picker.innerHTML = list.map((e) => `<option value="${esc(e.id)}" ${e.id === id ? 'selected' : ''}>${esc(e.challenge.archetype.icon)} ${esc(e.challenge.title)}${e.challenge.mode === 'player' ? ' (Player Career)' : ''}</option>`).join('');
+    const entry = list.find((e) => e.id === id);
+    body.dataset.id = id;
+    body.dataset.club = entry.challenge.club.name;
+    body.innerHTML = Tracker.renderTransferCentre(entry);
+    refreshTransfersHeader(entry);
+  }
+
+  function refreshTransfersHeader(entry) {
+    const t = Compliance.tally(Compliance.checkChallenge(entry.challenge, entry.tracker));
+    $('#tc-status').innerHTML = `${esc(entry.challenge.difficultyName)} · ${entry.challenge.seasons} seasons ·
+      <span class="check-pills"><span title="Kept">✅ ${t.ok}</span><span title="Broken">❌ ${t.broken}</span><span title="Needs attention">⚠️ ${t.warn}</span><span title="Check yourself">✋ ${t.manual}</span></span>`;
+  }
+
+  function rememberKnown(name, nat, pos) {
+    PlayerDB.addKnown(name, nat, pos);
+    const list = storageGet(KNOWN_KEY, []);
+    if (!Array.isArray(list) || list.some((x) => x && x.name === name)) return;
+    list.push({ name, nat: nat || '', pos: pos || '' });
+    storageSet(KNOWN_KEY, list.slice(-500));
   }
 
   function updateEntry(id, fn) {
@@ -6443,7 +7983,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 
   // ---------- Events ----------
 
-  function showView(view) {
+  function showView(view, openId) {
     $$('.tab').forEach((t) => {
       const active = t.dataset.view === view;
       t.classList.toggle('is-active', active);
@@ -6452,7 +7992,9 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     $('#view-builder').hidden = view !== 'builder';
     $('#view-daily').hidden = view !== 'daily';
     $('#view-saved').hidden = view !== 'saved';
-    if (view === 'saved') renderSaved();
+    $('#view-transfers').hidden = view !== 'transfers';
+    if (view === 'saved') renderSaved(openId);
+    if (view === 'transfers') renderTransfersView();
     if (view === 'daily') renderDaily(state.dailyKey || Daily.dateKey());
     // Keep #daily in the address bar so the tab can be bookmarked or linked.
     const hash = window.location.hash;
@@ -6542,6 +8084,8 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     const { action } = btn.dataset;
     if (action === 'save') {
       saveChallenge(ch);
+    } else if (action === 'track') {
+      trackChallenge(ch);
     } else if (action === 'customise') {
       // Open in the Builder with everything locked, so the player can unlock and reroll parts.
       state.challenge = ch;
@@ -6625,6 +8169,8 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       renderBuilder();
     } else if (action === 'save') {
       saveChallenge(state.challenge);
+    } else if (action === 'track') {
+      trackChallenge(state.challenge);
     } else if (action === 'edit') {
       startEdit(state.challenge);
     } else if (action === 'image') {
@@ -6666,6 +8212,9 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       });
     } else if (action === 'image') {
       exportImage(entry.challenge);
+    } else if (action === 'open-transfers') {
+      storageSet(TC_KEY, id);
+      showView('transfers');
     } else if (action === 'delete') {
       if (window.confirm(`Delete "${entry.challenge.title}"?`)) {
         writeSaved(loadSaved().filter((x) => x.id !== id));
@@ -6721,7 +8270,30 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       const item = e.target.closest('.saved-item');
       if (item) Tracker.onSubmit(e, item);
     });
-    Tracker.init({ esc, toast, mutateEntry, findEntry, refresh: refreshSavedItem });
+    Tracker.init({ esc, toast, mutateEntry, findEntry, refresh: refreshSavedItem, rememberKnown });
+    const known = storageGet(KNOWN_KEY, []);
+    if (Array.isArray(known)) known.forEach((x) => x && x.name && PlayerDB.addKnown(x.name, x.nat, x.pos));
+    const knownList = $('#known-players');
+    PlayerDB.players.forEach((p) => knownList.appendChild(new Option(p.name)));
+    $('#saved-list').addEventListener('input', (e) => {
+      const item = e.target.closest('.saved-item');
+      if (item) Tracker.onInput(e, item);
+    });
+    // The Transfers section uses the same tracker handlers as a saved challenge.
+    const tc = $('#tc-body');
+    tc.addEventListener('click', (e) => {
+      const go = e.target.closest('[data-goto]');
+      if (go) return showView(go.dataset.goto);
+      if (tc.dataset.id) Tracker.onClick(e, tc);
+      return undefined;
+    });
+    tc.addEventListener('change', (e) => { if (tc.dataset.id) Tracker.onChange(e, tc); });
+    tc.addEventListener('input', (e) => { if (tc.dataset.id) Tracker.onInput(e, tc); });
+    tc.addEventListener('submit', (e) => { if (tc.dataset.id) Tracker.onSubmit(e, tc); });
+    $('#tc-challenge').addEventListener('change', (e) => {
+      storageSet(TC_KEY, e.target.value);
+      renderTransfersView();
+    });
     const natList = $('#nat-list');
     Compliance.NATIONALITIES.forEach((nat) => natList.appendChild(new Option(nat)));
     $('#options').addEventListener('submit', (e) => {

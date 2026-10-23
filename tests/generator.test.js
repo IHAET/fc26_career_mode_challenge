@@ -594,3 +594,82 @@ test('pasting a squad understands common formats', () => {
   assert.deepEqual(pick(rows[4]), { name: 'Just A Name', pos: '', age: '', nat: '', ovr: '', wage: '' });
   assert.ok(rows.every((r) => r.id));
 });
+
+// ---------- Player recognition and the assistant ----------
+
+const { playerDB: DB, assistant: A } = globalThis.FC26;
+
+test('the known-player list is clean', () => {
+  assert.ok(DB.players.length > 600, `only ${DB.players.length} players`);
+  const positions = new Set(globalThis.FC26.trackerUI.POSITIONS);
+  const seen = new Set();
+  DB.players.forEach((p) => {
+    assert.ok(C.NATIONALITIES.includes(p.nat), `${p.name}: unknown nationality ${p.nat}`);
+    assert.ok(positions.has(p.pos), `${p.name}: unknown position ${p.pos}`);
+    assert.ok(!seen.has(DB.key(p.name)), `duplicate ${p.name}`);
+    seen.add(DB.key(p.name));
+  });
+});
+
+test('recognising players: accents, surnames, aliases, ambiguity and regens', () => {
+  assert.equal(DB.recognise('Kylian Mbappe').player.name, 'Kylian Mbappé');
+  assert.equal(DB.recognise('martin odegaard').player.name, 'Martin Ødegaard');
+  assert.equal(DB.recognise('Gvardiol').player.name, 'Joško Gvardiol');
+  assert.equal(DB.recognise('Vini Jr').player.name, 'Vinícius Júnior');
+  assert.equal(DB.recognise('Rodri').player.nat, 'Spanish');
+  const both = DB.recognise('Bellingham');
+  assert.ok(both.candidates && both.candidates.map((p) => p.name).includes('Jobe Bellingham'));
+  assert.equal(DB.recognise('Jude Bellingham').player.pos, 'CAM');
+  assert.equal(DB.recognise('Zé Regenovic'), null);
+  DB.addKnown('Zé Regenovic', 'Portuguese', 'ST');
+  assert.equal(DB.recognise('Ze Regenovic').player.nat, 'Portuguese');
+});
+
+test('the assistant reads transfer sentences', () => {
+  const p1 = A.parseTransfer('Signed Florian Wirtz from Bayer Leverkusen for €60m in January');
+  assert.deepEqual([p1.dir, p1.type, p1.name, p1.club, p1.fee, p1.window, p1.nat, p1.pos], ['in', 'permanent', 'Florian Wirtz', 'Bayer Leverkusen', 60, 'winter', 'German', 'CAM']);
+  assert.ok(p1.known);
+  const p2 = A.parseTransfer('Sold Young Yaw to Stoke City for 6.5m', { squad: [{ name: 'Young Yaw' }] });
+  assert.deepEqual([p2.dir, p2.type, p2.name, p2.club, p2.fee], ['out', 'sale', 'Young Yaw', 'Stoke City', 6.5]);
+  const p3 = A.parseTransfer('Brought in Brazilian winger Lucas Moraes on loan from Santos, aged 19, rated 71');
+  assert.deepEqual([p3.dir, p3.type, p3.name, p3.club, p3.age, p3.ovr, p3.nat, p3.pos], ['in', 'loan', 'Lucas Moraes', 'Santos', 19, 71, 'Brazilian', 'RW']);
+  assert.equal(p3.known, null); // not a known player: a regen candidate
+  const p4 = A.parseTransfer('Released Old Timer', { squad: [{ name: 'Old Timer' }] });
+  assert.deepEqual([p4.dir, p4.type, p4.name], ['out', 'release', 'Old Timer']);
+  const p5 = A.parseTransfer('Promoted Kid Talent from the academy');
+  assert.deepEqual([p5.dir, p5.type, p5.name], ['in', 'promotion', 'Kid Talent']);
+  const p6 = A.parseTransfer('Signed Saka for £120 million season 2');
+  assert.deepEqual([p6.name, p6.fee, p6.season], ['Bukayo Saka', 120, 2]);
+  assert.equal(A.parseTransfer('Free transfer: Joe Bloggs, 33yo').type, 'free');
+  assert.equal(A.parseTransfer('Free transfer: Joe Bloggs, 33yo').age, 33);
+  assert.equal(A.parseTransfer('').name, '');
+});
+
+test('precheck says what a move would break or complete, ignoring old problems', () => {
+  const ch = Object.assign({}, ch0, {
+    coreRules: [{ text: 'No single transfer fee above €12M.' }, { text: 'Sign at least one Welsh player every summer.' }],
+    rules: [{ text: 'Play 4-3-3 in every match.' }],
+  });
+  const t = tracker({ transfers: [sign('Old Expensive', { fee: 20 })] }); // already broke the cap
+  const cheapWelsh = A.precheck(ch, t, { dir: 'in', type: 'permanent', name: 'Taff', nat: 'Welsh', fee: 3, season: 1, window: 'summer' });
+  assert.equal(cheapWelsh.ok, true);
+  assert.deepEqual(cheapWelsh.fixes.map((f) => f.text), ['Sign at least one Welsh player every summer.']);
+  assert.equal(cheapWelsh.manual, 1);
+  const pricey = A.precheck(ch, t, { dir: 'in', type: 'permanent', name: 'Big Buy', nat: 'French', fee: 30, season: 1, window: 'summer' });
+  assert.equal(pricey.ok, false);
+  assert.deepEqual(pricey.breaks[0].details, ['Big Buy cost €30M, the cap is €12M']);
+  // The tracker itself is untouched.
+  assert.equal(t.transfers.length, 1);
+});
+
+test('signing-rule chips and next steps reflect the challenge', () => {
+  const ch = Object.assign({}, ch0, {
+    coreRules: [{ text: 'Your only spending money is what you raise from player sales.' }, { text: 'Every signing must be South American and aged 23 or younger.' }],
+    rules: [{ text: 'Senior squad capped at 22 players.' }, { text: 'Play 4-3-3 in every match.' }],
+  });
+  const t = tracker({ players: [player('A')], transfers: [sell('S', { fee: 15 }), sign('X', { fee: 5, nat: 'French', age: 20 })] });
+  assert.deepEqual(A.signingRules(ch, t), ['Sales money only: €10M to spend', 'Only South American', 'Age ≤ 23', 'Squad ≤ 22 (now 1)']);
+  const steps = A.nextSteps(ch, t);
+  assert.equal(steps[0].status, 'broken');
+  assert.match(steps[0].summary, /signing/);
+});

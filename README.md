@@ -18,6 +18,9 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **Export as an image**: 🖼️ Image draws the challenge as a tall PNG card to post on Reddit, Discord or Instagram. On phones it opens the share sheet.
 - **Copy as text** for Reddit or Discord.
 - **Season tracker with automatic rule checks**: every saved challenge has **👥 Squad** and **🔁 Transfers** tabs (**🧳 Career moves** in Player Career). Type in or paste your squad (name, position, age, nationality, OVR, wage, plus starting XI, academy and loan flags), and log signings, sales, loans and academy promotions by season and window. Each rule then shows ✅ kept, ❌ broken (with the reason, e.g. "Big Buy cost €40M, the cap is €800K"), ⚠️ more to do or needs data, or ✋ check yourself (formations, simming and other things a squad list can't show). The checker reads the rule sentences themselves, so it also covers heritage rules and rules you write in the editor.
+- **🔁 Transfers section**: its own tab, linked to a challenge you pick. It shows the challenge's signing rules as chips (e.g. "Fee ≤ €800K", "Sales money only: €5M to spend", "Only South American") and a "what to do next" list. **📒 Track it** on any generated or daily challenge saves it and opens its tracker.
+- **🤖 Transfer assistant** (built in, works offline): describe a move in your own words, e.g. *"Signed Florian Wirtz from Leverkusen for €60m in January"*, and it fills in the transfer. Before you log anything it simulates the move against the challenge's rules and tells you what it would break or complete.
+- **🧬 Regens**: signings are matched against a built-in list of about 650 well-known real players (names, nationalities and positions only), which also fills in nationality and position as you type. Anyone it doesn't recognise is marked as a regen, as are academy promotions. Untick it for a real player it doesn't know and it remembers them.
 - **My Challenges**: save challenges in your browser and tick off objectives. The **season diary** logs each season's finish, trophies and notes, and the score and "Season X of N" update as you go. Copy text includes your progress.
 
 ## Run it
@@ -66,6 +69,8 @@ npm test         # node --test (Node 18+)
 | `js/player.js` | Player Career mode: challenge types, rules, positions, career milestones |
 | `js/share-image.js` | Draws a challenge as a PNG card (canvas, no dependencies) |
 | `js/compliance.js` | Rule checker: reads rule sentences and tests them against the tracked squad, transfers and career moves |
+| `js/players.js` | Known real players (names, nationalities, positions) for spotting regens |
+| `js/assistant.js` | Transfer assistant: reads transfer sentences, pre-checks moves, signing-rule chips, next steps |
 | `js/tracker-ui.js` | Squad, Transfers and Career moves tabs, including the paste importer |
 | `js/daily.js` | Daily challenge: date-based seed, numbering and streaks |
 | `js/generator.js` | Seeded generator (no DOM, runs in Node too), share keys, text export |

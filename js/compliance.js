@@ -59,7 +59,7 @@
   const num = (s) => (WORDS[String(s).toLowerCase()] || Number(s));
   const toMillions = (n, unit) => (String(unit).toUpperCase() === 'K' ? Number(n) / 1000 : Number(n));
   const toThousands = (n, unit) => (String(unit).toUpperCase() === 'K' ? Number(n) : Number(n) / 1000);
-  const money = (m) => (m >= 1 ? `€${+m.toFixed(1)}M` : `€${Math.round(m * 1000)}K`);
+  const money = (m) => (m >= 1 ? `€${+m.toFixed(1)}M` : m > 0 ? `€${Math.round(m * 1000)}K` : '€0');
   const wage = (k) => (k >= 1 ? `€${+k.toFixed(1)}K` : `€${Math.round(k * 1000)}`);
   const plural = (n, word, many) => `${n} ${n === 1 ? word : many || `${word}s`}`;
   const winLabel = (t) => `S${t.season} ${t.window === 'winter' ? 'January' : 'summer'}`;
@@ -575,9 +575,36 @@
       .concat(ch.rules.map((r) => Object.assign({ core: false, text: r.text }, evaluateRule(r.text, t, ch))));
   }
 
+  /**
+   * Log a transfer: record it and update the squad (a signing joins, a sale or
+   * release leaves, a loan out is marked ✈️). Mutates the tracker. Used for
+   * real logging and for the assistant's "what if" checks, so both agree.
+   */
+  function applyTransfer(tracker, rec) {
+    const t = tracker;
+    const name = String(rec.name || '').trim();
+    if (rec.dir === 'in') {
+      t.transfers.push(Object.assign({}, rec));
+      t.players.push({
+        id: rec.playerId || rec.id, name, pos: rec.pos || '', age: rec.age || '', nat: rec.nat || '', ovr: rec.ovr || '',
+        wage: rec.wage || '', academy: rec.type === 'promotion', loanIn: rec.type === 'loan', regen: Boolean(rec.regen),
+      });
+    } else {
+      const p = t.players.find((x) => String(x.name || '').trim().toLowerCase() === name.toLowerCase());
+      // Keep the player's details as they were when they left.
+      const out = Object.assign({}, rec, p ? { pos: p.pos, age: p.age, nat: p.nat, ovr: p.ovr, regen: Boolean(p.regen) } : {});
+      t.transfers.push(out);
+      if (p) {
+        if (rec.type === 'loan') p.loanedOut = true;
+        else t.players = t.players.filter((x) => x !== p);
+      }
+    }
+    return t;
+  }
+
   function tally(results) {
     return results.reduce((n, r) => Object.assign(n, { [r.status]: n[r.status] + 1 }), { ok: 0, broken: 0, warn: 0, manual: 0 });
   }
 
-  FC26.compliance = { interpret, evaluateRule, checkChallenge, tally, normNat, normalizeTracker, emptyTracker, NATIONALITIES, REGIONS };
+  FC26.compliance = { interpret, evaluateRule, checkChallenge, applyTransfer, tally, normNat, normalizeTracker, emptyTracker, NATIONALITIES, REGIONS, money };
 })(typeof window !== 'undefined' ? window : globalThis);
