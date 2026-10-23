@@ -8,7 +8,7 @@
 (function (root) {
   'use strict';
   const FC26 = (root.FC26 = root.FC26 || {});
-  const { withRng, failConditions: managerFail, scoring, settings } = FC26.generator.internal;
+  const { withRng, failConditions: managerFail, scoring, settings, pickMidSeason } = FC26.generator.internal;
 
   const positions = [
     { id: 'GK', name: 'Goalkeeper' },
@@ -215,6 +215,23 @@
     { id: 'national-duty', text: () => 'National duty: earn a call-up this season.' },
   ];
 
+  // Mid-season dramas for your player: a moment in the season and how you answer it.
+  const midSeason = [
+    { id: 'dropped', text: (c) => (isKeeper(c)
+      ? 'Mid-season (after you concede 3+ in a match): You\'re dropped. Keep 2 clean sheets in your next 5 appearances to win your place back.'
+      : 'Mid-season (after 3 matches without a goal or assist): You\'re dropped. Score or assist in 3 of your next 5 appearances to win your place back.') },
+    { id: 'january-rival', text: () => 'Mid-season (January): The club signs a star in your position. Start more league matches than him for the rest of the season.' },
+    { id: 'contract-standoff', text: (c) => `Mid-season (January): Contract stand-off. Turn down any new contract until the summer, and ${isKeeper(c) ? `keep ${c.byD([5, 6, 8, 10])} clean sheets` : `reach ${c.byD([6, 8, 10, 14])} goals + assists`} by May to earn a better one.` },
+    { id: 'big-club-call', text: () => 'Mid-season (January): A bigger club comes calling. If a club from a stronger league bids for you, you must accept the move.' },
+    { id: 'captain-out', text: (c) => `Mid-season (captain injured): The dressing room looks to you. Average a ${c.byD(['6.8', '7.0', '7.2', '7.5'])}+ match rating for the rest of the season.` },
+    { id: 'surplus', text: () => "Mid-season (January): You're told you're surplus. If you've started fewer than half of the league matches so far, ask to go out on loan." },
+    { id: 'team-bet', text: (c) => (isKeeper(c)
+      ? 'Mid-season (team bet): Your teammates bet you can\'t save a penalty. Save one before the season ends.'
+      : 'Mid-season (team bet): Your teammates bet you can\'t score a hat-trick. Score one before the season ends.') },
+    { id: 'knock', text: (c) => `Mid-season (injury): You pick up a knock. Sit out your next 3 matches (sim them), then ${isKeeper(c) ? 'keep a clean sheet' : 'score or assist'} on your return.` },
+    { id: 'national-snub', text: (c) => `Mid-season (international break): You're left out of the national squad. Average a ${c.byD(['6.8', '7.0', '7.2', '7.4'])}+ match rating until May to force your way back.` },
+  ];
+
   // Career milestones, roughly in order. Difficulty decides where you start
   // on the ladder and how fast you climb it.
   const ladder = [
@@ -238,6 +255,8 @@
     const eventChance = Math.min(0.9, [0.2, 0.3, 0.45, 0.6][d - 1] * (archetype.eventBoost || 1));
     const usedSide = new Set();
     const usedEvents = new Set();
+    const midChance = Math.min(0.9, [0.25, 0.4, 0.55, 0.7][d - 1] * (archetype.eventBoost || 1));
+    const usedMid = new Set();
     const roadmap = [];
 
     for (let s = 1; s <= seasons; s++) {
@@ -265,6 +284,9 @@
           evs.push(pick.text(withRng(ctx, rng)));
         }
       }
+
+      const mid = ctx.eventsOn && ctx.midRng && pickMidSeason(ctx, midSeason, usedMid, s, midChance);
+      if (mid) evs.push(mid);
 
       roadmap.push({ season: s, age: ctx.startAge + s - 1, objectives, events: evs });
     }

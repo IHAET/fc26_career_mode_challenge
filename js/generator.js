@@ -284,6 +284,8 @@
     const eventChance = Math.min(0.9, [0.15, 0.3, 0.45, 0.6][d - 1] * (archetype.eventBoost || 1));
     const usedSide = new Set();
     const usedEvents = new Set();
+    const midChance = Math.min(0.9, [0.3, 0.45, 0.6, 0.75][d - 1] * (archetype.eventBoost || 1));
+    const usedMid = new Set();
     const roadmap = [];
 
     let level = club.level;
@@ -333,6 +335,7 @@
       }
 
       const events = [];
+      let blocks = [];
       if (ctx.eventsOn && rng.chance(eventChance)) {
         const pool = content.events.filter((ev) => !usedEvents.has(ev.id)
           && (!ev.minSeason || s >= ev.minSeason) && (!ev.when || ev.when(ctx)));
@@ -340,12 +343,29 @@
           const pick = rng.pick(pool);
           usedEvents.add(pick.id);
           events.push(pick.text(withRng(ctx, rng)));
+          blocks = pick.blocks || [];
         }
       }
+
+      // Mid-season drama, from its own stream so it doesn't reshuffle the rest of the roadmap.
+      const mid = ctx.eventsOn && ctx.midRng && pickMidSeason(ctx, content.midSeason, usedMid, s, midChance, blocks);
+      if (mid) events.push(mid);
 
       roadmap.push({ season: s, objectives, events });
     }
     return roadmap;
+  }
+
+  /** One unused mid-season drama for season s (or null), drawn from ctx.midRng; `blocks` are tags that season's event rules out. */
+  function pickMidSeason(ctx, pool, used, s, chance, blocks) {
+    const rng = ctx.midRng;
+    if (!rng.chance(chance)) return null;
+    const fits = pool.filter((ev) => !used.has(ev.id) && (!ev.minSeason || s >= ev.minSeason) && (!ev.when || ev.when(ctx))
+      && !(ev.tags || []).some((t) => (blocks || []).includes(t)));
+    if (!fits.length) return null;
+    const pick = rng.pick(fits);
+    used.add(pick.id);
+    return pick.text(withRng(ctx, rng));
   }
 
   // ---------- Rules ----------
@@ -454,6 +474,10 @@
     const coreRules = archetype.core(withRng(ctx, r('core'))).map((text) => ({ text }));
     const rules = pickRules(mode, ctx, seed, ruleCount, locks.ruleIds);
     ctx.eventsOn = opts.events;
+    ctx.midRng = r('midseason');
+    // Tags the challenge already covers, so mid-season dramas don't contradict it.
+    const tagsOf = (id) => (mode.rules.find((def) => def.id === id) || {}).tags || [];
+    ctx.takenTags = new Set((archetype.blockTags || []).concat(rules.flatMap((rule) => tagsOf(rule.id))));
 
     const roadmap = mode.buildRoadmap(ctx, r('roadmap'));
 
@@ -513,7 +537,12 @@
     const rules = challenge.rules.slice();
     // Rule text uses the challenge seed so share links can rebuild it from the id.
     rules[index] = makeRule(def, ctx, challenge.seed);
-    return Object.assign({}, challenge, { rules });
+    const next = Object.assign({}, challenge, { rules });
+    // Mid-season dramas avoid the rules' tags, so they follow the new rule
+    // exactly as a share link would rebuild them.
+    const rebuilt = !challenge.custom && fromShareKey(JSON.parse(JSON.stringify(toShareKey(next))));
+    if (rebuilt) next.roadmap = rebuilt.roadmap;
+    return next;
   }
 
   function failConditions(d) {
@@ -664,6 +693,12 @@
     return out;
   }
 
+  /** A roadmap event → { icon, when, text }: mid-season dramas ("Mid-season (January): ...") get 🔥 and their moment split off. */
+  function splitEvent(event) {
+    const m = String(event).match(/^(Mid-season(?: \([^)]*\))?):\s*([\s\S]*)$/i);
+    return m ? { icon: '🔥', when: m[1], text: m[2] } : { icon: '⚡', when: '', text: String(event) };
+  }
+
   /** Plain-text version for pasting into Reddit, Discord, etc. */
   function challengeToText(ch) {
     const lines = [];
@@ -680,7 +715,7 @@
     ch.roadmap.forEach((s) => {
       lines.push(`Season ${s.season}${s.age ? ` (age ${s.age})` : ''}:`);
       s.objectives.forEach((o) => lines.push(`  ${o.type === 'main' ? '•' : '+'} ${o.text}`));
-      s.events.forEach((e) => lines.push(`  ⚡ ${e}`));
+      s.events.forEach((e) => lines.push(`  ${splitEvent(e).icon} ${e}`));
     });
     lines.push('', `FINAL GOAL: ${ch.finalGoal}`, '', 'FAIL CONDITIONS');
     ch.failConditions.forEach((f) => lines.push(`- ${f}`));
@@ -722,6 +757,7 @@
     COUNTRIES,
     DEFAULT_OPTIONS,
     // Building blocks for other modes (player.js).
-    internal: { withRng, failConditions, scoring, settings },
+    splitEvent,
+    internal: { withRng, failConditions, scoring, settings, pickMidSeason },
   };
 })(typeof window !== 'undefined' ? window : globalThis);

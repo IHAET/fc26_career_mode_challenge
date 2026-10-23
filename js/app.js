@@ -359,7 +359,7 @@
               <span class="obj-icon">${o.type === 'main' ? '🎯' : '➕'}</span>
               <span>${esc(o.text)}</span>
             </label>`).join('')}
-          ${s.events.map((e) => `<div class="event"><span class="obj-icon">⚡</span><span>${esc(e)}</span></div>`).join('')}
+          ${s.events.map((e) => { const ev = G.splitEvent(e); return `<div class="event${ev.when ? ' midseason' : ''}"><span class="obj-icon">${ev.icon}</span><span>${ev.when ? `<strong>${esc(ev.when)}:</strong> ` : ''}${esc(ev.text)}</span></div>`; }).join('')}
           ${mode === 'saved' ? diaryRow(s.season, log[s.season] || {}) : ''}
         </div>
       </li>`).join('');
@@ -580,7 +580,7 @@
           <div class="edit-season">
             <div class="edit-season-head"><strong>Season ${si + 1}</strong>${s.age ? `<small class="muted">age ${Number(s.age)}</small>` : ''}</div>
             ${s.objectives.map((o, oi) => row(`roadmap.${si}.objectives.${oi}.text`, o.text, o.type === 'main' ? 'Main objective, e.g. Win promotion' : 'Side objective', oi > 0)).join('')}
-            ${s.events.map((e, ei) => `<div class="edit-row event-row"><span class="obj-icon">⚡</span>${area(`roadmap.${si}.events.${ei}`, e, 'Random event', 300, 1)}<button type="button" class="icon-btn" data-edit="remove" data-path="roadmap.${si}.events.${ei}" title="Remove" aria-label="Remove">✕</button></div>`).join('')}
+            ${s.events.map((e, ei) => `<div class="edit-row event-row"><span class="obj-icon">${G.splitEvent(e).icon}</span>${area(`roadmap.${si}.events.${ei}`, e, 'Random event, or "Mid-season (January): ..."', 300, 1)}<button type="button" class="icon-btn" data-edit="remove" data-path="roadmap.${si}.events.${ei}" title="Remove" aria-label="Remove">✕</button></div>`).join('')}
             <div class="edit-inline">
               <button type="button" class="btn btn-small" data-edit="add-side" data-season="${si}">+ Side objective</button>
               <button type="button" class="btn btn-small" data-edit="add-event" data-season="${si}">+ Event</button>

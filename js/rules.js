@@ -265,20 +265,51 @@
   const events = [
     { id: 'budget-cut', text: () => 'Board crisis: your transfer budget is halved this summer.' },
     { id: 'unsettled-star', text: () => 'Unsettled star: sell your highest-rated player before the summer window closes.' },
-    { id: 'january-freeze', text: () => 'January freeze: no incoming transfers in the winter window.' },
+    { id: 'january-freeze', blocks: ['jan-buy'], text: () => 'January freeze: no incoming transfers in the winter window.' },
     { id: 'youth-push', when: (c) => !c.archetype.noAcademy, text: (c) => `Youth push: hand debuts to ${c.byD([1, 2, 2, 3])} academy player(s).` },
     { id: 'fire-sale', text: (c) => `Fire sale: sell ${c.byD([2, 2, 3, 4])} first-team players this summer.` },
-    { id: 'tactical-reset', text: (c) => `Tactical reset: play ${c.rng.pick(c.data.formations)} for the whole season (overrides any formation rule).` },
-    { id: 'armband', text: () => 'Armband shake-up: your youngest regular starter is captain for the season.' },
+    { id: 'tactical-reset', blocks: ['formation'], text: (c) => `Tactical reset: play ${c.rng.pick(c.data.formations)} for the whole season (overrides any formation rule).` },
+    { id: 'armband', blocks: ['captain'], text: () => 'Armband shake-up: your youngest regular starter is captain for the season.' },
     { id: 'wildcard', text: () => 'Wildcard: you may break one rule, once, this season.' },
     { id: 'marquee', text: () => 'Marquee moment: one signing this season may ignore your fee and rating limits.' },
     { id: 'old-legend', text: () => 'Old legend: sign a free agent aged 32+ and give them 10+ appearances.' },
     { id: 'cup-fever', text: (c) => `Cup fever: the board demands at least a ${c.cup} semi-final.` },
     { id: 'fast-start-or-sell', text: () => 'Fast start: stay unbeaten in your first 6 league matches or sell your most expensive player.' },
-    { id: 'striker-benched', minSeason: 2, text: () => "Striker slump: last season's top scorer can't start the first 5 league matches." },
-    { id: 'keeper-swap', text: () => 'Goalkeeper shake-up: your current No.1 must lose the starting spot for the season.' },
+    { id: 'striker-benched', blocks: ['top-scorer'], minSeason: 2, text: () => "Striker slump: last season's top scorer can't start the first 5 league matches." },
+    { id: 'keeper-swap', blocks: ['keeper'], text: () => 'Goalkeeper shake-up: your current No.1 must lose the starting spot for the season.' },
     { id: 'rival-raid', text: () => 'Rival raid: sign at least one player from a club in your own league.' },
   ];
 
-  FC26.content = { archetypes, rules, sideObjectives, events };
+  // Mid-season dramas: a moment in the season (January, a bad run, the halfway
+  // point) and what you must do about it. A drama is left out when one of its
+  // tags is taken by the challenge type or an extra rule (c.takenTags), or by
+  // that season's event ("blocks" above: no January buys in a January freeze).
+  const blocked = (c, tags) => tags.some((t) => (c.takenTags ? c.takenTags.has(t) : (c.archetype.blockTags || []).includes(t)));
+  const midSeason = [
+    { id: 'too-poor', tags: ['sell-star', 'jan-buy'], text: (c) => `Mid-season (January): Your highest-rated player says ${c.club.tier >= 4 ? 'the project has stalled and the club lacks ambition' : 'the club is too small and too poor for him'}, and hands in a transfer request. Sell him in the January window and sign a replacement who plays his position in the same window.` },
+    { id: 'agent-wages', text: () => "Mid-season (January): Your top scorer's agent demands a pay rise. Renew his contract on higher wages before the window shuts, or sell him." },
+    { id: 'rival-bid', tags: ['sell-star'], text: (c) => `Mid-season (January): A rival is circling. Accept the first bid of ${c.feeCap()} or more for your best player aged 23 or under that arrives before the window shuts. If none comes, he stays.` },
+    { id: 'homesick', tags: ['origin', 'jan-buy'], text: (c) => `Mid-season (January): Your most expensive signing is homesick. Sell or loan him out in January and replace him with a ${c.club.nationality || 'home-grown'} player.` },
+    { id: 'keeper-howler', tags: ['keeper'], text: () => 'Mid-season (after your first league defeat by 3+ goals): Your No.1 keeper is dropped. The back-up starts every league match for the rest of the season.' },
+    { id: 'captain-revolt', tags: ['captain'], text: () => 'Mid-season (after 3 league defeats in a row, if it happens): The dressing room turns on your captain. Take the armband off him and sell or loan him out in the next window.' },
+    { id: 'board-ultimatum', text: (c) => `Mid-season (halfway point): Board ultimatum. If you're in the bottom half of the table, win ${c.byD([3, 4, 4, 5])} of your next 6 league matches, or ${c.byD(['you get no transfer budget next summer', 'you get no transfer budget next summer', 'the challenge is failed', 'the challenge is failed'])}.` },
+    { id: 'owner-gift', tags: ['fee', 'profit', 'jan-buy'], text: (c) => `Mid-season (January): The owner backs you with one marquee signing of up to ${c.feeCap()}. He starts every league match he's fit for until May.` },
+    { id: 'wonderkid', tags: ['age', 'jan-buy'], text: (c) => `Mid-season (January): Your scouts find a wonderkid. Sign a player aged 18 or under in January and give him ${c.byD([3, 5, 6, 8])}+ league appearances by May.` },
+    { id: 'ffp-warning', tags: ['profit'], text: (c) => `Mid-season (January): Financial fair play warning. Raise at least ${c.feeCap()} from sales in January and make no permanent signings in the window.` },
+    { id: 'bust-up', tags: ['sell-star'], text: () => 'Mid-season (training-ground bust-up): Your two highest-rated players have fallen out. One of them must go: sell him in January.' },
+    { id: 'winter-tournament', tags: ['origin'], text: () => 'Mid-season (winter tournament): The Africa Cup of Nations and the Asian Cup take their players. No African or Asian player may start a league match in January.' },
+    { id: 'goal-drought', tags: ['jan-buy'], text: () => 'Mid-season (goal drought): Your strikers have gone cold. Sign a striker in January and start him in every league match until the end of February.' },
+    { id: 'fan-protest', when: (c) => !c.archetype.noAcademy, tags: ['academy'], text: (c) => `Mid-season (fan protest): Supporters chant for the academy. Promote ${c.byD([1, 1, 2, 2])} academy player(s) in January and give each 5+ league starts by May.` },
+    { id: 'veteran-leader', tags: ['age', 'jan-buy', 'captain'], text: () => 'Mid-season (January): The young dressing room needs a leader. Sign a player aged 30 or over in January and make him captain until May.' },
+    { id: 'found-out', tags: ['formation'], text: () => "Mid-season (halfway point): Opponents have worked out your tactics. Switch to a formation you haven't used this season and keep it until May (overrides any formation rule)." },
+    { id: 'deadline-day', tags: ['jan-buy'], text: (c) => `Mid-season (January deadline day): Panic buy! Sim to the last day of the January window and make ${c.byD([1, 1, 2, 2])} signing(s) that day, and none earlier in the window.` },
+    { id: 'injury-crisis', text: () => 'Mid-season (injury crisis): Treat your two most-used defenders as injured until March. Neither may play, so sign or promote cover in January.' },
+    { id: 'recall', tags: ['loans', 'jan-buy'], text: () => "Mid-season (January): Recall a player you've loaned out (or sign one on loan if you have none) and give him 5+ league starts by May." },
+    { id: 'wage-freeze', tags: ['wage'], text: () => 'Mid-season (takeover collapse): The owner pulls out and wages are frozen. Nobody you sign in January may earn more than your lowest-paid starter, and no contract renewals until the summer.' },
+    { id: 'cup-kids', tags: ['age'], text: (c) => `Mid-season (cup run): The board wants the kids to play the ${c.cup}. Start ${c.byD([3, 4, 5, 6])}+ players aged 21 or under in every ${c.cup} match until you go out.` },
+    { id: 'form-slump', tags: ['top-scorer'], minSeason: 2, text: (c) => `Mid-season (form slump): Last season's top scorer has gone cold. Bench him for the next ${c.byD([3, 4, 5, 6])} league matches.` },
+    { id: 'loyalty-test', tags: ['sell-star'], text: () => 'Mid-season (January): Your longest-serving player gets a big offer. If any club bids for him in January, you must accept.' },
+  ].map((ev) => Object.assign({}, ev, { when: (c) => !blocked(c, ev.tags || []) && (!ev.when || ev.when(c)) }));
+
+  FC26.content = { archetypes, rules, sideObjectives, events, midSeason };
 })(typeof window !== 'undefined' ? window : globalThis);

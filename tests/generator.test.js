@@ -65,6 +65,46 @@ test('extra rules never repeat or share a tag, and respect archetype blocks', ()
   }
 });
 
+test('mid-season dramas: one per season at most, never repeated, never clashing with the challenge', () => {
+  const midTags = Object.fromEntries(content.midSeason.map((m) => [m.id, m.tags || []]));
+  const isMid = (e) => G.splitEvent(e).when !== '';
+  let seen = 0;
+  for (const mode of ['manager', 'player']) {
+    for (const s of SEEDS) {
+      const ch = G.generateChallenge({ mode, difficulty: 4, seasons: 8, ruleCount: mode === 'manager' ? 6 : 'auto' }, s);
+      const mids = ch.roadmap.map((x) => x.events.filter(isMid));
+      mids.forEach((m) => assert.ok(m.length <= 1));
+      const all = mids.flat();
+      assert.equal(new Set(all).size, all.length, 'a drama repeated');
+      all.forEach((e) => assert.match(e, /^Mid-season \([^)]+\): \S/));
+      seen += all.length;
+      // Dramas never contradict the extra rules or the season's own event.
+      const ruleIds = new Set(ch.rules.map((r) => r.id));
+      if (ruleIds.has('age-cap') || ruleIds.has('age-floor')) all.forEach((e) => assert.doesNotMatch(e, /aged (30 or over|18 or under|21 or under)/, s));
+      if (ruleIds.has('captain-loyalty')) all.forEach((e) => assert.doesNotMatch(e, /armband off/, s));
+      if (ruleIds.has('no-loans')) all.forEach((e) => assert.doesNotMatch(e, /sign one on loan/, s));
+      ch.roadmap.filter((x) => x.events.some((e) => /^January freeze/.test(e)))
+        .forEach((x) => x.events.filter(isMid).forEach((e) => assert.doesNotMatch(e, /\b[Ss]ign (a|one)\b|signing\(s\)|marquee signing|replace(ment| him)/, s)));
+      // The events switch covers the dramas too.
+      const off = G.generateChallenge({ mode, difficulty: 4, seasons: 8, events: false }, s);
+      assert.ok(off.roadmap.every((x) => x.events.length === 0));
+    }
+  }
+  assert.ok(seen > SEEDS.length, `only ${seen} mid-season dramas across ${SEEDS.length * 2} long careers`);
+  // The user's example: the unhappy star, replaced in the same position in the same window.
+  const star = content.midSeason.find((m) => m.id === 'too-poor');
+  assert.match(star.text({ club: { tier: 2 }, archetype: {} }), /too small and too poor.*same window/);
+  // Youth Revolution blocks age-based dramas; Athletic Club blocks nationality ones.
+  const youth = content.archetypes.find((a) => a.id === 'youth-revolution');
+  assert.ok(!content.midSeason.find((m) => m.id === 'veteran-leader').when({ archetype: youth }));
+  for (const s of SEEDS.slice(0, 60)) {
+    const athletic = G.generateChallenge({ archetype: 'club-heritage', club: 'esp1|Athletic Club', difficulty: 4, seasons: 10 }, s);
+    athletic.roadmap.flatMap((x) => x.events).forEach((e) => assert.doesNotMatch(e, /homesick|Africa Cup/, s));
+  }
+  assert.deepEqual(G.splitEvent('Board crisis: budget halved.'), { icon: '⚡', when: '', text: 'Board crisis: budget halved.' });
+  assert.equal(G.splitEvent('Mid-season (January): Sell him.').when, 'Mid-season (January)');
+});
+
 test('club filters are honoured when compatible', () => {
   for (const s of SEEDS.slice(0, 50)) {
     const ch = G.generateChallenge({ league: 'ger1', tier: 3 }, s);

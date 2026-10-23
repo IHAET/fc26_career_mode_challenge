@@ -10,6 +10,7 @@
   --accent-ink: #062314;
   --accent-soft: rgba(25, 230, 140, 0.12);
   --warn: #ffc94d;
+  --hot: #ff8a4c;
   --danger: #ff5c6c;
   --d1: #4dd6ff;
   --d2: #19e68c;
@@ -326,6 +327,7 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
 .objective.main { font-weight: 600; }
 .objective.side { color: var(--muted); font-size: 0.92rem; }
 .event { font-size: 0.9rem; color: var(--warn); background: rgba(255, 201, 77, 0.07); border-radius: 8px; padding: 6px 10px; }
+.event.midseason { color: var(--hot); background: rgba(255, 138, 76, 0.09); box-shadow: inset 3px 0 0 var(--hot); }
 .obj-icon { flex: none; }
 .obj-check { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); flex: none; cursor: pointer; }
 label.objective:has(.obj-check) { cursor: pointer; }

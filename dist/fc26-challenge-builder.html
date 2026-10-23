@@ -19,6 +19,7 @@
   --accent-ink: #062314;
   --accent-soft: rgba(25, 230, 140, 0.12);
   --warn: #ffc94d;
+  --hot: #ff8a4c;
   --danger: #ff5c6c;
   --d1: #4dd6ff;
   --d2: #19e68c;
@@ -335,6 +336,7 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
 .objective.main { font-weight: 600; }
 .objective.side { color: var(--muted); font-size: 0.92rem; }
 .event { font-size: 0.9rem; color: var(--warn); background: rgba(255, 201, 77, 0.07); border-radius: 8px; padding: 6px 10px; }
+.event.midseason { color: var(--hot); background: rgba(255, 138, 76, 0.09); box-shadow: inset 3px 0 0 var(--hot); }
 .obj-icon { flex: none; }
 .obj-check { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); flex: none; cursor: pointer; }
 label.objective:has(.obj-check) { cursor: pointer; }
@@ -737,7 +739,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 
         <label class="toggle">
           <input type="checkbox" name="events" checked>
-          <span>Random season events ⚡</span>
+          <span>Random events ⚡ and mid-season drama 🔥</span>
         </label>
 
         <label class="field">
@@ -3121,22 +3123,53 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
   const events = [
     { id: 'budget-cut', text: () => 'Board crisis: your transfer budget is halved this summer.' },
     { id: 'unsettled-star', text: () => 'Unsettled star: sell your highest-rated player before the summer window closes.' },
-    { id: 'january-freeze', text: () => 'January freeze: no incoming transfers in the winter window.' },
+    { id: 'january-freeze', blocks: ['jan-buy'], text: () => 'January freeze: no incoming transfers in the winter window.' },
     { id: 'youth-push', when: (c) => !c.archetype.noAcademy, text: (c) => `Youth push: hand debuts to ${c.byD([1, 2, 2, 3])} academy player(s).` },
     { id: 'fire-sale', text: (c) => `Fire sale: sell ${c.byD([2, 2, 3, 4])} first-team players this summer.` },
-    { id: 'tactical-reset', text: (c) => `Tactical reset: play ${c.rng.pick(c.data.formations)} for the whole season (overrides any formation rule).` },
-    { id: 'armband', text: () => 'Armband shake-up: your youngest regular starter is captain for the season.' },
+    { id: 'tactical-reset', blocks: ['formation'], text: (c) => `Tactical reset: play ${c.rng.pick(c.data.formations)} for the whole season (overrides any formation rule).` },
+    { id: 'armband', blocks: ['captain'], text: () => 'Armband shake-up: your youngest regular starter is captain for the season.' },
     { id: 'wildcard', text: () => 'Wildcard: you may break one rule, once, this season.' },
     { id: 'marquee', text: () => 'Marquee moment: one signing this season may ignore your fee and rating limits.' },
     { id: 'old-legend', text: () => 'Old legend: sign a free agent aged 32+ and give them 10+ appearances.' },
     { id: 'cup-fever', text: (c) => `Cup fever: the board demands at least a ${c.cup} semi-final.` },
     { id: 'fast-start-or-sell', text: () => 'Fast start: stay unbeaten in your first 6 league matches or sell your most expensive player.' },
-    { id: 'striker-benched', minSeason: 2, text: () => "Striker slump: last season's top scorer can't start the first 5 league matches." },
-    { id: 'keeper-swap', text: () => 'Goalkeeper shake-up: your current No.1 must lose the starting spot for the season.' },
+    { id: 'striker-benched', blocks: ['top-scorer'], minSeason: 2, text: () => "Striker slump: last season's top scorer can't start the first 5 league matches." },
+    { id: 'keeper-swap', blocks: ['keeper'], text: () => 'Goalkeeper shake-up: your current No.1 must lose the starting spot for the season.' },
     { id: 'rival-raid', text: () => 'Rival raid: sign at least one player from a club in your own league.' },
   ];
 
-  FC26.content = { archetypes, rules, sideObjectives, events };
+  // Mid-season dramas: a moment in the season (January, a bad run, the halfway
+  // point) and what you must do about it. A drama is left out when one of its
+  // tags is taken by the challenge type or an extra rule (c.takenTags), or by
+  // that season's event ("blocks" above: no January buys in a January freeze).
+  const blocked = (c, tags) => tags.some((t) => (c.takenTags ? c.takenTags.has(t) : (c.archetype.blockTags || []).includes(t)));
+  const midSeason = [
+    { id: 'too-poor', tags: ['sell-star', 'jan-buy'], text: (c) => `Mid-season (January): Your highest-rated player says ${c.club.tier >= 4 ? 'the project has stalled and the club lacks ambition' : 'the club is too small and too poor for him'}, and hands in a transfer request. Sell him in the January window and sign a replacement who plays his position in the same window.` },
+    { id: 'agent-wages', text: () => "Mid-season (January): Your top scorer's agent demands a pay rise. Renew his contract on higher wages before the window shuts, or sell him." },
+    { id: 'rival-bid', tags: ['sell-star'], text: (c) => `Mid-season (January): A rival is circling. Accept the first bid of ${c.feeCap()} or more for your best player aged 23 or under that arrives before the window shuts. If none comes, he stays.` },
+    { id: 'homesick', tags: ['origin', 'jan-buy'], text: (c) => `Mid-season (January): Your most expensive signing is homesick. Sell or loan him out in January and replace him with a ${c.club.nationality || 'home-grown'} player.` },
+    { id: 'keeper-howler', tags: ['keeper'], text: () => 'Mid-season (after your first league defeat by 3+ goals): Your No.1 keeper is dropped. The back-up starts every league match for the rest of the season.' },
+    { id: 'captain-revolt', tags: ['captain'], text: () => 'Mid-season (after 3 league defeats in a row, if it happens): The dressing room turns on your captain. Take the armband off him and sell or loan him out in the next window.' },
+    { id: 'board-ultimatum', text: (c) => `Mid-season (halfway point): Board ultimatum. If you're in the bottom half of the table, win ${c.byD([3, 4, 4, 5])} of your next 6 league matches, or ${c.byD(['you get no transfer budget next summer', 'you get no transfer budget next summer', 'the challenge is failed', 'the challenge is failed'])}.` },
+    { id: 'owner-gift', tags: ['fee', 'profit', 'jan-buy'], text: (c) => `Mid-season (January): The owner backs you with one marquee signing of up to ${c.feeCap()}. He starts every league match he's fit for until May.` },
+    { id: 'wonderkid', tags: ['age', 'jan-buy'], text: (c) => `Mid-season (January): Your scouts find a wonderkid. Sign a player aged 18 or under in January and give him ${c.byD([3, 5, 6, 8])}+ league appearances by May.` },
+    { id: 'ffp-warning', tags: ['profit'], text: (c) => `Mid-season (January): Financial fair play warning. Raise at least ${c.feeCap()} from sales in January and make no permanent signings in the window.` },
+    { id: 'bust-up', tags: ['sell-star'], text: () => 'Mid-season (training-ground bust-up): Your two highest-rated players have fallen out. One of them must go: sell him in January.' },
+    { id: 'winter-tournament', tags: ['origin'], text: () => 'Mid-season (winter tournament): The Africa Cup of Nations and the Asian Cup take their players. No African or Asian player may start a league match in January.' },
+    { id: 'goal-drought', tags: ['jan-buy'], text: () => 'Mid-season (goal drought): Your strikers have gone cold. Sign a striker in January and start him in every league match until the end of February.' },
+    { id: 'fan-protest', when: (c) => !c.archetype.noAcademy, tags: ['academy'], text: (c) => `Mid-season (fan protest): Supporters chant for the academy. Promote ${c.byD([1, 1, 2, 2])} academy player(s) in January and give each 5+ league starts by May.` },
+    { id: 'veteran-leader', tags: ['age', 'jan-buy', 'captain'], text: () => 'Mid-season (January): The young dressing room needs a leader. Sign a player aged 30 or over in January and make him captain until May.' },
+    { id: 'found-out', tags: ['formation'], text: () => "Mid-season (halfway point): Opponents have worked out your tactics. Switch to a formation you haven't used this season and keep it until May (overrides any formation rule)." },
+    { id: 'deadline-day', tags: ['jan-buy'], text: (c) => `Mid-season (January deadline day): Panic buy! Sim to the last day of the January window and make ${c.byD([1, 1, 2, 2])} signing(s) that day, and none earlier in the window.` },
+    { id: 'injury-crisis', text: () => 'Mid-season (injury crisis): Treat your two most-used defenders as injured until March. Neither may play, so sign or promote cover in January.' },
+    { id: 'recall', tags: ['loans', 'jan-buy'], text: () => "Mid-season (January): Recall a player you've loaned out (or sign one on loan if you have none) and give him 5+ league starts by May." },
+    { id: 'wage-freeze', tags: ['wage'], text: () => 'Mid-season (takeover collapse): The owner pulls out and wages are frozen. Nobody you sign in January may earn more than your lowest-paid starter, and no contract renewals until the summer.' },
+    { id: 'cup-kids', tags: ['age'], text: (c) => `Mid-season (cup run): The board wants the kids to play the ${c.cup}. Start ${c.byD([3, 4, 5, 6])}+ players aged 21 or under in every ${c.cup} match until you go out.` },
+    { id: 'form-slump', tags: ['top-scorer'], minSeason: 2, text: (c) => `Mid-season (form slump): Last season's top scorer has gone cold. Bench him for the next ${c.byD([3, 4, 5, 6])} league matches.` },
+    { id: 'loyalty-test', tags: ['sell-star'], text: () => 'Mid-season (January): Your longest-serving player gets a big offer. If any club bids for him in January, you must accept.' },
+  ].map((ev) => Object.assign({}, ev, { when: (c) => !blocked(c, ev.tags || []) && (!ev.when || ev.when(c)) }));
+
+  FC26.content = { archetypes, rules, sideObjectives, events, midSeason };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/generator.js */
@@ -3426,6 +3459,8 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     const eventChance = Math.min(0.9, [0.15, 0.3, 0.45, 0.6][d - 1] * (archetype.eventBoost || 1));
     const usedSide = new Set();
     const usedEvents = new Set();
+    const midChance = Math.min(0.9, [0.3, 0.45, 0.6, 0.75][d - 1] * (archetype.eventBoost || 1));
+    const usedMid = new Set();
     const roadmap = [];
 
     let level = club.level;
@@ -3475,6 +3510,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       }
 
       const events = [];
+      let blocks = [];
       if (ctx.eventsOn && rng.chance(eventChance)) {
         const pool = content.events.filter((ev) => !usedEvents.has(ev.id)
           && (!ev.minSeason || s >= ev.minSeason) && (!ev.when || ev.when(ctx)));
@@ -3482,12 +3518,29 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
           const pick = rng.pick(pool);
           usedEvents.add(pick.id);
           events.push(pick.text(withRng(ctx, rng)));
+          blocks = pick.blocks || [];
         }
       }
+
+      // Mid-season drama, from its own stream so it doesn't reshuffle the rest of the roadmap.
+      const mid = ctx.eventsOn && ctx.midRng && pickMidSeason(ctx, content.midSeason, usedMid, s, midChance, blocks);
+      if (mid) events.push(mid);
 
       roadmap.push({ season: s, objectives, events });
     }
     return roadmap;
+  }
+
+  /** One unused mid-season drama for season s (or null), drawn from ctx.midRng; `blocks` are tags that season's event rules out. */
+  function pickMidSeason(ctx, pool, used, s, chance, blocks) {
+    const rng = ctx.midRng;
+    if (!rng.chance(chance)) return null;
+    const fits = pool.filter((ev) => !used.has(ev.id) && (!ev.minSeason || s >= ev.minSeason) && (!ev.when || ev.when(ctx))
+      && !(ev.tags || []).some((t) => (blocks || []).includes(t)));
+    if (!fits.length) return null;
+    const pick = rng.pick(fits);
+    used.add(pick.id);
+    return pick.text(withRng(ctx, rng));
   }
 
   // ---------- Rules ----------
@@ -3596,6 +3649,10 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     const coreRules = archetype.core(withRng(ctx, r('core'))).map((text) => ({ text }));
     const rules = pickRules(mode, ctx, seed, ruleCount, locks.ruleIds);
     ctx.eventsOn = opts.events;
+    ctx.midRng = r('midseason');
+    // Tags the challenge already covers, so mid-season dramas don't contradict it.
+    const tagsOf = (id) => (mode.rules.find((def) => def.id === id) || {}).tags || [];
+    ctx.takenTags = new Set((archetype.blockTags || []).concat(rules.flatMap((rule) => tagsOf(rule.id))));
 
     const roadmap = mode.buildRoadmap(ctx, r('roadmap'));
 
@@ -3655,7 +3712,12 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     const rules = challenge.rules.slice();
     // Rule text uses the challenge seed so share links can rebuild it from the id.
     rules[index] = makeRule(def, ctx, challenge.seed);
-    return Object.assign({}, challenge, { rules });
+    const next = Object.assign({}, challenge, { rules });
+    // Mid-season dramas avoid the rules' tags, so they follow the new rule
+    // exactly as a share link would rebuild them.
+    const rebuilt = !challenge.custom && fromShareKey(JSON.parse(JSON.stringify(toShareKey(next))));
+    if (rebuilt) next.roadmap = rebuilt.roadmap;
+    return next;
   }
 
   function failConditions(d) {
@@ -3806,6 +3868,12 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     return out;
   }
 
+  /** A roadmap event → { icon, when, text }: mid-season dramas ("Mid-season (January): ...") get 🔥 and their moment split off. */
+  function splitEvent(event) {
+    const m = String(event).match(/^(Mid-season(?: \([^)]*\))?):\s*([\s\S]*)$/i);
+    return m ? { icon: '🔥', when: m[1], text: m[2] } : { icon: '⚡', when: '', text: String(event) };
+  }
+
   /** Plain-text version for pasting into Reddit, Discord, etc. */
   function challengeToText(ch) {
     const lines = [];
@@ -3822,7 +3890,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     ch.roadmap.forEach((s) => {
       lines.push(`Season ${s.season}${s.age ? ` (age ${s.age})` : ''}:`);
       s.objectives.forEach((o) => lines.push(`  ${o.type === 'main' ? '•' : '+'} ${o.text}`));
-      s.events.forEach((e) => lines.push(`  ⚡ ${e}`));
+      s.events.forEach((e) => lines.push(`  ${splitEvent(e).icon} ${e}`));
     });
     lines.push('', `FINAL GOAL: ${ch.finalGoal}`, '', 'FAIL CONDITIONS');
     ch.failConditions.forEach((f) => lines.push(`- ${f}`));
@@ -3864,7 +3932,8 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     COUNTRIES,
     DEFAULT_OPTIONS,
     // Building blocks for other modes (player.js).
-    internal: { withRng, failConditions, scoring, settings },
+    splitEvent,
+    internal: { withRng, failConditions, scoring, settings, pickMidSeason },
   };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
@@ -3879,7 +3948,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 (function (root) {
   'use strict';
   const FC26 = (root.FC26 = root.FC26 || {});
-  const { withRng, failConditions: managerFail, scoring, settings } = FC26.generator.internal;
+  const { withRng, failConditions: managerFail, scoring, settings, pickMidSeason } = FC26.generator.internal;
 
   const positions = [
     { id: 'GK', name: 'Goalkeeper' },
@@ -4086,6 +4155,23 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     { id: 'national-duty', text: () => 'National duty: earn a call-up this season.' },
   ];
 
+  // Mid-season dramas for your player: a moment in the season and how you answer it.
+  const midSeason = [
+    { id: 'dropped', text: (c) => (isKeeper(c)
+      ? 'Mid-season (after you concede 3+ in a match): You\'re dropped. Keep 2 clean sheets in your next 5 appearances to win your place back.'
+      : 'Mid-season (after 3 matches without a goal or assist): You\'re dropped. Score or assist in 3 of your next 5 appearances to win your place back.') },
+    { id: 'january-rival', text: () => 'Mid-season (January): The club signs a star in your position. Start more league matches than him for the rest of the season.' },
+    { id: 'contract-standoff', text: (c) => `Mid-season (January): Contract stand-off. Turn down any new contract until the summer, and ${isKeeper(c) ? `keep ${c.byD([5, 6, 8, 10])} clean sheets` : `reach ${c.byD([6, 8, 10, 14])} goals + assists`} by May to earn a better one.` },
+    { id: 'big-club-call', text: () => 'Mid-season (January): A bigger club comes calling. If a club from a stronger league bids for you, you must accept the move.' },
+    { id: 'captain-out', text: (c) => `Mid-season (captain injured): The dressing room looks to you. Average a ${c.byD(['6.8', '7.0', '7.2', '7.5'])}+ match rating for the rest of the season.` },
+    { id: 'surplus', text: () => "Mid-season (January): You're told you're surplus. If you've started fewer than half of the league matches so far, ask to go out on loan." },
+    { id: 'team-bet', text: (c) => (isKeeper(c)
+      ? 'Mid-season (team bet): Your teammates bet you can\'t save a penalty. Save one before the season ends.'
+      : 'Mid-season (team bet): Your teammates bet you can\'t score a hat-trick. Score one before the season ends.') },
+    { id: 'knock', text: (c) => `Mid-season (injury): You pick up a knock. Sit out your next 3 matches (sim them), then ${isKeeper(c) ? 'keep a clean sheet' : 'score or assist'} on your return.` },
+    { id: 'national-snub', text: (c) => `Mid-season (international break): You're left out of the national squad. Average a ${c.byD(['6.8', '7.0', '7.2', '7.4'])}+ match rating until May to force your way back.` },
+  ];
+
   // Career milestones, roughly in order. Difficulty decides where you start
   // on the ladder and how fast you climb it.
   const ladder = [
@@ -4109,6 +4195,8 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
     const eventChance = Math.min(0.9, [0.2, 0.3, 0.45, 0.6][d - 1] * (archetype.eventBoost || 1));
     const usedSide = new Set();
     const usedEvents = new Set();
+    const midChance = Math.min(0.9, [0.25, 0.4, 0.55, 0.7][d - 1] * (archetype.eventBoost || 1));
+    const usedMid = new Set();
     const roadmap = [];
 
     for (let s = 1; s <= seasons; s++) {
@@ -4136,6 +4224,9 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
           evs.push(pick.text(withRng(ctx, rng)));
         }
       }
+
+      const mid = ctx.eventsOn && ctx.midRng && pickMidSeason(ctx, midSeason, usedMid, s, midChance);
+      if (mid) evs.push(mid);
 
       roadmap.push({ season: s, age: ctx.startAge + s - 1, objectives, events: evs });
     }
@@ -6858,7 +6949,7 @@ Aleksei Miranchuk|Russian|CAM
   const FONT = 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Color Emoji", sans-serif';
   const C = {
     bg: '#0b0f14', panel: '#151d28', panel2: '#1b2533', line: '#263243',
-    text: '#e9eef5', muted: '#8d9bb0', accent: '#19e68c', ink: '#062314', warn: '#ffc94d',
+    text: '#e9eef5', muted: '#8d9bb0', accent: '#19e68c', ink: '#062314', warn: '#ffc94d', hot: '#ff8a4c',
     diff: ['#4dd6ff', '#19e68c', '#ffb547', '#ff5c6c'],
   };
 
@@ -7039,7 +7130,8 @@ Aleksei Miranchuk|Russian|CAM
         y += 6;
       });
       season.events.forEach((e) => {
-        y += text(`⚡ ${e}`, { size: 26, color: C.warn, x, width });
+        const ev = FC26.generator.splitEvent(e);
+        y += text(`${ev.icon} ${e}`, { size: 26, color: ev.when ? C.hot : C.warn, x, width });
         y += 6;
       });
       y = Math.max(y, top + (season.age ? 96 : 64)) + 18;
@@ -7495,7 +7587,7 @@ Aleksei Miranchuk|Russian|CAM
               <span class="obj-icon">${o.type === 'main' ? '🎯' : '➕'}</span>
               <span>${esc(o.text)}</span>
             </label>`).join('')}
-          ${s.events.map((e) => `<div class="event"><span class="obj-icon">⚡</span><span>${esc(e)}</span></div>`).join('')}
+          ${s.events.map((e) => { const ev = G.splitEvent(e); return `<div class="event${ev.when ? ' midseason' : ''}"><span class="obj-icon">${ev.icon}</span><span>${ev.when ? `<strong>${esc(ev.when)}:</strong> ` : ''}${esc(ev.text)}</span></div>`; }).join('')}
           ${mode === 'saved' ? diaryRow(s.season, log[s.season] || {}) : ''}
         </div>
       </li>`).join('');
@@ -7716,7 +7808,7 @@ Aleksei Miranchuk|Russian|CAM
           <div class="edit-season">
             <div class="edit-season-head"><strong>Season ${si + 1}</strong>${s.age ? `<small class="muted">age ${Number(s.age)}</small>` : ''}</div>
             ${s.objectives.map((o, oi) => row(`roadmap.${si}.objectives.${oi}.text`, o.text, o.type === 'main' ? 'Main objective, e.g. Win promotion' : 'Side objective', oi > 0)).join('')}
-            ${s.events.map((e, ei) => `<div class="edit-row event-row"><span class="obj-icon">⚡</span>${area(`roadmap.${si}.events.${ei}`, e, 'Random event', 300, 1)}<button type="button" class="icon-btn" data-edit="remove" data-path="roadmap.${si}.events.${ei}" title="Remove" aria-label="Remove">✕</button></div>`).join('')}
+            ${s.events.map((e, ei) => `<div class="edit-row event-row"><span class="obj-icon">${G.splitEvent(e).icon}</span>${area(`roadmap.${si}.events.${ei}`, e, 'Random event, or "Mid-season (January): ..."', 300, 1)}<button type="button" class="icon-btn" data-edit="remove" data-path="roadmap.${si}.events.${ei}" title="Remove" aria-label="Remove">✕</button></div>`).join('')}
             <div class="edit-inline">
               <button type="button" class="btn btn-small" data-edit="add-side" data-season="${si}">+ Side objective</button>
               <button type="button" class="btn btn-small" data-edit="add-event" data-season="${si}">+ Event</button>

@@ -15,7 +15,7 @@
   const FONT = 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Color Emoji", sans-serif';
   const C = {
     bg: '#0b0f14', panel: '#151d28', panel2: '#1b2533', line: '#263243',
-    text: '#e9eef5', muted: '#8d9bb0', accent: '#19e68c', ink: '#062314', warn: '#ffc94d',
+    text: '#e9eef5', muted: '#8d9bb0', accent: '#19e68c', ink: '#062314', warn: '#ffc94d', hot: '#ff8a4c',
     diff: ['#4dd6ff', '#19e68c', '#ffb547', '#ff5c6c'],
   };
 
@@ -196,7 +196,8 @@
         y += 6;
       });
       season.events.forEach((e) => {
-        y += text(`⚡ ${e}`, { size: 26, color: C.warn, x, width });
+        const ev = FC26.generator.splitEvent(e);
+        y += text(`${ev.icon} ${e}`, { size: 26, color: ev.when ? C.hot : C.warn, x, width });
         y += 6;
       });
       y = Math.max(y, top + (season.age ? 96 : 64)) + 18;

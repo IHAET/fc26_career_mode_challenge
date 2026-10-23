@@ -9,6 +9,7 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **Club Heritage**: hand-written challenges for 133 clubs, based on their real history, from giants to League Two. Examples: Athletic Club's Basque-only *La Cantera*, Celtic's all-Scottish *Lisbon Lions*, Ipswich's *Ramsey's Miracle* (up and champions at the first attempt), Notts County, whose stripes Juventus copied, Kaiserslautern's *Rehhagel Miracle*, Bodø/Glimt's *Arctic Miracle* and Bournemouth's *Minus 17*. Clubs that have one are marked 🏛️ in the club picker.
 - **416 clubs** from 22 leagues (2025/26 season): Premier League down to League Two; the top two divisions in Spain, Italy, Germany and France; plus the Netherlands, Portugal, Scotland, Belgium, Türkiye, Norway, Denmark, Austria, MLS and the Saudi league.
 - **Pick a specific club** or filter by league and club size. **Other club…** lets you type in any club in FC 26: set its country, division and size, and every challenge type adapts to it.
+- **🔥 Mid-season drama**: on top of the summer ⚡ events, seasons can throw a specific mid-season crisis with a moment and a task, e.g. *"Mid-season (January): Your highest-rated player says the club is too small and too poor for him. Sell him in the January window and sign a replacement who plays his position in the same window."* There are 23 for managers (injury crises, board ultimatums, FFP warnings, AFCON call-ups, deadline-day panic buys…) and 9 for Player Career (dropped after a dry spell, a January rival for your shirt, a contract stand-off…). They never contradict the challenge's type, its extra rules or that season's event, and the ⚡ events switch covers them too.
 - **4 difficulties** (Casual → Legendary) that scale fee caps, wage caps, rating limits, number of rules, season targets, events and fail conditions to the club's size and division.
 - **Daily challenge**: everyone gets the same challenge each day, seeded by the date and changing at local midnight. It shows a check-in streak (🔥 days in a row), the last 7 days, a countdown to the next one, and past days. *Take it on* saves it to My Challenges. *Customise* opens it in the Builder with everything locked, so you can unlock and reroll parts. Link straight to it with `#daily`.
 - **Lock & reroll**: lock the club, challenge type, length, difficulty or any rule, then reroll everything else. You can also swap a single rule.
@@ -65,7 +66,7 @@ npm test         # node --test (Node 18+)
 | --- | --- |
 | `js/data.js` | Leagues, clubs (with a 1–5 size tier), nations, formations |
 | `js/heritage/*.js` | Club Heritage challenges by region (England, Spain, Italy, Germany, France, rest of Europe, rest of the world) |
-| `js/rules.js` | Challenge types, the extra-rule pool, side objectives, season events |
+| `js/rules.js` | Challenge types, the extra-rule pool, side objectives, season events, mid-season dramas |
 | `js/player.js` | Player Career mode: challenge types, rules, positions, career milestones |
 | `js/share-image.js` | Draws a challenge as a PNG card (canvas, no dependencies) |
 | `js/compliance.js` | Rule checker: reads rule sentences and tests them against the tracked squad, transfers and career moves |
