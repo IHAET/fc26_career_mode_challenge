@@ -193,6 +193,8 @@
     const types = dir === 'out' ? OUT_TYPES : IN_TYPES;
     const squadNames = t.players.map((p) => `<option value="${esc(p.name)}"></option>`).join('');
     const val = (k) => (v[k] == null ? '' : esc(v[k]));
+    // Values the assistant read from a sentence belong to the player named in it.
+    const owner = (k) => (v.name && v[k] != null && v[k] !== '' ? ` data-for="${esc(DB.key(v.name))}"` : '');
     const seasons = Array.from({ length: Math.max(entry.challenge.seasons, t.season) }, (_, i) => [i + 1, `S${i + 1}`]);
     return `
       <form class="tform" data-tform data-dir="${dir}" autocomplete="off">
@@ -205,11 +207,11 @@
           ${dir === 'out' ? `<datalist id="squad-names-${esc(entry.id)}">${squadNames}</datalist>` : ''}
           <label><span>Type</span><select name="type">${opts(types, v.type)}</select></label>
           <label><span>Fee €M</span><input name="fee" type="number" min="0" step="0.1" placeholder="0" value="${val('fee')}"></label>
-          <label class="f-wide"><span>${dir === 'out' ? 'To club' : 'From club'}</span><input name="club" type="text" maxlength="40" value="${val('club')}"></label>
+          <label class="f-wide"><span>${dir === 'out' ? 'To club' : 'From club'}</span><input name="club" type="text" maxlength="40" value="${val('club')}"${owner('club')}></label>
           ${dir === 'in' ? `
-          <label><span>Pos</span><select name="pos"><option value=""></option>${opts(POSITIONS.map((x) => [x, x]), v.pos)}</select></label>
-          <label><span>Age</span><input name="age" type="number" min="14" max="50" value="${val('age')}"></label>
-          <label><span>Nationality</span><input name="nat" type="text" list="nat-list" maxlength="30" value="${val('nat')}"></label>
+          <label><span>Pos</span><select name="pos"${owner('pos')}><option value=""></option>${opts(POSITIONS.map((x) => [x, x]), v.pos)}</select></label>
+          <label><span>Age</span><input name="age" type="number" min="14" max="50" value="${val('age')}"${owner('age')}></label>
+          <label><span>Nationality</span><input name="nat" type="text" list="nat-list" maxlength="30" value="${val('nat')}"${owner('nat')}></label>
           <label><span>OVR</span><input name="ovr" type="number" min="1" max="99" value="${val('ovr')}"></label>
           <label><span>Wage €K/w</span><input name="wage" type="number" min="0" step="0.1" value="${val('wage')}"></label>` : ''}
           <label><span>Season</span><select name="season">${opts(seasons, v.season || t.season)}</select></label>
@@ -389,6 +391,35 @@
     };
   }
 
+  // Details that follow the player's name. Each box remembers which name its value
+  // was entered or filled in for (data-for), and data-auto marks values we filled.
+  const FOLLOW = ['nat', 'pos', 'age', 'club'];
+
+  /**
+   * The name now points at a known player (facts) or at nobody we know (null).
+   * A known player replaces every value that wasn't entered for this name; for an
+   * unknown one, only values we filled in for an earlier name are cleared.
+   * Values typed for this name are never touched.
+   */
+  function fillFor(form, name, facts) {
+    const k = DB.key(name);
+    FOLLOW.forEach((f) => {
+      const el = form.elements[f];
+      if (!el || (el.value && el.dataset.for === k)) return;
+      if (facts) {
+        if (!el.value || el.dataset.for !== k) {
+          el.value = facts[f] == null ? '' : String(facts[f]);
+          el.dataset.for = k;
+          el.dataset.auto = '1';
+        }
+      } else if (el.dataset.auto) {
+        el.value = '';
+        delete el.dataset.auto;
+        delete el.dataset.for;
+      }
+    });
+  }
+
   // Under the name box: who this is, and whether they'll be logged as a regen.
   function updateRecognition(form, item, autofill) {
     const note = form.querySelector('[data-recog]');
@@ -419,18 +450,15 @@
       const bits = [p.nat, p.pos, age ? `${age} at the start of season ${v.season}` : '', p.club ? `plays for ${p.club}` : ''].filter(Boolean);
       note.innerHTML = `👤 Recognised: <strong>${esc(p.name)}</strong>${bits.length ? ` · ${bits.map(esc).join(' · ')}` : ''}${p.custom ? ' <span class="muted">(you confirmed this one)</span>' : ''}`;
       setRegen(false);
-      if (autofill) {
-        if (form.elements.nat && !form.elements.nat.value && p.nat) form.elements.nat.value = p.nat;
-        if (form.elements.pos && !form.elements.pos.value && p.pos) form.elements.pos.value = p.pos;
-        if (form.elements.age && !form.elements.age.value && age) form.elements.age.value = age;
-        if (form.elements.club && !form.elements.club.value && p.club) form.elements.club.value = p.club;
-      }
+      if (autofill) fillFor(form, v.name, { nat: p.nat, pos: p.pos, age, club: p.club });
     } else if (hit && hit.candidates) {
       note.innerHTML = `Did you mean ${hit.candidates.map((p) => `<button type="button" class="link-btn" data-action="pick-player" data-name="${esc(p.name)}">${esc(p.name)}</button>`).join(', ')}?`;
       setRegen(false);
+      if (autofill) fillFor(form, v.name, null);
     } else {
       note.innerHTML = '🧬 Not in my player list, so I\'ll log them as a <strong>regen</strong>. Untick below if they\'re a real player.';
       setRegen(true);
+      if (autofill) fillFor(form, v.name, null);
     }
   }
 
@@ -469,6 +497,11 @@
     if (!form) return false;
     if (e.target.name === 'name' && form.dataset.dir === 'in') suggest(e.target.value);
     if (e.target.name === 'regen') e.target.dataset.touched = '1';
+    // Typed by hand: this value belongs to whoever is named right now.
+    if (FOLLOW.includes(e.target.name)) {
+      e.target.dataset.for = DB.key(form.elements.name.value);
+      delete e.target.dataset.auto;
+    }
     clearTimeout(liveTimer);
     liveTimer = setTimeout(() => {
       updateRecognition(form, item, e.target.name === 'name');
