@@ -713,3 +713,58 @@ test('signing-rule chips and next steps reflect the challenge', () => {
   assert.equal(steps[0].status, 'broken');
   assert.match(steps[0].summary, /signing/);
 });
+
+// ---------- Real squads (js/squads.js, from Wikipedia and Wikidata) ----------
+
+test('squad data is well-formed and realistic', () => {
+  const S = globalThis.FC26.squads;
+  assert.ok(S && S.clubs, 'squads.js not loaded');
+  const clubNames = new Set(G.CLUBS.map((c) => c.name));
+  const positions = new Set(['', ...globalThis.FC26.trackerUI.POSITIONS]);
+  let dated = 0;
+  let total = 0;
+  Object.entries(S.clubs).forEach(([club, players]) => {
+    assert.ok(clubNames.has(club), `unknown club ${club}`);
+    players.forEach((p) => {
+      assert.ok(p.length === 4 || (p.length === 5 && ['in', 'out'].includes(p[4])), `${club}: bad row ${JSON.stringify(p)}`);
+      assert.ok(p[0].trim(), `${club}: empty name`);
+      assert.ok(positions.has(p[1]), `${club}: bad position ${p[1]}`);
+      assert.match(p[2], /^(\d{4}-\d{2}-\d{2})?$/, `${club}: bad date of birth ${p[2]}`);
+      if (p[4] === 'out') return;
+      total++;
+      if (p[2]) dated++;
+    });
+  });
+  assert.ok(dated / total > 0.85, `only ${dated} of ${total} first-team players have a date of birth`);
+  const inSquad = (club) => (S.clubs[club] || []).filter((p) => p[4] !== 'out').length;
+  const covered = G.CLUBS.filter((c) => inSquad(c.name) >= 16).length;
+  assert.ok(covered >= 350, `only ${covered} clubs have 16+ players`);
+  // A first-team squad, not a club's whole history.
+  const pl = G.CLUBS.filter((c) => c.leagueId === 'eng1').map((c) => inSquad(c.name)).sort((a, b) => a - b);
+  const median = pl[Math.floor(pl.length / 2)];
+  assert.ok(median >= 20 && median <= 40, `Premier League median squad is ${median}`);
+});
+
+test('loading a real squad gives tracker players with ages and loans for the season', () => {
+  const T = globalThis.FC26.trackerUI;
+  const S = globalThis.FC26.squads.clubs;
+  const club = G.CLUBS.find((c) => (S[c.name] || []).some((p) => p[4] === 'out') && (S[c.name] || []).some((p) => p[4] === 'in')).name;
+  const s1 = T.realSquadPlayers(club, 1);
+  const s3 = T.realSquadPlayers(club, 3);
+  assert.equal(s1.length, S[club].length);
+  const aged = s1.filter((p) => p.age !== '');
+  assert.ok(aged.length && aged.every((p) => p.id && p.name && Number.isInteger(p.age) && p.age >= 14 && p.age <= 45));
+  const i = s1.findIndex((p) => p.age !== '');
+  assert.equal(s3[i].age - s1[i].age, 2);
+  assert.equal(s1.filter((p) => p.loanedOut).length, S[club].filter((p) => p[4] === 'out').length);
+  assert.equal(s1.filter((p) => p.loanIn).length, S[club].filter((p) => p[4] === 'in').length);
+  assert.deepEqual(T.realSquadPlayers('Not A Real Club', 1), []);
+  assert.deepEqual(T.realSquadPlayers(club, 1, 500), []); // under the minimum
+  // Squad players are recognised, with their club; a loanee belongs to the club he plays for.
+  const someone = S[club][0];
+  const hit = DB.recognise(someone[0]);
+  assert.ok(hit && (hit.player || hit.candidates));
+  const loanee = S[club].find((p) => p[4] === 'in');
+  const who = DB.recognise(loanee[0]);
+  if (who && who.player) assert.equal(who.player.club, club);
+});

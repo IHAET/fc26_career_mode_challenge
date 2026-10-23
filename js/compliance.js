@@ -43,6 +43,26 @@
     ['holland', 'Dutch'], ['turkey', 'Turkish'], ['korea', 'South Korean'], ['korean', 'South Korean'],
     ['ivory coast', 'Ivorian'], ["côte d'ivoire", 'Ivorian'], ['dr congo', 'Congolese'], ['czechia', 'Czech'],
     ['argentinian', 'Argentine'], ['saudi arabia', 'Saudi']].forEach(([k, v]) => addNat(k, v));
+  // Country names as squad lists write them, for nationalities beyond the generator's own list.
+  `Mali:Malian|Australia:Australian|Greece:Greek|Albania:Albanian|Czech Republic:Czech|Slovenia:Slovenian|Jamaica:Jamaican
+|Bosnia and Herzegovina:Bosnian|Finland:Finnish|Iceland:Icelandic|Ukraine:Ukrainian|Slovakia:Slovak|Guinea:Guinean|Romania:Romanian
+|Kosovo:Kosovan|Hungary:Hungarian|Gambia:Gambian|Suriname:Surinamese|Angola:Angolan|Burkina Faso:Burkinabé|Venezuela:Venezuelan
+|Tunisia:Tunisian|Chile:Chilean|Georgia:Georgian|New Zealand:New Zealander|Bulgaria:Bulgarian|Sierra Leone:Sierra Leonean
+|Paraguay:Paraguayan|Guinea-Bissau:Bissau-Guinean|Cape Verde:Cape Verdean|Israel:Israeli|South Africa:South African
+|Montenegro:Montenegrin|Togo:Togolese|Indonesia:Indonesian|Costa Rica:Costa Rican|Comoros:Comorian|Curaçao:Curaçaoan|Haiti:Haitian
+|North Macedonia:Macedonian|Zimbabwe:Zimbabwean|Luxembourg:Luxembourgish|Congo:Congolese|Russia:Russian|Cyprus:Cypriot|Iraq:Iraqi
+|Guadeloupe:Guadeloupean|Honduras:Honduran|Gabon:Gabonese|Trinidad and Tobago:Trinidadian|Lithuania:Lithuanian|Panama:Panamanian
+|Kenya:Kenyan|Zambia:Zambian|Martinique:Martinican|Equatorial Guinea:Equatoguinean|Dominican Republic:Dominican|Uganda:Ugandan
+|Grenada:Grenadian|Benin:Beninese|Guyana:Guyanese|Mauritania:Mauritanian|Madagascar:Malagasy|Central African Republic:Central African
+|Malta:Maltese|Syria:Syrian|Peru:Peruvian|Mozambique:Mozambican|Latvia:Latvian|Burundi:Burundian|Estonia:Estonian|Uzbekistan:Uzbek
+|Montserrat:Montserratian|Antigua and Barbuda:Antiguan|Libya:Libyan|Saint Lucia:Saint Lucian|Saint Kitts and Nevis:Kittitian|Iran:Iranian
+|Guatemala:Guatemalan|El Salvador:Salvadoran|Azerbaijan:Azerbaijani|French Guiana:French Guianese|Jordan:Jordanian|Liberia:Liberian
+|Bermuda:Bermudian|Belarus:Belarusian|Andorra:Andorran|Faroe Islands:Faroese|Cuba:Cuban|Tanzania:Tanzanian|Philippines:Filipino
+|Lebanon:Lebanese|Somalia:Somali|Armenia:Armenian|Gibraltar:Gibraltarian|Palestine:Palestinian|Malaysia:Malaysian|Moldova:Moldovan
+|Rwanda:Rwandan|Yemen:Yemeni|Barbados:Barbadian|Bolivia:Bolivian|Singapore:Singaporean|Namibia:Namibian|Sri Lanka:Sri Lankan
+|Malawi:Malawian|Bangladesh:Bangladeshi|United Arab Emirates:Emirati|Afghanistan:Afghan|Niger:Nigerien|Thailand:Thai|Chad:Chadian
+|Kazakhstan:Kazakh|Jersey:Jersey|DR Congo:Congolese|Ivory Coast:Ivorian|Mexico:Mexican|Canada:Canadian|China:Chinese|Qatar:Qatari`
+    .split('|').forEach((pair) => { const [k, v] = pair.trim().split(':'); addNat(k, v); });
 
   const NATIONALITIES = Array.from(new Set(NAT.values())).sort((a, b) => a.localeCompare(b));
 

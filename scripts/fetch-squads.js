@@ -16,7 +16,8 @@
  *      position (left-back rather than "DF"). Players without an article keep
  *      the list's broad position and have no date of birth.
  * Downloaded pages are cached in scripts/.wiki-cache so re-runs are quick.
- * The api.php endpoints rate-limit hard, so pages come through index.php.
+ * The api.php endpoints rate-limit hard, so pages come through index.php and
+ * only redirect lookups (50 titles a request) use the API.
  * Squad lists are facts, not creative text; Wikidata is CC0.
  */
 'use strict';
@@ -85,7 +86,7 @@ const SEARCH_AS = {
 // "defender"/"midfielder"/"forward" only count when nothing better is listed.
 const POSITION = [
   [/goalkeeper/i, 'GK'], [/left wing[- ]back/i, 'LWB'], [/right wing[- ]back/i, 'RWB'], [/wing[- ]back/i, 'RWB'],
-  [/left[- ]back/i, 'LB'], [/right[- ]back/i, 'RB'], [/full[- ]back/i, 'RB'], [/cent(re|er)[- ]back|sweeper|libero/i, 'CB'],
+  [/left[- ]back/i, 'LB'], [/right[- ]back/i, 'RB'], [/cent(re|er)[- ]back|sweeper|libero/i, 'CB'], [/full[- ]back/i, 'RB'],
   [/defensive midfield/i, 'CDM'], [/attacking midfield/i, 'CAM'], [/left midfield/i, 'LM'], [/right midfield/i, 'RM'],
   [/wide midfield/i, 'RM'], [/left wing/i, 'LW'], [/right wing/i, 'RW'], [/winger/i, 'RW'], [/central midfield/i, 'CM'],
   [/second striker|false nine/i, 'CF'], [/cent(re|er)[- ]forward|striker/i, 'ST'],
@@ -101,25 +102,25 @@ const GROUP_DEFAULT = { GK: 'GK', DF: 'CB', MF: 'CM', FW: 'ST' };
 const NAT_CODES = Object.fromEntries(`AFG Afghanistan|ALB Albania|ALG Algeria|DZA Algeria|AND Andorra|ANG Angola|AGO Angola|ATG Antigua and Barbuda
 |ARG Argentina|ARM Armenia|ARU Aruba|AUS Australia|AUT Austria|AZE Azerbaijan|BAH Bahamas|BHR Bahrain|BAN Bangladesh|BRB Barbados
 |BLR Belarus|BEL Belgium|BLZ Belize|BEN Benin|BER Bermuda|BOL Bolivia|BIH Bosnia and Herzegovina|BOT Botswana|BRA Brazil|BUL Bulgaria
-|BGR Bulgaria|BFA Burkina Faso|BDI Burundi|CMR Cameroon|CAN Canada|CPV Cape Verde|CTA Central African Republic|CAF Central African Republic
+|BGR Bulgaria|BFA Burkina Faso|BKF Burkina Faso|BDI Burundi|CMR Cameroon|CAN Canada|CPV Cape Verde|CTA Central African Republic|CAR Central African Republic|CAF Central African Republic
 |CHA Chad|TCD Chad|CHI Chile|CHL Chile|CHN China|COL Colombia|COM Comoros|CGO Congo|COG Congo|COD DR Congo|DRC DR Congo|ZAI DR Congo|CRC Costa Rica
-|CRI Costa Rica|CRO Croatia|HRV Croatia|CUB Cuba|CUW Curaçao|CYP Cyprus|CZE Czech Republic|DEN Denmark|DNK Denmark|DJI Djibouti
+|CRI Costa Rica|CRO Croatia|HRV Croatia|CUB Cuba|CUW Curaçao|CUR Curaçao|CYP Cyprus|CZE Czech Republic|DEN Denmark|DNK Denmark|DJI Djibouti
 |DOM Dominican Republic|ECU Ecuador|EGY Egypt|SLV El Salvador|ENG England|EQG Equatorial Guinea|GNQ Equatorial Guinea|ERI Eritrea
-|EST Estonia|SWZ Eswatini|ESW Eswatini|ETH Ethiopia|FRO Faroe Islands|FIJ Fiji|FIN Finland|FRA France|GUF French Guiana|GAB Gabon
-|GAM Gambia|GMB Gambia|GEO Georgia|GER Germany|DEU Germany|GHA Ghana|GIB Gibraltar|GRE Greece|GRC Greece|GRN Grenada|GLP Guadeloupe
+|EST Estonia|SWZ Eswatini|ESW Eswatini|ETH Ethiopia|FRO Faroe Islands|FAR Faroe Islands|FIJ Fiji|FIN Finland|FRA France|GUF French Guiana|GAB Gabon
+|GAM Gambia|GMB Gambia|GEO Georgia|GER Germany|DEU Germany|GHA Ghana|GIB Gibraltar|GRE Greece|GRC Greece|GRN Grenada|GRD Grenada|GLP Guadeloupe
 |GUA Guatemala|GTM Guatemala|GUI Guinea|GIN Guinea|GNB Guinea-Bissau|GUY Guyana|HAI Haiti|HTI Haiti|HON Honduras|HND Honduras
-|HKG Hong Kong|HUN Hungary|ISL Iceland|IND India|IDN Indonesia|INA Indonesia|IRN Iran|IRQ Iraq|IRL Ireland|ISR Israel|ITA Italy
+|HKG Hong Kong|HUN Hungary|ISL Iceland|IND India|IDN Indonesia|INA Indonesia|IRN Iran|IRI Iran|IRQ Iraq|IRL Ireland|ISR Israel|JER Jersey|ITA Italy
 |CIV Ivory Coast|JAM Jamaica|JPN Japan|JAP Japan|JOR Jordan|KAZ Kazakhstan|KEN Kenya|KOS Kosovo|KVX Kosovo|XKX Kosovo|KUW Kuwait|KWT Kuwait
 |KGZ Kyrgyzstan|LVA Latvia|LAT Latvia|LIB Lebanon|LBN Lebanon|LES Lesotho|LBR Liberia|LBY Libya|LIE Liechtenstein|LTU Lithuania|LIT Lithuania
 |LUX Luxembourg|MAD Madagascar|MDG Madagascar|MWI Malawi|MAS Malaysia|MYS Malaysia|MLI Mali|MLT Malta|MTQ Martinique|MTN Mauritania
 |MRT Mauritania|MRI Mauritius|MUS Mauritius|MYT Mayotte|MEX Mexico|MDA Moldova|MNE Montenegro|MSR Montserrat|MAR Morocco|MOZ Mozambique
-|NAM Namibia|NED Netherlands|NLD Netherlands|NCL New Caledonia|NZL New Zealand|NCA Nicaragua|NIC Nicaragua|NIG Niger|NER Niger
-|NGA Nigeria|NIR Northern Ireland|PRK North Korea|MKD North Macedonia|NOR Norway|OMA Oman|OMN Oman|PAK Pakistan|PLE Palestine
+|NAM Namibia|NED Netherlands|HOL Netherlands|NLD Netherlands|NCL New Caledonia|NZL New Zealand|NCA Nicaragua|NIC Nicaragua|NIG Niger|NER Niger
+|NGA Nigeria|NGR Nigeria|NIR Northern Ireland|PRK North Korea|MKD North Macedonia|NOR Norway|OMA Oman|OMN Oman|PAK Pakistan|PLE Palestine
 |PSE Palestine|PAN Panama|PAR Paraguay|PRY Paraguay|PER Peru|PHI Philippines|PHL Philippines|POL Poland|POR Portugal|PRT Portugal
-|PUR Puerto Rico|PRI Puerto Rico|QAT Qatar|REU Réunion|ROU Romania|RUS Russia|RWA Rwanda|SKN Saint Kitts and Nevis|KNA Saint Kitts and Nevis
+|PUR Puerto Rico|PRI Puerto Rico|QAT Qatar|REU Réunion|ROU Romania|ROM Romania|RUS Russia|RWA Rwanda|SKN Saint Kitts and Nevis|KNA Saint Kitts and Nevis
 |LCA Saint Lucia|VIN Saint Vincent and the Grenadines|SMR San Marino|STP São Tomé and Príncipe|KSA Saudi Arabia|SAU Saudi Arabia
 |SCO Scotland|SEN Senegal|SRB Serbia|SER Serbia|SEY Seychelles|SYC Seychelles|SLE Sierra Leone|SGP Singapore|SIN Singapore|SXM Sint Maarten
-|SVK Slovakia|SVN Slovenia|SLO Slovenia|SOM Somalia|RSA South Africa|ZAF South Africa|KOR South Korea|ROK South Korea|SSD South Sudan|ESP Spain
+|SVK Slovakia|SVN Slovenia|SLO Slovenia|SOM Somalia|RSA South Africa|ZAF South Africa|KOR South Korea|ROK South Korea|SSD South Sudan|ESP Spain|SPA Spain
 |SRI Sri Lanka|LKA Sri Lanka|SDN Sudan|SUD Sudan|SUR Suriname|SWE Sweden|SUI Switzerland|SWI Switzerland|CHE Switzerland|SYR Syria|TAH Tahiti
 |TPE Taiwan|TJK Tajikistan|TAN Tanzania|TZA Tanzania|THA Thailand|TOG Togo|TGO Togo|TRI Trinidad and Tobago|TTO Trinidad and Tobago
 |TUN Tunisia|TUR Turkey|TKM Turkmenistan|UGA Uganda|UKR Ukraine|UAE United Arab Emirates|ARE United Arab Emirates|USA United States
@@ -281,9 +282,14 @@ function squadFromArticle(text) {
   const kindAt = (at) => {
     const head = headings.filter((x) => x.at < at).pop();
     const t = head ? head.text : '';
-    if (/academy|under[-–— ]?\d|\bu-?\d\d|\beds\b|(^|\s)b(\s|$)|reserve|youth|development|women|\bii\b|retired|former|notable|captain|record|international|staff|kit|histor|century|all[- ]time|hall of fame|greatest|legend|award|of the (year|season)/.test(t)) return '';
-    return /loan/.test(t) ? 'out' : 'squad';
+    if (/academy|under[-–— ]?\d|\bu-?\d\d|\beds\b|(^|\s)b(\s|$)|reserve|youth|development|women|\bii\b|retired|former|notable|captain|record|international|staff|kit|histor|century|all[- ]time|hall of fame|greatest|legend|award|of the (year|season)|\bjong\b|primavera|juvenil|castilla|atl[eè]tic\b|next ?gen|\bnxt\b|sub[- ]?\d|filial|amateur|promesas|bilbao athletic|sanse\b/.test(t)) return '';
+    if (/loan/.test(t)) return 'out';
+    // The first squad list is the first team; later ones only count if they say so
+    // (reserve sides go by all sorts of names: "Young Reds", "Zebra Elites", "SL16").
+    if (first === null) first = t;
+    return t === first || /other players|under contract|first[- ]team|senior/.test(t) ? 'squad' : '';
   };
+  let first = null;
   const seen = new Set();
   const out = [];
   templates(text, /^(fs|football squad) ?2? player$/i).forEach(({ at, body }) => {
@@ -329,6 +335,99 @@ async function playerFacts(titles) {
   return facts;
 }
 
+/**
+ * Wikidata items for article titles Wikidata doesn't list under that name
+ * (redirects such as "Rodri (footballer, born 1996)"), via the Wikipedia API,
+ * 50 titles a request. Cached, since the API rate-limits hard.
+ */
+async function itemsForTitles(titles) {
+  const file = path.join(PAGES, 'items.json');
+  const cache = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : {};
+  const todo = titles.filter((t) => !(t in cache));
+  for (let i = 0; i < todo.length; i += 50) {
+    const batch = todo.slice(i, i + 50);
+    const url = `https://en.wikipedia.org/w/api.php?${new URLSearchParams({
+      action: 'query', titles: batch.join('|'), redirects: 1, prop: 'pageprops', ppprop: 'wikibase_item', format: 'json', formatversion: 2,
+    })}`;
+    let json = null;
+    for (let attempt = 0; attempt < 10 && !json; attempt++) {
+      const r = await fetch(url, { headers: { 'User-Agent': UA } });
+      if (r.ok) json = await r.json();
+      else {
+        await r.text().catch(() => {});
+        await sleep(((Number(r.headers.get('retry-after')) || 10) + 2) * 1000);
+      }
+    }
+    if (!json) throw new Error('The Wikipedia API kept refusing');
+    const q = json.query || {};
+    const hop = new Map([...(q.normalized || []), ...(q.redirects || [])].map((x) => [x.from, x.to]));
+    const item = new Map((q.pages || []).map((pg) => [pg.title, pg.pageprops && pg.pageprops.wikibase_item]));
+    batch.forEach((t) => {
+      let title = t;
+      for (let k = 0; k < 3 && hop.has(title); k++) title = hop.get(title);
+      cache[t] = item.get(title) || null;
+    });
+    fs.writeFileSync(file, JSON.stringify(cache));
+    process.stdout.write(`\rWikipedia redirects: ${Math.min(i + 50, todo.length)}/${todo.length} titles`);
+    await sleep(1500);
+  }
+  if (todo.length) console.log('');
+  return new Map(titles.filter((t) => cache[t]).map((t) => [t, cache[t]]));
+}
+
+/** Item QID → { dob, positions } from Wikidata. */
+async function factsForItems(qids) {
+  const facts = new Map();
+  for (let i = 0; i < qids.length; i += 200) {
+    const rows = await sparql(`SELECT ?p ?dob ?posLabel WHERE {
+      VALUES ?p { ${qids.slice(i, i + 200).map((q) => `wd:${q}`).join(' ')} }
+      OPTIONAL { ?p wdt:P569 ?dob }
+      OPTIONAL { ?p wdt:P413 ?pos }
+      SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+    }`);
+    rows.forEach((r) => {
+      const id = qid(r.p.value);
+      const f = facts.get(id) || { dob: '', positions: new Set() };
+      if (!f.dob && r.dob && /^\d{4}-\d\d-\d\d/.test(r.dob.value)) f.dob = r.dob.value.slice(0, 10);
+      if (r.posLabel) f.positions.add(r.posLabel.value);
+      facts.set(id, f);
+    });
+    await sleep(500);
+  }
+  return facts;
+}
+
+/**
+ * Facts for players the title lookup missed (their link is a redirect, or
+ * there's no link): matched on English name or alias plus a spell at the club.
+ * Keys are "name|club QID".
+ */
+async function playerFactsByClub(pairs) {
+  const facts = new Map();
+  for (let i = 0; i < pairs.length; i += 150) {
+    const batch = pairs.slice(i, i + 150);
+    const rows = await sparql(`SELECT ?name ?club ?dob ?posLabel WHERE {
+      VALUES (?name ?club) { ${batch.map(([name, club]) => `(${lit(name)}@en wd:${club})`).join(' ')} }
+      { ?p rdfs:label ?name } UNION { ?p skos:altLabel ?name }
+      ?p wdt:P54 ?club; wdt:P106 wd:Q937857.
+      OPTIONAL { ?p wdt:P569 ?dob }
+      OPTIONAL { ?p wdt:P413 ?pos }
+      SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+    }`);
+    rows.forEach((r) => {
+      const k = `${r.name.value}|${qid(r.club.value)}`;
+      const f = facts.get(k) || { dob: '', positions: new Set() };
+      if (!f.dob && r.dob && /^\d{4}-\d\d-\d\d/.test(r.dob.value)) f.dob = r.dob.value.slice(0, 10);
+      if (r.posLabel) f.positions.add(r.posLabel.value);
+      facts.set(k, f);
+    });
+    process.stdout.write(`\rWikidata by club: ${Math.min(i + 150, pairs.length)}/${pairs.length} players`);
+    await sleep(500);
+  }
+  console.log('');
+  return facts;
+}
+
 /** The most specific Wikidata position that fits the squad list's group. */
 function bestPosition(labels, group) {
   const fits = (code) => !GROUP[group] || GROUP[group].includes(code);
@@ -352,11 +451,21 @@ async function fetchSquads(clubs) {
   console.log('');
   const links = new Set(Object.values(lists).flat().map((p) => p.link).filter(Boolean));
   const facts = await playerFacts(links);
+  // Redirected titles: find their items through Wikipedia, then their facts.
+  const redirected = await itemsForTitles(Array.from(links).filter((t) => !(facts.get(t) || {}).dob));
+  const byItem = await factsForItems(Array.from(new Set(redirected.values())));
+  redirected.forEach((item, title) => { if (byItem.has(item)) facts.set(title, byItem.get(item)); });
+  const missing = Object.entries(lists).flatMap(([club, list]) => list
+    .filter((p) => !(facts.get(p.link) || {}).dob).map((p) => [p.name, clubs[club].qid]));
+  const byClub = await playerFactsByClub(missing);
   const squads = {};
   Object.entries(lists).forEach(([club, list]) => {
     squads[club] = list.map((p) => {
-      const f = facts.get(p.link) || { dob: '', positions: new Set() };
-      return { name: p.name, pos: bestPosition(Array.from(f.positions), p.group), dob: f.dob, nat: p.nat, loan: p.loan };
+      const byTitle = facts.get(p.link);
+      const f = (byTitle && byTitle.dob ? byTitle : byClub.get(`${p.name}|${clubs[club].qid}`) || byTitle) || { dob: '', positions: new Set() };
+      // A name match can find the wrong person: drop dates that make no sense for a player.
+      const age = f.dob ? ageOn(f.dob, SEASON_START) : 0;
+      return { name: p.name, pos: bestPosition(Array.from(f.positions), p.group), dob: age >= 15 && age <= 43 ? f.dob : '', nat: p.nat, loan: p.loan };
     });
   });
   return squads;
@@ -387,7 +496,7 @@ function writeSquads(squads) {
   let players = 0;
   const thin = [];
   Object.keys(squads).sort().forEach((club) => {
-    const list = squads[club].filter((p) => !p.dob || ageOn(p.dob, SEASON_START) >= 14);
+    const list = squads[club].slice();
     if (list.length < 11) thin.push(`${club} (${list.length})`);
     if (!list.length) return;
     // Loanees out are listed last, flagged "out"; loanees in are flagged "in".

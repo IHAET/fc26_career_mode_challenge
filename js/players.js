@@ -967,9 +967,11 @@ Aleksei Miranchuk|Russian|CAM
     if (existing) {
       existing.nat = p.nat || existing.nat;
       existing.pos = p.pos || existing.pos;
+      existing.curated = true;
       p.aliases.forEach((a) => { if (!byKey.has(key(a))) byKey.set(key(a), existing); });
       return;
     }
+    p.curated = true;
     players.push(p);
     index(p);
   });
@@ -1019,9 +1021,16 @@ Aleksei Miranchuk|Russian|CAM
     tokens.slice(1).forEach((tok) => { pool = pool.filter((p) => key(p.name).split(' ').includes(tok)); });
     const unique = Array.from(new Set(pool));
     if (unique.length === 1) return { player: unique[0] };
-    if (unique.length > 1) return { candidates: unique.slice(0, 5) };
+    // "Saka" means Bukayo Saka, not a youth player of the same name: when exactly
+    // one match is a well-known player, that's who people mean.
+    const famous = unique.filter((p) => p.curated);
+    if (famous.length === 1) return { player: famous[0] };
+    if (unique.length > 1) return { candidates: famous.concat(unique.filter((p) => !p.curated)).slice(0, 5) };
     return null;
   }
 
-  FC26.playerDB = { players, curated, recognise, search, addKnown, ageOn, key };
+  /** The player with exactly this name (accents and case aside), or null. */
+  const lookup = (name) => byKey.get(key(name)) || null;
+
+  FC26.playerDB = { players, curated, recognise, lookup, search, addKnown, ageOn, key };
 })(typeof window !== 'undefined' ? window : globalThis);

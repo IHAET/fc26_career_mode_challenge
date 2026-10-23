@@ -654,9 +654,13 @@
     const real = realSquad(club);
     if (!real || real.filter((row) => !loanedOut(row)).length < (minimum || 1)) return [];
     const day = seasonDay(season);
-    return real.map(([name, pos, dob, nat, loan]) => ({
-      id: uid(), name, pos, age: DB.ageOn(dob, day), nat: C.normNat(nat), loanIn: loan === 'in', loanedOut: loan === 'out',
-    }));
+    return real.map(([name, pos, dob, nat, loan]) => {
+      // Squad lists often say just "forward"; the hand-written list knows Vinícius is a LW
+      // (same name and nationality, so it's the same player).
+      const known = DB.lookup(name);
+      const sure = known && known.curated && known.pos && known.nat === C.normNat(nat);
+      return { id: uid(), name, pos: sure ? known.pos : pos, age: DB.ageOn(dob, day), nat: C.normNat(nat), loanIn: loan === 'in', loanedOut: loan === 'out' };
+    });
   }
 
   function setTab(id, tab) {
