@@ -23,6 +23,7 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **🤖 Transfer assistant** (built in, works offline): describe a move in your own words, e.g. *"Signed Florian Wirtz from Leverkusen for €60m in January"*, and it fills in the transfer. Before you log anything it simulates the move against the challenge's rules and tells you what it would break or complete.
 - **Real squads**: all 416 clubs' squads as FC 26 launched (mid-September 2025, after the summer windows): 13,472 players with positions, ages, nationalities and loans, so players out on loan load as ✈️ loaned out and loanees as 🔁 on loan. They load into the Squad tab with **⬇️ Load real squad**, or automatically when you press 📒 Track it. Ages are worked out for the career's first day (1 July 2025); 87% of first-team players have a date of birth, and youth players without a Wikipedia article have no age. Later squad updates may have moved a few players, so check against your save. OVRs aren't included because they're EA's ratings: add them as you go or paste them in.
 - **🧬 Regens**: signings are matched against every squad player plus a hand-written list of well-known players. A known player's club, age, nationality and position are filled in as you type. Anyone it doesn't recognise is marked as a regen, as are academy promotions. Untick it for a real player it doesn't know and it remembers them.
+- **👤 Accounts (optional)**: sign in with email and password or Google, and your saved challenges, trackers, diaries and confirmed players sync across your devices. Without an account (or before accounts are set up) everything stays on the device as before. See "Accounts and Spotify" below.
 - **My Challenges**: save challenges in your browser and tick off objectives. The **season diary** logs each season's finish, trophies and notes, and the score and "Season X of N" update as you go. Copy text includes your progress.
 
 ## Run it
@@ -54,6 +55,20 @@ After changing anything, rebuild it with:
 ```sh
 npm run build    # writes dist/fc26-challenge-builder.html
 ```
+
+## Accounts and Spotify
+
+Both are optional and off until you add your own keys to `js/config.js`. The app has no server of its own, so accounts run on [Firebase](https://firebase.google.com) (free tier) and Spotify talks to the browser directly.
+
+### Accounts (Firebase)
+
+1. Create a project at [console.firebase.google.com](https://console.firebase.google.com) and add a **Web app** to it. Copy the `firebaseConfig` it shows into `firebase:` in `js/config.js` (`apiKey`, `authDomain`, `projectId`, `appId`). These values identify the project and are meant to be public; the security rules below protect the data.
+2. **Authentication → Sign-in method**: turn on **Email/Password** and **Google**.
+3. **Authentication → Settings → Authorized domains**: add the domain the app runs on, e.g. `<your-username>.github.io` (`localhost` is there already).
+4. **Firestore Database → Create database**, then paste `firestore.rules` from this repo into its **Rules** tab and publish, so each user can only read and write their own data.
+5. Rebuild the single file (`npm run build`) and push.
+
+Each user's saves are one Firestore document (`users/<uid>`). When a device signs in or changes something, the copies are merged per challenge: the most recently changed copy wins, and deleting a challenge removes it everywhere. Google sign-in only works on an authorised domain, so not from the downloaded single file (email sign-in does).
 
 ## Squad data
 
@@ -95,6 +110,10 @@ npm test         # node --test (Node 18+)
 | `js/daily.js` | Daily challenge: date-based seed, numbering and streaks |
 | `js/generator.js` | Seeded generator (no DOM, runs in Node too), share keys, text export |
 | `js/app.js` | UI: options form, challenge card, locks, saving, sharing |
+| `js/config.js` | Keys for the optional online features (Firebase accounts, Spotify) |
+| `js/account.js` | Accounts: sign-in through a swappable backend (Firebase by default) and merging saves between devices |
+| `js/login.js` | The sign-in screen and the account button |
+| `firestore.rules` | Firestore security rules: each user can only reach their own saves |
 | `styles.css` | Styling (responsive down to phone width) |
 | `scripts/build-single.js` | Bundles everything into the single-file version |
 | `.github/workflows/pages.yml` | CI: tests, checks the single file is fresh, deploys to GitHub Pages |

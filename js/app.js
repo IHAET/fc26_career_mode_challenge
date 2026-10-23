@@ -1,12 +1,13 @@
 /* UI for the FC 26 Career Challenge Builder. */
 (function () {
   'use strict';
-  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker, playerDB: PlayerDB } = window.FC26;
+  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker, playerDB: PlayerDB, account: Account, login: Login } = window.FC26;
 
   const STORE_KEY = 'fc26-challenges-v1';
   const OPTIONS_KEY = 'fc26-options-v1';
   const DAILY_KEY = 'fc26-daily-v1';
   const KNOWN_KEY = 'fc26-known-v1'; // players the user confirmed are real (not regens)
+  const DELETED_KEY = 'fc26-deleted-v1'; // id → when a saved challenge was deleted, for syncing
   const TC_KEY = 'fc26-transfers-challenge-v1'; // challenge picked in the Transfers section
 
   const $ = (sel, el = document) => el.querySelector(sel);
@@ -762,7 +763,16 @@
     const list = storageGet(STORE_KEY, []);
     return (Array.isArray(list) ? list : []).filter((e) => e && e.challenge && e.id).map(migrateEntry);
   };
-  const writeSaved = (list) => storageSet(STORE_KEY, list);
+  // Every write stamps what changed (and remembers deletions) so signed-in devices can merge.
+  function writeSaved(list) {
+    const before = storageGet(STORE_KEY, []);
+    const deleted = storageGet(DELETED_KEY, {});
+    Account.stampChanges(Array.isArray(before) ? before : [], list, deleted, Date.now());
+    const ok = storageSet(STORE_KEY, list);
+    storageSet(DELETED_KEY, deleted);
+    if (ok) Account.changed();
+    return ok;
+  }
 
   function progressOf(entry) {
     const ch = entry.challenge;
@@ -1277,10 +1287,34 @@
       else loadFromHash();
     });
     $('#saved-count').textContent = loadSaved().length;
+    initAccount();
     syncDailyDot();
     setInterval(tickDaily, 30000);
     if (window.location.hash === '#daily') showView('daily');
     else loadFromHash();
+  }
+
+  // ---------- Accounts ----------
+
+  function initAccount() {
+    const onAccountChange = Login.init({ esc, toast, storageGet, storageSet });
+    Account.init({
+      read: () => ({ entries: loadSaved(), deleted: storageGet(DELETED_KEY, {}), known: storageGet(KNOWN_KEY, []) }),
+      // Synced data arrives: store it as is (no re-stamping) and redraw.
+      write: (saves) => {
+        storageSet(STORE_KEY, saves.entries);
+        storageSet(DELETED_KEY, saves.deleted);
+        storageSet(KNOWN_KEY, saves.known.slice(-500));
+        saves.known.forEach((k) => k && k.name && PlayerDB.addKnown(k.name, k.nat, k.pos));
+        $('#saved-count').textContent = saves.entries.length;
+        const open = $('.saved-item[open]');
+        if (!$('#view-saved').hidden) renderSaved(open ? open.dataset.id : null);
+        if (!$('#view-transfers').hidden) renderTransfersView();
+      },
+      onChange: onAccountChange,
+    });
+    // Pick up changes made on another device when coming back to this tab.
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) Account.changed(); });
   }
 
   init();

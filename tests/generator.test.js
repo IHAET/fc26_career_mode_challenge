@@ -768,3 +768,40 @@ test('loading a real squad gives tracker players with ages and loans for the sea
   const who = DB.recognise(loanee[0]);
   if (who && who.player) assert.equal(who.player.club, club);
 });
+
+// ---------- Accounts: merging saves between devices ----------
+
+test('syncing merges saves: newest copy wins, deletions stick, nothing else is lost', () => {
+  const Acc = globalThis.FC26.account;
+  const e = (id, savedAt, updatedAt, note) => ({ id, savedAt, updatedAt, challenge: { title: id }, note });
+  const phone = { entries: [e('a', 1, 50, 'phone'), e('b', 2, 20), e('c', 3, 3)], deleted: { d: 40 }, known: [{ name: 'Zé', nat: 'Portuguese', pos: 'ST' }] };
+  const laptop = { entries: [e('a', 1, 30, 'laptop'), e('d', 4, 10), e('c', 3, 3), e('e', 5, 5)], deleted: { b: 60 }, known: [{ name: 'Zé', nat: 'Portuguese', pos: 'ST' }, { name: 'Kid', nat: '', pos: '' }] };
+  const m = Acc.mergeSaves(phone, laptop);
+  assert.deepEqual(m.entries.map((x) => x.id), ['e', 'c', 'a']); // newest saved first; b and d deleted
+  assert.equal(m.entries.find((x) => x.id === 'a').note, 'phone'); // changed more recently on the phone
+  assert.deepEqual(m.deleted, { d: 40, b: 60 });
+  assert.equal(m.known.length, 2);
+  // A challenge edited after it was deleted elsewhere comes back.
+  const revived = Acc.mergeSaves({ entries: [e('b', 2, 70)], deleted: {} }, { entries: [], deleted: { b: 60 } });
+  assert.deepEqual(revived.entries.map((x) => x.id), ['b']);
+  // Merging is symmetric and repeatable.
+  assert.deepEqual(Acc.mergeSaves(laptop, phone).entries.map((x) => x.id), ['e', 'c', 'a']);
+  assert.deepEqual(Acc.mergeSaves(m, m).entries, m.entries);
+});
+
+test('local writes stamp what changed and remember deletions', () => {
+  const Acc = globalThis.FC26.account;
+  const before = [{ id: 'a', savedAt: 1, x: 1 }, { id: 'b', savedAt: 2, x: 1 }, { id: 'c', savedAt: 3, x: 1, updatedAt: 5 }];
+  const after = [{ id: 'a', savedAt: 1, x: 2 }, { id: 'c', savedAt: 3, x: 1, updatedAt: 5 }, { id: 'n', savedAt: 9 }];
+  const deleted = {};
+  Acc.stampChanges(before, after, deleted, 100);
+  assert.equal(after[0].updatedAt, 100); // edited
+  assert.equal(after[1].updatedAt, 5); // untouched
+  assert.equal(after[2].updatedAt, 100); // new
+  assert.deepEqual(deleted, { b: 100 });
+  // Documents round-trip, and junk documents read as empty.
+  const doc = Acc.toDoc({ entries: after, deleted, known: [] });
+  assert.deepEqual(Acc.fromDoc(doc).entries, after);
+  assert.deepEqual(Acc.fromDoc({ challenges: 'nope', deleted: '[]' }), { entries: [], deleted: [], known: [] });
+  assert.deepEqual(Acc.fromDoc(null), { entries: [], deleted: {}, known: [] });
+});
