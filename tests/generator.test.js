@@ -670,7 +670,12 @@ test('recognising players: accents, surnames, aliases, ambiguity and regens', ()
   assert.equal(DB.recognise('Kylian Mbappe').player.name, 'Kylian Mbappé');
   assert.equal(DB.recognise('martin odegaard').player.name, 'Martin Ødegaard');
   assert.equal(DB.recognise('Gvardiol').player.name, 'Joško Gvardiol');
-  assert.equal(DB.recognise('Vini Jr').player.name, 'Vinícius Júnior');
+  // The game's name wins; the names people know still find the player.
+  assert.equal(DB.recognise('Vini Jr').player.name, 'Vini Jr.');
+  assert.equal(DB.recognise('Vinícius Júnior').player.name, 'Vini Jr.');
+  assert.equal(DB.recognise('Alejandro Balde').player.name, 'Balde');
+  assert.equal(DB.recognise('Alejandro Balde').player.club, 'FC Barcelona');
+  assert.ok(DB.search('alejandro b', 5).some((p) => p.name === 'Balde'));
   assert.equal(DB.recognise('Rodri').player.nat, 'Spanish');
   const both = DB.recognise('Bellingham');
   assert.ok(both.candidates && both.candidates.map((p) => p.name).includes('Jobe Bellingham'));
@@ -731,6 +736,10 @@ test('signing-rule chips and next steps reflect the challenge', () => {
 
 // ---------- Real squads (js/squads.js, from Wikipedia and Wikidata) ----------
 
+// [name, position, date of birth, nationality, loan?, also known as?]
+const goodRow = (p) => p.length === 4 || (p.length === 5 && ['in', 'out'].includes(p[4]))
+  || (p.length === 6 && ['', 'in', 'out'].includes(p[4]) && typeof p[5] === 'string' && p[5].trim() !== '' && p[5] !== p[0]);
+
 test('squad data is well-formed and realistic', () => {
   const S = globalThis.FC26.squads;
   assert.ok(S && S.clubs, 'squads.js not loaded');
@@ -741,7 +750,7 @@ test('squad data is well-formed and realistic', () => {
   Object.entries(S.clubs).forEach(([club, players]) => {
     assert.ok(clubNames.has(club), `unknown club ${club}`);
     players.forEach((p) => {
-      assert.ok(p.length === 4 || (p.length === 5 && ['in', 'out'].includes(p[4])), `${club}: bad row ${JSON.stringify(p)}`);
+      assert.ok(goodRow(p), `${club}: bad row ${JSON.stringify(p)}`);
       assert.ok(p[0].trim(), `${club}: empty name`);
       assert.ok(positions.has(p[1]), `${club}: bad position ${p[1]}`);
       assert.match(p[2], /^(\d{4}-\d{2}-\d{2})?$/, `${club}: bad date of birth ${p[2]}`);
@@ -895,7 +904,7 @@ test('the scout lists young players best first, filtered, skipping your own squa
   assert.equal(all.filter((p) => p.name === 'Rio Ngumoha').length, 1);
   const gk = S.prospects(day, { maxAge: 19, group: 'GK', leagueId: 'rou1' });
   assert.ok(gk.length && gk.every((p) => p.pos === 'GK' && p.leagueId === 'rou1' && p.age <= 19));
-  assert.deepEqual(S.prospects(day, { query: 'yamal', exclude: new Set([globalThis.FC26.playerDB.key('Lamine Yamal')]) }).map((p) => p.name), []);
+  assert.ok(!S.prospects(day, { query: 'yamal', exclude: new Set([globalThis.FC26.playerDB.key('Lamine Yamal')]) }).some((p) => p.name === 'Lamine Yamal'));
   // A season later everyone is a year older.
   const later = S.prospects('2026-07-01', { maxAge: 21, query: 'lamine yamal' });
   assert.equal(later[0].age, 18);
@@ -914,7 +923,7 @@ test('extra-league squads are well-formed, recognised and scouted', () => {
     Object.entries(lg.clubs).forEach(([club, rows]) => {
       assert.ok(club.trim() && !/&nbsp;|\[\[|\{\{/.test(club), `odd club name ${club}`);
       rows.forEach((p) => {
-        assert.ok(p.length === 4 || (p.length === 5 && ['in', 'out'].includes(p[4])), `${club}: bad row ${JSON.stringify(p)}`);
+        assert.ok(goodRow(p), `${club}: bad row ${JSON.stringify(p)}`);
         assert.ok(p[0].trim() && positions.has(p[1]) && /^(\d{4}-\d{2}-\d{2})?$/.test(p[2]), `${club}: bad row ${JSON.stringify(p)}`);
         players += 1;
       });
@@ -934,6 +943,23 @@ test('extra-league squads are well-formed, recognised and scouted', () => {
 });
 
 // ---------- Default starting XI and swap deals ----------
+
+test("squads are the game's: in-game names, renamed clubs, and the right teams", () => {
+  const S = globalThis.FC26.squads;
+  assert.equal(S.source, 'EA SPORTS FC 26 database');
+  assert.equal(S.gameNames.Atalanta, 'Bergamo Calcio');
+  assert.deepEqual(S.notInGame, []);
+  // Roma's men's squad (the Wikipedia article picked up was the women's team).
+  assert.ok(S.clubs.Roma.some((p) => p[0] === 'Paulo Dybala'));
+  // Loans: Rashford plays for Barcelona and is Manchester United's player out on loan.
+  assert.ok(S.clubs['FC Barcelona'].some((p) => p[0] === 'Marcus Rashford' && p[4] === 'in'));
+  assert.ok(S.clubs['Manchester United'].some((p) => p[0] === 'Marcus Rashford' && p[4] === 'out'));
+  // No ratings anywhere in the rows.
+  assert.ok(Object.values(S.clubs).every((rows) => rows.every((p) => p.every((v) => typeof v === 'string'))));
+  const players = Object.values(globalThis.FC26.extraSquads.leagues).reduce((n, lg) => n + Object.values(lg.clubs).reduce((m, r) => m + r.length, 0), 0)
+    + Object.values(S.clubs).reduce((n, r) => n + r.length, 0);
+  assert.ok(players > 28000, `${players} players`);
+});
 
 test('every club has a likely starting XI: eleven players, one keeper, no loanees out', () => {
   const S = globalThis.FC26.squads;

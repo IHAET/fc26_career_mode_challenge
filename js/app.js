@@ -350,6 +350,9 @@
     return `<div class="crest${small ? ' small' : ''}" style="--crest-h:${h}" aria-hidden="true"><span class="crest-text">${esc(initials(club.name))}</span>${icon ? `<span class="crest-icon">${esc(icon)}</span>` : ''}</div>`;
   }
 
+  // What FC 26 calls a club it has no licence for ("Bergamo Calcio" for Atalanta), or ''.
+  const gameName = (club) => ((FC26.squads && FC26.squads.gameNames) || {})[club] || '';
+
   // The club's likely starting XI as FC 26 launched, folded under the facts.
   function xiPreview(club) {
     const pitch = Tracker.defaultXIPitch(club);
@@ -442,6 +445,7 @@
             ${controls ? lockBtn('archetype', L.archetype) : ''}
           </div>
           <h2>${esc(ch.club.name)}</h2>
+          ${gameName(ch.club.name) ? `<p class="game-name muted" title="FC 26 has no licence for this club's name">🎮 Called <strong>${esc(gameName(ch.club.name))}</strong> in FC 26</p>` : ''}
           <p class="tagline">${esc(ch.archetype.tagline)}</p>
         </div>
         <div class="badges">

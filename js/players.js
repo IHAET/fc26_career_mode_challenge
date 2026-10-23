@@ -937,30 +937,34 @@ Aleksei Miranchuk|Russian|CAM
   const byKey = new Map();
   const byToken = new Map(); // single name parts → players, for "Saka" or "Gvardiol"
   function index(p, custom) {
-    [p.name, ...p.aliases].forEach((n) => byKey.set(key(n), p));
-    key(p.name).split(' ').forEach((tok) => {
+    [p.name, ...p.aliases].forEach((n, i) => { if (i === 0 || !byKey.has(key(n))) byKey.set(key(n), p); });
+    key([p.name, ...p.aliases].join(' ')).split(' ').forEach((tok) => {
       if (tok.length < 3) return;
       if (!byToken.has(tok)) byToken.set(tok, []);
-      byToken.get(tok).push(p);
+      if (!byToken.get(tok).includes(p)) byToken.get(tok).push(p);
     });
     if (custom) p.custom = true;
   }
-  // Squad players first (they carry club and date of birth), then the hand-written
-  // list adds aliases such as "Vini Jr" and its in-game position and nationality,
-  // which are more precise than a squad list's ("CAM" rather than "midfielder").
+  // Squad players first (they carry club, date of birth and the game's name, position and
+  // nationality), then the hand-written list adds aliases such as "Vinícius Júnior". For the
+  // few clubs whose squad is a Wikipedia list, its positions are more precise than the list's
+  // ("CAM" rather than "midfielder").
   const normNat = (n) => (FC26.compliance ? FC26.compliance.normNat(n) : n);
   const squadClubs = (FC26.squads && FC26.squads.clubs) || {};
+  const notInGame = new Set((FC26.squads && FC26.squads.notInGame) || []);
+  const extraInGame = new Set((FC26.extraSquads && FC26.extraSquads.inGame) || []);
   const players = [];
   // Squads from leagues outside the challenge club list (squads-extra.js) come after the main ones.
   const extraClubs = {};
   (((FC26.extraSquads && FC26.extraSquads.leagues) || [])).forEach((lg) => Object.assign(extraClubs, lg.clubs));
   // Loanees are listed at both clubs: the one they're playing for wins.
   [squadClubs, extraClubs].forEach((clubs) => {
+    const inGame = (club) => (clubs === squadClubs ? !notInGame.has(club) : extraInGame.has(club));
     [(row) => row[4] !== 'out', (row) => row[4] === 'out'].forEach((pass) => {
       Object.keys(clubs).forEach((club) => {
-        clubs[club].filter(pass).forEach(([name, pos, dob, nat]) => {
+        clubs[club].filter(pass).forEach(([name, pos, dob, nat, , alias]) => {
           if (byKey.has(key(name))) return; // same name at two clubs: keep the first
-          const p = { name, nat: normNat(nat), pos, dob, club, aliases: [] };
+          const p = { name, nat: normNat(nat), pos, dob, club, aliases: alias ? [alias] : [], inGame: inGame(club) };
           players.push(p);
           index(p);
         });
@@ -968,12 +972,15 @@ Aleksei Miranchuk|Russian|CAM
     });
   });
   curated.forEach((p) => {
-    const existing = byKey.get(key(p.name));
+    // The same player under the game's name ("Vini Jr.") or the name people know.
+    const existing = [p.name, ...p.aliases].map((n) => byKey.get(key(n))).find((x) => x && !x.curated);
     if (existing) {
-      existing.nat = p.nat || existing.nat;
-      existing.pos = p.pos || existing.pos;
+      if (!existing.inGame) {
+        existing.nat = p.nat || existing.nat;
+        existing.pos = p.pos || existing.pos;
+      }
       existing.curated = true;
-      p.aliases.forEach((a) => { if (!byKey.has(key(a))) byKey.set(key(a), existing); });
+      [p.name, ...p.aliases].forEach((a) => { if (!byKey.has(key(a))) byKey.set(key(a), existing); });
       return;
     }
     p.curated = true;
@@ -988,9 +995,9 @@ Aleksei Miranchuk|Russian|CAM
     const starts = [];
     const contains = [];
     for (const p of players) {
-      const pk = key(p.name);
-      if (pk.startsWith(k) || pk.split(' ').some((w) => w.startsWith(k))) starts.push(p);
-      else if (pk.includes(k)) contains.push(p);
+      const names = [p.name, ...p.aliases].map(key);
+      if (names.some((pk) => pk.startsWith(k) || pk.split(' ').some((w) => w.startsWith(k)))) starts.push(p);
+      else if (names.some((pk) => pk.includes(k))) contains.push(p);
       if (starts.length >= (limit || 20)) break;
     }
     return starts.concat(contains).slice(0, limit || 20);
@@ -1023,7 +1030,7 @@ Aleksei Miranchuk|Russian|CAM
     if (!tokens.length) return null;
     // Every typed part must belong to the same player's name.
     let pool = byToken.get(tokens[0]) || [];
-    tokens.slice(1).forEach((tok) => { pool = pool.filter((p) => key(p.name).split(' ').includes(tok)); });
+    tokens.slice(1).forEach((tok) => { pool = pool.filter((p) => key([p.name, ...p.aliases].join(' ')).split(' ').includes(tok)); });
     const unique = Array.from(new Set(pool));
     if (unique.length === 1) return { player: unique[0] };
     // "Saka" means Bukayo Saka, not a youth player of the same name: when exactly

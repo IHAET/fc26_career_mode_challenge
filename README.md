@@ -21,8 +21,8 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **Season tracker with automatic rule checks**: every saved challenge has **👥 Squad** and **🔁 Transfers** tabs (**🧳 Career moves** in Player Career). Type in or paste your squad (name, position, age, nationality, OVR, wage, plus starting XI, academy and loan flags), and log signings, sales, loans, academy promotions and 🔄 swap deals (a player out, one back, cash either way) by season and window. Each rule then shows ✅ kept, ❌ broken (with the reason, e.g. "Big Buy cost €40M, the cap is €800K"), ⚠️ more to do or needs data, or ✋ check yourself (formations, simming and other things a squad list can't show). The checker reads the rule sentences themselves, so it also covers heritage rules and rules you write in the editor.
 - **🔁 Transfers section**: its own tab, linked to a challenge you pick. It shows the challenge's signing rules as chips (e.g. "Fee ≤ €800K", "Sales money only: €5M to spend", "Only South American") and a "what to do next" list. **📒 Track it** on any generated or daily challenge saves it and opens its tracker.
 - **🤖 Transfer assistant** (built in, works offline): describe a move in your own words, e.g. *"Signed Florian Wirtz from Leverkusen for €60m in January"* or *"Swapped Vlahović for Osimhen with Galatasaray, we pay €5m"*, and it fills in the transfer. Before you log anything it simulates the move against the challenge's rules and tells you what it would break or complete.
-- **Real squads**: all 432 clubs' squads as FC 26 launched (mid-September 2025, after the summer windows): 14,091 players with positions, ages, nationalities and loans, so players out on loan load as ✈️ loaned out and loanees as 🔁 on loan. They load into the Squad tab with **⬇️ Load real squad**, or automatically when you press 📒 Track it. Ages are worked out for the career's first day (1 July 2025); 87% of first-team players have a date of birth, and youth players without a Wikipedia article have no age. Later squad updates may have moved a few players, so check against your save. OVRs aren't included because they're EA's ratings: add them as you go or paste them in.
-- **🌍 Players from 36 more leagues**: on top of the 432 playable clubs, the player database has 17,981 players from 558 clubs elsewhere (Brazil, Argentina, Liga MX, Germany's 3. Liga, Switzerland, Sweden, Poland, Greece, Czechia, Croatia, Serbia, Ukraine, Japan, Korea, Australia, Egypt, Morocco, the UAE, China, Chile, Colombia, Uruguay, second divisions in Scotland, the Netherlands, Portugal, Belgium, Türkiye, Norway, Sweden and Denmark, and more), about 29,400 real players in all. They're recognised in the transfer form and the assistant ("Signed Neymar from Santos" fills in LW, 33, Brazilian) and appear in the wonderkid scout under "Other leagues". Those clubs aren't playable in the Builder.
+- **Real squads, straight from FC 26**: all 432 clubs' squads exactly as they are in the game at launch, from EA's own FC 26 database: 11,800 players with their in-game names, positions, nationalities and ages, plus loans, so players out on loan load as ✈️ loaned out and loanees as 🔁 on loan. They load into the Squad tab with **⬇️ Load real squad**, or automatically when you press 📒 Track it. Ages are worked out for the career's first day (1 July 2025). Unlicensed clubs show the game's name too ("Called Bergamo Calcio in FC 26"). OVRs aren't included because they're EA's ratings: add them as you go or paste them in.
+- **🌍 Players from 40 more leagues**: on top of the 432 playable clubs, the player database has 17,600 players from 595 clubs elsewhere: every other team in FC 26 (Argentina, Germany's 3. Liga, Switzerland, Sweden, Poland, Korea, Australia, China, India, Ireland, the Copa Libertadores and Sudamericana clubs and more) with the game's squads, plus leagues the game doesn't have (Brazil, Liga MX, Japan, Serbia, Egypt, Morocco, second divisions in Scotland, the Netherlands, Portugal, Belgium, Türkiye, Norway, Sweden and Denmark…) from Wikipedia. About 29,400 real players in all. They're recognised in the transfer form and the assistant ("Signed Neymar from Santos" fills in LW, 33, Brazilian) and appear in the wonderkid scout under "Other leagues". Those clubs aren't playable in the Builder.
 - **🧬 Regens**: signings are matched against every squad player plus a hand-written list of well-known players. A known player's club, age, nationality and position are filled in as you type. Anyone it doesn't recognise is marked as a regen, as are academy promotions. Untick it for a real player it doesn't know and it remembers them.
 - **🎧 Spotify soundtracks (optional)**: make a playlist for a save from your favourite genres plus ones that fit the club, the challenge and your squad.
 - **👤 Accounts (optional)**: sign in with email and password or Google, and your saved challenges, trackers, diaries and confirmed players sync across your devices. Without an account (or before accounts are set up) everything stays on the device as before. See "Accounts and Spotify" below.
@@ -91,24 +91,25 @@ It only uses what Spotify still opens to apps in development mode after its Febr
 
 ## Squad data
 
-`js/squads.js` is generated by `scripts/fetch-squads.js`:
+The squads are the game's own. `js/squads.js` holds every challenge club's squad as it is in EA SPORTS FC 26 at launch, built in two steps:
 
-1. Each club's English Wikipedia article is read as it stood on 15 September 2025, and the players in its first-team and out-on-loan lists are taken (academies and reserve sides left out). Squad lists are facts rather than creative text.
-2. Each player's [Wikidata](https://www.wikidata.org) item (CC0) adds a date of birth and a more precise position. Where Wikidata only says "forward", the app's hand-written list of well-known players supplies the in-game position.
+1. `scripts/fetch-squads.js` reads each club's English Wikipedia article as it stood on 15 September 2025 (first-team and out-on-loan lists; academies and reserve sides left out), adds dates of birth and positions from [Wikidata](https://www.wikidata.org) (CC0), and writes `scripts/wiki-squads.json`. `scripts/fetch-extra-squads.js` does the same for the leagues outside the club list (`scripts/wiki-squads-extra.json`); each league's clubs come from its season article, cached in `scripts/extra-leagues.json`.
+2. `scripts/fetch-ea-squads.js` downloads EA's FC 26 player database (the one behind ea.com's ratings pages, about 16,000 men), matches each club to its team in the game by the players they share, and writes `js/squads.js` and `js/squads-extra.js` with the game's players, names ("Vini Jr.", "Balde"), positions, nationalities and dates of birth. Loans come from the Wikipedia lists, since the database lists a loanee only at the club he plays for. The likely starting XI is the best-rated 4-3-3 in the game's squad.
 
-Club items and Wikipedia titles are cached in `scripts/club-qids.json`, and downloaded pages in `scripts/.wiki-cache/` (not committed). To rebuild:
+Notes:
+
+- Ratings are only used to pick that XI. They're EA's, so they aren't stored: add OVRs as you go or paste them in.
+- Clubs FC 26 has no licence for keep their real name in the app, and the challenge card says what the game calls them (Inter is "Lombardia FC", Atalanta "Bergamo Calcio").
+- The public database is missing a few players at a handful of smaller clubs (Trabzonspor's youth goalkeepers, for example). Where a club has no goalkeeper or fewer than 18 players, its listed players who aren't anywhere in the game's database fill the gap; `filled` in `js/squads.js` says how many, per club.
+- Every player in the database is in the app: teams from leagues outside the club list (Argentina, Switzerland, India, the Copa Libertadores clubs and more) join `js/squads-extra.js`, so they're recognised and scouted.
+
+To rebuild (add `NODE_USE_ENV_PROXY=1` if you're behind a proxy):
 
 ```sh
-node scripts/fetch-squads.js     # add NODE_USE_ENV_PROXY=1 if you're behind a proxy
+node scripts/fetch-squads.js         # optional: only to refresh the Wikipedia lists (scripts/.wiki-cache/, not committed)
+node scripts/fetch-extra-squads.js   # optional, the same for the other leagues
+node scripts/fetch-ea-squads.js      # the game's database (scripts/.ea-cache/, not committed; --fresh to download again)
 npm run build
-```
-
-To move to a later snapshot, change `CUTOFF` in the script and delete `scripts/.wiki-cache/`.
-
-`js/squads-extra.js` (players from leagues outside the club list) comes from `scripts/fetch-extra-squads.js`, using the same snapshot. Each league's clubs are read from its season article on Wikipedia (the links in its teams table that Wikidata says are football clubs from that country), cached in `scripts/extra-leagues.json`, which you can edit by hand; to add a league, add a line to `LEAGUES` in the script.
-
-```sh
-node scripts/fetch-extra-squads.js   # add NODE_USE_ENV_PROXY=1 if you're behind a proxy
 ```
 
 ## Tests
@@ -127,10 +128,11 @@ npm test         # node --test (Node 18+)
 | `js/player.js` | Player Career mode: challenge types, rules, positions, career milestones |
 | `js/share-image.js` | Draws a challenge as a PNG card (canvas, no dependencies) |
 | `js/compliance.js` | Rule checker: reads rule sentences and tests them against the tracked squad, transfers and career moves |
-| `js/squads.js` | Generated: real squads as FC 26 launched (see "Squad data") |
-| `scripts/fetch-squads.js` | Builds `js/squads.js` from Wikipedia squad lists and Wikidata |
-| `js/squads-extra.js` | Generated: squads for 36 more leagues, for recognition and scouting (see "Squad data") |
-| `scripts/fetch-extra-squads.js` | Builds `js/squads-extra.js`; club lists cached in `scripts/extra-leagues.json` |
+| `js/squads.js` | Generated: every club's squad as it is in FC 26 at launch (see "Squad data") |
+| `scripts/fetch-squads.js` | Builds `scripts/wiki-squads.json` from Wikipedia squad lists and Wikidata |
+| `scripts/fetch-ea-squads.js` | Lines the squads up with EA's FC 26 database and writes `js/squads.js` and `js/squads-extra.js` |
+| `js/squads-extra.js` | Generated: squads for 40 more leagues, for recognition and scouting (see "Squad data") |
+| `scripts/fetch-extra-squads.js` | Builds `scripts/wiki-squads-extra.json`; club lists cached in `scripts/extra-leagues.json` |
 | `js/players.js` | Known real players (names, nationalities, positions) for spotting regens |
 | `js/assistant.js` | Transfer assistant: reads transfer sentences, pre-checks moves, signing-rule chips, next steps |
 | `js/tracker-ui.js` | Squad, Transfers and Career moves tabs, including the paste importer |

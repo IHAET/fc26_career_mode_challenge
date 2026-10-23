@@ -41,7 +41,7 @@
       extra.push([club, rows, { tier: lg.strength || 1, level: lg.level || 1, league: lg.name, leagueId: `x:${lg.name}` }]);
     }));
     Object.entries(clubs).map(([club, rows]) => [club, rows, meta.get(club) || {}]).concat(extra).forEach(([club, rows, m]) => {
-      rows.forEach(([name, pos, dob, nat, loan]) => {
+      rows.forEach(([name, pos, dob, nat, loan, alias]) => {
         if (!dob) return; // no age, no way to call them young
         const k = DB.key(name);
         const id = `${k}|${dob}`;
@@ -50,7 +50,7 @@
         if (have && (loan === 'out' || have.loan !== 'out')) return;
         byKey.set(id, {
           key: k, name, pos, dob, nat: C ? C.normNat(nat) : nat, club, loan: loan || '',
-          tier: m.tier || 1, level: m.level || 1, league: m.league || '', leagueId: m.leagueId || '', known: known.has(k),
+          tier: m.tier || 1, level: m.level || 1, league: m.league || '', leagueId: m.leagueId || '', known: known.has(k) || Boolean(alias && known.has(DB.key(alias))),
         });
       });
     });

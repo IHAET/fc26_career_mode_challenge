@@ -167,7 +167,8 @@
     const parts = String(name || '?').trim().split(/\s+/);
     if (parts.length < 2 || parts[parts.length - 1].length <= 2) return parts.join(' ');
     let i = parts.length - 1;
-    while (i > 1 && /^\p{Ll}/u.test(parts[i - 1])) i--; // "ter Stegen", "van Dijk", "de Jong"
+    // "ter Stegen", "van Dijk", "De Ketelaere"
+    while (i > 1 && (/^\p{Ll}/u.test(parts[i - 1]) || /^(de|da|di|do|dos|das|del|della|van|von|der|den|ter|te|le|la|du)$/i.test(parts[i - 1]))) i--;
     return parts.slice(i).join(' ');
   };
 
@@ -938,7 +939,7 @@
   }
 
   /** A club's real squad as tracker players, aged for the given season ([] if unknown). */
-  const SQUAD_SOURCE = 'The squad as FC 26 launched (September 2025): Wikipedia squad lists, with ages and positions from Wikidata. No OVRs.';
+  const SQUAD_SOURCE = "The squad as it is in FC 26 at launch: players, positions, nationalities and ages from EA's own FC 26 database, loans from the clubs' squad lists. No OVRs.";
   const loanedOut = (row) => row[4] === 'out';
 
   /** "28 players + 6 out on loan", with a warning for lists too short to be a full squad. */
@@ -954,10 +955,11 @@
     if (!real || real.filter((row) => !loanedOut(row)).length < (minimum || 1)) return [];
     const day = seasonDay(season);
     const xi = new Set(((FC26.squads && FC26.squads.xi) || {})[club] || []);
+    const fromGame = !((FC26.squads && FC26.squads.notInGame) || []).includes(club);
     return real.map(([name, pos, dob, nat, loan], i) => {
-      // Squad lists often say just "forward"; the hand-written list knows Vinícius is a LW
-      // (same name and nationality, so it's the same player).
-      const known = DB.lookup(name);
+      // The game's positions are the ones to use. A Wikipedia list often says just "forward";
+      // the hand-written list knows Vinícius is a LW (same name and nationality, so the same player).
+      const known = !fromGame && DB.lookup(name);
       const sure = known && known.curated && known.pos && known.nat === C.normNat(nat);
       return {
         id: uid(), name, pos: sure ? known.pos : pos, age: DB.ageOn(dob, day), nat: C.normNat(nat),
