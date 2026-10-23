@@ -958,3 +958,37 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
 .p-flags label:has(input:checked) { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
 .p-flags label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
 @media (max-width: 560px) { .h1-long { display: none; } .brand h1 { font-size: 1.3rem; } }
+
+/* ---------- Wonderkid scout ---------- */
+
+.scout { display: flex; flex-direction: column; gap: 12px; }
+.scout-intro { margin: 0; font-size: 0.9rem; }
+.scout-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.scout-filters select { width: auto; }
+.scout-filters input[type="search"] { flex: 1 1 200px; width: auto; background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.scout-filters .toggle { font-size: 0.88rem; }
+.scout-list, .shortlist { display: flex; flex-direction: column; gap: 6px; }
+.shortlist { padding: 12px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); background: var(--accent-soft); }
+.shortlist h4 { margin: 0 0 4px; font-family: var(--font-display); font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.scout-row {
+  display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: 10px; align-items: center;
+  padding: 10px 12px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line);
+}
+.scout-row.is-known { border-color: color-mix(in srgb, var(--warn) 35%, var(--line)); }
+.sr-main { display: flex; flex-direction: column; min-width: 0; }
+.sr-main strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sr-main small { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sr-fit { font-size: 0.82rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sr-fit.ok { color: var(--accent); }
+.sr-fit.bad { color: var(--danger); }
+.sr-actions { display: flex; gap: 6px; }
+.sr-actions .btn.is-on { border-color: var(--accent); color: var(--accent); }
+.scout-more { align-self: center; }
+.scout-box { margin-top: 18px; border: 1px solid var(--line); border-radius: 14px; padding: 0 14px; }
+.scout-box > summary { cursor: pointer; padding: 12px 0; font-weight: 700; }
+.scout-box[open] { padding-bottom: 14px; }
+@media (max-width: 700px) {
+  .scout-row { grid-template-columns: 1fr; gap: 6px; }
+  .sr-fit { white-space: normal; }
+  .sr-actions .btn { flex: 1; }
+}

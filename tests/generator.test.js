@@ -879,3 +879,24 @@ test('picking the best XI fills a 4-3-3 by OVR and skips loanees', () => {
   const xi2 = T.bestXI(Array.from({ length: 14 }, (_, i) => mk(`x${i}`, i % 2 ? 'CM' : 'CB', '')));
   assert.equal(xi2.size, 11);
 });
+
+// ---------- Wonderkid scout ----------
+
+test('the scout lists young players best first, filtered, skipping your own squad', () => {
+  const S = globalThis.FC26.scout;
+  const day = '2025-07-01';
+  const all = S.prospects(day, { maxAge: 21 });
+  assert.ok(all.length > 1000, `only ${all.length} prospects`);
+  assert.ok(all.every((p) => p.age >= 15 && p.age <= 21));
+  assert.ok(all[0].known, 'hand-picked talents come first');
+  for (let i = 1; i < all.length; i++) assert.ok(all[i - 1].score >= all[i].score);
+  assert.ok(all.some((p) => p.name === 'Lamine Yamal' && p.club === 'FC Barcelona'));
+  // A loanee shows up where he's playing, once.
+  assert.equal(all.filter((p) => p.name === 'Rio Ngumoha').length, 1);
+  const gk = S.prospects(day, { maxAge: 19, group: 'GK', leagueId: 'rou1' });
+  assert.ok(gk.length && gk.every((p) => p.pos === 'GK' && p.leagueId === 'rou1' && p.age <= 19));
+  assert.deepEqual(S.prospects(day, { query: 'yamal', exclude: new Set([globalThis.FC26.playerDB.key('Lamine Yamal')]) }).map((p) => p.name), []);
+  // A season later everyone is a year older.
+  const later = S.prospects('2026-07-01', { maxAge: 21, query: 'lamine yamal' });
+  assert.equal(later[0].age, 18);
+});

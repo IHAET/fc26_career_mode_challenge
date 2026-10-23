@@ -163,11 +163,14 @@
   /**
    * What would this transfer do to the challenge? Compares every rule before
    * and after a simulated move. Rules that were already broken only count if
-   * the move adds a new problem.
+   * the move adds a new problem. Checking many moves against the same
+   * tracker? Pass the same `cache` object each time and the "before" is
+   * worked out once.
    */
-  function precheck(ch, tracker, rec) {
-    const base = C.normalizeTracker(clone(tracker));
-    const before = C.checkChallenge(ch, base);
+  function precheck(ch, tracker, rec, cache) {
+    const c = cache || {};
+    if (!c.before) c.before = C.checkChallenge(ch, C.normalizeTracker(clone(tracker)));
+    const { before } = c;
     const sim = C.applyTransfer(C.normalizeTracker(clone(tracker)), Object.assign({ id: 'preview' }, rec));
     const after = C.checkChallenge(ch, sim);
     const breaks = [];

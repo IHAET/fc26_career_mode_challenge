@@ -970,6 +970,40 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
 .p-flags label:has(input:checked) { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
 .p-flags label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
 @media (max-width: 560px) { .h1-long { display: none; } .brand h1 { font-size: 1.3rem; } }
+
+/* ---------- Wonderkid scout ---------- */
+
+.scout { display: flex; flex-direction: column; gap: 12px; }
+.scout-intro { margin: 0; font-size: 0.9rem; }
+.scout-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.scout-filters select { width: auto; }
+.scout-filters input[type="search"] { flex: 1 1 200px; width: auto; background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.scout-filters .toggle { font-size: 0.88rem; }
+.scout-list, .shortlist { display: flex; flex-direction: column; gap: 6px; }
+.shortlist { padding: 12px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); background: var(--accent-soft); }
+.shortlist h4 { margin: 0 0 4px; font-family: var(--font-display); font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.scout-row {
+  display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: 10px; align-items: center;
+  padding: 10px 12px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line);
+}
+.scout-row.is-known { border-color: color-mix(in srgb, var(--warn) 35%, var(--line)); }
+.sr-main { display: flex; flex-direction: column; min-width: 0; }
+.sr-main strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sr-main small { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sr-fit { font-size: 0.82rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sr-fit.ok { color: var(--accent); }
+.sr-fit.bad { color: var(--danger); }
+.sr-actions { display: flex; gap: 6px; }
+.sr-actions .btn.is-on { border-color: var(--accent); color: var(--accent); }
+.scout-more { align-self: center; }
+.scout-box { margin-top: 18px; border: 1px solid var(--line); border-radius: 14px; padding: 0 14px; }
+.scout-box > summary { cursor: pointer; padding: 12px 0; font-weight: 700; }
+.scout-box[open] { padding-bottom: 14px; }
+@media (max-width: 700px) {
+  .scout-row { grid-template-columns: 1fr; gap: 6px; }
+  .sr-fit { white-space: normal; }
+  .sr-actions .btn { flex: 1; }
+}
 </style>
   <script>
     // Theme before first paint: the saved choice, else the system's.
@@ -6767,11 +6801,14 @@ Aleksei Miranchuk|Russian|CAM
   /**
    * What would this transfer do to the challenge? Compares every rule before
    * and after a simulated move. Rules that were already broken only count if
-   * the move adds a new problem.
+   * the move adds a new problem. Checking many moves against the same
+   * tracker? Pass the same `cache` object each time and the "before" is
+   * worked out once.
    */
-  function precheck(ch, tracker, rec) {
-    const base = C.normalizeTracker(clone(tracker));
-    const before = C.checkChallenge(ch, base);
+  function precheck(ch, tracker, rec, cache) {
+    const c = cache || {};
+    if (!c.before) c.before = C.checkChallenge(ch, C.normalizeTracker(clone(tracker)));
+    const { before } = c;
     const sim = C.applyTransfer(C.normalizeTracker(clone(tracker)), Object.assign({ id: 'preview' }, rec));
     const after = C.checkChallenge(ch, sim);
     const breaks = [];
@@ -6847,6 +6884,92 @@ Aleksei Miranchuk|Russian|CAM
   FC26.assistant = { parseTransfer, precheck, nextSteps, signingRules };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
+  <script>/* js/scout.js */
+/*
+ * Wonderkid scout: young players from every club's real squad (squads.js),
+ * best prospects first. There are no ratings or potentials here (those are
+ * EA's), so prospects are ranked by a few honest signals: a hand-picked list
+ * of widely rated young talents, how young they are, and the level of the
+ * club that has them in its first team.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  // Young players widely rated among the best of their age as FC 26 launched (summer 2025).
+  const KNOWN = [
+    'Lamine Yamal', 'Pau Cubarsí', 'Gavi', 'Marc Bernal', 'Endrick', 'Franco Mastantuono', 'Arda Güler', 'Dean Huijsen',
+    'Kenan Yıldız', 'Warren Zaïre-Emery', 'Désiré Doué', 'Senny Mayulu', 'Ibrahim Mbaye', 'Estêvão', 'Ethan Nwaneri',
+    'Myles Lewis-Skelly', 'Max Dowman', 'Kobbie Mainoo', 'Leny Yoro', 'Chido Obi', 'Alejandro Garnacho', 'Jobe Bellingham',
+    'Rodrigo Mora', 'Geovany Quenda', 'Lennart Karl', 'Aleksandar Pavlović', 'Tom Bischof', 'Paris Brunner', 'Assan Ouédraogo',
+    'Nico Paz', 'Claudio Echeverri', 'Eli Junior Kroupi', 'Ayyoub Bouaddi', 'Mikey Moore', 'Lucas Bergvall', 'Archie Gray',
+    'Rio Ngumoha', 'Trey Nyoni', 'Tyler Dibling', 'Kendry Páez', 'Vitor Roque', 'Mathys Tel', 'Jorrel Hato', 'Kees Smit',
+    'Antonio Nusa', 'Christos Mouzakitis', 'Konstantinos Karetsas', 'Mamadou Sarr', 'Yan Diomande', 'Cavan Sullivan',
+    'Benjamin Cremaschi', 'Julio Enciso', 'Valentín Barco', 'João Neves', 'Samu Aghehowa', 'Savinho', 'Jamie Gittens',
+    'Rico Lewis', 'Adam Wharton', 'Wilson Odobert', 'Cristhian Mosquera', 'Ayman Kari',
+  ];
+
+  const GROUPS = {
+    GK: ['GK'], DEF: ['CB', 'LB', 'RB', 'LWB', 'RWB'], MID: ['CDM', 'CM', 'CAM', 'LM', 'RM'], ATT: ['LW', 'RW', 'ST', 'CF'],
+  };
+
+  let pool = null; // built on first use
+
+  function buildPool() {
+    const DB = FC26.playerDB;
+    const C = FC26.compliance;
+    const clubs = (FC26.squads && FC26.squads.clubs) || {};
+    const meta = new Map(((FC26.generator && FC26.generator.CLUBS) || []).map((c) => [c.name, c]));
+    const known = new Set(KNOWN.map((n) => DB.key(n)));
+    const byKey = new Map();
+    Object.entries(clubs).forEach(([club, rows]) => {
+      const m = meta.get(club) || {};
+      rows.forEach(([name, pos, dob, nat, loan]) => {
+        if (!dob) return; // no age, no way to call them young
+        const k = DB.key(name);
+        const id = `${k}|${dob}`;
+        const have = byKey.get(id);
+        // A loanee is listed at both clubs: scout him where he's playing.
+        if (have && (loan === 'out' || have.loan !== 'out')) return;
+        byKey.set(id, {
+          key: k, name, pos, dob, nat: C ? C.normNat(nat) : nat, club, loan: loan || '',
+          tier: m.tier || 1, level: m.level || 1, league: m.league || '', leagueId: m.leagueId || '', known: known.has(k),
+        });
+      });
+    });
+    return Array.from(byKey.values());
+  }
+
+  /**
+   * Prospects for a day ("YYYY-MM-DD"), best first. Options:
+   *   maxAge (21), group ('GK' | 'DEF' | 'MID' | 'ATT' | ''), leagueId, query (name, club or nationality),
+   *   exclude (Set of name keys, e.g. your squad).
+   * Each: { name, pos, age, nat, club, league, leagueId, known, loan, score }.
+   */
+  function prospects(day, options) {
+    const DB = FC26.playerDB;
+    const o = Object.assign({ maxAge: 21, group: '', leagueId: '', query: '', exclude: new Set() }, options);
+    if (!pool) pool = buildPool();
+    const q = DB.key(o.query || '');
+    const allowed = o.group && GROUPS[o.group];
+    const out = [];
+    pool.forEach((p) => {
+      const age = DB.ageOn(p.dob, day);
+      if (!(age >= 15 && age <= o.maxAge)) return;
+      if (allowed && !allowed.includes(p.pos)) return;
+      if (o.leagueId && p.leagueId !== o.leagueId) return;
+      if (o.exclude.has(p.key)) return;
+      if (q && !DB.key(`${p.name} ${p.club} ${p.nat} ${p.league}`).includes(q)) return;
+      // Hand-picked talents first, then youth, then the level of the club that has him.
+      const score = (p.known ? 100 : 0) + (22 - age) * 3 + p.tier * 8 + (p.level === 1 ? 6 : 0) + (p.loan === 'out' ? -2 : 0);
+      out.push({ name: p.name, pos: p.pos, age, nat: p.nat, club: p.club, league: p.league, leagueId: p.leagueId, known: p.known, loan: p.loan, score });
+    });
+    return out.sort((a, b) => b.score - a.score || a.age - b.age || a.name.localeCompare(b.name));
+  }
+
+  FC26.scout = { prospects, KNOWN, GROUPS };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
   <script>/* js/tracker-ui.js */
 /*
  * Season tracker UI: Squad, Transfers and (Player Career) Career moves, shown
@@ -6910,14 +7033,15 @@ Aleksei Miranchuk|Russian|CAM
             ${tabBtn('challenge', '📋 Challenge')}
             ${isPlayer(entry)
     ? tabBtn('moves', '🧳 Career moves', t.moves.length)
-    : `${tabBtn('squad', '👥 Squad', t.players.filter((p) => !p.loanedOut).length)}${tabBtn('transfers', '🔁 Transfers', t.transfers.length)}`}
+    : `${tabBtn('squad', '👥 Squad', t.players.filter((p) => !p.loanedOut).length)}${tabBtn('transfers', '🔁 Transfers', t.transfers.length)}${tabBtn('scout', '🔭 Scout', (entry.shortlist || []).length || null)}`}
           </div>
         </div>
         <div class="tpanel" data-panel="challenge" ${tab === 'challenge' ? '' : 'hidden'}>${challengeHtml}</div>
         ${isPlayer(entry)
     ? `<div class="tpanel" data-panel="moves" ${tab === 'moves' ? '' : 'hidden'}>${renderMoves(entry, t)}</div>`
     : `<div class="tpanel" data-panel="squad" ${tab === 'squad' ? '' : 'hidden'}>${renderSquad(entry, t)}</div>
-        <div class="tpanel" data-panel="transfers" ${tab === 'transfers' ? '' : 'hidden'}>${renderTransfers(entry, t)}</div>`}
+        <div class="tpanel" data-panel="transfers" ${tab === 'transfers' ? '' : 'hidden'}>${renderTransfers(entry, t)}</div>
+        <div class="tpanel" data-panel="scout" ${tab === 'scout' ? '' : 'hidden'}>${tab === 'scout' ? renderScout(entry, t) : ''}</div>`}
       </div>`;
   }
 
@@ -6932,6 +7056,78 @@ Aleksei Miranchuk|Russian|CAM
     const out = t.players.length - squad.length;
     if (out) bits.push(`${out} out on loan`);
     return bits.join(' · ');
+  }
+
+  // ---------- Wonderkid scout ----------
+
+  const scoutState = {}; // entry id → filters and how many to show
+
+  function scoutFilters(id) {
+    return scoutState[id] || (scoutState[id] = { group: '', maxAge: 21, leagueId: '', query: '', fits: true, shown: 15 });
+  }
+
+  const scoutData = (p) => esc(JSON.stringify({ name: p.name, pos: p.pos, age: p.age, nat: p.nat, club: p.club }));
+
+  function scoutRow(p, fit, shortlisted) {
+    return `
+      <div class="scout-row${p.known ? ' is-known' : ''}">
+        <span class="sr-main">
+          <strong>${p.known ? '<span class="sr-star" title="Widely rated young talent">⭐</span> ' : ''}${esc(p.name)}</strong>
+          <small>${[p.pos, p.age ? `${p.age} yrs` : '', p.nat, p.club ? `${p.club}${p.loan === 'in' ? ' (on loan)' : ''}` : ''].filter(Boolean).map(esc).join(' · ')}</small>
+        </span>
+        ${fit ? `<span class="sr-fit ${fit.ok ? 'ok' : 'bad'}" title="${esc(fit.ok ? 'Signing him breaks none of the rules this tracker can check' : fit.breaks.map((b) => b.text).join(' · '))}">${fit.ok ? '✅ Fits your rules' : `❌ ${esc(fit.breaks[0].text)}`}</span>` : '<span></span>'}
+        <span class="sr-actions">
+          <button type="button" class="btn btn-small${shortlisted ? ' is-on' : ''}" data-action="scout-short" data-p="${scoutData(p)}" aria-pressed="${shortlisted}">${shortlisted ? '🎯 Shortlisted' : '🎯 Shortlist'}</button>
+          <button type="button" class="btn btn-small btn-primary" data-action="scout-sign" data-p="${scoutData(p)}">⬇️ Sign</button>
+        </span>
+      </div>`;
+  }
+
+  function scoutList(entry, t) {
+    const s = scoutFilters(entry.id);
+    const exclude = new Set(t.players.map((p) => DB.key(p.name)));
+    const all = FC26.scout.prospects(seasonDay(t.season), { maxAge: s.maxAge, group: s.group, leagueId: s.leagueId, query: s.query, exclude });
+    const short = new Set((entry.shortlist || []).map((p) => DB.key(p.name)));
+    const cache = {};
+    const rows = [];
+    let looked = 0;
+    for (const p of all) {
+      if (rows.length >= s.shown || looked >= 600) break;
+      looked += 1;
+      const fit = A.precheck(entry.challenge, t, { dir: 'in', type: 'permanent', name: p.name, nat: p.nat, pos: p.pos, age: p.age, fee: '', season: t.season, window: t.window, club: p.club }, cache);
+      if (s.fits && !fit.ok) continue;
+      rows.push(scoutRow(p, fit, short.has(DB.key(p.name))));
+    }
+    if (!rows.length) {
+      return `<p class="muted empty-note">${all.length ? 'Nobody in the first few hundred prospects fits all your rules with these filters. Untick "Only players who fit my rules" or loosen a filter.' : 'No young players match these filters.'}</p>`;
+    }
+    const more = rows.length >= s.shown && looked < all.length;
+    return rows.join('') + (more ? '<button type="button" class="btn btn-small scout-more" data-action="scout-more">Show more</button>' : '');
+  }
+
+  function renderScout(entry, t) {
+    const s = scoutFilters(entry.id);
+    const short = entry.shortlist || [];
+    const leagues = (G.CLUBS || []).reduce((m, c) => (m.some(([id]) => id === c.leagueId) ? m : m.concat([[c.leagueId, c.league]])), []);
+    return `
+      <div class="scout">
+        <p class="scout-intro"><strong>🔭 Wonderkid scout.</strong> <span class="muted">Young players from every club's FC 26 squad, best prospects first (⭐ = widely rated talent), each checked against this challenge's rules. Ratings and potential aren't included, so confirm them with your scouts in the game.</span></p>
+        ${short.length ? `<div class="shortlist"><h4>🎯 Your shortlist</h4>${short.map((p) => scoutRow(p, A.precheck(entry.challenge, t, { dir: 'in', type: 'permanent', name: p.name, nat: p.nat, pos: p.pos, age: p.age, fee: '', season: t.season, window: t.window, club: p.club }), true)).join('')}</div>` : ''}
+        <form class="scout-filters" data-scout-form autocomplete="off">
+          <select name="group" aria-label="Position">${opts([['', 'Any position'], ['GK', 'Goalkeepers'], ['DEF', 'Defenders'], ['MID', 'Midfielders'], ['ATT', 'Attackers']], s.group)}</select>
+          <select name="maxAge" aria-label="Maximum age">${opts([17, 18, 19, 20, 21, 22, 23].map((a) => [a, `Up to ${a}`]), s.maxAge)}</select>
+          <select name="leagueId" aria-label="League">${opts([['', 'Any league']].concat(leagues), s.leagueId)}</select>
+          <input type="search" name="query" value="${esc(s.query)}" placeholder="Name, club or nationality" aria-label="Search prospects" maxlength="40">
+          <label class="toggle"><input type="checkbox" name="fits" ${s.fits ? 'checked' : ''}> Only players who fit my rules</label>
+        </form>
+        <div class="scout-list" data-scout-list>${scoutList(entry, t)}</div>
+      </div>`;
+  }
+
+  function refreshScoutList(item) {
+    const entry = deps.findEntry(item.dataset.id);
+    const list = item.querySelector('[data-scout-list]');
+    if (entry && list) list.innerHTML = scoutList(entry, trackerOf(entry));
   }
 
   // ---------- Starting XI on a pitch ----------
@@ -7343,6 +7539,14 @@ Aleksei Miranchuk|Russian|CAM
 
   let liveTimer = null;
   function onInput(e, item) {
+    if (e.target.closest('[data-scout-form]') && e.target.name === 'query') {
+      const s = scoutFilters(item.dataset.id);
+      s.query = e.target.value.trim();
+      s.shown = 15;
+      clearTimeout(liveTimer);
+      liveTimer = setTimeout(() => refreshScoutList(item), 150);
+      return true;
+    }
     const form = e.target.closest('[data-tform]');
     if (!form) return false;
     if (e.target.name === 'name' && form.dataset.dir === 'in') suggest(e.target.value);
@@ -7373,6 +7577,7 @@ Aleksei Miranchuk|Russian|CAM
     if (panel === 'squad') el.innerHTML = renderSquad(entry, t);
     if (panel === 'transfers') el.innerHTML = renderTransfers(entry, t);
     if (panel === 'moves') el.innerHTML = renderMoves(entry, t);
+    if (panel === 'scout') el.innerHTML = renderScout(entry, t);
   }
 
   function updateCounts(item, entry) {
@@ -7416,6 +7621,8 @@ Aleksei Miranchuk|Russian|CAM
         b.setAttribute('aria-selected', String(on));
       });
       item.querySelectorAll('.tpanel').forEach((p) => { p.hidden = p.dataset.panel !== btn.dataset.tab; });
+      // The scout list is worked out when it's opened, so it always leaves out the current squad.
+      if (btn.dataset.tab === 'scout') rerenderPanel(item, deps.findEntry(id), 'scout');
       return true;
     }
     if (action === 'squad-add') {
@@ -7445,6 +7652,44 @@ Aleksei Miranchuk|Russian|CAM
       const replace = box.querySelector('[data-paste-replace]').checked;
       change(item, (t) => { t.players = (replace ? [] : t.players).concat(players); }, ['squad']);
       deps.toast(`Imported ${players.length} player${players.length === 1 ? '' : 's'}`);
+      return true;
+    }
+    if (action === 'scout-more') {
+      scoutFilters(id).shown += 15;
+      refreshScoutList(item);
+      return true;
+    }
+    if (action === 'scout-short') {
+      const p = JSON.parse(btn.dataset.p);
+      let added = false;
+      deps.mutateEntry(id, (e) => {
+        const list = e.shortlist || [];
+        const at = list.findIndex((x) => DB.key(x.name) === DB.key(p.name));
+        if (at >= 0) list.splice(at, 1);
+        else { list.unshift(Object.assign({ known: FC26.scout.KNOWN.some((n) => DB.key(n) === DB.key(p.name)), addedAt: Date.now() }, p)); added = true; }
+        e.shortlist = list.slice(0, 30);
+      });
+      rerenderPanel(item, deps.findEntry(id), 'scout');
+      const c = item.querySelector('.ttab[data-tab="scout"]');
+      if (c) c.innerHTML = `🔭 Scout${(deps.findEntry(id).shortlist || []).length ? ` <span class="count">${deps.findEntry(id).shortlist.length}</span>` : ''}`;
+      deps.toast(added ? `🎯 ${p.name} added to your shortlist` : `${p.name} taken off your shortlist`);
+      return true;
+    }
+    if (action === 'scout-sign') {
+      const p = JSON.parse(btn.dataset.p);
+      const entry = deps.findEntry(id);
+      const t = trackerOf(entry);
+      const tabBtn = item.querySelector('.ttab[data-tab="transfers"]');
+      if (tabBtn) tabBtn.click();
+      const old = item.querySelector('[data-tform]');
+      if (!old) return true;
+      old.outerHTML = transferForm(entry, t, 'in', { name: p.name, pos: p.pos, age: p.age, nat: p.nat, club: p.club, type: 'permanent' });
+      const form = item.querySelector('[data-tform]');
+      updateRecognition(form, item, true);
+      updatePrecheck(form, item);
+      form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      form.elements.fee.focus({ preventScroll: true });
+      deps.toast(`Fill in the fee for ${p.name}, then log the signing`);
       return true;
     }
     if (action === 'pick-xi') {
@@ -7499,6 +7744,10 @@ Aleksei Miranchuk|Russian|CAM
 
   function onSubmit(e, item) {
     const form = e.target;
+    if (form.matches('[data-scout-form]')) {
+      e.preventDefault();
+      return true;
+    }
     if (form.matches('[data-assist-form]')) {
       e.preventDefault();
       const text = form.querySelector('[data-assist]').value;
@@ -7552,6 +7801,16 @@ Aleksei Miranchuk|Russian|CAM
 
   function onChange(e, item) {
     const el = e.target;
+    if (el.closest('[data-scout-form]')) {
+      const s = scoutFilters(item.dataset.id);
+      if (el.name === 'fits') s.fits = el.checked;
+      else if (el.name === 'maxAge') s.maxAge = Number(el.value) || 21;
+      else if (el.name === 'group' || el.name === 'leagueId') s[el.name] = el.value;
+      else return true;
+      s.shown = 15;
+      refreshScoutList(item);
+      return true;
+    }
     if (el.dataset.tracker) {
       change(item, (t) => {
         if (el.dataset.tracker === 'season') t.season = Number(el.value) || 1;
@@ -7591,7 +7850,11 @@ Aleksei Miranchuk|Russian|CAM
       </div>
       ${isPlayer(entry)
     ? `<div data-panel="moves">${renderMoves(entry, t)}</div>`
-    : `<div data-panel="transfers">${renderTransfers(entry, t)}</div>`}`;
+    : `<div data-panel="transfers">${renderTransfers(entry, t)}</div>
+       <details class="scout-box" data-scout-box ${(entry.shortlist || []).length ? 'open' : ''}>
+         <summary>🔭 Wonderkid suggestions${(entry.shortlist || []).length ? ` · 🎯 ${entry.shortlist.length} shortlisted` : ''}</summary>
+         <div data-panel="scout">${renderScout(entry, t)}</div>
+       </details>`}`;
   }
 
   /** A club's real squad as tracker players, aged for the given season ([] if unknown). */
