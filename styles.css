@@ -218,6 +218,27 @@ body.modal-open { overflow: hidden; }
 .login-card .small { font-size: 0.82rem; }
 .modal.is-busy .login-card { opacity: 0.7; pointer-events: none; }
 
+/* ---------- Spotify soundtrack ---------- */
+
+.soundtrack { margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+.soundtrack p { margin: 0; }
+.sp-row { display: grid; grid-template-columns: 150px 1fr; gap: 8px; align-items: start; }
+.sp-label { font-size: 0.8rem; font-weight: 700; color: var(--muted); padding-top: 4px; }
+@media (max-width: 560px) { .sp-row { grid-template-columns: 1fr; gap: 4px; } }
+.genre-chip { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 99px; padding: 4px 11px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+.genre-chip:hover { border-color: #1ed760; }
+.genre-chip.is-on { background: rgba(30, 215, 96, 0.16); border-color: #1ed760; color: #4ee38a; }
+.genre-chip.is-on::before { content: "✓ "; }
+.sp-add { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.sp-add input { flex: 1 1 200px; width: auto; }
+.sp-size { display: inline-flex; gap: 6px; align-items: center; font-size: 0.85rem; color: var(--muted); }
+.sp-size select { width: auto; padding: 6px 8px; }
+.sp-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.sp-actions a.btn { text-decoration: none; color: var(--text); }
+.btn.btn-spotify { background: #1ed760; color: #04170b; border-color: transparent; }
+.btn.btn-spotify:hover { background: #3be477; }
+.soundtrack .sp-disconnect { margin-left: auto; font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+
 /* ---------- Buttons ---------- */
 
 .btn {

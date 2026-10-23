@@ -805,3 +805,26 @@ test('local writes stamp what changed and remember deletions', () => {
   assert.deepEqual(Acc.fromDoc({ challenges: 'nope', deleted: '[]' }), { entries: [], deleted: [], known: [] });
   assert.deepEqual(Acc.fromDoc(null), { entries: [], deleted: {}, known: [] });
 });
+
+// ---------- Spotify soundtracks ----------
+
+test('soundtrack genres come from the club, the challenge and the tracked squad', () => {
+  const S = globalThis.FC26.spotify;
+  const ch = G.generateChallenge({ club: 'eng1|Arsenal' }, 'SPOT1');
+  assert.equal(ch.club.name, 'Arsenal');
+  const players = [
+    { name: 'A', nat: 'Nigerian' }, { name: 'B', nat: 'Nigerian' }, { name: 'C', nat: 'Brazilian' },
+    { name: 'D', nat: 'Nigerian', loanedOut: true }, { name: 'E', nat: 'Martian' },
+  ];
+  const genres = S.saveGenres({ challenge: ch, tracker: { players } });
+  assert.equal(genres.length, 4);
+  assert.deepEqual([genres[0].genre, genres[2].genre, genres[3].genre], ['britpop', 'afrobeats', 'funk carioca']);
+  assert.match(genres[1].why, new RegExp(`${ch.archetype.name} mood`));
+  assert.match(genres[0].why, /Arsenal play in England/);
+  assert.equal(genres[2].why, '2 Nigerian players in your squad'); // the loanee doesn't count
+  // Heritage saves lean harder on the club's country; nothing breaks without a tracker.
+  const her = G.generateChallenge({ archetype: 'club-heritage', club: 'esp1|Athletic Club' }, 'SPOT2');
+  assert.deepEqual(S.saveGenres({ challenge: her }).map((g) => g.genre), ['flamenco', 'spanish pop', 'folk']);
+  const custom = G.generateChallenge({ customClub: { name: 'Dulwich Hamlet', country: 'Iceland', level: 4, tier: 1 } }, 'SPOT3');
+  assert.ok(S.saveGenres({ challenge: custom }).length >= 1);
+});

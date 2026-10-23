@@ -139,10 +139,13 @@
       clearTimeout(timer);
       try {
         const cloud = fromDoc(await adapter.load(user.uid));
-        const merged = mergeSaves(hooks.read(), cloud);
+        const local = hooks.read();
+        const merged = mergeSaves(local, cloud);
         const doc = toDoc(merged);
         if (doc.challenges.length > MAX_DOC) throw new Error('Your saves are too big to sync (over about 1 MB). Delete a few old challenges and try again.');
-        hooks.write(merged);
+        // Only touch the page when another device changed something.
+        const same = JSON.stringify(merged) === JSON.stringify({ entries: local.entries, deleted: local.deleted || {}, known: local.known || [] });
+        if (!same) hooks.write(merged);
         await adapter.save(user.uid, doc);
         lastSync = Date.now();
         syncError = '';

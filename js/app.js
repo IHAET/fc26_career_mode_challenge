@@ -1,7 +1,7 @@
 /* UI for the FC 26 Career Challenge Builder. */
 (function () {
   'use strict';
-  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker, playerDB: PlayerDB, account: Account, login: Login } = window.FC26;
+  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker, playerDB: PlayerDB, account: Account, login: Login, spotify: Spotify } = window.FC26;
 
   const STORE_KEY = 'fc26-challenges-v1';
   const OPTIONS_KEY = 'fc26-options-v1';
@@ -457,8 +457,10 @@
         <button type="button" class="btn" data-action="share">🔗 Share link</button>
         <button type="button" class="btn" data-action="image" title="Save the challenge as a picture to post">🖼️ Image</button>
         ${mode === 'saved' ? '<button type="button" class="btn" data-action="open-transfers" title="Log transfers for this challenge in the Transfers section">🔁 Transfers</button>' : ''}
+        ${mode === 'saved' ? '<button type="button" class="btn" data-action="soundtrack" title="Make a Spotify playlist for this save">🎧 Soundtrack</button>' : ''}
         ${mode === 'saved' ? '<button type="button" class="btn btn-danger" data-action="delete">🗑️ Delete</button>' : ''}
       </footer>
+      ${mode === 'saved' ? '<section class="soundtrack" data-soundtrack hidden aria-label="Spotify soundtrack"></section>' : ''}
     </article>`;
   }
 
@@ -1161,6 +1163,8 @@
   }
 
   function onSavedClick(e) {
+    const spItem = e.target.closest('[data-sp]') && e.target.closest('.saved-item');
+    if (spItem) { Soundtrack.onClick(e, spItem); return; }
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
     const item = btn.closest('.saved-item');
@@ -1193,6 +1197,8 @@
     } else if (action === 'open-transfers') {
       storageSet(TC_KEY, id);
       showView('transfers');
+    } else if (action === 'soundtrack') {
+      openSoundtrack(item);
     } else if (action === 'delete') {
       if (window.confirm(`Delete "${entry.challenge.title}"?`)) {
         writeSaved(loadSaved().filter((x) => x.id !== id));
@@ -1246,7 +1252,7 @@
     $('#saved-list').addEventListener('change', onSavedChange);
     $('#saved-list').addEventListener('submit', (e) => {
       const item = e.target.closest('.saved-item');
-      if (item) Tracker.onSubmit(e, item);
+      if (item && !Soundtrack.onSubmit(e, item)) Tracker.onSubmit(e, item);
     });
     Tracker.init({ esc, toast, mutateEntry, findEntry, refresh: refreshSavedItem, rememberKnown });
     const known = storageGet(KNOWN_KEY, []);
@@ -1288,10 +1294,39 @@
     });
     $('#saved-count').textContent = loadSaved().length;
     initAccount();
+    initSoundtrack();
     syncDailyDot();
     setInterval(tickDaily, 30000);
     if (window.location.hash === '#daily') showView('daily');
     else loadFromHash();
+  }
+
+  // ---------- Spotify soundtracks ----------
+
+  let Soundtrack = null;
+
+  function openSoundtrack(item, forceOpen) {
+    const box = $('[data-soundtrack]', item);
+    if (!box) return;
+    box.hidden = forceOpen ? false : !box.hidden;
+    if (!box.hidden) {
+      Soundtrack.render(item);
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  function initSoundtrack() {
+    Soundtrack = Spotify.createPanel({ esc, toast, findEntry, mutateEntry });
+    // Back from Spotify's sign-in page: reopen the challenge we came from.
+    Spotify.handleRedirect().then((res) => {
+      if (!res) return;
+      toast(res.ok ? 'Spotify connected 🎧' : res.error);
+      if (!res.entryId || !findEntry(res.entryId)) return;
+      Tracker.setTab(res.entryId, 'challenge');
+      showView('saved', res.entryId);
+      const item = $(`.saved-item[data-id="${CSS.escape(res.entryId)}"]`);
+      if (item) openSoundtrack(item, true);
+    });
   }
 
   // ---------- Accounts ----------
