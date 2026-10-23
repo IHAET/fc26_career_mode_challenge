@@ -8,10 +8,15 @@
  *
  * Behind a proxy, run with NODE_USE_ENV_PROXY=1 (Node 22.21+).
  *
- * How it decides who is "in the squad": a male footballer born 1983 or
- * later with an open-ended (no end date) spell at the club, where that
- * spell is his latest club spell. Wikidata is community-edited, so lower
- * divisions can be incomplete or slightly out of date.
+ * How it decides who is "in the squad", in two passes:
+ *   1. Candidates: male footballers born 1985 or later with a spell at the
+ *      club that has a start date (2015 or later) and no end date.
+ *   2. For each candidate, all their club spells are fetched; they're kept
+ *      only at the club whose open spell started most recently (national
+ *      teams ignored), so players who moved on, or are out on loan, show
+ *      up at their current club only.
+ * Old spells that were never closed on Wikidata are the main source of
+ * noise this guards against. Lower divisions can still be incomplete.
  */
 'use strict';
 const fs = require('node:fs');
@@ -136,22 +141,15 @@ async function resolveClubs() {
 
 // ---------- 2. Fetch squads ----------
 
-function squadQuery(qids) {
-  return `SELECT ?club ?p ?pLabel ?dob ?posLabel ?natLabel WHERE {
+function candidateQuery(qids) {
+  return `SELECT ?club ?p ?pLabel ?dob ?start ?posLabel ?natLabel WHERE {
     VALUES ?club { ${qids.map((q) => `wd:${q}`).join(' ')} }
-    ?p p:P54 ?st. ?st ps:P54 ?club.
+    ?p p:P54 ?st. ?st ps:P54 ?club; pq:P580 ?start.
+    FILTER(?start >= "2015-01-01T00:00:00Z"^^xsd:dateTime)
     FILTER NOT EXISTS { ?st pq:P582 ?end }
     ?st wikibase:rank ?rank. FILTER(?rank != wikibase:DeprecatedRank)
     ?p wdt:P106 wd:Q937857; wdt:P21 wd:Q6581097; wdt:P569 ?dob.
-    FILTER(YEAR(?dob) >= 1983)
-    OPTIONAL { ?st pq:P580 ?start }
-    # Keep only his latest club spell: no other club (not a national team) joined later.
-    FILTER NOT EXISTS {
-      ?p p:P54 ?st2. ?st2 ps:P54 ?club2; pq:P580 ?s2.
-      FILTER(?club2 != ?club)
-      FILTER(?s2 > COALESCE(?start, "2022-01-01T00:00:00Z"^^xsd:dateTime))
-      ?club2 wdt:P31 wd:Q476028.
-    }
+    FILTER(YEAR(?dob) >= 1985)
     OPTIONAL { ?p wdt:P413 ?pos }
     OPTIONAL { ?p wdt:P1532 ?nat1 }
     OPTIONAL { ?p wdt:P27 ?nat2 }
@@ -159,6 +157,19 @@ function squadQuery(qids) {
     SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
   }`;
 }
+
+function spellsQuery(players) {
+  return `SELECT ?p ?team ?teamLabel ?start ?end WHERE {
+    VALUES ?p { ${players.map((q) => `wd:${q}`).join(' ')} }
+    ?p p:P54 ?st. ?st ps:P54 ?team.
+    ?st wikibase:rank ?rank. FILTER(?rank != wikibase:DeprecatedRank)
+    OPTIONAL { ?st pq:P580 ?start }
+    OPTIONAL { ?st pq:P582 ?end }
+    SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+  }`;
+}
+
+const NATIONAL = /national|olympic|\bunder[- ]?\d{2}\b|\bU-?\d{2}\b/i;
 
 function ageOn(dob, day) {
   const [y, m, d] = dob.slice(0, 10).split('-').map(Number);
@@ -174,26 +185,53 @@ function posCode(label) {
 async function fetchSquads(clubs) {
   const byQid = new Map(Object.entries(clubs).map(([name, v]) => [v.qid, name]));
   const qids = Array.from(byQid.keys());
-  const squads = {};
+  // Pass 1: candidates per club.
+  const candidates = new Map(); // player qid → { name, dob, pos, nat, at: Map(clubQid → start) }
   for (let i = 0; i < qids.length; i += 6) {
-    const batch = qids.slice(i, i + 6);
-    const rows = await sparql(squadQuery(batch));
+    const rows = await sparql(candidateQuery(qids.slice(i, i + 6)));
     rows.forEach((r) => {
-      const club = byQid.get(qid(r.club.value));
       const id = qid(r.p.value);
       const name = r.pLabel.value;
-      if (!club || /^Q\d+$/.test(name)) return; // unlabelled items
-      squads[club] = squads[club] || new Map();
-      const prev = squads[club].get(id) || { name, dob: r.dob.value.slice(0, 10), pos: '', nat: '' };
-      if (!prev.pos && r.posLabel) prev.pos = posCode(r.posLabel.value);
+      if (/^Q\d+$/.test(name)) return; // no English label
+      const c = candidates.get(id) || { name, dob: r.dob.value.slice(0, 10), pos: '', nat: '', at: new Map() };
+      c.at.set(qid(r.club.value), r.start.value);
+      if (!c.pos && r.posLabel) c.pos = posCode(r.posLabel.value);
       // The country's name (the app turns it into "Brazilian" etc.); demonyms are unreliable ("Spaniard").
-      if (!prev.nat && r.natLabel && !/^Q\d+$/.test(r.natLabel.value)) prev.nat = r.natLabel.value;
-      squads[club].set(id, prev);
+      if (!c.nat && r.natLabel && !/^Q\d+$/.test(r.natLabel.value)) c.nat = r.natLabel.value;
+      candidates.set(id, c);
     });
-    process.stdout.write(`\rFetched ${Math.min(i + 6, qids.length)}/${qids.length} clubs`);
-    await sleep(700);
+    process.stdout.write(`\rPass 1: ${Math.min(i + 6, qids.length)}/${qids.length} clubs, ${candidates.size} candidates`);
+    await sleep(600);
   }
   console.log('');
+
+  // Pass 2: each candidate's other open spells decide where they play now.
+  const ids = Array.from(candidates.keys());
+  const latestOpen = new Map(); // player → latest start among open, non-national spells
+  for (let i = 0; i < ids.length; i += 150) {
+    const rows = await sparql(spellsQuery(ids.slice(i, i + 150)));
+    rows.forEach((r) => {
+      if (r.end && r.end.value.slice(0, 10) <= SEASON_START) return; // finished before the season
+      if (!r.start || NATIONAL.test(r.teamLabel ? r.teamLabel.value : '')) return;
+      const id = qid(r.p.value);
+      if (!latestOpen.has(id) || r.start.value > latestOpen.get(id)) latestOpen.set(id, r.start.value);
+    });
+    process.stdout.write(`\rPass 2: ${Math.min(i + 150, ids.length)}/${ids.length} players`);
+    await sleep(600);
+  }
+  console.log('');
+
+  const squads = {};
+  candidates.forEach((c, id) => {
+    const latest = latestOpen.get(id);
+    c.at.forEach((start, clubQid) => {
+      if (latest && start < latest) return; // he's moved on (or is on loan) since
+      const club = byQid.get(clubQid);
+      if (!club) return;
+      squads[club] = squads[club] || new Map();
+      squads[club].set(id, { name: c.name, dob: c.dob, pos: c.pos, nat: c.nat });
+    });
+  });
   return squads;
 }
 
@@ -202,7 +240,7 @@ function writeSquads(squads, clubs) {
   let players = 0;
   Object.keys(clubs).sort().forEach((club) => {
     const list = Array.from((squads[club] || new Map()).values())
-      .filter((p) => ageOn(p.dob, SEASON_START) <= 42)
+      .filter((p) => ageOn(p.dob, SEASON_START) <= 40)
       .sort((a, b) => a.name.localeCompare(b.name));
     if (!list.length) return;
     out[club] = list.map((p) => [p.name, p.pos, p.dob, p.nat]);
