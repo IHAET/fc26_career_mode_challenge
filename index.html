@@ -7,6 +7,15 @@
   <meta name="description" content="Generate random EA SPORTS FC 26 Career Mode challenges: clubs, rules, season objectives and random events.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
   <link rel="stylesheet" href="styles.css">
+  <script>
+    // Theme before first paint: the saved choice, else the system's.
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('fc26-theme-v1'); } catch (e) { /* storage off */ }
+      if (t !== 'light' && t !== 'dark') t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
 </head>
 <body>
   <header class="topbar">
@@ -18,11 +27,12 @@
       </div>
     </div>
     <nav class="tabs" role="tablist">
-      <button class="tab is-active" role="tab" data-view="builder" aria-selected="true">Builder</button>
-      <button class="tab" role="tab" data-view="daily" aria-selected="false">Daily <span class="dot" id="daily-dot" title="Today's challenge is waiting" hidden></span></button>
-      <button class="tab" role="tab" data-view="transfers" aria-selected="false">🔁 Transfers</button>
-      <button class="tab" role="tab" data-view="saved" aria-selected="false">My Challenges <span class="count" id="saved-count">0</span></button>
+      <button class="tab is-active" role="tab" data-view="builder" aria-selected="true"><span class="tab-icon" aria-hidden="true">🎲</span><span class="tab-label">Builder</span></button>
+      <button class="tab" role="tab" data-view="daily" aria-selected="false"><span class="tab-icon" aria-hidden="true">📅</span><span class="tab-label">Daily</span> <span class="dot" id="daily-dot" title="Today's challenge is waiting" hidden></span></button>
+      <button class="tab" role="tab" data-view="transfers" aria-selected="false"><span class="tab-icon" aria-hidden="true">🔁</span><span class="tab-label">Transfers</span></button>
+      <button class="tab" role="tab" data-view="saved" aria-selected="false"><span class="tab-icon" aria-hidden="true">📂</span><span class="tab-label"><span class="tab-long">My </span>Challenges</span> <span class="count" id="saved-count">0</span></button>
     </nav>
+    <button type="button" class="theme-btn" id="theme-btn" aria-label="Switch to light theme" title="Switch to light theme">☀️</button>
     <button type="button" class="account-btn" id="account-btn"><span aria-hidden="true">👤</span><span class="account-label">Sign in</span></button>
   </header>
 
@@ -106,6 +116,8 @@
           </div>
         </div>
 
+        <details class="more-options" id="more-options">
+        <summary>More options <small>league, size, length, rules, events, seed</small></summary>
         <div class="field-row" id="club-filters">
           <label class="field">
             <span>League</span>
@@ -144,6 +156,7 @@
           <span>Seed <small>(same seed + options = same challenge)</small></span>
           <input type="text" name="seed" id="opt-seed" placeholder="Leave blank for random" maxlength="32" spellcheck="false">
         </label>
+        </details>
 
         <button type="submit" class="btn btn-primary btn-big">⚽ Generate challenge</button>
         <button type="button" class="btn" id="write-own">✍️ Write your own</button>
@@ -151,10 +164,21 @@
       </form>
 
       <div class="result" id="result" aria-live="polite">
-        <div class="empty panel">
+        <div class="empty panel welcome">
           <div class="empty-ball">⚽</div>
           <h2>Ready when you are, gaffer.</h2>
-          <p>Pick some options (or don't) and generate your first FC 26 career mode challenge.</p>
+          <p>Pick some options (or don't) and generate your first FC 26 career mode challenge, or start from one of these:</p>
+          <div class="presets">
+            <button type="button" class="preset" data-preset="surprise"><span class="preset-icon">🎲</span><strong>Surprise me</strong><small>Any club, any challenge</small></button>
+            <button type="button" class="preset" data-preset="heritage"><span class="preset-icon">🏛️</span><strong>Club Heritage</strong><small>140 clubs' real history</small></button>
+            <button type="button" class="preset" data-preset="glory"><span class="preset-icon">🪜</span><strong>Road to Glory</strong><small>From the bottom to the top</small></button>
+            <button type="button" class="preset" data-preset="player"><span class="preset-icon">⚽</span><strong>Player Career</strong><small>Make your own legend</small></button>
+            <button type="button" class="preset" data-preset="legendary"><span class="preset-icon">💀</span><strong>Legendary</strong><small>The hardest it gets</small></button>
+            <button type="button" class="preset" data-preset="daily"><span class="preset-icon">📅</span><strong>Today's daily</strong><small>Same challenge for everyone</small></button>
+          </div>
+          <ul class="feature-strip">
+            <li>📒 Track your squad &amp; transfers</li><li>🤖 Automatic rule checks</li><li>🔥 Mid-season drama</li><li>🎧 Spotify soundtracks</li>
+          </ul>
         </div>
       </div>
     </section>

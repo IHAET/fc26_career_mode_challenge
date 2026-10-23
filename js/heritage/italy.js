@@ -27,7 +27,7 @@
       tagline: "Sacchi's Milan.",
       history: "Arrigo Sacchi's Milan, led by the Dutch trio of Gullit, van Basten and Rijkaard, pressed high in a 4-4-2 and won back-to-back European Cups in 1989 and 1990.",
       seasons: [3, 5],
-      blockTags: ['formation'],
+      blockTags: ['formation', 'origin'],
       core: (c) => [
         'Play 4-4-2 (Flat) in every match.',
         `Sign ${c.byD([2, 3, 3, 3])} Dutch players and make them regular starters.`,
@@ -198,7 +198,7 @@
       history: "Silvio Berlusconi and Adriano Galliani, the duo behind AC Milan's golden era, bought Monza in 2018 and took them into Serie A in 2022 for the first time in the club's 110-year history.",
       seasons: [3, 6],
       forcePromotion: true,
-      blockTags: ['quota'],
+      blockTags: ['quota', 'origin'],
       core: (c) => [
         `At least ${c.byD([5, 6, 7, 8])} Italian players in every starting XI.`,
         'Sign at least one current or former AC Milan player every season.',

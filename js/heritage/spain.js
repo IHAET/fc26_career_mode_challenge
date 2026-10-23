@@ -205,7 +205,7 @@
       history: "Gerard Piqué's investment group bought FC Andorra in 2018, when the club was playing in Spain's regional leagues. They have since climbed into the second division, most recently winning promotion in 2025.",
       seasons: [2, 5],
       forcePromotion: true,
-      blockTags: ['squad-size'],
+      blockTags: ['squad-size', 'origin'],
       core: (c) => [
         'Sign at least one current or former Barcelona player every season.',
         `Senior squad capped at ${c.byD([25, 24, 23, 22])} players.`,

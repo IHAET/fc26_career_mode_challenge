@@ -28,11 +28,55 @@
   --radius: 14px;
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --topbar: rgba(11, 15, 20, 0.8);
+  --btn-hover: #223044;
+  --primary-hover: #3af0a1;
+  --badge-ink: #0b0f14;
+  --cat-transfers: #7cc4ff;
+  --cat-finance: #ffd166;
+  --cat-squad: #c49bff;
+  --cat-tactics: #ff9b85;
+  --sp-on: #4ee38a;
+  --faint: rgba(255, 255, 255, 0.015);
+}
+
+/* Light theme: same tokens, daylight values (text colours darkened to stay readable on white). */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f3f5f9;
+  --bg-2: #e9edf3;
+  --panel: #ffffff;
+  --panel-2: #f0f3f7;
+  --line: #d5dce6;
+  --text: #121826;
+  --muted: #5a6577;
+  --accent: #0a8a54;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(10, 138, 84, 0.1);
+  --warn: #9a5800;
+  --hot: #c2410c;
+  --danger: #c81e3a;
+  --d1: #0b7ea4;
+  --d2: #0a8a54;
+  --d3: #b45309;
+  --d4: #c81e3a;
+  --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --topbar: rgba(243, 245, 249, 0.86);
+  --btn-hover: #e2e7ee;
+  --primary-hover: #0b9a5e;
+  --badge-ink: #ffffff;
+  --cat-transfers: #1d6fb8;
+  --cat-finance: #9a5800;
+  --cat-squad: #7c3aed;
+  --cat-tactics: #c2410c;
+  --sp-on: #0f7f3d;
+  --faint: rgba(15, 23, 42, 0.02);
 }
 
 * { box-sizing: border-box; }
 
 html { color-scheme: dark; }
+:root[data-theme="light"] body { background: radial-gradient(1200px 600px at 85% -10%, rgba(10, 138, 84, 0.08), transparent 60%), radial-gradient(900px 500px at -10% 10%, rgba(11, 126, 164, 0.06), transparent 60%), var(--bg); }
 
 body {
   margin: 0;
@@ -62,7 +106,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   flex-wrap: wrap;
   padding: 18px clamp(16px, 4vw, 40px);
   border-bottom: 1px solid var(--line);
-  background: rgba(11, 15, 20, 0.8);
+  background: var(--topbar);
   backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
@@ -170,6 +214,45 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
 }
 .custom-club select, .custom-club input[type="text"] { background: var(--panel); }
 
+/* ---------- Theme switch, quick start, more options ---------- */
+
+.theme-btn {
+  order: 4; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg-2);
+  cursor: pointer; font-size: 1.05rem; display: grid; place-items: center;
+}
+.theme-btn:hover { background: var(--panel-2); }
+.topbar .account-btn { margin-left: auto; }
+
+.more-options { border-top: 1px solid var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 14px; }
+.more-options > summary { cursor: pointer; font-weight: 700; font-size: 0.9rem; list-style: none; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.more-options > summary::-webkit-details-marker { display: none; }
+.more-options > summary::before { content: "▸"; color: var(--accent); transition: transform 0.15s ease; display: inline-block; }
+.more-options[open] > summary::before { transform: rotate(90deg); }
+.more-options > summary small { color: var(--muted); font-weight: 500; font-size: 0.78rem; }
+.more-options:not([open]) { padding-bottom: 2px; }
+.more-options > * + * { margin-top: 14px; }
+
+.welcome { text-align: center; }
+.presets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 18px 0 8px; text-align: left; }
+@media (max-width: 1100px) { .presets { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.preset {
+  display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 10px; align-items: center;
+  padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel-2); cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.preset:hover { border-color: var(--accent); transform: translateY(-2px); background: var(--accent-soft); }
+.preset-icon { grid-row: 1 / 3; font-size: 1.6rem; }
+.preset strong { font-size: 0.95rem; }
+.preset small { color: var(--muted); font-size: 0.78rem; }
+.feature-strip { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 16px; color: var(--muted); font-size: 0.85rem; }
+
+/* The club reel shown for a moment while a challenge is drawn. */
+.reel { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 260px; text-align: center; }
+.reel-window { font-size: clamp(1.4rem, 4vw, 2.1rem); font-weight: 800; letter-spacing: -0.01em; height: 1.3em; overflow: hidden; }
+.reel-name { display: block; animation: reel-tick 0.09s linear; }
+.reel small { color: var(--muted); }
+@keyframes reel-tick { from { transform: translateY(-40%); opacity: 0.2; } to { transform: none; opacity: 1; } }
+
 /* ---------- Account button and sign-in screen ---------- */
 
 .account-btn {
@@ -184,10 +267,28 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
 }
 @media (max-width: 560px) {
   .brand { flex: 1 1 0; min-width: 0; }
+  .brand-sub { display: none; }
+  .brand h1 { font-size: 1.05rem; }
+  /* No blur here: it would make the header the frame for the fixed tab bar below. */
+  .topbar { padding-top: 12px; padding-bottom: 12px; backdrop-filter: none; background: var(--bg); }
   .account-btn { order: 1; padding: 6px 10px; }
   .account-btn .account-label { display: none; }
-  .tabs { order: 2; }
+  .theme-btn { order: 2; width: 34px; height: 34px; }
+  /* Tabs become a bar along the bottom of the screen. */
+  .tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; width: 100%;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-radius: 0; border-width: 1px 0 0;
+    padding: 4px 6px calc(4px + env(safe-area-inset-bottom)); background: var(--topbar); backdrop-filter: blur(10px);
+  }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 2px; font-size: 0.7rem; position: relative; }
+  .tab .tab-icon { font-size: 1.25rem; line-height: 1.2; }
+  .tab .tab-long { display: none; }
+  .tab .count, .tab .dot { position: absolute; top: 2px; left: calc(50% + 8px); }
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+  .toast { bottom: calc(80px + env(safe-area-inset-bottom)); }
+  .presets { grid-template-columns: 1fr 1fr; }
 }
+@media (min-width: 561px) { .tab .tab-icon { display: none; } }
 
 body.modal-open { overflow: hidden; }
 .modal {
@@ -236,7 +337,7 @@ body.modal-open { overflow: hidden; }
 @media (max-width: 560px) { .sp-row { grid-template-columns: 1fr; gap: 4px; } }
 .genre-chip { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 99px; padding: 4px 11px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
 .genre-chip:hover { border-color: #1ed760; }
-.genre-chip.is-on { background: rgba(30, 215, 96, 0.16); border-color: #1ed760; color: #4ee38a; }
+.genre-chip.is-on { background: rgba(30, 215, 96, 0.16); border-color: #1ed760; color: var(--sp-on); }
 .genre-chip.is-on::before { content: "✓ "; }
 .sp-add { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .sp-add input { flex: 1 1 200px; width: auto; }
@@ -259,10 +360,10 @@ body.modal-open { overflow: hidden; }
   font-weight: 600;
   transition: transform 0.08s ease, background 0.15s ease;
 }
-.btn:hover { background: #223044; }
+.btn:hover { background: var(--btn-hover); }
 .btn:active { transform: translateY(1px); }
 .btn-primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
-.btn-primary:hover { background: #3af0a1; }
+.btn-primary:hover { background: var(--primary-hover); }
 .btn-danger { color: var(--danger); }
 .btn-big { padding: 14px; font-size: 1.05rem; }
 .btn-small { padding: 6px 10px; font-size: 0.85rem; }
@@ -318,7 +419,7 @@ body.modal-open { overflow: hidden; }
 .badges { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
 .badge-row { display: flex; align-items: center; gap: 4px; }
 .badge { padding: 4px 10px; border-radius: 99px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
-.badge.diff { background: var(--diff); color: #0b0f14; }
+.badge.diff { background: var(--diff); color: var(--badge-ink); }
 .badge.seed { background: var(--panel-2); color: var(--muted); font-family: ui-monospace, monospace; }
 @media (max-width: 560px) {
   .card-head { flex-wrap: wrap; }
@@ -375,10 +476,10 @@ body.modal-open { overflow: hidden; }
   text-align: center;
 }
 .rule.core .rule-tag { color: var(--diff); }
-.cat-transfers { color: #7cc4ff !important; }
-.cat-finance { color: #ffd166 !important; }
-.cat-squad { color: #c49bff !important; }
-.cat-tactics { color: #ff9b85 !important; }
+.cat-transfers { color: var(--cat-transfers) !important; }
+.cat-finance { color: var(--cat-finance) !important; }
+.cat-squad { color: var(--cat-squad) !important; }
+.cat-tactics { color: var(--cat-tactics) !important; }
 @media (max-width: 560px) {
   .rule { flex-wrap: wrap; }
   .rule-text { flex-basis: calc(100% - 90px); }
@@ -465,7 +566,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
   width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
   font-size: 0.72rem; font-weight: 700; color: var(--muted); border: 1px solid var(--line); background: var(--panel);
 }
-.week .day.is-done { background: var(--warn); border-color: var(--warn); color: #0b0f14; }
+.week .day.is-done { background: var(--warn); border-color: var(--warn); color: var(--badge-ink); }
 .week .day.is-today { outline: 2px solid var(--accent); outline-offset: 1px; }
 .footer a { color: var(--accent); }
 
@@ -594,7 +695,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 .verdict ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
 .verdict li { display: flex; flex-direction: column; }
 .verdict li small { color: var(--muted); }
-.regen-badge { display: inline-block; padding: 1px 7px; border-radius: 99px; font-size: 0.72rem; font-weight: 800; background: rgba(196, 155, 255, 0.15); color: #c49bff; border: 1px solid rgba(196, 155, 255, 0.4); vertical-align: middle; }
+.regen-badge { display: inline-block; padding: 1px 7px; border-radius: 99px; font-size: 0.72rem; font-weight: 800; background: rgba(196, 155, 255, 0.15); color: var(--cat-squad); border: 1px solid rgba(196, 155, 255, 0.4); vertical-align: middle; }
 
 /* ---------- Editor ---------- */
 
@@ -625,7 +726,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
 .edit-row .icon-btn { margin-top: 6px; }
 .event-row .obj-icon { margin-top: 9px; color: var(--warn); }
 .event-row textarea { border-color: rgba(255, 201, 77, 0.35); }
-.edit-season { padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.015); display: flex; flex-direction: column; gap: 8px; }
+.edit-season { padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--faint); display: flex; flex-direction: column; gap: 8px; }
 .edit-season-head { display: flex; gap: 8px; align-items: baseline; }
 .edit-inline { display: flex; gap: 8px; flex-wrap: wrap; }
 
@@ -688,6 +789,15 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
   .topbar { position: static; }
 }
 </style>
+  <script>
+    // Theme before first paint: the saved choice, else the system's.
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('fc26-theme-v1'); } catch (e) { /* storage off */ }
+      if (t !== 'light' && t !== 'dark') t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
 </head>
 <body>
   <header class="topbar">
@@ -699,11 +809,12 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       </div>
     </div>
     <nav class="tabs" role="tablist">
-      <button class="tab is-active" role="tab" data-view="builder" aria-selected="true">Builder</button>
-      <button class="tab" role="tab" data-view="daily" aria-selected="false">Daily <span class="dot" id="daily-dot" title="Today's challenge is waiting" hidden></span></button>
-      <button class="tab" role="tab" data-view="transfers" aria-selected="false">🔁 Transfers</button>
-      <button class="tab" role="tab" data-view="saved" aria-selected="false">My Challenges <span class="count" id="saved-count">0</span></button>
+      <button class="tab is-active" role="tab" data-view="builder" aria-selected="true"><span class="tab-icon" aria-hidden="true">🎲</span><span class="tab-label">Builder</span></button>
+      <button class="tab" role="tab" data-view="daily" aria-selected="false"><span class="tab-icon" aria-hidden="true">📅</span><span class="tab-label">Daily</span> <span class="dot" id="daily-dot" title="Today's challenge is waiting" hidden></span></button>
+      <button class="tab" role="tab" data-view="transfers" aria-selected="false"><span class="tab-icon" aria-hidden="true">🔁</span><span class="tab-label">Transfers</span></button>
+      <button class="tab" role="tab" data-view="saved" aria-selected="false"><span class="tab-icon" aria-hidden="true">📂</span><span class="tab-label"><span class="tab-long">My </span>Challenges</span> <span class="count" id="saved-count">0</span></button>
     </nav>
+    <button type="button" class="theme-btn" id="theme-btn" aria-label="Switch to light theme" title="Switch to light theme">☀️</button>
     <button type="button" class="account-btn" id="account-btn"><span aria-hidden="true">👤</span><span class="account-label">Sign in</span></button>
   </header>
 
@@ -787,6 +898,8 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
           </div>
         </div>
 
+        <details class="more-options" id="more-options">
+        <summary>More options <small>league, size, length, rules, events, seed</small></summary>
         <div class="field-row" id="club-filters">
           <label class="field">
             <span>League</span>
@@ -825,6 +938,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
           <span>Seed <small>(same seed + options = same challenge)</small></span>
           <input type="text" name="seed" id="opt-seed" placeholder="Leave blank for random" maxlength="32" spellcheck="false">
         </label>
+        </details>
 
         <button type="submit" class="btn btn-primary btn-big">⚽ Generate challenge</button>
         <button type="button" class="btn" id="write-own">✍️ Write your own</button>
@@ -832,10 +946,21 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       </form>
 
       <div class="result" id="result" aria-live="polite">
-        <div class="empty panel">
+        <div class="empty panel welcome">
           <div class="empty-ball">⚽</div>
           <h2>Ready when you are, gaffer.</h2>
-          <p>Pick some options (or don't) and generate your first FC 26 career mode challenge.</p>
+          <p>Pick some options (or don't) and generate your first FC 26 career mode challenge, or start from one of these:</p>
+          <div class="presets">
+            <button type="button" class="preset" data-preset="surprise"><span class="preset-icon">🎲</span><strong>Surprise me</strong><small>Any club, any challenge</small></button>
+            <button type="button" class="preset" data-preset="heritage"><span class="preset-icon">🏛️</span><strong>Club Heritage</strong><small>140 clubs' real history</small></button>
+            <button type="button" class="preset" data-preset="glory"><span class="preset-icon">🪜</span><strong>Road to Glory</strong><small>From the bottom to the top</small></button>
+            <button type="button" class="preset" data-preset="player"><span class="preset-icon">⚽</span><strong>Player Career</strong><small>Make your own legend</small></button>
+            <button type="button" class="preset" data-preset="legendary"><span class="preset-icon">💀</span><strong>Legendary</strong><small>The hardest it gets</small></button>
+            <button type="button" class="preset" data-preset="daily"><span class="preset-icon">📅</span><strong>Today's daily</strong><small>Same challenge for everyone</small></button>
+          </div>
+          <ul class="feature-strip">
+            <li>📒 Track your squad &amp; transfers</li><li>🤖 Automatic rule checks</li><li>🔥 Mid-season drama</li><li>🎧 Spotify soundtracks</li>
+          </ul>
         </div>
       </div>
     </section>
@@ -1271,7 +1396,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       tagline: 'Wor Jackie, Supermac, Shearer…',
       history: "Newcastle's No.9 shirt is legendary: Jackie Milburn, Malcolm Macdonald and Alan Shearer, the Premier League's all-time top scorer, all wore it. The club's last league title came in 1927.",
       seasons: [4, 7],
-      blockTags: ['quota'],
+      blockTags: ['quota', 'origin'],
       core: (c) => [
         'Your No.9 must be English and your top league scorer every season. If not, sell them and sign a new English No.9.',
         `At least ${c.byD([2, 3, 4, 5])} English players in every starting XI.`,
@@ -1437,6 +1562,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       tagline: 'Four promotions in a row?',
       history: 'After Ryan Reynolds and Rob McElhenney bought the club in 2021, Wrexham became the first club to win three straight promotions from the fifth tier, reaching the Championship in 2025.',
       seasons: [3, 6],
+      blockTags: ['origin'],
       forcePromotion: true,
       core: (c) => [
         'Sign at least one Welsh player every summer.',
@@ -1555,7 +1681,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       history: 'In 1927 Cardiff City beat Arsenal to become the only club from outside England ever to win the FA Cup.',
       seasons: [3, 6],
       forcePromotion: true,
-      blockTags: ['quota'],
+      blockTags: ['quota', 'origin'],
       core: (c) => [
         `At least ${c.byD([2, 3, 4, 5])} Welsh players in every starting XI.`,
         'Sign at least one Welsh player every summer.',
@@ -1672,7 +1798,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       tagline: 'Fan-owned and proud.',
       history: "In 1914 Exeter City, on tour in South America, played the Brazil national team's first ever match. Today the club is owned by its supporters' trust.",
       seasons: [3, 6],
-      blockTags: ['wage'],
+      blockTags: ['wage', 'origin'],
       core: (c) => [
         'Sign at least one Brazilian player every season.',
         `No player may earn more than ${c.wageCap()}/week.`,
@@ -1689,7 +1815,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       history: 'Notts County, founded in 1862, are the oldest professional football club in the world. In 1903 Juventus borrowed their black-and-white striped shirts and still wear them today.',
       seasons: [4, 7],
       forcePromotion: true,
-      blockTags: ['academy-promote'],
+      blockTags: ['academy-promote', 'origin'],
       core: () => [
         'Sign at least one Italian player every season.',
         'Promote at least one academy player every season.',
@@ -1716,7 +1842,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       history: 'Gary Neville, Ryan Giggs, Paul Scholes, Nicky Butt and Phil Neville bought non-league Salford City in 2014, with David Beckham joining later. The club reached the Football League for the first time in 2019.',
       seasons: [5, 8],
       forcePromotion: true,
-      blockTags: ['academy-promote'],
+      blockTags: ['academy-promote', 'origin'],
       core: (c) => [
         'Sign at least one current or former Manchester United player every season (loans count).',
         `Promote at least ${c.byD([1, 2, 2, 3])} academy player(s) every season.`,
@@ -1946,7 +2072,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       history: "Gerard Piqué's investment group bought FC Andorra in 2018, when the club was playing in Spain's regional leagues. They have since climbed into the second division, most recently winning promotion in 2025.",
       seasons: [2, 5],
       forcePromotion: true,
-      blockTags: ['squad-size'],
+      blockTags: ['squad-size', 'origin'],
       core: (c) => [
         'Sign at least one current or former Barcelona player every season.',
         `Senior squad capped at ${c.byD([25, 24, 23, 22])} players.`,
@@ -1988,7 +2114,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       tagline: "Sacchi's Milan.",
       history: "Arrigo Sacchi's Milan, led by the Dutch trio of Gullit, van Basten and Rijkaard, pressed high in a 4-4-2 and won back-to-back European Cups in 1989 and 1990.",
       seasons: [3, 5],
-      blockTags: ['formation'],
+      blockTags: ['formation', 'origin'],
       core: (c) => [
         'Play 4-4-2 (Flat) in every match.',
         `Sign ${c.byD([2, 3, 3, 3])} Dutch players and make them regular starters.`,
@@ -2159,7 +2285,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       history: "Silvio Berlusconi and Adriano Galliani, the duo behind AC Milan's golden era, bought Monza in 2018 and took them into Serie A in 2022 for the first time in the club's 110-year history.",
       seasons: [3, 6],
       forcePromotion: true,
-      blockTags: ['quota'],
+      blockTags: ['quota', 'origin'],
       core: (c) => [
         `At least ${c.byD([5, 6, 7, 8])} Italian players in every starting XI.`,
         'Sign at least one current or former AC Milan player every season.',
@@ -2306,7 +2432,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       tagline: 'Young, fast, for sale.',
       history: 'Founded in 2009 with Red Bull backing, Leipzig rose from the fifth tier to the Bundesliga by 2016, recruiting young players, many of them via Red Bull Salzburg. They won the DFB-Pokal in 2022 and 2023.',
       seasons: [4, 6],
-      blockTags: ['age'],
+      blockTags: ['age', 'origin'],
       core: (c) => [
         `Only sign players aged ${c.byD([23, 22, 21, 21])} or younger.`,
         'Sign at least one player from Red Bull Salzburg every season.',
@@ -2423,7 +2549,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       tagline: 'Seven in a row.',
       history: "Lyon won seven consecutive Ligue 1 titles from 2002 to 2008, driven by Juninho Pernambucano's free kicks and an academy that produced Karim Benzema.",
       seasons: (d) => [[3, 4, 5, 7][d - 1], [3, 4, 5, 7][d - 1] + 1],
-      blockTags: ['academy'],
+      blockTags: ['academy', 'origin'],
       seasonGoal: (c) => `Win ${c.topLeagueRef}.`,
       core: (c) => [
         `At least ${c.byD([2, 3, 4, 5])} academy graduates in every matchday squad.`,
@@ -2907,7 +3033,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       tagline: 'Experience wins titles.',
       history: 'CFR Cluj won their first league title in 2008, more than a century after they were founded, and then won five in a row from 2018 to 2022 with squads built on experienced players.',
       seasons: [5, 6],
-      blockTags: ['avg-age', 'age'],
+      blockTags: ['avg-age', 'age', 'origin'],
       core: () => [
         'Your starting XI must average 28 years old or older.',
         'Sign at least one player aged 30 or over every summer.',
@@ -2972,6 +3098,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       tagline: 'Messi and friends.',
       history: "Co-owned by David Beckham, Inter Miami signed Lionel Messi in 2023 and reunited him with former Barcelona teammates Sergio Busquets, Jordi Alba and Luis Suárez. They won the Leagues Cup in 2023 and the Supporters' Shield in 2024.",
       seasons: [3, 5],
+      blockTags: ['origin'],
       core: (c) => [
         'Every signing aged 30 or over must have played in LaLiga.',
         `At least ${c.byD([2, 3, 3, 4])} players aged 33+ in every starting XI.`,
@@ -2983,7 +3110,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       tagline: 'The first MLS treble.',
       history: "In 2017 Toronto FC won the Supporters' Shield, the Canadian Championship and the MLS Cup, the first domestic treble in MLS history.",
       seasons: [3, 6],
-      blockTags: ['quota'],
+      blockTags: ['quota', 'origin'],
       core: (c) => [
         `At least ${c.byD([2, 3, 4, 5])} Canadian players in every starting XI.`,
         'Sign at least one Canadian player every season.',
@@ -2995,7 +3122,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       tagline: 'An MLS Cup at last?',
       history: "Founded as the NY/NJ MetroStars for MLS's first season in 1996, the Red Bulls have won three Supporters' Shields but never the MLS Cup, losing the 2024 final to LA Galaxy.",
       seasons: [3, 6],
-      blockTags: ['age'],
+      blockTags: ['age', 'origin'],
       core: (c) => [
         `Only sign players aged ${c.byD([25, 24, 23, 23])} or younger.`,
         'Sign at least one player from RB Leipzig or Red Bull Salzburg every season.',
@@ -3045,6 +3172,7 @@ label.objective:has(.obj-check:checked) > span:last-child { text-decoration: lin
       tagline: 'Build around a legend.',
       history: "Cristiano Ronaldo joined Al Nassr in January 2023, kicking off the Saudi league's wave of star signings.",
       seasons: [3, 5],
+      blockTags: ['origin'],
       core: () => [
         'Your oldest outfield player must start every league match when fit.',
         'Every summer, sign at least one 30+ star from a big-five European league.',
@@ -8531,6 +8659,53 @@ Aleksei Miranchuk|Russian|CAM
     };
   }
 
+  // A fresh draw spins a reel of club names for a moment first (skipped for rerolls and reduced motion).
+  let reeling = false;
+  function drawWithReel(seed) {
+    if (reeling) return;
+    const opts = readOptions();
+    if (customClubMissing(opts)) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      generate(seed, false);
+      return;
+    }
+    const names = G.CLUBS.map((c) => c.name);
+    const el = $('#result');
+    el.innerHTML = '<div class="panel reel" aria-hidden="true"><small>Drawing your challenge…</small><div class="reel-window"><span class="reel-name"></span></div><small>🎲</small></div>';
+    if (window.innerWidth < 900) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const slot = $('.reel-window', el);
+    let ticks = 0;
+    reeling = true;
+    const timer = setInterval(() => {
+      slot.innerHTML = `<span class="reel-name">${esc(names[Math.floor(Math.random() * names.length)])}</span>`;
+      if (++ticks >= 8) {
+        clearInterval(timer);
+        reeling = false;
+        generate(seed, false);
+      }
+    }, 80);
+  }
+
+  // Quick-start cards on the empty Builder: set the options, then draw.
+  function applyPreset(name) {
+    if (name === 'daily') {
+      showView('daily');
+      return;
+    }
+    const f = formEl().elements;
+    const setRadio = (field, value) => { const r = $(`input[name="${field}"][value="${value}"]`, formEl()); if (r) r.checked = true; };
+    setRadio('mode', name === 'player' ? 'player' : 'manager');
+    syncMode();
+    setRadio('difficulty', name === 'legendary' ? '4' : 'random');
+    f.archetype.value = { heritage: 'club-heritage', glory: 'road-to-glory' }[name] || 'any';
+    ['club', 'league', 'tier', 'position'].forEach((k) => { f[k].value = 'any'; });
+    f.seasons.value = 'auto';
+    f.ruleCount.value = 'auto';
+    f.seed.value = '';
+    syncClubFilters();
+    drawWithReel(null);
+  }
+
   function generate(seed, useLocks) {
     const opts = readOptions();
     if (customClubMissing(opts)) return;
@@ -9379,6 +9554,11 @@ Aleksei Miranchuk|Russian|CAM
   }
 
   function onBuilderClick(e) {
+    const preset = e.target.closest('[data-preset]');
+    if (preset) {
+      applyPreset(preset.dataset.preset);
+      return;
+    }
     const editBtn = e.target.closest('[data-edit]');
     if (editBtn && state.draft) {
       onEditorClick(editBtn);
@@ -9544,7 +9724,7 @@ Aleksei Miranchuk|Russian|CAM
     $('#options').addEventListener('submit', (e) => {
       e.preventDefault();
       const seed = $('#opt-seed').value.trim();
-      generate(seed || null, false);
+      drawWithReel(seed || null);
       if (window.location.hash) history.replaceState(null, '', window.location.pathname + window.location.search);
     });
     $('#result').addEventListener('click', onBuilderClick);
@@ -9556,12 +9736,40 @@ Aleksei Miranchuk|Russian|CAM
       else loadFromHash();
     });
     $('#saved-count').textContent = loadSaved().length;
+    initTheme();
+    initMoreOptions();
     initAccount();
     initSoundtrack();
     syncDailyDot();
     setInterval(tickDaily, 30000);
     if (window.location.hash === '#daily') showView('daily');
     else loadFromHash();
+  }
+
+  // ---------- Theme and layout ----------
+
+  function initTheme() {
+    const btn = $('#theme-btn');
+    const label = () => {
+      const light = document.documentElement.dataset.theme === 'light';
+      btn.textContent = light ? '🌙' : '☀️';
+      btn.title = light ? 'Switch to dark theme' : 'Switch to light theme';
+      btn.setAttribute('aria-label', btn.title);
+    };
+    label();
+    btn.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem('fc26-theme-v1', next); } catch (e) { /* storage off */ }
+      label();
+    });
+  }
+
+  // "More options" starts open on wide screens, or whenever one of them is in use.
+  function initMoreOptions() {
+    const f = formEl().elements;
+    const inUse = f.league.value !== 'any' || f.tier.value !== 'any' || f.seasons.value !== 'auto' || f.ruleCount.value !== 'auto' || !f.events.checked;
+    $('#more-options').open = window.innerWidth >= 900 || inUse;
   }
 
   // ---------- Spotify soundtracks ----------

@@ -90,7 +90,7 @@
       tagline: 'Wor Jackie, Supermac, Shearer…',
       history: "Newcastle's No.9 shirt is legendary: Jackie Milburn, Malcolm Macdonald and Alan Shearer, the Premier League's all-time top scorer, all wore it. The club's last league title came in 1927.",
       seasons: [4, 7],
-      blockTags: ['quota'],
+      blockTags: ['quota', 'origin'],
       core: (c) => [
         'Your No.9 must be English and your top league scorer every season. If not, sell them and sign a new English No.9.',
         `At least ${c.byD([2, 3, 4, 5])} English players in every starting XI.`,
@@ -256,6 +256,7 @@
       tagline: 'Four promotions in a row?',
       history: 'After Ryan Reynolds and Rob McElhenney bought the club in 2021, Wrexham became the first club to win three straight promotions from the fifth tier, reaching the Championship in 2025.',
       seasons: [3, 6],
+      blockTags: ['origin'],
       forcePromotion: true,
       core: (c) => [
         'Sign at least one Welsh player every summer.',
@@ -374,7 +375,7 @@
       history: 'In 1927 Cardiff City beat Arsenal to become the only club from outside England ever to win the FA Cup.',
       seasons: [3, 6],
       forcePromotion: true,
-      blockTags: ['quota'],
+      blockTags: ['quota', 'origin'],
       core: (c) => [
         `At least ${c.byD([2, 3, 4, 5])} Welsh players in every starting XI.`,
         'Sign at least one Welsh player every summer.',
@@ -491,7 +492,7 @@
       tagline: 'Fan-owned and proud.',
       history: "In 1914 Exeter City, on tour in South America, played the Brazil national team's first ever match. Today the club is owned by its supporters' trust.",
       seasons: [3, 6],
-      blockTags: ['wage'],
+      blockTags: ['wage', 'origin'],
       core: (c) => [
         'Sign at least one Brazilian player every season.',
         `No player may earn more than ${c.wageCap()}/week.`,
@@ -508,7 +509,7 @@
       history: 'Notts County, founded in 1862, are the oldest professional football club in the world. In 1903 Juventus borrowed their black-and-white striped shirts and still wear them today.',
       seasons: [4, 7],
       forcePromotion: true,
-      blockTags: ['academy-promote'],
+      blockTags: ['academy-promote', 'origin'],
       core: () => [
         'Sign at least one Italian player every season.',
         'Promote at least one academy player every season.',
@@ -535,7 +536,7 @@
       history: 'Gary Neville, Ryan Giggs, Paul Scholes, Nicky Butt and Phil Neville bought non-league Salford City in 2014, with David Beckham joining later. The club reached the Football League for the first time in 2019.',
       seasons: [5, 8],
       forcePromotion: true,
-      blockTags: ['academy-promote'],
+      blockTags: ['academy-promote', 'origin'],
       core: (c) => [
         'Sign at least one current or former Manchester United player every season (loans count).',
         `Promote at least ${c.byD([1, 2, 2, 3])} academy player(s) every season.`,

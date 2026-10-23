@@ -134,7 +134,7 @@
       tagline: 'Young, fast, for sale.',
       history: 'Founded in 2009 with Red Bull backing, Leipzig rose from the fifth tier to the Bundesliga by 2016, recruiting young players, many of them via Red Bull Salzburg. They won the DFB-Pokal in 2022 and 2023.',
       seasons: [4, 6],
-      blockTags: ['age'],
+      blockTags: ['age', 'origin'],
       core: (c) => [
         `Only sign players aged ${c.byD([23, 22, 21, 21])} or younger.`,
         'Sign at least one player from Red Bull Salzburg every season.',

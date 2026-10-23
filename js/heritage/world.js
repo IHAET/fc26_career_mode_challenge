@@ -26,6 +26,7 @@
       tagline: 'Messi and friends.',
       history: "Co-owned by David Beckham, Inter Miami signed Lionel Messi in 2023 and reunited him with former Barcelona teammates Sergio Busquets, Jordi Alba and Luis Suárez. They won the Leagues Cup in 2023 and the Supporters' Shield in 2024.",
       seasons: [3, 5],
+      blockTags: ['origin'],
       core: (c) => [
         'Every signing aged 30 or over must have played in LaLiga.',
         `At least ${c.byD([2, 3, 3, 4])} players aged 33+ in every starting XI.`,
@@ -37,7 +38,7 @@
       tagline: 'The first MLS treble.',
       history: "In 2017 Toronto FC won the Supporters' Shield, the Canadian Championship and the MLS Cup, the first domestic treble in MLS history.",
       seasons: [3, 6],
-      blockTags: ['quota'],
+      blockTags: ['quota', 'origin'],
       core: (c) => [
         `At least ${c.byD([2, 3, 4, 5])} Canadian players in every starting XI.`,
         'Sign at least one Canadian player every season.',
@@ -49,7 +50,7 @@
       tagline: 'An MLS Cup at last?',
       history: "Founded as the NY/NJ MetroStars for MLS's first season in 1996, the Red Bulls have won three Supporters' Shields but never the MLS Cup, losing the 2024 final to LA Galaxy.",
       seasons: [3, 6],
-      blockTags: ['age'],
+      blockTags: ['age', 'origin'],
       core: (c) => [
         `Only sign players aged ${c.byD([25, 24, 23, 23])} or younger.`,
         'Sign at least one player from RB Leipzig or Red Bull Salzburg every season.',
@@ -99,6 +100,7 @@
       tagline: 'Build around a legend.',
       history: "Cristiano Ronaldo joined Al Nassr in January 2023, kicking off the Saudi league's wave of star signings.",
       seasons: [3, 5],
+      blockTags: ['origin'],
       core: () => [
         'Your oldest outfield player must start every league match when fit.',
         'Every summer, sign at least one 30+ star from a big-five European league.',

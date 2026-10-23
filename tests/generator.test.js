@@ -264,6 +264,21 @@ test('heritage core rules block the extra rules they overlap with', () => {
   assert.deepEqual(problems, []);
 });
 
+test('heritage rules that demand particular signings never meet an "every signing must be X" rule', () => {
+  const demands = /Sign at least one|Sign \d+ [A-Z]|sign a new [A-Z]|current or former|must have played in|big-five/;
+  for (const [club, h] of Object.entries(heritage)) {
+    const c = G.CLUBS.find((x) => x.name === club);
+    if (!c) continue;
+    for (const s of SEEDS.slice(0, 20)) {
+      const ch = G.generateChallenge({ archetype: 'club-heritage', club: `${c.leagueId}|${club}`, ruleCount: 6 }, s);
+      if (!ch.coreRules.some((r) => demands.test(r.text))) break;
+      const clash = ch.rules.find((r) => r.id === 'nation-only' || r.id === 'region-only');
+      assert.ok(!clash, `${club}: "${ch.coreRules.map((r) => r.text).join(' ')}" with "${clash && clash.text}" (add 'origin' to its blockTags)`);
+    }
+    assert.ok(h.core);
+  }
+});
+
 test('a veterans-only signing rule never appears with a young-XI rule', () => {
   for (const s of SEEDS) {
     const ids = G.generateChallenge({ ruleCount: 8, difficulty: 4 }, s).rules.map((r) => r.id);

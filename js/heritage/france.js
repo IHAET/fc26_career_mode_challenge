@@ -38,7 +38,7 @@
       tagline: 'Seven in a row.',
       history: "Lyon won seven consecutive Ligue 1 titles from 2002 to 2008, driven by Juninho Pernambucano's free kicks and an academy that produced Karim Benzema.",
       seasons: (d) => [[3, 4, 5, 7][d - 1], [3, 4, 5, 7][d - 1] + 1],
-      blockTags: ['academy'],
+      blockTags: ['academy', 'origin'],
       seasonGoal: (c) => `Win ${c.topLeagueRef}.`,
       core: (c) => [
         `At least ${c.byD([2, 3, 4, 5])} academy graduates in every matchday squad.`,

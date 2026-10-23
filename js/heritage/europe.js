@@ -380,7 +380,7 @@
       tagline: 'Experience wins titles.',
       history: 'CFR Cluj won their first league title in 2008, more than a century after they were founded, and then won five in a row from 2018 to 2022 with squads built on experienced players.',
       seasons: [5, 6],
-      blockTags: ['avg-age', 'age'],
+      blockTags: ['avg-age', 'age', 'origin'],
       core: () => [
         'Your starting XI must average 28 years old or older.',
         'Sign at least one player aged 30 or over every summer.',

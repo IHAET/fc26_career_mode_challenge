@@ -268,6 +268,53 @@
     };
   }
 
+  // A fresh draw spins a reel of club names for a moment first (skipped for rerolls and reduced motion).
+  let reeling = false;
+  function drawWithReel(seed) {
+    if (reeling) return;
+    const opts = readOptions();
+    if (customClubMissing(opts)) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      generate(seed, false);
+      return;
+    }
+    const names = G.CLUBS.map((c) => c.name);
+    const el = $('#result');
+    el.innerHTML = '<div class="panel reel" aria-hidden="true"><small>Drawing your challenge…</small><div class="reel-window"><span class="reel-name"></span></div><small>🎲</small></div>';
+    if (window.innerWidth < 900) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const slot = $('.reel-window', el);
+    let ticks = 0;
+    reeling = true;
+    const timer = setInterval(() => {
+      slot.innerHTML = `<span class="reel-name">${esc(names[Math.floor(Math.random() * names.length)])}</span>`;
+      if (++ticks >= 8) {
+        clearInterval(timer);
+        reeling = false;
+        generate(seed, false);
+      }
+    }, 80);
+  }
+
+  // Quick-start cards on the empty Builder: set the options, then draw.
+  function applyPreset(name) {
+    if (name === 'daily') {
+      showView('daily');
+      return;
+    }
+    const f = formEl().elements;
+    const setRadio = (field, value) => { const r = $(`input[name="${field}"][value="${value}"]`, formEl()); if (r) r.checked = true; };
+    setRadio('mode', name === 'player' ? 'player' : 'manager');
+    syncMode();
+    setRadio('difficulty', name === 'legendary' ? '4' : 'random');
+    f.archetype.value = { heritage: 'club-heritage', glory: 'road-to-glory' }[name] || 'any';
+    ['club', 'league', 'tier', 'position'].forEach((k) => { f[k].value = 'any'; });
+    f.seasons.value = 'auto';
+    f.ruleCount.value = 'auto';
+    f.seed.value = '';
+    syncClubFilters();
+    drawWithReel(null);
+  }
+
   function generate(seed, useLocks) {
     const opts = readOptions();
     if (customClubMissing(opts)) return;
@@ -1116,6 +1163,11 @@
   }
 
   function onBuilderClick(e) {
+    const preset = e.target.closest('[data-preset]');
+    if (preset) {
+      applyPreset(preset.dataset.preset);
+      return;
+    }
     const editBtn = e.target.closest('[data-edit]');
     if (editBtn && state.draft) {
       onEditorClick(editBtn);
@@ -1281,7 +1333,7 @@
     $('#options').addEventListener('submit', (e) => {
       e.preventDefault();
       const seed = $('#opt-seed').value.trim();
-      generate(seed || null, false);
+      drawWithReel(seed || null);
       if (window.location.hash) history.replaceState(null, '', window.location.pathname + window.location.search);
     });
     $('#result').addEventListener('click', onBuilderClick);
@@ -1293,12 +1345,40 @@
       else loadFromHash();
     });
     $('#saved-count').textContent = loadSaved().length;
+    initTheme();
+    initMoreOptions();
     initAccount();
     initSoundtrack();
     syncDailyDot();
     setInterval(tickDaily, 30000);
     if (window.location.hash === '#daily') showView('daily');
     else loadFromHash();
+  }
+
+  // ---------- Theme and layout ----------
+
+  function initTheme() {
+    const btn = $('#theme-btn');
+    const label = () => {
+      const light = document.documentElement.dataset.theme === 'light';
+      btn.textContent = light ? '🌙' : '☀️';
+      btn.title = light ? 'Switch to dark theme' : 'Switch to light theme';
+      btn.setAttribute('aria-label', btn.title);
+    };
+    label();
+    btn.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem('fc26-theme-v1', next); } catch (e) { /* storage off */ }
+      label();
+    });
+  }
+
+  // "More options" starts open on wide screens, or whenever one of them is in use.
+  function initMoreOptions() {
+    const f = formEl().elements;
+    const inUse = f.league.value !== 'any' || f.tier.value !== 'any' || f.seasons.value !== 'auto' || f.ruleCount.value !== 'auto' || !f.events.checked;
+    $('#more-options').open = window.innerWidth >= 900 || inUse;
   }
 
   // ---------- Spotify soundtracks ----------
