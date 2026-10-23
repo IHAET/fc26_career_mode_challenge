@@ -900,3 +900,35 @@ test('the scout lists young players best first, filtered, skipping your own squa
   const later = S.prospects('2026-07-01', { maxAge: 21, query: 'lamine yamal' });
   assert.equal(later[0].age, 18);
 });
+
+// ---------- Squads from other leagues (js/squads-extra.js) ----------
+
+test('extra-league squads are well-formed, recognised and scouted', () => {
+  const X = globalThis.FC26.extraSquads;
+  assert.ok(X && Array.isArray(X.leagues) && X.leagues.length >= 25, 'squads-extra.js missing or thin');
+  const positions = new Set(['', ...globalThis.FC26.trackerUI.POSITIONS]);
+  const mainClubs = new Set(G.CLUBS.map((c) => c.name));
+  let players = 0;
+  X.leagues.forEach((lg) => {
+    assert.ok(lg.name && lg.country && [1, 2, 3].includes(lg.level) && [1, 2, 3].includes(lg.strength), JSON.stringify(lg).slice(0, 80));
+    Object.entries(lg.clubs).forEach(([club, rows]) => {
+      assert.ok(club.trim() && !/&nbsp;|\[\[|\{\{/.test(club), `odd club name ${club}`);
+      rows.forEach((p) => {
+        assert.ok(p.length === 4 || (p.length === 5 && ['in', 'out'].includes(p[4])), `${club}: bad row ${JSON.stringify(p)}`);
+        assert.ok(p[0].trim() && positions.has(p[1]) && /^(\d{4}-\d{2}-\d{2})?$/.test(p[2]), `${club}: bad row ${JSON.stringify(p)}`);
+        players += 1;
+      });
+    });
+  });
+  assert.ok(players > 10000, `only ${players} extra players`);
+  // Recognised with their club, and listed in the scout under their league.
+  const flamengo = X.leagues.flatMap((lg) => Object.entries(lg.clubs)).find(([club]) => club === 'Flamengo');
+  assert.ok(flamengo && flamengo[1].length >= 18, 'Flamengo squad');
+  const someone = flamengo[1].find((p) => p[2] && p[4] !== 'out' && !mainClubs.has(p[0]));
+  const hit = DB.recognise(someone[0]);
+  assert.ok(hit && (hit.player || hit.candidates), `${someone[0]} not recognised`);
+  const br = globalThis.FC26.scout.prospects('2025-07-01', { maxAge: 23, leagueId: 'x:Brasileirão Série A' });
+  assert.ok(br.length > 20 && br.every((p) => p.league === 'Brasileirão Série A'));
+  // Main-list players keep their main club.
+  assert.equal(DB.recognise('Lamine Yamal').player.club, 'FC Barcelona');
+});

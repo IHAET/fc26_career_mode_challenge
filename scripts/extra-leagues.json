@@ -1,0 +1,2924 @@
+{
+ "2025–26 3. Liga": [
+  {
+   "name": "Alemannia Aachen",
+   "title": "Alemannia Aachen",
+   "qid": "Q153535"
+  },
+  {
+   "name": "Erzgebirge Aue",
+   "title": "FC Erzgebirge Aue",
+   "qid": "Q141882"
+  },
+  {
+   "name": "Energie Cottbus",
+   "title": "FC Energie Cottbus",
+   "qid": "Q107818"
+  },
+  {
+   "name": "MSV Duisburg",
+   "title": "MSV Duisburg",
+   "qid": "Q154293"
+  },
+  {
+   "name": "Rot-Weiss Essen",
+   "title": "Rot-Weiss Essen",
+   "qid": "Q155218"
+  },
+  {
+   "name": "TSV Havelse",
+   "title": "TSV Havelse",
+   "qid": "Q537301"
+  },
+  {
+   "name": "Hoffenheim II",
+   "title": "TSG 1899 Hoffenheim II",
+   "qid": "Q16637410"
+  },
+  {
+   "name": "FC Ingolstadt",
+   "title": "FC Ingolstadt 04",
+   "qid": "Q170117"
+  },
+  {
+   "name": "Viktoria Köln",
+   "title": "FC Viktoria Köln",
+   "qid": "Q695008"
+  },
+  {
+   "name": "Waldhof Mannheim",
+   "title": "SV Waldhof Mannheim",
+   "qid": "Q170134"
+  },
+  {
+   "name": "1860 Munich",
+   "title": "TSV 1860 Munich",
+   "qid": "Q131603"
+  },
+  {
+   "name": "VfL Osnabrück",
+   "title": "VfL Osnabrück",
+   "qid": "Q160530"
+  },
+  {
+   "name": "Jahn Regensburg",
+   "title": "SSV Jahn Regensburg",
+   "qid": "Q265570"
+  },
+  {
+   "name": "Hansa Rostock",
+   "title": "FC Hansa Rostock",
+   "qid": "Q142005"
+  },
+  {
+   "name": "1. FC Saarbrücken",
+   "title": "1. FC Saarbrücken",
+   "qid": "Q157463"
+  },
+  {
+   "name": "1. FC Schweinfurt",
+   "title": "1. FC Schweinfurt 05",
+   "qid": "Q162394"
+  },
+  {
+   "name": "VfB Stuttgart II",
+   "title": "VfB Stuttgart II",
+   "qid": "Q107421"
+  },
+  {
+   "name": "SSV Ulm",
+   "title": "SSV Ulm 1846",
+   "qid": "Q14551982"
+  },
+  {
+   "name": "SC Verl",
+   "title": "SC Verl",
+   "qid": "Q666010"
+  },
+  {
+   "name": "Wehen Wiesbaden",
+   "title": "SV Wehen Wiesbaden",
+   "qid": "Q310621"
+  }
+ ],
+ "2025–26 Swiss Super League": [
+  {
+   "name": "FC Basel",
+   "title": "FC Basel",
+   "qid": "Q189671"
+  },
+  {
+   "name": "Grasshopper Club Zurich",
+   "title": "Grasshopper Club Zurich",
+   "qid": "Q201360"
+  },
+  {
+   "name": "FC Zürich",
+   "title": "FC Zürich",
+   "qid": "Q206692"
+  },
+  {
+   "name": "FC Lausanne-Sport",
+   "title": "FC Lausanne-Sport",
+   "qid": "Q309456"
+  },
+  {
+   "name": "FC Lugano",
+   "title": "FC Lugano",
+   "qid": "Q633521"
+  },
+  {
+   "name": "FC Luzern",
+   "title": "FC Luzern",
+   "qid": "Q223262"
+  },
+  {
+   "name": "Servette",
+   "title": "Servette FC",
+   "qid": "Q219235"
+  },
+  {
+   "name": "FC Sion",
+   "title": "FC Sion",
+   "qid": "Q321061"
+  },
+  {
+   "name": "FC St. Gallen",
+   "title": "FC St. Gallen",
+   "qid": "Q659212"
+  },
+  {
+   "name": "FC Winterthur",
+   "title": "FC Winterthur",
+   "qid": "Q201969"
+  },
+  {
+   "name": "BSC Young Boys",
+   "title": "BSC Young Boys",
+   "qid": "Q190526"
+  },
+  {
+   "name": "FC Thun",
+   "title": "FC Thun",
+   "qid": "Q464775"
+  }
+ ],
+ "2025 Allsvenskan": [
+  {
+   "name": "AIK Fotboll",
+   "title": "AIK Fotboll",
+   "qid": "Q221602"
+  },
+  {
+   "name": "BK Häcken",
+   "title": "BK Häcken",
+   "qid": "Q639723"
+  },
+  {
+   "name": "Degerfors IF",
+   "title": "Degerfors IF",
+   "qid": "Q1140767"
+  },
+  {
+   "name": "Djurgårdens IF",
+   "title": "Djurgårdens IF Fotboll",
+   "qid": "Q622430"
+  },
+  {
+   "name": "GAIS",
+   "title": "GAIS",
+   "qid": "Q391789"
+  },
+  {
+   "name": "Halmstads BK",
+   "title": "Halmstads BK",
+   "qid": "Q584858"
+  },
+  {
+   "name": "Hammarby",
+   "title": "Hammarby Fotboll",
+   "qid": "Q460724"
+  },
+  {
+   "name": "IF Brommapojkarna",
+   "title": "IF Brommapojkarna",
+   "qid": "Q754339"
+  },
+  {
+   "name": "IF Elfsborg",
+   "title": "IF Elfsborg",
+   "qid": "Q211753"
+  },
+  {
+   "name": "IFK Göteborg",
+   "title": "IFK Göteborg",
+   "qid": "Q201567"
+  },
+  {
+   "name": "IFK Norrköping",
+   "title": "IFK Norrköping",
+   "qid": "Q329607"
+  },
+  {
+   "name": "IFK Värnamo",
+   "title": "IFK Värnamo",
+   "qid": "Q538793"
+  },
+  {
+   "name": "IK Sirius",
+   "title": "IK Sirius Fotboll",
+   "qid": "Q1471336"
+  },
+  {
+   "name": "Malmö FF",
+   "title": "Malmö FF",
+   "qid": "Q204881"
+  },
+  {
+   "name": "Mjällby AIF",
+   "title": "Mjällby AIF",
+   "qid": "Q749138"
+  },
+  {
+   "name": "Östers IF",
+   "title": "Östers IF",
+   "qid": "Q306787"
+  }
+ ],
+ "2025–26 Ekstraklasa": [
+  {
+   "name": "Arka Gdynia",
+   "title": "Arka Gdynia",
+   "qid": "Q666969"
+  },
+  {
+   "name": "Bruk-Bet Termalica Nieciecza",
+   "title": "Bruk-Bet Termalica Nieciecza",
+   "qid": "Q1198808"
+  },
+  {
+   "name": "Cracovia",
+   "title": "KS Cracovia",
+   "qid": "Q24074158"
+  },
+  {
+   "name": "GKS Katowice",
+   "title": "GKS Katowice",
+   "qid": "Q925935"
+  },
+  {
+   "name": "Górnik Zabrze",
+   "title": "Górnik Zabrze",
+   "qid": "Q134255"
+  },
+  {
+   "name": "Jagiellonia Białystok",
+   "title": "Jagiellonia Białystok",
+   "qid": "Q189170"
+  },
+  {
+   "name": "Korona Kielce",
+   "title": "Korona Kielce",
+   "qid": "Q730219"
+  },
+  {
+   "name": "Lech Poznań",
+   "title": "Lech Poznań",
+   "qid": "Q52942"
+  },
+  {
+   "name": "Lechia Gdańsk",
+   "title": "Lechia Gdańsk",
+   "qid": "Q734785"
+  },
+  {
+   "name": "Legia Warsaw",
+   "title": "Legia Warsaw",
+   "qid": "Q193749"
+  },
+  {
+   "name": "Motor Lublin",
+   "title": "Motor Lublin",
+   "qid": "Q727918"
+  },
+  {
+   "name": "Piast Gliwice",
+   "title": "Piast Gliwice",
+   "qid": "Q668112"
+  },
+  {
+   "name": "Pogoń Szczecin",
+   "title": "Pogoń Szczecin",
+   "qid": "Q836991"
+  },
+  {
+   "name": "Radomiak Radom",
+   "title": "Radomiak Radom",
+   "qid": "Q2000763"
+  },
+  {
+   "name": "Raków Częstochowa",
+   "title": "Raków Częstochowa",
+   "qid": "Q287236"
+  },
+  {
+   "name": "Widzew Łódź",
+   "title": "Widzew Łódź",
+   "qid": "Q244981"
+  },
+  {
+   "name": "Wisła Płock",
+   "title": "Wisła Płock",
+   "qid": "Q1475269"
+  },
+  {
+   "name": "Zagłębie Lubin",
+   "title": "Zagłębie Lubin",
+   "qid": "Q140497"
+  }
+ ],
+ "2025 Argentine Primera División": [
+  {
+   "name": "Aldosivi",
+   "title": "Club Atlético Aldosivi",
+   "qid": "Q971490"
+  },
+  {
+   "name": "Argentinos Juniors",
+   "title": "Argentinos Juniors",
+   "qid": "Q220621"
+  },
+  {
+   "name": "Atlético Tucumán",
+   "title": "Atlético Tucumán",
+   "qid": "Q757470"
+  },
+  {
+   "name": "Banfield",
+   "title": "Club Atlético Banfield",
+   "qid": "Q692646"
+  },
+  {
+   "name": "Barracas Central",
+   "title": "Barracas Central",
+   "qid": "Q2469894"
+  },
+  {
+   "name": "Belgrano",
+   "title": "Club Atlético Belgrano",
+   "qid": "Q59962"
+  },
+  {
+   "name": "Boca Juniors",
+   "title": "Boca Juniors",
+   "qid": "Q170703"
+  },
+  {
+   "name": "Central Córdoba (SdE)",
+   "title": "Central Córdoba de Santiago del Estero",
+   "qid": "Q5060684"
+  },
+  {
+   "name": "Defensa y Justicia",
+   "title": "Defensa y Justicia",
+   "qid": "Q1024338"
+  },
+  {
+   "name": "Deportivo Riestra",
+   "title": "Deportivo Riestra",
+   "qid": "Q4382304"
+  },
+  {
+   "name": "Estudiantes (LP)",
+   "title": "Estudiantes de La Plata",
+   "qid": "Q214940"
+  },
+  {
+   "name": "Gimnasia y Esgrima (LP)",
+   "title": "Club de Gimnasia y Esgrima La Plata",
+   "qid": "Q18640"
+  },
+  {
+   "name": "Godoy Cruz",
+   "title": "Godoy Cruz Antonio Tomba",
+   "qid": "Q80882"
+  },
+  {
+   "name": "Huracán",
+   "title": "Club Atlético Huracán",
+   "qid": "Q327172"
+  },
+  {
+   "name": "Independiente",
+   "title": "Club Atlético Independiente",
+   "qid": "Q214978"
+  },
+  {
+   "name": "Independiente Rivadavia",
+   "title": "Independiente Rivadavia",
+   "qid": "Q2454482"
+  },
+  {
+   "name": "Instituto",
+   "title": "Instituto Atlético Central Córdoba",
+   "qid": "Q1421829"
+  },
+  {
+   "name": "Lanús",
+   "title": "Club Atlético Lanús",
+   "qid": "Q324589"
+  },
+  {
+   "name": "Newell's Old Boys",
+   "title": "Newell's Old Boys",
+   "qid": "Q221882"
+  },
+  {
+   "name": "Platense",
+   "title": "Club Atlético Platense",
+   "qid": "Q151907"
+  },
+  {
+   "name": "Racing",
+   "title": "Racing Club de Avellaneda",
+   "qid": "Q276533"
+  },
+  {
+   "name": "River Plate",
+   "title": "Club Atlético River Plate",
+   "qid": "Q15799"
+  },
+  {
+   "name": "Rosario Central",
+   "title": "Rosario Central",
+   "qid": "Q318307"
+  },
+  {
+   "name": "San Lorenzo",
+   "title": "San Lorenzo de Almagro",
+   "qid": "Q218282"
+  },
+  {
+   "name": "San Martín (SJ)",
+   "title": "San Martín de San Juan",
+   "qid": "Q80921"
+  },
+  {
+   "name": "Sarmiento (J)",
+   "title": "Club Atlético Sarmiento",
+   "qid": "Q519966"
+  },
+  {
+   "name": "Talleres (C)",
+   "title": "Talleres de Córdoba",
+   "qid": "Q1022939"
+  },
+  {
+   "name": "Tigre",
+   "title": "Club Atlético Tigre",
+   "qid": "Q80886"
+  },
+  {
+   "name": "Unión",
+   "title": "Unión de Santa Fe",
+   "qid": "Q80899"
+  },
+  {
+   "name": "Vélez Sarsfield",
+   "title": "Club Atlético Vélez Sarsfield",
+   "qid": "Q215163"
+  }
+ ],
+ "2025 Campeonato Brasileiro Série A": [
+  {
+   "name": "Corinthians",
+   "title": "Sport Club Corinthians Paulista",
+   "qid": "Q35933"
+  },
+  {
+   "name": "Mirassol",
+   "title": "Mirassol Futebol Clube",
+   "qid": "Q2622870"
+  },
+  {
+   "name": "Palmeiras",
+   "title": "SE Palmeiras",
+   "qid": "Q80964"
+  },
+  {
+   "name": "Red Bull Bragantino",
+   "title": "Red Bull Bragantino",
+   "qid": "Q541744"
+  },
+  {
+   "name": "Santos",
+   "title": "Santos FC",
+   "qid": "Q80955"
+  },
+  {
+   "name": "São Paulo",
+   "title": "São Paulo FC",
+   "qid": "Q38568"
+  },
+  {
+   "name": "Botafogo",
+   "title": "Botafogo de Futebol e Regatas",
+   "qid": "Q80958"
+  },
+  {
+   "name": "Flamengo",
+   "title": "CR Flamengo",
+   "qid": "Q17479"
+  },
+  {
+   "name": "Fluminense",
+   "title": "Fluminense FC",
+   "qid": "Q80987"
+  },
+  {
+   "name": "Vasco da Gama",
+   "title": "CR Vasco da Gama",
+   "qid": "Q5014111"
+  },
+  {
+   "name": "Grêmio",
+   "title": "Grêmio FBPA",
+   "qid": "Q221695"
+  },
+  {
+   "name": "Internacional",
+   "title": "SC Internacional",
+   "qid": "Q80845"
+  },
+  {
+   "name": "Juventude",
+   "title": "Esporte Clube Juventude",
+   "qid": "Q910453"
+  },
+  {
+   "name": "Bahia",
+   "title": "Esporte Clube Bahia",
+   "qid": "Q198032"
+  },
+  {
+   "name": "Vitória",
+   "title": "Esporte Clube Vitória",
+   "qid": "Q274465"
+  },
+  {
+   "name": "Ceará",
+   "title": "Ceará Sporting Club",
+   "qid": "Q1052219"
+  },
+  {
+   "name": "Fortaleza",
+   "title": "Fortaleza Esporte Clube",
+   "qid": "Q188841"
+  },
+  {
+   "name": "Atlético Mineiro",
+   "title": "Clube Atlético Mineiro",
+   "qid": "Q270995"
+  },
+  {
+   "name": "Cruzeiro",
+   "title": "Cruzeiro Esporte Clube",
+   "qid": "Q188277"
+  },
+  {
+   "name": "Sport",
+   "title": "Sport Club do Recife",
+   "qid": "Q219098"
+  }
+ ],
+ "2025–26 Liga MX season": [
+  {
+   "name": "América",
+   "title": "Club América",
+   "qid": "Q459090"
+  },
+  {
+   "name": "Atlas",
+   "title": "Atlas F.C.",
+   "qid": "Q1023532"
+  },
+  {
+   "name": "Atlético San Luis",
+   "title": "Atlético San Luis",
+   "qid": "Q13408349"
+  },
+  {
+   "name": "Cruz Azul",
+   "title": "Cruz Azul",
+   "qid": "Q845859"
+  },
+  {
+   "name": "Guadalajara",
+   "title": "C.D. Guadalajara",
+   "qid": "Q503321"
+  },
+  {
+   "name": "Juárez",
+   "title": "FC Juárez",
+   "qid": "Q20051399"
+  },
+  {
+   "name": "Club León",
+   "title": "Club León",
+   "qid": "Q633223"
+  },
+  {
+   "name": "Mazatlán",
+   "title": "Mazatlán Futbol Club",
+   "qid": "Q96045907"
+  },
+  {
+   "name": "Monterrey",
+   "title": "C.F. Monterrey",
+   "qid": "Q768253"
+  },
+  {
+   "name": "Necaxa",
+   "title": "Club Necaxa",
+   "qid": "Q1280895"
+  },
+  {
+   "name": "Pachuca",
+   "title": "C.F. Pachuca",
+   "qid": "Q736937"
+  },
+  {
+   "name": "Puebla",
+   "title": "Club Puebla",
+   "qid": "Q646596"
+  },
+  {
+   "name": "Querétaro",
+   "title": "Querétaro F.C.",
+   "qid": "Q606210"
+  },
+  {
+   "name": "Santos Laguna",
+   "title": "Santos Laguna",
+   "qid": "Q745246"
+  },
+  {
+   "name": "Tijuana",
+   "title": "Club Tijuana",
+   "qid": "Q1103168"
+  },
+  {
+   "name": "Toluca",
+   "title": "Deportivo Toluca F.C.",
+   "qid": "Q670186"
+  },
+  {
+   "name": "Tigres UANL",
+   "title": "Tigres UANL",
+   "qid": "Q849823"
+  },
+  {
+   "name": "Club Universidad Nacional",
+   "title": "Club Universidad Nacional",
+   "qid": "Q1143000"
+  }
+ ],
+ "2025 K League 1": [
+  {
+   "name": "Daegu",
+   "title": "Daegu FC",
+   "qid": "Q483044"
+  },
+  {
+   "name": "Daejeon Hana Citizen",
+   "title": "Daejeon Hana Citizen",
+   "qid": "Q484584"
+  },
+  {
+   "name": "FC Anyang",
+   "title": "FC Anyang",
+   "qid": "Q1833814"
+  },
+  {
+   "name": "Gangwon",
+   "title": "Gangwon FC",
+   "qid": "Q484569"
+  },
+  {
+   "name": "Gimcheon Sangmu",
+   "title": "Gimcheon Sangmu FC",
+   "qid": "Q104099625"
+  },
+  {
+   "name": "Gwangju",
+   "title": "Gwangju FC",
+   "qid": "Q168364"
+  },
+  {
+   "name": "Jeju SK",
+   "title": "Jeju SK FC",
+   "qid": "Q482617"
+  },
+  {
+   "name": "Jeonbuk Hyundai Motors",
+   "title": "Jeonbuk Hyundai Motors",
+   "qid": "Q483152"
+  },
+  {
+   "name": "Pohang Steelers",
+   "title": "Pohang Steelers",
+   "qid": "Q169985"
+  },
+  {
+   "name": "FC Seoul",
+   "title": "FC Seoul",
+   "qid": "Q482406"
+  },
+  {
+   "name": "Suwon FC",
+   "title": "Suwon FC",
+   "qid": "Q3455793"
+  },
+  {
+   "name": "Ulsan HD",
+   "title": "Ulsan HD FC",
+   "qid": "Q129673"
+  }
+ ],
+ "2025 J1 League": [
+  {
+   "name": "Kashima Antlers",
+   "title": "Kashima Antlers",
+   "qid": "Q16932"
+  },
+  {
+   "name": "Urawa Red Diamonds",
+   "title": "Urawa Red Diamonds",
+   "qid": "Q218883"
+  },
+  {
+   "name": "Kashiwa Reysol",
+   "title": "Kashiwa Reysol",
+   "qid": "Q844931"
+  },
+  {
+   "name": "FC Tokyo",
+   "title": "FC Tokyo",
+   "qid": "Q856619"
+  },
+  {
+   "name": "Tokyo Verdy",
+   "title": "Tokyo Verdy",
+   "qid": "Q620499"
+  },
+  {
+   "name": "Machida Zelvia",
+   "title": "FC Machida Zelvia",
+   "qid": "Q1366905"
+  },
+  {
+   "name": "Kawasaki Frontale",
+   "title": "Kawasaki Frontale",
+   "qid": "Q874016"
+  },
+  {
+   "name": "Yokohama F. Marinos",
+   "title": "Yokohama F. Marinos",
+   "qid": "Q854932"
+  },
+  {
+   "name": "Yokohama FC",
+   "title": "Yokohama FC",
+   "qid": "Q1062259"
+  },
+  {
+   "name": "Shonan Bellmare",
+   "title": "Shonan Bellmare",
+   "qid": "Q692856"
+  },
+  {
+   "name": "Albirex Niigata",
+   "title": "Albirex Niigata",
+   "qid": "Q383358"
+  },
+  {
+   "name": "Shimizu S-Pulse",
+   "title": "Shimizu S-Pulse",
+   "qid": "Q823384"
+  },
+  {
+   "name": "Nagoya Grampus",
+   "title": "Nagoya Grampus",
+   "qid": "Q249662"
+  },
+  {
+   "name": "Kyoto Sanga",
+   "title": "Kyoto Sanga FC",
+   "qid": "Q1047535"
+  },
+  {
+   "name": "Gamba Osaka",
+   "title": "Gamba Osaka",
+   "qid": "Q738423"
+  },
+  {
+   "name": "Cerezo Osaka",
+   "title": "Cerezo Osaka",
+   "qid": "Q855809"
+  },
+  {
+   "name": "Vissel Kobe",
+   "title": "Vissel Kobe",
+   "qid": "Q844271"
+  },
+  {
+   "name": "Fagiano Okayama",
+   "title": "Fagiano Okayama",
+   "qid": "Q595489"
+  },
+  {
+   "name": "Sanfrecce Hiroshima",
+   "title": "Sanfrecce Hiroshima",
+   "qid": "Q630279"
+  },
+  {
+   "name": "Avispa Fukuoka",
+   "title": "Avispa Fukuoka",
+   "qid": "Q791164"
+  }
+ ],
+ "2025–26 A-League Men": [
+  {
+   "name": "Adelaide United",
+   "title": "Adelaide United FC",
+   "qid": "Q354059"
+  },
+  {
+   "name": "Auckland FC",
+   "title": "Auckland FC",
+   "qid": "Q123717355"
+  },
+  {
+   "name": "Brisbane Roar",
+   "title": "Brisbane Roar FC",
+   "qid": "Q839997"
+  },
+  {
+   "name": "Central Coast Mariners",
+   "title": "Central Coast Mariners FC",
+   "qid": "Q762294"
+  },
+  {
+   "name": "Macarthur FC",
+   "title": "Macarthur FC",
+   "qid": "Q59773416"
+  },
+  {
+   "name": "Melbourne City",
+   "title": "Melbourne City FC",
+   "qid": "Q748725"
+  },
+  {
+   "name": "Melbourne Victory",
+   "title": "Melbourne Victory FC",
+   "qid": "Q316789"
+  },
+  {
+   "name": "Newcastle Jets",
+   "title": "Newcastle Jets FC",
+   "qid": "Q732929"
+  },
+  {
+   "name": "Perth Glory",
+   "title": "Perth Glory FC",
+   "qid": "Q852033"
+  },
+  {
+   "name": "Sydney FC",
+   "title": "Sydney FC",
+   "qid": "Q330143"
+  },
+  {
+   "name": "Wellington Phoenix",
+   "title": "Wellington Phoenix FC",
+   "qid": "Q815890"
+  },
+  {
+   "name": "Western Sydney Wanderers",
+   "title": "Western Sydney Wanderers FC",
+   "qid": "Q999035"
+  }
+ ],
+ "2025 League of Ireland Premier Division": [
+  {
+   "name": "Bohemians",
+   "title": "Bohemian F.C.",
+   "qid": "Q212708"
+  },
+  {
+   "name": "Cork City",
+   "title": "Cork City F.C.",
+   "qid": "Q932284"
+  },
+  {
+   "name": "Derry City",
+   "title": "Derry City F.C.",
+   "qid": "Q459622"
+  },
+  {
+   "name": "Drogheda United",
+   "title": "Drogheda United F.C.",
+   "qid": "Q761498"
+  },
+  {
+   "name": "Galway United",
+   "title": "Galway United F.C.",
+   "qid": "Q945043"
+  },
+  {
+   "name": "Shamrock Rovers",
+   "title": "Shamrock Rovers F.C.",
+   "qid": "Q203976"
+  },
+  {
+   "name": "Shelbourne",
+   "title": "Shelbourne F.C.",
+   "qid": "Q394474"
+  },
+  {
+   "name": "Sligo Rovers",
+   "title": "Sligo Rovers F.C.",
+   "qid": "Q244874"
+  },
+  {
+   "name": "St Patrick's Athletic",
+   "title": "St Patrick's Athletic F.C.",
+   "qid": "Q394452"
+  },
+  {
+   "name": "Waterford",
+   "title": "Waterford F.C.",
+   "qid": "Q394466"
+  }
+ ],
+ "2025–26 Super League Greece": [
+  {
+   "name": "AEK Athens",
+   "title": "AEK Athens F.C.",
+   "qid": "Q201584"
+  },
+  {
+   "name": "A.E. Kifisia",
+   "title": "A.E. Kifisia F.C.",
+   "qid": "Q16245443"
+  },
+  {
+   "name": "Athlitiki Enosi Larissa",
+   "title": "Athlitiki Enosi Larissa F.C.",
+   "qid": "Q275626"
+  },
+  {
+   "name": "Aris Thessaloniki",
+   "title": "Aris Thessaloniki F.C.",
+   "qid": "Q219926"
+  },
+  {
+   "name": "Asteras Tripolis",
+   "title": "Asteras Tripolis F.C.",
+   "qid": "Q757320"
+  },
+  {
+   "name": "Atromitos",
+   "title": "Atromitos F.C.",
+   "qid": "Q757754"
+  },
+  {
+   "name": "Levadiakos",
+   "title": "Levadiakos F.C.",
+   "qid": "Q824450"
+  },
+  {
+   "name": "OFI Crete",
+   "title": "OFI Crete F.C.",
+   "qid": "Q931704"
+  },
+  {
+   "name": "Olympiacos",
+   "title": "Olympiacos F.C.",
+   "qid": "Q19628"
+  },
+  {
+   "name": "Panathinaikos",
+   "title": "Panathinaikos F.C.",
+   "qid": "Q4122219"
+  },
+  {
+   "name": "Panetolikos",
+   "title": "Panetolikos F.C.",
+   "qid": "Q1460053"
+  },
+  {
+   "name": "Panserraikos",
+   "title": "Panserraikos F.C.",
+   "qid": "Q1417287"
+  },
+  {
+   "name": "PAOK",
+   "title": "PAOK FC",
+   "qid": "Q204888"
+  },
+  {
+   "name": "Volos",
+   "title": "Volos F.C.",
+   "qid": "Q43375974"
+  }
+ ],
+ "2025–26 Czech First League": [
+  {
+   "name": "Bohemians 1905",
+   "title": "Bohemians 1905",
+   "qid": "Q849221"
+  },
+  {
+   "name": "FK Dukla Prague",
+   "title": "FK Dukla Prague",
+   "qid": "Q2757426"
+  },
+  {
+   "name": "FC Hradec Králové",
+   "title": "FC Hradec Králové",
+   "qid": "Q581423"
+  },
+  {
+   "name": "FK Jablonec",
+   "title": "FK Jablonec",
+   "qid": "Q425599"
+  },
+  {
+   "name": "MFK Karviná",
+   "title": "MFK Karviná",
+   "qid": "Q1881407"
+  },
+  {
+   "name": "FC Slovan Liberec",
+   "title": "FC Slovan Liberec",
+   "qid": "Q221671"
+  },
+  {
+   "name": "FK Mladá Boleslav",
+   "title": "FK Mladá Boleslav",
+   "qid": "Q328332"
+  },
+  {
+   "name": "SK Sigma Olomouc",
+   "title": "SK Sigma Olomouc",
+   "qid": "Q385518"
+  },
+  {
+   "name": "FC Baník Ostrava",
+   "title": "FC Baník Ostrava",
+   "qid": "Q329471"
+  },
+  {
+   "name": "FK Pardubice",
+   "title": "FK Pardubice",
+   "qid": "Q3038689"
+  },
+  {
+   "name": "FC Viktoria Plzeň",
+   "title": "FC Viktoria Plzeň",
+   "qid": "Q206838"
+  },
+  {
+   "name": "SK Slavia Prague",
+   "title": "SK Slavia Prague",
+   "qid": "Q194393"
+  },
+  {
+   "name": "1. FC Slovácko",
+   "title": "1. FC Slovácko",
+   "qid": "Q847499"
+  },
+  {
+   "name": "AC Sparta Prague",
+   "title": "AC Sparta Prague",
+   "qid": "Q193481"
+  },
+  {
+   "name": "FK Teplice",
+   "title": "FK Teplice",
+   "qid": "Q738886"
+  },
+  {
+   "name": "FC Zlín",
+   "title": "FC Zlín",
+   "qid": "Q39183"
+  }
+ ],
+ "2025–26 Croatian Football League": [
+  {
+   "name": "Dinamo Zagreb",
+   "title": "GNK Dinamo Zagreb",
+   "qid": "Q172803"
+  },
+  {
+   "name": "Gorica",
+   "title": "HNK Gorica",
+   "qid": "Q918425"
+  },
+  {
+   "name": "Hajduk Split",
+   "title": "HNK Hajduk Split",
+   "qid": "Q181216"
+  },
+  {
+   "name": "Istra 1961",
+   "title": "NK Istra 1961",
+   "qid": "Q725916"
+  },
+  {
+   "name": "Lokomotiva",
+   "title": "NK Lokomotiva",
+   "qid": "Q959086"
+  },
+  {
+   "name": "Osijek",
+   "title": "NK Osijek",
+   "qid": "Q738876"
+  },
+  {
+   "name": "Rijeka",
+   "title": "HNK Rijeka",
+   "qid": "Q318969"
+  },
+  {
+   "name": "Slaven Belupo",
+   "title": "NK Slaven Belupo",
+   "qid": "Q368909"
+  },
+  {
+   "name": "Varaždin",
+   "title": "NK Varaždin (2012)",
+   "qid": "Q16958147"
+  },
+  {
+   "name": "Vukovar 1991",
+   "title": "HNK Vukovar 1991",
+   "qid": "Q31198354"
+  }
+ ],
+ "2025–26 Serbian SuperLiga": [
+  {
+   "name": "Red Star Belgrade",
+   "title": "Red Star Belgrade",
+   "qid": "Q173009"
+  },
+  {
+   "name": "Čukaricki",
+   "title": "FK Čukarički",
+   "qid": "Q213161"
+  },
+  {
+   "name": "Javor-Matis",
+   "title": "FK Javor Ivanjica",
+   "qid": "Q218724"
+  },
+  {
+   "name": "Mladost Lučani",
+   "title": "FK Mladost Lučani",
+   "qid": "Q1945740"
+  },
+  {
+   "name": "Napredak Kruševac",
+   "title": "FK Napredak Kruševac",
+   "qid": "Q843210"
+  },
+  {
+   "name": "Novi Pazar",
+   "title": "FK Novi Pazar",
+   "qid": "Q995069"
+  },
+  {
+   "name": "OFK Beograd",
+   "title": "OFK Beograd",
+   "qid": "Q209619"
+  },
+  {
+   "name": "Partizan",
+   "title": "FK Partizan",
+   "qid": "Q188656"
+  },
+  {
+   "name": "Radnički 1923",
+   "title": "FK Radnički 1923",
+   "qid": "Q421665"
+  },
+  {
+   "name": "Radnički Niš",
+   "title": "FK Radnički Niš",
+   "qid": "Q1137993"
+  },
+  {
+   "name": "Radnik Surdulica",
+   "title": "FK Radnik Surdulica",
+   "qid": "Q5426356"
+  },
+  {
+   "name": "Spartak Subotica",
+   "title": "FK Spartak Subotica",
+   "qid": "Q94605"
+  },
+  {
+   "name": "FK TSC",
+   "title": "FK TSC",
+   "qid": "Q828297"
+  },
+  {
+   "name": "Vojvodina",
+   "title": "FK Vojvodina",
+   "qid": "Q207501"
+  },
+  {
+   "name": "Železničar Pančevo",
+   "title": "FK Železničar Pančevo",
+   "qid": "Q12760457"
+  }
+ ],
+ "2025–26 Ukrainian Premier League": [
+  {
+   "name": "Shakhtar Donetsk",
+   "title": "FC Shakhtar Donetsk",
+   "qid": "Q172969"
+  },
+  {
+   "name": "Rukh Lviv",
+   "title": "FC Rukh Lviv",
+   "qid": "Q12149497"
+  },
+  {
+   "name": "Karpaty Lviv",
+   "title": "FC Karpaty Lviv",
+   "qid": "Q223360"
+  },
+  {
+   "name": "Vorskla Poltava",
+   "title": "FC Vorskla Poltava",
+   "qid": "Q274762"
+  },
+  {
+   "name": "Dynamo Kyiv",
+   "title": "FC Dynamo Kyiv",
+   "qid": "Q179075"
+  },
+  {
+   "name": "Zorya Luhansk",
+   "title": "FC Zorya Luhansk",
+   "qid": "Q754307"
+  },
+  {
+   "name": "Epitsentr Kamianets-Podilskyi",
+   "title": "FC Epitsentr Kamianets-Podilskyi",
+   "qid": "Q25446408"
+  },
+  {
+   "name": "SC Poltava",
+   "title": "SC Poltava",
+   "qid": "Q107653964"
+  },
+  {
+   "name": "LNZ Cherkasy",
+   "title": "FC LNZ Cherkasy",
+   "qid": "Q55189861"
+  },
+  {
+   "name": "Veres Rivne",
+   "title": "NK Veres Rivne",
+   "qid": "Q2635403"
+  },
+  {
+   "name": "FC Oleksandriya",
+   "title": "FC Oleksandriya",
+   "qid": "Q128390"
+  },
+  {
+   "name": "Polissya Zhytomyr",
+   "title": "FC Polissya Zhytomyr",
+   "qid": "Q2036903"
+  },
+  {
+   "name": "Metalist 1925 Kharkiv",
+   "title": "FC Metalist 1925 Kharkiv",
+   "qid": "Q28704136"
+  },
+  {
+   "name": "FC Livyi Bereh Kyiv",
+   "title": "FC Livyi Bereh Kyiv",
+   "qid": "Q107466898"
+  },
+  {
+   "name": "Obolon Kyiv",
+   "title": "FC Obolon Kyiv",
+   "qid": "Q13463676"
+  },
+  {
+   "name": "FC Kudrivka",
+   "title": "FC Kudrivka",
+   "qid": "Q120458868"
+  },
+  {
+   "name": "Kolos Kovalivka",
+   "title": "FC Kolos Kovalivka",
+   "qid": "Q20077871"
+  },
+  {
+   "name": "Kryvbas Kryvyi Rih",
+   "title": "FC Kryvbas Kryvyi Rih",
+   "qid": "Q750434"
+  }
+ ],
+ "2025–26 Nemzeti Bajnokság I": [
+  {
+   "name": "Debrecen",
+   "title": "Debreceni VSC",
+   "qid": "Q205732"
+  },
+  {
+   "name": "Diósgyőr",
+   "title": "Diósgyőri VTK",
+   "qid": "Q767400"
+  },
+  {
+   "name": "Ferencváros",
+   "title": "Ferencvárosi TC",
+   "qid": "Q208396"
+  },
+  {
+   "name": "Győri ETO",
+   "title": "Győri ETO FC",
+   "qid": "Q276346"
+  },
+  {
+   "name": "Kazincbarcika",
+   "title": "Kazincbarcikai SC",
+   "qid": "Q744758"
+  },
+  {
+   "name": "Kisvárda",
+   "title": "Kisvárda FC",
+   "qid": "Q19861407"
+  },
+  {
+   "name": "MTK Budapest",
+   "title": "MTK Budapest FC",
+   "qid": "Q208406"
+  },
+  {
+   "name": "Nyíregyháza",
+   "title": "Nyíregyháza Spartacus FC",
+   "qid": "Q1051340"
+  },
+  {
+   "name": "Paksi",
+   "title": "Paksi FC",
+   "qid": "Q915352"
+  },
+  {
+   "name": "Puskás Akadémia",
+   "title": "Puskás Akadémia FC",
+   "qid": "Q1241654"
+  },
+  {
+   "name": "Újpest",
+   "title": "Újpest FC",
+   "qid": "Q244595"
+  },
+  {
+   "name": "Zalaegerszeg",
+   "title": "Zalaegerszegi TE",
+   "qid": "Q144952"
+  }
+ ],
+ "2025–26 Israeli Premier League": [
+  {
+   "name": "Beitar Jerusalem",
+   "title": "Beitar Jerusalem F.C.",
+   "qid": "Q223727"
+  },
+  {
+   "name": "Bnei Sakhnin",
+   "title": "Bnei Sakhnin F.C.",
+   "qid": "Q1130570"
+  },
+  {
+   "name": "F.C. Ashdod",
+   "title": "F.C. Ashdod",
+   "qid": "Q1138191"
+  },
+  {
+   "name": "Hapoel Be'er Sheva",
+   "title": "Hapoel Be'er Sheva F.C.",
+   "qid": "Q986529"
+  },
+  {
+   "name": "Hapoel Haifa",
+   "title": "Hapoel Haifa F.C.",
+   "qid": "Q455991"
+  },
+  {
+   "name": "Hapoel Jerusalem",
+   "title": "Hapoel Jerusalem F.C.",
+   "qid": "Q2259417"
+  },
+  {
+   "name": "Hapoel Petah Tikva",
+   "title": "Hapoel Petah Tikva F.C.",
+   "qid": "Q1130537"
+  },
+  {
+   "name": "Hapoel Tel Aviv",
+   "title": "Hapoel Tel Aviv F.C.",
+   "qid": "Q206585"
+  },
+  {
+   "name": "Ironi Kiryat Shmona",
+   "title": "Hapoel Ironi Kiryat Shmona F.C.",
+   "qid": "Q907321"
+  },
+  {
+   "name": "Ironi Tiberias",
+   "title": "Ironi Tiberias F.C.",
+   "qid": "Q2912223"
+  },
+  {
+   "name": "Maccabi Bnei Reineh",
+   "title": "Maccabi Bnei Reineh F.C.",
+   "qid": "Q106750915"
+  },
+  {
+   "name": "Maccabi Haifa",
+   "title": "Maccabi Haifa F.C.",
+   "qid": "Q2129100"
+  },
+  {
+   "name": "Maccabi Netanya",
+   "title": "Maccabi Netanya F.C.",
+   "qid": "Q426513"
+  },
+  {
+   "name": "Maccabi Tel Aviv",
+   "title": "Maccabi Tel Aviv F.C.",
+   "qid": "Q223728"
+  }
+ ],
+ "2025–26 Cypriot First Division": [
+  {
+   "name": "AEK Larnaca",
+   "title": "AEK Larnaca FC",
+   "qid": "Q291447"
+  },
+  {
+   "name": "AEL Limassol",
+   "title": "AEL Limassol",
+   "qid": "Q291471"
+  },
+  {
+   "name": "Akritas Chlorakas",
+   "title": "Akritas Chlorakas",
+   "qid": "Q2215847"
+  },
+  {
+   "name": "Anorthosis Famagusta",
+   "title": "Anorthosis Famagusta FC",
+   "qid": "Q141688"
+  },
+  {
+   "name": "APOEL FC",
+   "title": "APOEL FC",
+   "qid": "Q131378"
+  },
+  {
+   "name": "Apollon Limassol",
+   "title": "Apollon Limassol",
+   "qid": "Q428047"
+  },
+  {
+   "name": "Aris Limassol",
+   "title": "Aris Limassol FC",
+   "qid": "Q367788"
+  },
+  {
+   "name": "Enosis Neon Paralimni",
+   "title": "Enosis Neon Paralimni FC",
+   "qid": "Q959341"
+  },
+  {
+   "name": "Ethnikos Achnas",
+   "title": "Ethnikos Achnas",
+   "qid": "Q862791"
+  },
+  {
+   "name": "Krasava ENY Ypsonas",
+   "title": "Krasava ENY Ypsonas FC",
+   "qid": "Q17444660"
+  },
+  {
+   "name": "Olympiakos Nicosia",
+   "title": "Olympiakos Nicosia",
+   "qid": "Q280814"
+  },
+  {
+   "name": "Omonia Aradippou",
+   "title": "Omonia Aradippou",
+   "qid": "Q2569908"
+  },
+  {
+   "name": "AC Omonia",
+   "title": "AC Omonia",
+   "qid": "Q240783"
+  },
+  {
+   "name": "Pafos",
+   "title": "Pafos FC",
+   "qid": "Q17442894"
+  }
+ ],
+ "2025–26 First Professional Football League (Bulgaria)": [
+  {
+   "name": "FC Arda Kardzhali",
+   "title": "FC Arda Kardzhali",
+   "qid": "Q5424818"
+  },
+  {
+   "name": "Beroe",
+   "title": "PFC Beroe Stara Zagora",
+   "qid": "Q374254"
+  },
+  {
+   "name": "Botev Plovdiv",
+   "title": "Botev Plovdiv",
+   "qid": "Q597250"
+  },
+  {
+   "name": "Botev Vratsa",
+   "title": "POFC Botev Vratsa",
+   "qid": "Q634701"
+  },
+  {
+   "name": "Cherno More",
+   "title": "PFC Cherno More Varna",
+   "qid": "Q290629"
+  },
+  {
+   "name": "CSKA 1948",
+   "title": "FC CSKA 1948 Sofia",
+   "qid": "Q26223027"
+  },
+  {
+   "name": "CSKA Sofia",
+   "title": "PFC CSKA Sofia",
+   "qid": "Q136433"
+  },
+  {
+   "name": "Dobrudzha",
+   "title": "FC Dobrudzha Dobrich",
+   "qid": "Q762017"
+  },
+  {
+   "name": "Levski Sofia",
+   "title": "PFC Levski Sofia",
+   "qid": "Q144190"
+  },
+  {
+   "name": "Spartak Varna",
+   "title": "FC Spartak Varna",
+   "qid": "Q1635778"
+  },
+  {
+   "name": "Ludogorets Razgrad",
+   "title": "PFC Ludogorets Razgrad",
+   "qid": "Q1339086"
+  },
+  {
+   "name": "Lokomotiv Plovdiv",
+   "title": "PFC Lokomotiv Plovdiv",
+   "qid": "Q1124841"
+  },
+  {
+   "name": "Montana",
+   "title": "FC Montana",
+   "qid": "Q1462564"
+  },
+  {
+   "name": "Lokomotiv",
+   "title": "FC Lokomotiv 1929 Sofia",
+   "qid": "Q309025"
+  },
+  {
+   "name": "Septemvri Sofia",
+   "title": "PFC Septemvri Sofia",
+   "qid": "Q1859826"
+  },
+  {
+   "name": "Slavia Sofia",
+   "title": "PFC Slavia Sofia",
+   "qid": "Q643434"
+  }
+ ],
+ "2025–26 Qatar Stars League": [
+  {
+   "name": "Al Sadd SC",
+   "title": "Al Sadd SC",
+   "qid": "Q283545"
+  },
+  {
+   "name": "Al-Duhail SC",
+   "title": "Al-Duhail SC",
+   "qid": "Q1056948"
+  },
+  {
+   "name": "Al-Rayyan SC",
+   "title": "Al-Rayyan SC",
+   "qid": "Q311268"
+  },
+  {
+   "name": "Qatar SC",
+   "title": "Qatar SC",
+   "qid": "Q1051203"
+  },
+  {
+   "name": "Al-Arabi SC",
+   "title": "Al-Arabi SC (Qatar)",
+   "qid": "Q283760"
+  },
+  {
+   "name": "Al-Gharafa SC",
+   "title": "Al-Gharafa SC",
+   "qid": "Q428211"
+  },
+  {
+   "name": "Al-Wakrah SC",
+   "title": "Al-Wakrah SC",
+   "qid": "Q284281"
+  }
+ ],
+ "2025–26 UAE Pro League": [
+  {
+   "name": "Ajman",
+   "title": "Ajman Club",
+   "qid": "Q378368"
+  },
+  {
+   "name": "Al Ain",
+   "title": "Al Ain FC",
+   "qid": "Q812720"
+  },
+  {
+   "name": "Al Bataeh",
+   "title": "Al Bataeh Club",
+   "qid": "Q43032630"
+  },
+  {
+   "name": "Al Jazira",
+   "title": "Al Jazira Club",
+   "qid": "Q429630"
+  },
+  {
+   "name": "Al Nasr",
+   "title": "Al-Nasr SC (Dubai)",
+   "qid": "Q812723"
+  },
+  {
+   "name": "Al Urooba",
+   "title": "Al Urooba",
+   "qid": "Q12247499"
+  },
+  {
+   "name": "Al Wahda",
+   "title": "Al-Wahda F.C.",
+   "qid": "Q283767"
+  },
+  {
+   "name": "Al Wasl",
+   "title": "Al-Wasl F.C.",
+   "qid": "Q520066"
+  },
+  {
+   "name": "Baniyas",
+   "title": "Baniyas Club",
+   "qid": "Q1344302"
+  },
+  {
+   "name": "Dibba Al Hisn",
+   "title": "Dibba Al-Hisn Sports Club",
+   "qid": "Q3706871"
+  },
+  {
+   "name": "Kalba",
+   "title": "Al-Ittihad Kalba SC",
+   "qid": "Q3804552"
+  },
+  {
+   "name": "Khor Fakkan",
+   "title": "Khor Fakkan Club",
+   "qid": "Q6878716"
+  },
+  {
+   "name": "Shabab Al-Ahli",
+   "title": "Shabab Al-Ahli Dubai FC",
+   "qid": "Q424943"
+  },
+  {
+   "name": "Sharjah",
+   "title": "Sharjah FC",
+   "qid": "Q286801"
+  }
+ ],
+ "2025–26 Egyptian Premier League": [
+  {
+   "name": "Al Ahly",
+   "title": "Al Ahly SC",
+   "qid": "Q223566"
+  },
+  {
+   "name": "Al Mokawloon Al Arab SC",
+   "title": "Al Mokawloon Al Arab SC",
+   "qid": "Q2073915"
+  },
+  {
+   "name": "Ceramica Cleopatra",
+   "title": "Ceramica Cleopatra FC",
+   "qid": "Q27964149"
+  },
+  {
+   "name": "ENPPI SC",
+   "title": "ENPPI SC",
+   "qid": "Q1877396"
+  },
+  {
+   "name": "Ghazl El Mahalla",
+   "title": "Ghazl El Mahalla SC",
+   "qid": "Q968592"
+  },
+  {
+   "name": "El Gouna",
+   "title": "El Gouna FC",
+   "qid": "Q2658729"
+  },
+  {
+   "name": "Haras El Hodoud",
+   "title": "Haras El Hodoud SC",
+   "qid": "Q2274220"
+  },
+  {
+   "name": "Ismaily SC",
+   "title": "Ismaily SC",
+   "qid": "Q1329368"
+  },
+  {
+   "name": "Kahraba Ismailia SC",
+   "title": "Kahraba Ismailia SC",
+   "qid": "Q15302807"
+  },
+  {
+   "name": "Al Ittihad",
+   "title": "Al Ittihad Alexandria Club",
+   "qid": "Q2084802"
+  },
+  {
+   "name": "Al Masry",
+   "title": "Al Masry SC",
+   "qid": "Q286490"
+  },
+  {
+   "name": "Modern Sport",
+   "title": "Modern Sport FC",
+   "qid": "Q27964157"
+  },
+  {
+   "name": "National Bank of Egypt",
+   "title": "National Bank of Egypt SC",
+   "qid": "Q27964189"
+  },
+  {
+   "name": "Petrojet",
+   "title": "Petrojet SC",
+   "qid": "Q2274233"
+  },
+  {
+   "name": "Pharco",
+   "title": "Pharco FC",
+   "qid": "Q30116017"
+  },
+  {
+   "name": "Pyramids",
+   "title": "Pyramids FC",
+   "qid": "Q18207291"
+  },
+  {
+   "name": "Smouha",
+   "title": "Smouha SC",
+   "qid": "Q3048741"
+  },
+  {
+   "name": "Tala'ea El Gaish",
+   "title": "Tala'ea El Gaish SC",
+   "qid": "Q2541016"
+  },
+  {
+   "name": "Wadi Degla SC",
+   "title": "Wadi Degla SC",
+   "qid": "Q1966238"
+  },
+  {
+   "name": "Zamalek",
+   "title": "Zamalek SC",
+   "qid": "Q286504"
+  },
+  {
+   "name": "ZED",
+   "title": "ZED FC",
+   "qid": "Q22929915"
+  }
+ ],
+ "2025–26 Botola Pro": [
+  {
+   "name": "AS FAR",
+   "title": "AS FAR (football club)",
+   "qid": "Q1270141"
+  },
+  {
+   "name": "COD Meknès",
+   "title": "COD Meknès",
+   "qid": "Q1023966"
+  },
+  {
+   "name": "Difaâ El Jadidi",
+   "title": "Difaâ El Jadidi",
+   "qid": "Q1224332"
+  },
+  {
+   "name": "Fath Union Sport",
+   "title": "Fath Union Sport",
+   "qid": "Q1389863"
+  },
+  {
+   "name": "Hassania Agadir",
+   "title": "Hassania Agadir",
+   "qid": "Q1588638"
+  },
+  {
+   "name": "IR Tanger",
+   "title": "IR Tanger",
+   "qid": "Q1503393"
+  },
+  {
+   "name": "Maghreb de Fès",
+   "title": "Maghreb de Fès",
+   "qid": "Q1121108"
+  },
+  {
+   "name": "KAC Marrakech",
+   "title": "KAC Marrakech",
+   "qid": "Q1476115"
+  },
+  {
+   "name": "Olympic Safi",
+   "title": "Olympic Safi",
+   "qid": "Q1972015"
+  },
+  {
+   "name": "Olympique Dcheira",
+   "title": "Olympique Dcheira",
+   "qid": "Q3351684"
+  },
+  {
+   "name": "Raja CA",
+   "title": "Raja CA",
+   "qid": "Q1051514"
+  },
+  {
+   "name": "RCA Zemamra",
+   "title": "RCA Zemamra",
+   "qid": "Q16121558"
+  },
+  {
+   "name": "RS Berkane",
+   "title": "RS Berkane",
+   "qid": "Q3424751"
+  },
+  {
+   "name": "US Yacoub El Mansour",
+   "title": "US Yacoub El Mansour",
+   "qid": "Q3550027"
+  },
+  {
+   "name": "Union de Touarga",
+   "title": "Union de Touarga",
+   "qid": "Q3550032"
+  },
+  {
+   "name": "Wydad AC",
+   "title": "Wydad AC",
+   "qid": "Q1139095"
+  }
+ ],
+ "2025 Chinese Super League": [
+  {
+   "name": "Shanghai Port",
+   "title": "Shanghai Port F.C.",
+   "qid": "Q564216"
+  },
+  {
+   "name": "Shanghai Shenhua",
+   "title": "Shanghai Shenhua F.C.",
+   "qid": "Q725367"
+  },
+  {
+   "name": "Chengdu Rongcheng",
+   "title": "Chengdu Rongcheng F.C.",
+   "qid": "Q19840468"
+  },
+  {
+   "name": "Beijing Guoan",
+   "title": "Beijing Guoan F.C.",
+   "qid": "Q814738"
+  },
+  {
+   "name": "Shandong Taishan",
+   "title": "Shandong Taishan F.C.",
+   "qid": "Q1046367"
+  },
+  {
+   "name": "Tianjin Jinmen Tiger",
+   "title": "Tianjin Jinmen Tiger F.C.",
+   "qid": "Q537552"
+  },
+  {
+   "name": "Zhejiang",
+   "title": "Zhejiang Professional F.C.",
+   "qid": "Q79380"
+  },
+  {
+   "name": "Henan",
+   "title": "Henan F.C.",
+   "qid": "Q507444"
+  },
+  {
+   "name": "Changchun Yatai",
+   "title": "Changchun Yatai F.C.",
+   "qid": "Q472752"
+  },
+  {
+   "name": "Qingdao West Coast",
+   "title": "Qingdao West Coast F.C.",
+   "qid": "Q97276157"
+  },
+  {
+   "name": "Wuhan Three Towns",
+   "title": "Wuhan Three Towns F.C.",
+   "qid": "Q65062245"
+  },
+  {
+   "name": "Qingdao Hainiu",
+   "title": "Qingdao Hainiu F.C.",
+   "qid": "Q1192574"
+  },
+  {
+   "name": "Shenzhen Peng City",
+   "title": "Shenzhen Peng City F.C.",
+   "qid": "Q7507434"
+  },
+  {
+   "name": "Yunnan Yukun",
+   "title": "Yunnan Yukun F.C.",
+   "qid": "Q123376316"
+  },
+  {
+   "name": "Dalian Yingbo",
+   "title": "Dalian Yingbo F.C.",
+   "qid": "Q118904181"
+  },
+  {
+   "name": "Meizhou Hakka",
+   "title": "Meizhou Hakka F.C.",
+   "qid": "Q15907812"
+  }
+ ],
+ "2025 Chilean Primera División": [
+  {
+   "name": "Audax Italiano",
+   "title": "Audax Italiano",
+   "qid": "Q758689"
+  },
+  {
+   "name": "Cobresal",
+   "title": "C.D. Cobresal",
+   "qid": "Q642669"
+  },
+  {
+   "name": "Colo-Colo",
+   "title": "Colo-Colo",
+   "qid": "Q207373"
+  },
+  {
+   "name": "Coquimbo Unido",
+   "title": "Coquimbo Unido",
+   "qid": "Q2407595"
+  },
+  {
+   "name": "Deportes Iquique",
+   "title": "Deportes Iquique",
+   "qid": "Q642824"
+  },
+  {
+   "name": "Deportes La Serena",
+   "title": "Deportes La Serena",
+   "qid": "Q642098"
+  },
+  {
+   "name": "Deportes Limache",
+   "title": "Deportes Limache",
+   "qid": "Q105144613"
+  },
+  {
+   "name": "Everton",
+   "title": "Everton de Viña del Mar",
+   "qid": "Q1103684"
+  },
+  {
+   "name": "Huachipato",
+   "title": "Huachipato FC",
+   "qid": "Q1023191"
+  },
+  {
+   "name": "Ñublense",
+   "title": "Ñublense",
+   "qid": "Q2317539"
+  },
+  {
+   "name": "O'Higgins",
+   "title": "O'Higgins F.C.",
+   "qid": "Q719722"
+  },
+  {
+   "name": "Palestino",
+   "title": "Club Deportivo Palestino",
+   "qid": "Q719719"
+  },
+  {
+   "name": "Unión Española",
+   "title": "Unión Española",
+   "qid": "Q1129059"
+  },
+  {
+   "name": "Unión La Calera",
+   "title": "Unión La Calera",
+   "qid": "Q719383"
+  },
+  {
+   "name": "Universidad Católica",
+   "title": "Club Deportivo Universidad Católica",
+   "qid": "Q427446"
+  },
+  {
+   "name": "Universidad de Chile",
+   "title": "Club Universidad de Chile",
+   "qid": "Q737753"
+  }
+ ],
+ "2025 Categoría Primera A season": [
+  {
+   "name": "Águilas Doradas",
+   "title": "Águilas Doradas",
+   "qid": "Q332833"
+  },
+  {
+   "name": "América de Cali",
+   "title": "América de Cali",
+   "qid": "Q391987"
+  },
+  {
+   "name": "Atlético Bucaramanga",
+   "title": "Atlético Bucaramanga",
+   "qid": "Q757418"
+  },
+  {
+   "name": "Atlético Nacional",
+   "title": "Atlético Nacional",
+   "qid": "Q332605"
+  },
+  {
+   "name": "Boyacá Chicó",
+   "title": "Boyacá Chicó F.C.",
+   "qid": "Q332863"
+  },
+  {
+   "name": "Deportes Tolima",
+   "title": "Deportes Tolima",
+   "qid": "Q332532"
+  },
+  {
+   "name": "Deportivo Cali",
+   "title": "Deportivo Cali",
+   "qid": "Q663400"
+  },
+  {
+   "name": "Deportivo Pasto",
+   "title": "Deportivo Pasto",
+   "qid": "Q332858"
+  },
+  {
+   "name": "Deportivo Pereira",
+   "title": "Deportivo Pereira",
+   "qid": "Q515178"
+  },
+  {
+   "name": "Envigado",
+   "title": "Envigado F.C.",
+   "qid": "Q332636"
+  },
+  {
+   "name": "Fortaleza",
+   "title": "Fortaleza C.E.I.F.",
+   "qid": "Q5472511"
+  },
+  {
+   "name": "Independiente Medellín",
+   "title": "Independiente Medellín",
+   "qid": "Q332527"
+  },
+  {
+   "name": "Junior",
+   "title": "Atlético Junior",
+   "qid": "Q332524"
+  },
+  {
+   "name": "La Equidad",
+   "title": "La Equidad",
+   "qid": "Q332668"
+  },
+  {
+   "name": "Llaneros",
+   "title": "Llaneros F.C.",
+   "qid": "Q6661327"
+  },
+  {
+   "name": "Millonarios",
+   "title": "Millonarios F.C.",
+   "qid": "Q391984"
+  },
+  {
+   "name": "Once Caldas",
+   "title": "Once Caldas",
+   "qid": "Q47533"
+  },
+  {
+   "name": "Santa Fe",
+   "title": "Independiente Santa Fe",
+   "qid": "Q1424072"
+  },
+  {
+   "name": "Unión Magdalena",
+   "title": "Unión Magdalena",
+   "qid": "Q2031920"
+  }
+ ],
+ "2025 Uruguayan Primera División season": [
+  {
+   "name": "Boston River",
+   "title": "Boston River",
+   "qid": "Q1022910"
+  },
+  {
+   "name": "Cerro",
+   "title": "C.A. Cerro",
+   "qid": "Q719344"
+  },
+  {
+   "name": "Cerro Largo",
+   "title": "Cerro Largo F.C.",
+   "qid": "Q1055895"
+  },
+  {
+   "name": "Danubio",
+   "title": "Danubio F.C.",
+   "qid": "Q584316"
+  },
+  {
+   "name": "Defensor Sporting",
+   "title": "Defensor Sporting",
+   "qid": "Q844238"
+  },
+  {
+   "name": "Juventud",
+   "title": "Juventud de Las Piedras",
+   "qid": "Q217644"
+  },
+  {
+   "name": "Liverpool",
+   "title": "Liverpool F.C. (Montevideo)",
+   "qid": "Q1131189"
+  },
+  {
+   "name": "Miramar Misiones",
+   "title": "Miramar Misiones",
+   "qid": "Q1024474"
+  },
+  {
+   "name": "Montevideo City Torque",
+   "title": "Montevideo City Torque",
+   "qid": "Q48646"
+  },
+  {
+   "name": "Montevideo Wanderers",
+   "title": "Montevideo Wanderers F.C.",
+   "qid": "Q872702"
+  },
+  {
+   "name": "Nacional",
+   "title": "Club Nacional de Football",
+   "qid": "Q499616"
+  },
+  {
+   "name": "Peñarol",
+   "title": "Peñarol",
+   "qid": "Q16320"
+  },
+  {
+   "name": "Plaza Colonia",
+   "title": "Club Plaza Colonia de Deportes",
+   "qid": "Q1103101"
+  },
+  {
+   "name": "Progreso",
+   "title": "C.A. Progreso",
+   "qid": "Q420106"
+  },
+  {
+   "name": "Racing",
+   "title": "Racing Club de Montevideo",
+   "qid": "Q1417183"
+  },
+  {
+   "name": "River Plate",
+   "title": "Club Atlético River Plate (Montevideo)",
+   "qid": "Q980573"
+  }
+ ],
+ "2025–26 Scottish Championship": [
+  {
+   "name": "Airdrieonians",
+   "title": "Airdrieonians F.C.",
+   "qid": "Q408554"
+  },
+  {
+   "name": "Arbroath",
+   "title": "Arbroath F.C.",
+   "qid": "Q539374"
+  },
+  {
+   "name": "Ayr United",
+   "title": "Ayr United F.C.",
+   "qid": "Q793241"
+  },
+  {
+   "name": "Dunfermline Athletic",
+   "title": "Dunfermline Athletic F.C.",
+   "qid": "Q390256"
+  },
+  {
+   "name": "Greenock Morton",
+   "title": "Greenock Morton F.C.",
+   "qid": "Q867876"
+  },
+  {
+   "name": "Raith Rovers",
+   "title": "Raith Rovers F.C.",
+   "qid": "Q1046939"
+  },
+  {
+   "name": "Ross County",
+   "title": "Ross County F.C.",
+   "qid": "Q180420"
+  },
+  {
+   "name": "St Johnstone",
+   "title": "St Johnstone F.C.",
+   "qid": "Q268776"
+  },
+  {
+   "name": "Partick Thistle",
+   "title": "Partick Thistle F.C.",
+   "qid": "Q822722"
+  },
+  {
+   "name": "Queen's Park",
+   "title": "Queen's Park F.C.",
+   "qid": "Q852753"
+  }
+ ],
+ "2025–26 Eerste Divisie": [
+  {
+   "name": "ADO Den Haag",
+   "title": "ADO Den Haag",
+   "qid": "Q24904"
+  },
+  {
+   "name": "Almere City",
+   "title": "Almere City FC",
+   "qid": "Q653119"
+  },
+  {
+   "name": "Cambuur",
+   "title": "SC Cambuur",
+   "qid": "Q875120"
+  },
+  {
+   "name": "De Graafschap",
+   "title": "De Graafschap",
+   "qid": "Q221927"
+  },
+  {
+   "name": "Den Bosch",
+   "title": "FC Den Bosch",
+   "qid": "Q875169"
+  },
+  {
+   "name": "Dordrecht",
+   "title": "FC Dordrecht",
+   "qid": "Q1045811"
+  },
+  {
+   "name": "Eindhoven",
+   "title": "FC Eindhoven",
+   "qid": "Q876699"
+  },
+  {
+   "name": "Emmen",
+   "title": "FC Emmen",
+   "qid": "Q1061627"
+  },
+  {
+   "name": "Helmond Sport",
+   "title": "Helmond Sport",
+   "qid": "Q636315"
+  },
+  {
+   "name": "Jong Ajax",
+   "title": "Jong Ajax",
+   "qid": "Q1770361"
+  },
+  {
+   "name": "Jong PSV",
+   "title": "Jong PSV",
+   "qid": "Q13534332"
+  },
+  {
+   "name": "Jong FC Utrecht",
+   "title": "Jong FC Utrecht",
+   "qid": "Q24068131"
+  },
+  {
+   "name": "MVV Maastricht",
+   "title": "MVV Maastricht",
+   "qid": "Q876568"
+  },
+  {
+   "name": "RKC Waalwijk",
+   "title": "RKC Waalwijk",
+   "qid": "Q24699"
+  },
+  {
+   "name": "Roda JC Kerkrade",
+   "title": "Roda JC Kerkrade",
+   "qid": "Q24719"
+  },
+  {
+   "name": "TOP Oss",
+   "title": "TOP Oss",
+   "qid": "Q1149034"
+  },
+  {
+   "name": "Vitesse",
+   "title": "SBV Vitesse",
+   "qid": "Q219233"
+  },
+  {
+   "name": "VVV-Venlo",
+   "title": "VVV-Venlo",
+   "qid": "Q24689"
+  },
+  {
+   "name": "Willem II",
+   "title": "Willem II Tilburg",
+   "qid": "Q332664"
+  }
+ ],
+ "2025–26 Liga Portugal 2": [
+  {
+   "name": "Académico de Viseu",
+   "title": "Académico de Viseu F.C.",
+   "qid": "Q2410944"
+  },
+  {
+   "name": "Benfica B",
+   "title": "S.L. Benfica B",
+   "qid": "Q7387221"
+  },
+  {
+   "name": "Chaves",
+   "title": "G.D. Chaves",
+   "qid": "Q543467"
+  },
+  {
+   "name": "Farense",
+   "title": "S.C. Farense",
+   "qid": "Q744353"
+  },
+  {
+   "name": "Feirense",
+   "title": "C.D. Feirense",
+   "qid": "Q671042"
+  },
+  {
+   "name": "Felgueiras",
+   "title": "F.C. Felgueiras (2006)",
+   "qid": "Q17505449"
+  },
+  {
+   "name": "Leixões",
+   "title": "Leixões S.C.",
+   "qid": "Q623730"
+  },
+  {
+   "name": "Lusitânia",
+   "title": "Lusitânia F.C.",
+   "qid": "Q6705180"
+  },
+  {
+   "name": "Marítimo",
+   "title": "C.S. Marítimo",
+   "qid": "Q216503"
+  },
+  {
+   "name": "Oliveirense",
+   "title": "U.D. Oliveirense",
+   "qid": "Q2061414"
+  },
+  {
+   "name": "Paços de Ferreira",
+   "title": "F.C. Paços de Ferreira",
+   "qid": "Q371136"
+  },
+  {
+   "name": "Penafiel",
+   "title": "F.C. Penafiel",
+   "qid": "Q1387471"
+  },
+  {
+   "name": "Portimonense",
+   "title": "Portimonense S.C.",
+   "qid": "Q621120"
+  },
+  {
+   "name": "Porto B",
+   "title": "FC Porto B",
+   "qid": "Q5423714"
+  },
+  {
+   "name": "Sporting CP B",
+   "title": "Sporting CP B",
+   "qid": "Q3494112"
+  },
+  {
+   "name": "Torreense",
+   "title": "S.C.U. Torreense",
+   "qid": "Q1853273"
+  },
+  {
+   "name": "Leiria",
+   "title": "U.D. Leiria",
+   "qid": "Q211401"
+  },
+  {
+   "name": "Vizela",
+   "title": "F.C. Vizela",
+   "qid": "Q1387855"
+  }
+ ],
+ "2025–26 Challenger Pro League": [
+  {
+   "name": "RSCA Futures",
+   "title": "RSCA Futures",
+   "qid": "Q114056326"
+  },
+  {
+   "name": "Beerschot",
+   "title": "K Beerschot VA",
+   "qid": "Q2268833"
+  },
+  {
+   "name": "Beveren",
+   "title": "S.K. Beveren",
+   "qid": "Q509170"
+  },
+  {
+   "name": "Club NXT",
+   "title": "Club NXT",
+   "qid": "Q101625593"
+  },
+  {
+   "name": "RWDM Brussels",
+   "title": "RWDM Brussels",
+   "qid": "Q20979061"
+  },
+  {
+   "name": "Eupen",
+   "title": "K.A.S. Eupen",
+   "qid": "Q1423718"
+  },
+  {
+   "name": "Francs Borains",
+   "title": "Francs Borains",
+   "qid": "Q18001655"
+  },
+  {
+   "name": "Jong Genk",
+   "title": "K.R.C. Genk",
+   "qid": "Q216032"
+  },
+  {
+   "name": "Jong KAA Gent",
+   "title": "K.A.A. Gent",
+   "qid": "Q18232"
+  },
+  {
+   "name": "Kortrijk",
+   "title": "K.V. Kortrijk",
+   "qid": "Q618620"
+  },
+  {
+   "name": "Lierse",
+   "title": "Lierse S.K. (2018)",
+   "qid": "Q2313985"
+  },
+  {
+   "name": "Lokeren",
+   "title": "K.S.C. Lokeren (2025)",
+   "qid": "Q95183770"
+  },
+  {
+   "name": "RFC Liège",
+   "title": "RFC Liège",
+   "qid": "Q1347229"
+  },
+  {
+   "name": "Lommel",
+   "title": "Lommel SK",
+   "qid": "Q1668203"
+  },
+  {
+   "name": "Olympic Charleroi",
+   "title": "Olympic Charleroi",
+   "qid": "Q2062274"
+  },
+  {
+   "name": "Patro Eisden Maasmechelen",
+   "title": "K. Patro Eisden Maasmechelen",
+   "qid": "Q2308515"
+  },
+  {
+   "name": "Seraing",
+   "title": "R.F.C. Seraing (1922)",
+   "qid": "Q925973"
+  }
+ ],
+ "2025–26 TFF 1. Lig": [
+  {
+   "name": "Adana Demirspor",
+   "title": "Adana Demirspor",
+   "qid": "Q352251"
+  },
+  {
+   "name": "Amedspor",
+   "title": "Amed S.F.K.",
+   "qid": "Q1231804"
+  },
+  {
+   "name": "Bandırmaspor",
+   "title": "Bandırmaspor",
+   "qid": "Q806415"
+  },
+  {
+   "name": "Bodrum",
+   "title": "Bodrum F.K.",
+   "qid": "Q20472948"
+  },
+  {
+   "name": "Boluspor",
+   "title": "Boluspor",
+   "qid": "Q891679"
+  },
+  {
+   "name": "Çorum",
+   "title": "Çorum FK",
+   "qid": "Q19613395"
+  },
+  {
+   "name": "Erzurumspor",
+   "title": "Erzurumspor F.K.",
+   "qid": "Q2426819"
+  },
+  {
+   "name": "Esenler Erokspor",
+   "title": "Esenler Erokspor",
+   "qid": "Q31192116"
+  },
+  {
+   "name": "Hatayspor",
+   "title": "Hatayspor",
+   "qid": "Q1110567"
+  },
+  {
+   "name": "Iğdır",
+   "title": "Iğdır F.K.",
+   "qid": "Q108368442"
+  },
+  {
+   "name": "İstanbulspor",
+   "title": "İstanbulspor",
+   "qid": "Q344328"
+  },
+  {
+   "name": "Keçiörengücü",
+   "title": "Ankara Keçiörengücü SK",
+   "qid": "Q1536956"
+  },
+  {
+   "name": "Manisa",
+   "title": "Manisa F.K.",
+   "qid": "Q18411460"
+  },
+  {
+   "name": "Pendikspor",
+   "title": "Pendikspor",
+   "qid": "Q1347349"
+  },
+  {
+   "name": "Sakaryaspor",
+   "title": "Sakaryaspor",
+   "qid": "Q1369461"
+  },
+  {
+   "name": "Sarıyer",
+   "title": "Sarıyer S.K.",
+   "qid": "Q1933473"
+  },
+  {
+   "name": "Serikspor",
+   "title": "Serikspor",
+   "qid": "Q61073910"
+  },
+  {
+   "name": "Sivasspor",
+   "title": "Sivasspor",
+   "qid": "Q372599"
+  },
+  {
+   "name": "Ümraniyespor",
+   "title": "Ümraniyespor",
+   "qid": "Q6062228"
+  },
+  {
+   "name": "Vanspor",
+   "title": "Vanspor F.K.",
+   "qid": "Q815349"
+  }
+ ],
+ "2025 Norwegian First Division": [
+  {
+   "name": "Aalesund",
+   "title": "Aalesunds FK",
+   "qid": "Q214992"
+  },
+  {
+   "name": "Egersund",
+   "title": "Egersunds IK",
+   "qid": "Q9164911"
+  },
+  {
+   "name": "IL Hødd",
+   "title": "IL Hødd",
+   "qid": "Q129565"
+  },
+  {
+   "name": "Kongsvinger",
+   "title": "Kongsvinger IL Toppfotball",
+   "qid": "Q837205"
+  },
+  {
+   "name": "Lillestrøm",
+   "title": "Lillestrøm SK",
+   "qid": "Q214374"
+  },
+  {
+   "name": "Lyn Fotball",
+   "title": "Lyn Fotball",
+   "qid": "Q737937"
+  },
+  {
+   "name": "Mjøndalen",
+   "title": "Mjøndalen IF Fotball",
+   "qid": "Q1415807"
+  },
+  {
+   "name": "Moss FK",
+   "title": "Moss FK",
+   "qid": "Q291163"
+  },
+  {
+   "name": "Odds BK",
+   "title": "Odds BK",
+   "qid": "Q215302"
+  },
+  {
+   "name": "Ranheim",
+   "title": "Ranheim Fotball",
+   "qid": "Q1112784"
+  },
+  {
+   "name": "Raufoss",
+   "title": "Raufoss IL",
+   "qid": "Q630890"
+  },
+  {
+   "name": "Skeid",
+   "title": "Skeid Fotball",
+   "qid": "Q775976"
+  },
+  {
+   "name": "Sogndal",
+   "title": "Sogndal Fotball",
+   "qid": "Q571158"
+  },
+  {
+   "name": "Stabæk",
+   "title": "Stabæk Fotball",
+   "qid": "Q217233"
+  },
+  {
+   "name": "Start",
+   "title": "IK Start",
+   "qid": "Q737947"
+  },
+  {
+   "name": "Åsane",
+   "title": "Åsane Fotball",
+   "qid": "Q217607"
+  }
+ ],
+ "2025 Superettan": [
+  {
+   "name": "Falkenbergs FF",
+   "title": "Falkenbergs FF",
+   "qid": "Q1394197"
+  },
+  {
+   "name": "GIF Sundsvall",
+   "title": "GIF Sundsvall",
+   "qid": "Q725332"
+  },
+  {
+   "name": "Helsingborgs IF",
+   "title": "Helsingborgs IF",
+   "qid": "Q207503"
+  },
+  {
+   "name": "IK Brage",
+   "title": "IK Brage",
+   "qid": "Q1140076"
+  },
+  {
+   "name": "IK Oddevold",
+   "title": "IK Oddevold",
+   "qid": "Q1483030"
+  },
+  {
+   "name": "Kalmar FF",
+   "title": "Kalmar FF",
+   "qid": "Q644157"
+  },
+  {
+   "name": "Landskrona BoIS",
+   "title": "Landskrona BoIS",
+   "qid": "Q863273"
+  },
+  {
+   "name": "Sandvikens IF",
+   "title": "Sandvikens IF",
+   "qid": "Q1662983"
+  },
+  {
+   "name": "Västerås SK",
+   "title": "Västerås SK Fotboll",
+   "qid": "Q1680249"
+  },
+  {
+   "name": "Trelleborgs FF",
+   "title": "Trelleborgs FF",
+   "qid": "Q818624"
+  },
+  {
+   "name": "Umeå FC",
+   "title": "Umeå FC",
+   "qid": "Q175764"
+  },
+  {
+   "name": "Utsiktens BK",
+   "title": "Utsiktens BK",
+   "qid": "Q7903261"
+  },
+  {
+   "name": "Varbergs BoIS",
+   "title": "Varbergs BoIS",
+   "qid": "Q1585149"
+  },
+  {
+   "name": "Örebro SK",
+   "title": "Örebro SK",
+   "qid": "Q260559"
+  },
+  {
+   "name": "Örgryte IS",
+   "title": "Örgryte IS",
+   "qid": "Q297906"
+  },
+  {
+   "name": "Östersunds FK",
+   "title": "Östersunds FK",
+   "qid": "Q306797"
+  }
+ ],
+ "2025–26 Danish 1st Division": [
+  {
+   "name": "AaB Fodbold",
+   "title": "AaB Fodbold",
+   "qid": "Q11492669"
+  },
+  {
+   "name": "Aarhus Fremad",
+   "title": "Aarhus Fremad",
+   "qid": "Q239624"
+  },
+  {
+   "name": "AC Horsens",
+   "title": "AC Horsens",
+   "qid": "Q289286"
+  },
+  {
+   "name": "Boldklubben af 1893",
+   "title": "Boldklubben af 1893",
+   "qid": "Q795173"
+  },
+  {
+   "name": "Esbjerg fB",
+   "title": "Esbjerg fB",
+   "qid": "Q389879"
+  },
+  {
+   "name": "Hillerød Fodbold",
+   "title": "Hillerød Fodbold",
+   "qid": "Q31193518"
+  },
+  {
+   "name": "Hobro IK",
+   "title": "Hobro IK",
+   "qid": "Q841152"
+  },
+  {
+   "name": "Hvidovre IF",
+   "title": "Hvidovre IF",
+   "qid": "Q843097"
+  },
+  {
+   "name": "Kolding IF",
+   "title": "Kolding IF",
+   "qid": "Q1779108"
+  },
+  {
+   "name": "HB Køge",
+   "title": "HB Køge",
+   "qid": "Q541289"
+  },
+  {
+   "name": "Lyngby",
+   "title": "Lyngby Boldklub",
+   "qid": "Q635654"
+  },
+  {
+   "name": "Middelfart G&BK",
+   "title": "Middelfart G&BK",
+   "qid": "Q4994478"
+  }
+ ]
+}

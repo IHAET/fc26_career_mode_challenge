@@ -951,14 +951,19 @@ Aleksei Miranchuk|Russian|CAM
   const normNat = (n) => (FC26.compliance ? FC26.compliance.normNat(n) : n);
   const squadClubs = (FC26.squads && FC26.squads.clubs) || {};
   const players = [];
+  // Squads from leagues outside the challenge club list (squads-extra.js) come after the main ones.
+  const extraClubs = {};
+  (((FC26.extraSquads && FC26.extraSquads.leagues) || [])).forEach((lg) => Object.assign(extraClubs, lg.clubs));
   // Loanees are listed at both clubs: the one they're playing for wins.
-  [(row) => row[4] !== 'out', (row) => row[4] === 'out'].forEach((pass) => {
-    Object.keys(squadClubs).forEach((club) => {
-      squadClubs[club].filter(pass).forEach(([name, pos, dob, nat]) => {
-        if (byKey.has(key(name))) return; // same name at two clubs: keep the first
-        const p = { name, nat: normNat(nat), pos, dob, club, aliases: [] };
-        players.push(p);
-        index(p);
+  [squadClubs, extraClubs].forEach((clubs) => {
+    [(row) => row[4] !== 'out', (row) => row[4] === 'out'].forEach((pass) => {
+      Object.keys(clubs).forEach((club) => {
+        clubs[club].filter(pass).forEach(([name, pos, dob, nat]) => {
+          if (byKey.has(key(name))) return; // same name at two clubs: keep the first
+          const p = { name, nat: normNat(nat), pos, dob, club, aliases: [] };
+          players.push(p);
+          index(p);
+        });
       });
     });
   });

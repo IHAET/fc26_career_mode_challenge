@@ -22,6 +22,7 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **🔁 Transfers section**: its own tab, linked to a challenge you pick. It shows the challenge's signing rules as chips (e.g. "Fee ≤ €800K", "Sales money only: €5M to spend", "Only South American") and a "what to do next" list. **📒 Track it** on any generated or daily challenge saves it and opens its tracker.
 - **🤖 Transfer assistant** (built in, works offline): describe a move in your own words, e.g. *"Signed Florian Wirtz from Leverkusen for €60m in January"*, and it fills in the transfer. Before you log anything it simulates the move against the challenge's rules and tells you what it would break or complete.
 - **Real squads**: all 432 clubs' squads as FC 26 launched (mid-September 2025, after the summer windows): 14,091 players with positions, ages, nationalities and loans, so players out on loan load as ✈️ loaned out and loanees as 🔁 on loan. They load into the Squad tab with **⬇️ Load real squad**, or automatically when you press 📒 Track it. Ages are worked out for the career's first day (1 July 2025); 87% of first-team players have a date of birth, and youth players without a Wikipedia article have no age. Later squad updates may have moved a few players, so check against your save. OVRs aren't included because they're EA's ratings: add them as you go or paste them in.
+- **🌍 Players from 36 more leagues**: on top of the 432 playable clubs, the player database has 17,981 players from 558 clubs elsewhere (Brazil, Argentina, Liga MX, Germany's 3. Liga, Switzerland, Sweden, Poland, Greece, Czechia, Croatia, Serbia, Ukraine, Japan, Korea, Australia, Egypt, Morocco, the UAE, China, Chile, Colombia, Uruguay, second divisions in Scotland, the Netherlands, Portugal, Belgium, Türkiye, Norway, Sweden and Denmark, and more), about 29,400 real players in all. They're recognised in the transfer form and the assistant ("Signed Neymar from Santos" fills in LW, 33, Brazilian) and appear in the wonderkid scout under "Other leagues". Those clubs aren't playable in the Builder.
 - **🧬 Regens**: signings are matched against every squad player plus a hand-written list of well-known players. A known player's club, age, nationality and position are filled in as you type. Anyone it doesn't recognise is marked as a regen, as are academy promotions. Untick it for a real player it doesn't know and it remembers them.
 - **🎧 Spotify soundtracks (optional)**: make a playlist for a save from your favourite genres plus ones that fit the club, the challenge and your squad.
 - **👤 Accounts (optional)**: sign in with email and password or Google, and your saved challenges, trackers, diaries and confirmed players sync across your devices. Without an account (or before accounts are set up) everything stays on the device as before. See "Accounts and Spotify" below.
@@ -104,6 +105,12 @@ npm run build
 
 To move to a later snapshot, change `CUTOFF` in the script and delete `scripts/.wiki-cache/`.
 
+`js/squads-extra.js` (players from leagues outside the club list) comes from `scripts/fetch-extra-squads.js`, using the same snapshot. Each league's clubs are read from its season article on Wikipedia (the links in its teams table that Wikidata says are football clubs from that country), cached in `scripts/extra-leagues.json`, which you can edit by hand; to add a league, add a line to `LEAGUES` in the script.
+
+```sh
+node scripts/fetch-extra-squads.js   # add NODE_USE_ENV_PROXY=1 if you're behind a proxy
+```
+
 ## Tests
 
 ```sh
@@ -122,6 +129,8 @@ npm test         # node --test (Node 18+)
 | `js/compliance.js` | Rule checker: reads rule sentences and tests them against the tracked squad, transfers and career moves |
 | `js/squads.js` | Generated: real squads as FC 26 launched (see "Squad data") |
 | `scripts/fetch-squads.js` | Builds `js/squads.js` from Wikipedia squad lists and Wikidata |
+| `js/squads-extra.js` | Generated: squads for 36 more leagues, for recognition and scouting (see "Squad data") |
+| `scripts/fetch-extra-squads.js` | Builds `js/squads-extra.js`; club lists cached in `scripts/extra-leagues.json` |
 | `js/players.js` | Known real players (names, nationalities, positions) for spotting regens |
 | `js/assistant.js` | Transfer assistant: reads transfer sentences, pre-checks moves, signing-rule chips, next steps |
 | `js/tracker-ui.js` | Squad, Transfers and Career moves tabs, including the paste importer |

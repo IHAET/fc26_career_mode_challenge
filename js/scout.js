@@ -35,8 +35,12 @@
     const meta = new Map(((FC26.generator && FC26.generator.CLUBS) || []).map((c) => [c.name, c]));
     const known = new Set(KNOWN.map((n) => DB.key(n)));
     const byKey = new Map();
-    Object.entries(clubs).forEach(([club, rows]) => {
-      const m = meta.get(club) || {};
+    // Leagues outside the challenge club list: no club sizes, so the league's strength stands in.
+    const extra = [];
+    ((FC26.extraSquads && FC26.extraSquads.leagues) || []).forEach((lg) => Object.entries(lg.clubs).forEach(([club, rows]) => {
+      extra.push([club, rows, { tier: lg.strength || 1, level: lg.level || 1, league: lg.name, leagueId: `x:${lg.name}` }]);
+    }));
+    Object.entries(clubs).map(([club, rows]) => [club, rows, meta.get(club) || {}]).concat(extra).forEach(([club, rows, m]) => {
       rows.forEach(([name, pos, dob, nat, loan]) => {
         if (!dob) return; // no age, no way to call them young
         const k = DB.key(name);
@@ -80,5 +84,8 @@
     return out.sort((a, b) => b.score - a.score || a.age - b.age || a.name.localeCompare(b.name));
   }
 
-  FC26.scout = { prospects, KNOWN, GROUPS };
+  /** The other leagues in the scout, for its league filter: [[id, name]]. */
+  const extraLeagues = () => ((FC26.extraSquads && FC26.extraSquads.leagues) || []).map((lg) => [`x:${lg.name}`, `${lg.name} (${lg.country})`]);
+
+  FC26.scout = { prospects, extraLeagues, KNOWN, GROUPS };
 })(typeof window !== 'undefined' ? window : globalThis);

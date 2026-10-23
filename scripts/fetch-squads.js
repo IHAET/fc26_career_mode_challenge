@@ -208,6 +208,12 @@ async function articleAt(title, depth = 0) {
   const history = await wiki({ title, action: 'history', offset: `${CUTOFF.replace(/-/g, '')}000000`, limit: 1 });
   const rev = (history.match(/data-mw-revid="(\d+)"/) || [])[1];
   let page = null;
+  // Renamed since the cutoff? The old revisions now live under the new title.
+  if (!rev && depth < 1) {
+    const now = await wiki({ title, action: 'raw' });
+    const moved = now.match(/^#REDIRECT\s*\[\[([^\]|#]+)/i);
+    if (moved) return articleAt(moved[1].trim(), depth + 1);
+  }
   if (rev) {
     const text = await wiki({ oldid: rev, action: 'raw' });
     const redirect = text.match(/^#REDIRECT\s*\[\[([^\]|#]+)/i);
@@ -301,6 +307,11 @@ function squadFromArticle(text) {
     const kind = kindAt(at);
     if (!kind) return;
     const p = params(body);
+    // The newer squad template splits the name: first= / last= (and link= for the article).
+    if (!p.name && (p.first || p.last)) {
+      const full = `${plain(p.first || '')} ${plain(p.last || '')}`.trim();
+      p.name = `[[${plain(p.link || '') || full}|${full}]]`;
+    }
     if (!p.name) return;
     const { name, link } = playerName(p.name);
     if (!name || seen.has(name)) return;
@@ -537,7 +548,10 @@ function writeSquads(squads) {
 }
 
 if (require.main !== module) {
-  module.exports = { squadFromArticle, playerName, bestPosition };
+  module.exports = {
+    squadFromArticle, playerName, bestPosition, articleAt, wiki, sparql, playerFacts, itemsForTitles, factsForItems,
+    playerFactsByClub, ageOn, lit, qid, sleep, PAGES, CUTOFF, SEASON_START,
+  };
 } else (async () => {
   const clubs = await resolveClubs();
   if (process.argv.includes('--resolve')) return;

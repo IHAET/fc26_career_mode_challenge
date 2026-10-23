@@ -144,7 +144,7 @@
         <form class="scout-filters" data-scout-form autocomplete="off">
           <select name="group" aria-label="Position">${opts([['', 'Any position'], ['GK', 'Goalkeepers'], ['DEF', 'Defenders'], ['MID', 'Midfielders'], ['ATT', 'Attackers']], s.group)}</select>
           <select name="maxAge" aria-label="Maximum age">${opts([17, 18, 19, 20, 21, 22, 23].map((a) => [a, `Up to ${a}`]), s.maxAge)}</select>
-          <select name="leagueId" aria-label="League">${opts([['', 'Any league']].concat(leagues), s.leagueId)}</select>
+          <select name="leagueId" aria-label="League">${opts([['', 'Any league']], s.leagueId)}<optgroup label="Career mode leagues">${opts(leagues, s.leagueId)}</optgroup>${FC26.scout.extraLeagues().length ? `<optgroup label="Other leagues">${opts(FC26.scout.extraLeagues(), s.leagueId)}</optgroup>` : ''}</select>
           <input type="search" name="query" value="${esc(s.query)}" placeholder="Name, club or nationality" aria-label="Search prospects" maxlength="40">
           <label class="toggle"><input type="checkbox" name="fits" ${s.fits ? 'checked' : ''}> Only players who fit my rules</label>
         </form>
