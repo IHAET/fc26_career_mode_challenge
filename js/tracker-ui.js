@@ -108,7 +108,7 @@
         <div class="tools">
           <button type="button" class="btn btn-small" data-action="squad-add">+ Add player</button>
           <button type="button" class="btn btn-small" data-action="squad-paste">📋 Paste squad</button>
-          ${real ? `<button type="button" class="btn btn-small${t.players.length ? '' : ' btn-primary'}" data-action="squad-load" title="Real squad list from Wikidata: names, positions, ages and nationalities (no OVR)">⬇️ Load real squad (${real.length})</button>` : ''}
+          ${real ? `<button type="button" class="btn btn-small${t.players.length ? '' : ' btn-primary'}" data-action="squad-load" title="${esc(SQUAD_SOURCE)}">⬇️ Load real squad (${esc(squadSize(real))})</button>` : ''}
           <span class="muted squad-stats">${esc(squadStats(t))}</span>
         </div>
         <div class="paste-box" hidden>
@@ -122,7 +122,7 @@
         </div>
         ${t.players.length ? `<div class="phead" aria-hidden="true"><span>Name</span><span>Pos</span><span>Age</span><span>Nationality</span><span>OVR</span><span>€K/week</span><span>⭐ 🎓 🔁 ✈️ 🧬</span><span></span></div>` : ''}
         <div class="plist">${rows || `<p class="muted empty-note">${real
-    ? `No players yet. Press <strong>⬇️ Load real squad</strong> to start from ${esc(entry.challenge.club.name)}'s 2025/26 squad (from Wikidata: names, positions, ages and nationalities; add OVRs yourself), or paste your own list.`
+    ? `No players yet. Press <strong>⬇️ Load real squad</strong> to start from ${esc(entry.challenge.club.name)}'s squad as FC 26 launched, loans included (names, positions, ages and nationalities). Later squad updates may have changed a few players, so check it against your save and add OVRs as you go. Or paste your own list.`
     : 'No players yet. Add them one by one, or paste your whole squad.'}</p>`}</div>
         <p class="muted legend">⭐ starting XI · 🎓 academy graduate · 🔁 on loan at your club · ✈️ loaned out · 🧬 regen (generated player)</p>
       </div>`;
@@ -508,7 +508,7 @@
       const t0 = trackerOf(deps.findEntry(id));
       if (t0.players.length && !root.confirm('Replace your current squad list with the real squad?')) return true;
       change(item, (t) => { t.players = realSquadPlayers(item.dataset.club, t.season); }, ['squad']);
-      deps.toast(`Loaded ${real.length} players. Add their OVRs as you go.`);
+      deps.toast(`Loaded ${squadSize(real)}. Add their OVRs as you go.`);
       return true;
     }
     if (action === 'tr-dir') {
@@ -639,11 +639,24 @@
   }
 
   /** A club's real squad as tracker players, aged for the given season ([] if unknown). */
-  function realSquadPlayers(club, season) {
+  const SQUAD_SOURCE = 'The squad as FC 26 launched (September 2025): Wikipedia squad lists, with ages and positions from Wikidata. No OVRs.';
+  const loanedOut = (row) => row[4] === 'out';
+
+  /** "28 players + 6 out on loan", with a warning for lists too short to be a full squad. */
+  function squadSize(real) {
+    const out = real.filter(loanedOut).length;
+    const n = real.length - out;
+    return `${n} player${n === 1 ? '' : 's'}${out ? ` + ${out} out on loan` : ''}${n < 16 ? ', may be incomplete' : ''}`;
+  }
+
+  /** Tracker players for a club's real squad, aged for the season; [] if under `minimum` (loanees out not counted). */
+  function realSquadPlayers(club, season, minimum) {
     const real = realSquad(club);
-    if (!real) return [];
+    if (!real || real.filter((row) => !loanedOut(row)).length < (minimum || 1)) return [];
     const day = seasonDay(season);
-    return real.map(([name, pos, dob, nat]) => ({ id: uid(), name, pos, age: DB.ageOn(dob, day), nat: C.normNat(nat) }));
+    return real.map(([name, pos, dob, nat, loan]) => ({
+      id: uid(), name, pos, age: DB.ageOn(dob, day), nat: C.normNat(nat), loanIn: loan === 'in', loanedOut: loan === 'out',
+    }));
   }
 
   function setTab(id, tab) {

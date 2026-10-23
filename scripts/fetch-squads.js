@@ -1,22 +1,23 @@
 #!/usr/bin/env node
 /*
- * Build js/squads.js: current squads (name, position, date of birth,
- * nationality) for every club in js/data.js, from Wikidata (CC0).
+ * Build js/squads.js: every club's squad as FC 26 launched (name, position,
+ * date of birth, nationality, loans), from Wikipedia and Wikidata.
  *
- *   node scripts/fetch-squads.js            # resolve clubs (cached) + fetch squads
+ *   node scripts/fetch-squads.js            # resolve clubs (cached) + build squads
  *   node scripts/fetch-squads.js --resolve  # only find each club's Wikidata item
  *
  * Behind a proxy, run with NODE_USE_ENV_PROXY=1 (Node 22.21+).
  *
- * How it decides who is "in the squad", in two passes:
- *   1. Candidates: male footballers born 1985 or later with a spell at the
- *      club that has a start date (2015 or later) and no end date.
- *   2. For each candidate, all their club spells are fetched; they're kept
- *      only at the club whose open spell started most recently (national
- *      teams ignored), so players who moved on, or are out on loan, show
- *      up at their current club only.
- * Old spells that were never closed on Wikidata are the main source of
- * noise this guards against. Lower divisions can still be incomplete.
+ * How it works:
+ *   1. Each club's English Wikipedia article is read as it stood on CUTOFF
+ *      (summer windows shut, deadline-day deals in), and the players in its
+ *      first-team and out-on-loan squad lists are taken, academies left out.
+ *   2. Each linked player's Wikidata item adds a date of birth and a precise
+ *      position (left-back rather than "DF"). Players without an article keep
+ *      the list's broad position and have no date of birth.
+ * Downloaded pages are cached in scripts/.wiki-cache so re-runs are quick.
+ * The api.php endpoints rate-limit hard, so pages come through index.php.
+ * Squad lists are facts, not creative text; Wikidata is CC0.
  */
 'use strict';
 const fs = require('node:fs');
@@ -24,9 +25,11 @@ const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
 const CACHE = path.join(__dirname, 'club-qids.json');
+const PAGES = path.join(__dirname, '.wiki-cache');
 const OUT = path.join(ROOT, 'js', 'squads.js');
 const UA = 'FC26ChallengeBuilder/1.0 (https://github.com/IHAET/fc26_career_mode_challenge)';
-const SEASON_START = '2025-07-01';
+const CUTOFF = '2025-09-15'; // squads as FC 26 launched
+const SEASON_START = '2025-07-01'; // career mode's first day, for ages
 
 require(path.join(ROOT, 'js', 'data.js'));
 const { leagues } = globalThis.FC26.data;
@@ -78,12 +81,50 @@ const SEARCH_AS = {
   AVS: 'AVS Futebol SAD', 'Gil Vicente': 'Gil Vicente F.C.', 'Vitória SC': 'Vitória S.C.', Inter: 'Inter Milan',
 };
 
+// Wikidata position labels → FC positions. Specific roles first; the bare
+// "defender"/"midfielder"/"forward" only count when nothing better is listed.
 const POSITION = [
-  [/goalkeeper/i, 'GK'], [/left[- ]back/i, 'LB'], [/right[- ]back/i, 'RB'], [/wing[- ]back/i, 'RWB'], [/full[- ]back/i, 'RB'],
-  [/cent(re|er)[- ]back|sweeper|defender/i, 'CB'], [/defensive midfield/i, 'CDM'], [/attacking midfield/i, 'CAM'],
-  [/left wing/i, 'LW'], [/right wing/i, 'RW'], [/winger|wide midfield/i, 'RW'], [/midfield/i, 'CM'],
-  [/second striker/i, 'CF'], [/forward|striker/i, 'ST'],
+  [/goalkeeper/i, 'GK'], [/left wing[- ]back/i, 'LWB'], [/right wing[- ]back/i, 'RWB'], [/wing[- ]back/i, 'RWB'],
+  [/left[- ]back/i, 'LB'], [/right[- ]back/i, 'RB'], [/full[- ]back/i, 'RB'], [/cent(re|er)[- ]back|sweeper|libero/i, 'CB'],
+  [/defensive midfield/i, 'CDM'], [/attacking midfield/i, 'CAM'], [/left midfield/i, 'LM'], [/right midfield/i, 'RM'],
+  [/wide midfield/i, 'RM'], [/left wing/i, 'LW'], [/right wing/i, 'RW'], [/winger/i, 'RW'], [/central midfield/i, 'CM'],
+  [/second striker|false nine/i, 'CF'], [/cent(re|er)[- ]forward|striker/i, 'ST'],
 ];
+const BROAD = [[/defender/i, 'CB'], [/midfielder/i, 'CM'], [/forward/i, 'ST']];
+// Positions that fit each squad-list group, and the fallback when Wikidata has nothing.
+const GROUP = {
+  GK: ['GK'], DF: ['CB', 'LB', 'RB', 'LWB', 'RWB'], MF: ['CDM', 'CM', 'CAM', 'LM', 'RM', 'LW', 'RW'], FW: ['ST', 'CF', 'LW', 'RW'],
+};
+const GROUP_DEFAULT = { GK: 'GK', DF: 'CB', MF: 'CM', FW: 'ST' };
+
+// Squad-list nationality codes (FIFA, plus the ISO ones some pages use) → country.
+const NAT_CODES = Object.fromEntries(`AFG Afghanistan|ALB Albania|ALG Algeria|DZA Algeria|AND Andorra|ANG Angola|AGO Angola|ATG Antigua and Barbuda
+|ARG Argentina|ARM Armenia|ARU Aruba|AUS Australia|AUT Austria|AZE Azerbaijan|BAH Bahamas|BHR Bahrain|BAN Bangladesh|BRB Barbados
+|BLR Belarus|BEL Belgium|BLZ Belize|BEN Benin|BER Bermuda|BOL Bolivia|BIH Bosnia and Herzegovina|BOT Botswana|BRA Brazil|BUL Bulgaria
+|BGR Bulgaria|BFA Burkina Faso|BDI Burundi|CMR Cameroon|CAN Canada|CPV Cape Verde|CTA Central African Republic|CAF Central African Republic
+|CHA Chad|TCD Chad|CHI Chile|CHL Chile|CHN China|COL Colombia|COM Comoros|CGO Congo|COG Congo|COD DR Congo|DRC DR Congo|ZAI DR Congo|CRC Costa Rica
+|CRI Costa Rica|CRO Croatia|HRV Croatia|CUB Cuba|CUW Curaçao|CYP Cyprus|CZE Czech Republic|DEN Denmark|DNK Denmark|DJI Djibouti
+|DOM Dominican Republic|ECU Ecuador|EGY Egypt|SLV El Salvador|ENG England|EQG Equatorial Guinea|GNQ Equatorial Guinea|ERI Eritrea
+|EST Estonia|SWZ Eswatini|ESW Eswatini|ETH Ethiopia|FRO Faroe Islands|FIJ Fiji|FIN Finland|FRA France|GUF French Guiana|GAB Gabon
+|GAM Gambia|GMB Gambia|GEO Georgia|GER Germany|DEU Germany|GHA Ghana|GIB Gibraltar|GRE Greece|GRC Greece|GRN Grenada|GLP Guadeloupe
+|GUA Guatemala|GTM Guatemala|GUI Guinea|GIN Guinea|GNB Guinea-Bissau|GUY Guyana|HAI Haiti|HTI Haiti|HON Honduras|HND Honduras
+|HKG Hong Kong|HUN Hungary|ISL Iceland|IND India|IDN Indonesia|INA Indonesia|IRN Iran|IRQ Iraq|IRL Ireland|ISR Israel|ITA Italy
+|CIV Ivory Coast|JAM Jamaica|JPN Japan|JAP Japan|JOR Jordan|KAZ Kazakhstan|KEN Kenya|KOS Kosovo|KVX Kosovo|XKX Kosovo|KUW Kuwait|KWT Kuwait
+|KGZ Kyrgyzstan|LVA Latvia|LAT Latvia|LIB Lebanon|LBN Lebanon|LES Lesotho|LBR Liberia|LBY Libya|LIE Liechtenstein|LTU Lithuania|LIT Lithuania
+|LUX Luxembourg|MAD Madagascar|MDG Madagascar|MWI Malawi|MAS Malaysia|MYS Malaysia|MLI Mali|MLT Malta|MTQ Martinique|MTN Mauritania
+|MRT Mauritania|MRI Mauritius|MUS Mauritius|MYT Mayotte|MEX Mexico|MDA Moldova|MNE Montenegro|MSR Montserrat|MAR Morocco|MOZ Mozambique
+|NAM Namibia|NED Netherlands|NLD Netherlands|NCL New Caledonia|NZL New Zealand|NCA Nicaragua|NIC Nicaragua|NIG Niger|NER Niger
+|NGA Nigeria|NIR Northern Ireland|PRK North Korea|MKD North Macedonia|NOR Norway|OMA Oman|OMN Oman|PAK Pakistan|PLE Palestine
+|PSE Palestine|PAN Panama|PAR Paraguay|PRY Paraguay|PER Peru|PHI Philippines|PHL Philippines|POL Poland|POR Portugal|PRT Portugal
+|PUR Puerto Rico|PRI Puerto Rico|QAT Qatar|REU Réunion|ROU Romania|RUS Russia|RWA Rwanda|SKN Saint Kitts and Nevis|KNA Saint Kitts and Nevis
+|LCA Saint Lucia|VIN Saint Vincent and the Grenadines|SMR San Marino|STP São Tomé and Príncipe|KSA Saudi Arabia|SAU Saudi Arabia
+|SCO Scotland|SEN Senegal|SRB Serbia|SER Serbia|SEY Seychelles|SYC Seychelles|SLE Sierra Leone|SGP Singapore|SIN Singapore|SXM Sint Maarten
+|SVK Slovakia|SVN Slovenia|SLO Slovenia|SOM Somalia|RSA South Africa|ZAF South Africa|KOR South Korea|ROK South Korea|SSD South Sudan|ESP Spain
+|SRI Sri Lanka|LKA Sri Lanka|SDN Sudan|SUD Sudan|SUR Suriname|SWE Sweden|SUI Switzerland|SWI Switzerland|CHE Switzerland|SYR Syria|TAH Tahiti
+|TPE Taiwan|TJK Tajikistan|TAN Tanzania|TZA Tanzania|THA Thailand|TOG Togo|TGO Togo|TRI Trinidad and Tobago|TTO Trinidad and Tobago
+|TUN Tunisia|TUR Turkey|TKM Turkmenistan|UGA Uganda|UKR Ukraine|UAE United Arab Emirates|ARE United Arab Emirates|USA United States
+|URU Uruguay|URY Uruguay|UZB Uzbekistan|VEN Venezuela|VIE Vietnam|VNM Vietnam|WAL Wales|YEM Yemen|ZAM Zambia|ZMB Zambia|ZIM Zimbabwe
+|ZWE Zimbabwe`.split('|').map((pair) => { const [code, ...name] = pair.trim().split(' '); return [code, name.join(' ')]; }));
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -139,37 +180,201 @@ async function resolveClubs() {
   return cache;
 }
 
-// ---------- 2. Fetch squads ----------
+// ---------- 2. Read each club's squad list on Wikipedia ----------
 
-function candidateQuery(qids) {
-  return `SELECT ?club ?p ?pLabel ?dob ?start ?posLabel ?natLabel WHERE {
-    VALUES ?club { ${qids.map((q) => `wd:${q}`).join(' ')} }
-    ?p p:P54 ?st. ?st ps:P54 ?club; pq:P580 ?start.
-    FILTER(?start >= "2015-01-01T00:00:00Z"^^xsd:dateTime)
-    FILTER NOT EXISTS { ?st pq:P582 ?end }
-    ?st wikibase:rank ?rank. FILTER(?rank != wikibase:DeprecatedRank)
-    ?p wdt:P106 wd:Q937857; wdt:P21 wd:Q6581097; wdt:P569 ?dob.
-    FILTER(YEAR(?dob) >= 1985)
-    OPTIONAL { ?p wdt:P413 ?pos }
-    OPTIONAL { ?p wdt:P1532 ?nat1 }
-    OPTIONAL { ?p wdt:P27 ?nat2 }
-    BIND(COALESCE(?nat1, ?nat2) AS ?nat)
-    SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-  }`;
+/** A page through index.php, waiting out rate limits. Returns '' for a missing page. */
+async function wiki(params) {
+  const url = `https://en.wikipedia.org/w/index.php?${new URLSearchParams(params)}`;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const r = await fetch(url, { headers: { 'User-Agent': UA } });
+    if (r.status === 404) return '';
+    if (r.ok) return r.text();
+    await r.text().catch(() => {});
+    await sleep(((Number(r.headers.get('retry-after')) || 5) + 1) * 1000 * (attempt + 1));
+  }
+  throw new Error(`Wikipedia kept refusing ${url}`);
 }
 
-function spellsQuery(players) {
-  return `SELECT ?p ?team ?teamLabel ?start ?end WHERE {
-    VALUES ?p { ${players.map((q) => `wd:${q}`).join(' ')} }
-    ?p p:P54 ?st. ?st ps:P54 ?team.
-    ?st wikibase:rank ?rank. FILTER(?rank != wikibase:DeprecatedRank)
-    OPTIONAL { ?st pq:P580 ?start }
-    OPTIONAL { ?st pq:P582 ?end }
-    SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-  }`;
+/** The article's wikitext as it stood on CUTOFF (cached), following one redirect. */
+async function articleAt(title, depth = 0) {
+  const file = path.join(PAGES, `${title.replace(/[^\p{L}\p{N}._-]+/gu, '_')}.json`);
+  if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, 'utf8'));
+  const history = await wiki({ title, action: 'history', offset: `${CUTOFF.replace(/-/g, '')}000000`, limit: 1 });
+  const rev = (history.match(/data-mw-revid="(\d+)"/) || [])[1];
+  let page = null;
+  if (rev) {
+    const text = await wiki({ oldid: rev, action: 'raw' });
+    const redirect = text.match(/^#REDIRECT\s*\[\[([^\]|#]+)/i);
+    if (redirect && depth < 1) return articleAt(redirect[1].trim(), depth + 1);
+    page = { title, rev: Number(rev), text };
+  }
+  fs.mkdirSync(PAGES, { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(page));
+  await sleep(250);
+  return page;
 }
 
-const NATIONAL = /national|olympic|\bunder[- ]?\d{2}\b|\bU-?\d{2}\b/i;
+/** Each {{name ...}} template in the text whose name matches, with its offset. */
+function templates(text, nameRe) {
+  const out = [];
+  const re = /\{\{\s*([^|{}]+?)\s*\|/g;
+  let m;
+  while ((m = re.exec(text))) {
+    if (!nameRe.test(m[1])) continue;
+    let depth = 0;
+    let i = m.index;
+    for (; i < text.length - 1; i++) {
+      if (text[i] === '{' && text[i + 1] === '{') { depth++; i++; } else if (text[i] === '}' && text[i + 1] === '}') { depth--; i++; if (!depth) break; }
+    }
+    out.push({ at: m.index, body: text.slice(m.index + 2, i - 1) });
+    re.lastIndex = i;
+  }
+  return out;
+}
+
+/** A template's named parameters, splitting on | outside links and nested templates. */
+function params(body) {
+  const out = {};
+  let depth = 0;
+  let cur = '';
+  const parts = [];
+  for (let i = 0; i < body.length; i++) {
+    const two = body.slice(i, i + 2);
+    if (two === '{{' || two === '[[') { depth++; cur += two; i++; } else if (two === '}}' || two === ']]') { depth--; cur += two; i++; } else if (body[i] === '|' && !depth) { parts.push(cur); cur = ''; } else cur += body[i];
+  }
+  parts.push(cur);
+  parts.slice(1).forEach((p) => {
+    const eq = p.indexOf('=');
+    if (eq > 0) out[p.slice(0, eq).trim().toLowerCase()] = p.slice(eq + 1).trim();
+  });
+  return out;
+}
+
+const plain = (s) => s
+  .replace(/<ref[^>]*\/>|<ref[^>]*>[\s\S]*?<\/ref>|<!--[\s\S]*?-->/g, '')
+  .replace(/\[\[(?:[^|\]]*\|)?([^\]]*)\]\]/g, '$1')
+  .replace(/\{\{[^{}]*\}\}|<[^>]+>|'{2,}/g, '')
+  .replace(/\s+/g, ' ').trim();
+
+/** name= value → { name, link } (link is the article title, or '' for a plain name). */
+function playerName(value) {
+  const v = value.replace(/<ref[^>]*\/>|<ref[^>]*>[\s\S]*?<\/ref>|<!--[\s\S]*?-->/g, '');
+  const link = v.match(/\[\[([^\]|#]+)(?:\|([^\]]+))?\]\]/);
+  if (link) return { name: plain(link[2] || link[1].replace(/\s*\([^)]*\)$/, '')), link: link[1].trim() };
+  const sort = v.match(/\{\{\s*sortname\s*\|([^|}]*)\|([^|}]*)(?:\|([^|}]*))?/i);
+  if (sort) {
+    const name = `${sort[1].trim()} ${sort[2].trim()}`.trim();
+    return { name, link: sort[3] && !/^nolink|^dab=/i.test(sort[3].trim()) ? sort[3].trim() : name };
+  }
+  return { name: plain(v), link: '' };
+}
+
+/**
+ * Players in the article's first-team and out-on-loan lists. Each:
+ * { name, link, group (GK/DF/MF/FW), nat, loan: 'in' | 'out' | '' }.
+ */
+function squadFromArticle(text) {
+  const headings = [];
+  const hre = /^(={2,5})\s*(.+?)\s*\1\s*$/gm;
+  let h;
+  while ((h = hre.exec(text))) headings.push({ at: h.index, text: plain(h[2]).toLowerCase() });
+  const kindAt = (at) => {
+    const head = headings.filter((x) => x.at < at).pop();
+    const t = head ? head.text : '';
+    if (/academy|under[-–— ]?\d|\bu-?\d\d|\beds\b|(^|\s)b(\s|$)|reserve|youth|development|women|\bii\b|retired|former|notable|captain|record|international|staff|kit|histor|century|all[- ]time|hall of fame|greatest|legend|award|of the (year|season)/.test(t)) return '';
+    return /loan/.test(t) ? 'out' : 'squad';
+  };
+  const seen = new Set();
+  const out = [];
+  templates(text, /^(fs|football squad) ?2? player$/i).forEach(({ at, body }) => {
+    const kind = kindAt(at);
+    if (!kind) return;
+    const p = params(body);
+    if (!p.name) return;
+    const { name, link } = playerName(p.name);
+    if (!name || seen.has(name)) return;
+    seen.add(name);
+    const other = plain(p.other || '').toLowerCase();
+    const loan = kind === 'out' || /^(at|on loan (to|at))\b/.test(other) ? 'out' : /^on loan from\b/.test(other) ? 'in' : '';
+    const code = plain(p.nat || '').toUpperCase();
+    out.push({ name, link, group: plain(p.pos || '').toUpperCase(), nat: NAT_CODES[code] || plain(p.nat || ''), loan });
+  });
+  return out;
+}
+
+// ---------- 3. Dates of birth and positions from Wikidata ----------
+
+/** Article title → { dob, positions[] } for every title Wikidata links to an English article. */
+async function playerFacts(titles) {
+  const facts = new Map();
+  const list = Array.from(titles);
+  for (let i = 0; i < list.length; i += 200) {
+    const rows = await sparql(`SELECT ?title ?dob ?posLabel WHERE {
+      VALUES ?title { ${list.slice(i, i + 200).map((t) => `${lit(t)}@en`).join(' ')} }
+      ?a schema:name ?title; schema:isPartOf <https://en.wikipedia.org/>; schema:about ?p.
+      OPTIONAL { ?p wdt:P569 ?dob }
+      OPTIONAL { ?p wdt:P413 ?pos }
+      SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+    }`);
+    rows.forEach((r) => {
+      const f = facts.get(r.title.value) || { dob: '', positions: new Set() };
+      if (!f.dob && r.dob && /^\d{4}-\d\d-\d\d/.test(r.dob.value)) f.dob = r.dob.value.slice(0, 10);
+      if (r.posLabel) f.positions.add(r.posLabel.value);
+      facts.set(r.title.value, f);
+    });
+    process.stdout.write(`\rWikidata: ${Math.min(i + 200, list.length)}/${list.length} players`);
+    await sleep(500);
+  }
+  console.log('');
+  return facts;
+}
+
+/** The most specific Wikidata position that fits the squad list's group. */
+function bestPosition(labels, group) {
+  const fits = (code) => !GROUP[group] || GROUP[group].includes(code);
+  for (const table of [POSITION, BROAD]) {
+    for (const [re, code] of table) {
+      if (labels.some((l) => re.test(l)) && fits(code)) return code;
+    }
+  }
+  return GROUP_DEFAULT[group] || '';
+}
+
+async function fetchSquads(clubs) {
+  const titles = await clubTitles(clubs);
+  const lists = {};
+  const names = Object.keys(clubs);
+  for (let i = 0; i < names.length; i++) {
+    const page = titles[names[i]] && (await articleAt(titles[names[i]]));
+    lists[names[i]] = page ? squadFromArticle(page.text) : [];
+    process.stdout.write(`\rWikipedia: ${i + 1}/${names.length} clubs`);
+  }
+  console.log('');
+  const links = new Set(Object.values(lists).flat().map((p) => p.link).filter(Boolean));
+  const facts = await playerFacts(links);
+  const squads = {};
+  Object.entries(lists).forEach(([club, list]) => {
+    squads[club] = list.map((p) => {
+      const f = facts.get(p.link) || { dob: '', positions: new Set() };
+      return { name: p.name, pos: bestPosition(Array.from(f.positions), p.group), dob: f.dob, nat: p.nat, loan: p.loan };
+    });
+  });
+  return squads;
+}
+
+/** Each club's English Wikipedia title, from its Wikidata item (cached with the item). */
+async function clubTitles(clubs) {
+  const todo = Object.entries(clubs).filter(([, v]) => !v.wiki);
+  for (let i = 0; i < todo.length; i += 100) {
+    const batch = todo.slice(i, i + 100);
+    const rows = await sparql(`SELECT ?item ?title WHERE { VALUES ?item { ${batch.map(([, v]) => `wd:${v.qid}`).join(' ')} }
+      ?a schema:about ?item; schema:isPartOf <https://en.wikipedia.org/>; schema:name ?title. }`);
+    const byItem = new Map(rows.map((r) => [qid(r.item.value), r.title.value]));
+    batch.forEach(([, v]) => { if (byItem.has(v.qid)) v.wiki = byItem.get(v.qid); });
+  }
+  if (todo.length) fs.writeFileSync(CACHE, `${JSON.stringify(clubs, null, 1)}\n`);
+  return Object.fromEntries(Object.entries(clubs).map(([name, v]) => [name, v.wiki || '']));
+}
 
 function ageOn(dob, day) {
   const [y, m, d] = dob.slice(0, 10).split('-').map(Number);
@@ -177,88 +382,36 @@ function ageOn(dob, day) {
   return Y - y - (M < m || (M === m && D < d) ? 1 : 0);
 }
 
-function posCode(label) {
-  const hit = POSITION.find(([re]) => re.test(label || ''));
-  return hit ? hit[1] : '';
-}
-
-async function fetchSquads(clubs) {
-  const byQid = new Map(Object.entries(clubs).map(([name, v]) => [v.qid, name]));
-  const qids = Array.from(byQid.keys());
-  // Pass 1: candidates per club.
-  const candidates = new Map(); // player qid → { name, dob, pos, nat, at: Map(clubQid → start) }
-  for (let i = 0; i < qids.length; i += 6) {
-    const rows = await sparql(candidateQuery(qids.slice(i, i + 6)));
-    rows.forEach((r) => {
-      const id = qid(r.p.value);
-      const name = r.pLabel.value;
-      if (/^Q\d+$/.test(name)) return; // no English label
-      const c = candidates.get(id) || { name, dob: r.dob.value.slice(0, 10), pos: '', nat: '', at: new Map() };
-      c.at.set(qid(r.club.value), r.start.value);
-      if (!c.pos && r.posLabel) c.pos = posCode(r.posLabel.value);
-      // The country's name (the app turns it into "Brazilian" etc.); demonyms are unreliable ("Spaniard").
-      if (!c.nat && r.natLabel && !/^Q\d+$/.test(r.natLabel.value)) c.nat = r.natLabel.value;
-      candidates.set(id, c);
-    });
-    process.stdout.write(`\rPass 1: ${Math.min(i + 6, qids.length)}/${qids.length} clubs, ${candidates.size} candidates`);
-    await sleep(600);
-  }
-  console.log('');
-
-  // Pass 2: each candidate's other open spells decide where they play now.
-  const ids = Array.from(candidates.keys());
-  const latestOpen = new Map(); // player → latest start among open, non-national spells
-  for (let i = 0; i < ids.length; i += 150) {
-    const rows = await sparql(spellsQuery(ids.slice(i, i + 150)));
-    rows.forEach((r) => {
-      if (r.end && r.end.value.slice(0, 10) <= SEASON_START) return; // finished before the season
-      if (!r.start || NATIONAL.test(r.teamLabel ? r.teamLabel.value : '')) return;
-      const id = qid(r.p.value);
-      if (!latestOpen.has(id) || r.start.value > latestOpen.get(id)) latestOpen.set(id, r.start.value);
-    });
-    process.stdout.write(`\rPass 2: ${Math.min(i + 150, ids.length)}/${ids.length} players`);
-    await sleep(600);
-  }
-  console.log('');
-
-  const squads = {};
-  candidates.forEach((c, id) => {
-    const latest = latestOpen.get(id);
-    c.at.forEach((start, clubQid) => {
-      if (latest && start < latest) return; // he's moved on (or is on loan) since
-      const club = byQid.get(clubQid);
-      if (!club) return;
-      squads[club] = squads[club] || new Map();
-      squads[club].set(id, { name: c.name, dob: c.dob, pos: c.pos, nat: c.nat });
-    });
-  });
-  return squads;
-}
-
-function writeSquads(squads, clubs) {
+function writeSquads(squads) {
   const out = {};
   let players = 0;
-  Object.keys(clubs).sort().forEach((club) => {
-    const list = Array.from((squads[club] || new Map()).values())
-      .filter((p) => ageOn(p.dob, SEASON_START) <= 40)
-      .sort((a, b) => a.name.localeCompare(b.name));
+  const thin = [];
+  Object.keys(squads).sort().forEach((club) => {
+    const list = squads[club].filter((p) => !p.dob || ageOn(p.dob, SEASON_START) >= 14);
+    if (list.length < 11) thin.push(`${club} (${list.length})`);
     if (!list.length) return;
-    out[club] = list.map((p) => [p.name, p.pos, p.dob, p.nat]);
+    // Loanees out are listed last, flagged "out"; loanees in are flagged "in".
+    list.sort((a, b) => (a.loan === 'out') - (b.loan === 'out'));
+    out[club] = list.map((p) => (p.loan ? [p.name, p.pos, p.dob, p.nat, p.loan] : [p.name, p.pos, p.dob, p.nat]));
     players += list.length;
   });
+  const today = new Date().toISOString().slice(0, 10);
   const header = `/*
- * Generated by scripts/fetch-squads.js on ${new Date().toISOString().slice(0, 10)}. Do not edit by hand.
- * Squad lists from Wikidata (https://www.wikidata.org), released under CC0.
- * Wikidata is community-edited: lower divisions can be incomplete or out of date.
- * Each player: [name, position, date of birth, nationality].
+ * Generated by scripts/fetch-squads.js on ${today}. Do not edit by hand.
+ * Squads as FC 26 launched (${CUTOFF}): first-team and out-on-loan lists from each club's
+ * English Wikipedia article as it stood then, with dates of birth and positions from
+ * Wikidata (CC0). Players without a Wikipedia article have no date of birth.
+ * Each player: [name, position, date of birth, nationality, loan?] where loan is
+ * "in" (on loan at this club) or "out" (this club's player, loaned elsewhere).
  */
 `;
   const body = `(function (root) {
   'use strict';
   const FC26 = (root.FC26 = root.FC26 || {});
   FC26.squads = {
-    source: 'Wikidata (CC0)',
-    fetched: ${lit(new Date().toISOString().slice(0, 10))},
+    source: 'Wikipedia squad lists and Wikidata',
+    asOf: ${lit(CUTOFF)},
+    fetched: ${lit(today)},
     seasonStart: ${lit(SEASON_START)},
     clubs: ${JSON.stringify(out)},
   };
@@ -266,13 +419,16 @@ function writeSquads(squads, clubs) {
 `;
   fs.writeFileSync(OUT, header + body);
   console.log(`Wrote ${path.relative(ROOT, OUT)}: ${Object.keys(out).length} clubs, ${players} players`);
+  if (thin.length) console.log(`Fewer than 11 players: ${thin.join(', ')}`);
 }
 
-(async () => {
+if (require.main !== module) {
+  module.exports = { squadFromArticle, playerName, bestPosition };
+} else (async () => {
   const clubs = await resolveClubs();
   if (process.argv.includes('--resolve')) return;
   const squads = await fetchSquads(clubs);
-  writeSquads(squads, clubs);
+  writeSquads(squads);
 })().catch((e) => {
   console.error(e.message);
   process.exit(1);

@@ -946,23 +946,27 @@ Aleksei Miranchuk|Russian|CAM
     if (custom) p.custom = true;
   }
   // Squad players first (they carry club and date of birth), then the hand-written
-  // list fills gaps and adds aliases such as "Vini Jr".
+  // list adds aliases such as "Vini Jr" and its in-game position and nationality,
+  // which are more precise than a squad list's ("CAM" rather than "midfielder").
   const normNat = (n) => (FC26.compliance ? FC26.compliance.normNat(n) : n);
   const squadClubs = (FC26.squads && FC26.squads.clubs) || {};
   const players = [];
-  Object.keys(squadClubs).forEach((club) => {
-    squadClubs[club].forEach(([name, pos, dob, nat]) => {
-      if (byKey.has(key(name))) return; // same name at two clubs: keep the first
-      const p = { name, nat: normNat(nat), pos, dob, club, aliases: [] };
-      players.push(p);
-      index(p);
+  // Loanees are listed at both clubs: the one they're playing for wins.
+  [(row) => row[4] !== 'out', (row) => row[4] === 'out'].forEach((pass) => {
+    Object.keys(squadClubs).forEach((club) => {
+      squadClubs[club].filter(pass).forEach(([name, pos, dob, nat]) => {
+        if (byKey.has(key(name))) return; // same name at two clubs: keep the first
+        const p = { name, nat: normNat(nat), pos, dob, club, aliases: [] };
+        players.push(p);
+        index(p);
+      });
     });
   });
   curated.forEach((p) => {
     const existing = byKey.get(key(p.name));
     if (existing) {
-      if (!existing.nat) existing.nat = p.nat;
-      if (!existing.pos) existing.pos = p.pos;
+      existing.nat = p.nat || existing.nat;
+      existing.pos = p.pos || existing.pos;
       p.aliases.forEach((a) => { if (!byKey.has(key(a))) byKey.set(key(a), existing); });
       return;
     }

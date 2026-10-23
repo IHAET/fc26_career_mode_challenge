@@ -887,8 +887,9 @@
       mutateEntry(id, (e) => {
         e.tracker = Compliance.normalizeTracker(e.tracker);
         if (!e.tracker.players.length) {
-          e.tracker.players = Tracker.realSquadPlayers(ch.club.name, e.tracker.season);
-          loaded = e.tracker.players.length;
+          // Only auto-load lists that look like a real squad; thinner ones stay a button press away.
+          e.tracker.players = Tracker.realSquadPlayers(ch.club.name, e.tracker.season, 11);
+          loaded = e.tracker.players.filter((p) => !p.loanedOut).length;
         }
       });
     }
