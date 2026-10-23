@@ -228,6 +228,15 @@
         ['WSG Tirol', 1], ['Grazer AK', 1],
       ],
     },
+    {
+      id: 'rou1', name: 'SuperLiga', country: 'Romania', nationality: 'Romanian', level: 1, cup: 'Cupa României',
+      clubs: [
+        ['FCSB', 2], ['CFR Cluj', 2], ['Universitatea Craiova', 2], ['Rapid București', 1], ['Dinamo București', 1],
+        ['Universitatea Cluj', 1], ['Farul Constanța', 1], ['Petrolul Ploiești', 1], ['UTA Arad', 1], ['Oțelul Galați', 1],
+        ['Hermannstadt', 1], ['FC Botoșani', 1], ['Unirea Slobozia', 1], ['Csíkszereda', 1], ['Metaloglobus București', 1],
+        ['FC Argeș', 1],
+      ],
+    },
   ];
 
   const nations = [

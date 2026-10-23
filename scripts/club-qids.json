@@ -2078,5 +2078,85 @@
   "qid": "Q1386854",
   "label": "FC Andorra",
   "wiki": "FC Andorra"
+ },
+ "FCSB": {
+  "qid": "Q179658",
+  "label": "FCSB",
+  "wiki": "FCSB"
+ },
+ "CFR Cluj": {
+  "qid": "Q205998",
+  "label": "CFR Cluj",
+  "wiki": "CFR Cluj"
+ },
+ "Universitatea Craiova": {
+  "qid": "Q16838020",
+  "label": "CS Universitatea Craiova",
+  "wiki": "CS Universitatea Craiova"
+ },
+ "Rapid București": {
+  "qid": "Q245162",
+  "label": "FC Rapid București",
+  "wiki": "FC Rapid București"
+ },
+ "Dinamo București": {
+  "qid": "Q204237",
+  "label": "FC Dinamo Bucharest",
+  "wiki": "FC Dinamo București"
+ },
+ "Universitatea Cluj": {
+  "qid": "Q753462",
+  "label": "FC Universitatea Cluj",
+  "wiki": "FC Universitatea Cluj"
+ },
+ "Farul Constanța": {
+  "qid": "Q368104",
+  "label": "FCV Farul Constanța",
+  "wiki": "FCV Farul Constanța"
+ },
+ "Petrolul Ploiești": {
+  "qid": "Q1322550",
+  "label": "FC Petrolul Ploiești",
+  "wiki": "FC Petrolul Ploiești"
+ },
+ "UTA Arad": {
+  "qid": "Q680770",
+  "label": "FC UTA Arad",
+  "wiki": "FC UTA Arad"
+ },
+ "Oțelul Galați": {
+  "qid": "Q220863",
+  "label": "SC Oțelul Galați",
+  "wiki": "ASC Oțelul Galați"
+ },
+ "Hermannstadt": {
+  "qid": "Q24884611",
+  "label": "FC Hermannstadt",
+  "wiki": "FC Hermannstadt"
+ },
+ "FC Botoșani": {
+  "qid": "Q1262822",
+  "label": "FC Botoșani",
+  "wiki": "FC Botoșani"
+ },
+ "Unirea Slobozia": {
+  "qid": "Q5425216",
+  "label": "FC Unirea Slobozia",
+  "wiki": "AFC Unirea Slobozia"
+ },
+ "Csíkszereda": {
+  "qid": "Q23051672",
+  "label": "FK Csíkszereda",
+  "wiki": "FK Csíkszereda Miercurea Ciuc"
+ },
+ "FC Argeș": {
+  "qid": "Q841245",
+  "label": "FC Argeș",
+  "wiki": "FC Argeș Pitești"
+ },
+ "Metaloglobus București": {
+  "qid": "Q28230355",
+  "label": "FC Metaloglobus București",
+  "wiki": "FC Metaloglobus București"
  }
 }

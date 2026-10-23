@@ -26,6 +26,7 @@
     Belgium: ['belgian techno', 'new beat'], 'Türkiye': ['turkish pop', 'arabesk'], Norway: ['norwegian pop'], Denmark: ['danish pop'],
     Austria: ['austropop'], Brazil: ['sertanejo', 'funk carioca'], Argentina: ['cumbia', 'tango'], Mexico: ['regional mexican'],
     Japan: ['j-pop'], 'South Korea': ['k-pop'], Ireland: ['irish folk'], Greece: ['greek pop'], Poland: ['polish hip hop'],
+    Romania: ['manele', 'romanian pop'],
   };
   const NATIONALITY_GENRES = {
     English: 'grime', Spanish: 'reggaeton', Brazilian: 'funk carioca', Argentine: 'cumbia', French: 'french hip hop', German: 'german hip hop',
@@ -33,7 +34,7 @@
     Algerian: 'rai', Portuguese: 'fado', Dutch: 'dutch house', Italian: 'italian pop', Colombian: 'reggaeton', Mexican: 'regional mexican',
     Jamaican: 'dancehall', Japanese: 'j-pop', 'South Korean': 'k-pop', Norwegian: 'norwegian pop', Swedish: 'swedish pop', Danish: 'danish pop',
     Turkish: 'turkish pop', Scottish: 'scottish indie', Irish: 'irish folk', American: 'hip hop', Serbian: 'turbo folk', Greek: 'greek pop',
-    Polish: 'polish hip hop', Austrian: 'austropop', Congolese: 'soukous', 'South African': 'amapiano', Malian: 'desert blues', Egyptian: 'mahraganat',
+    Polish: 'polish hip hop', Austrian: 'austropop', Romanian: 'manele', Congolese: 'soukous', 'South African': 'amapiano', Malian: 'desert blues', Egyptian: 'mahraganat',
   };
   const MOOD_GENRES = {
     'road-to-glory': 'rock', 'youth-revolution': 'indie', moneyball: 'lo-fi', 'fallen-giant': 'soundtrack', homegrown: 'folk',

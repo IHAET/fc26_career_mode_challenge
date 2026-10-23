@@ -1,6 +1,6 @@
 /*
  * Club Heritage challenges: the rest of Europe (Netherlands, Portugal,
- * Scotland, Belgium, Türkiye, Norway, Denmark, Austria).
+ * Scotland, Belgium, Türkiye, Norway, Denmark, Austria, Romania).
  * Keyed by the club name used in data.js. Field reference: see the
  * 'club-heritage' archetype in rules.js.
  */
@@ -324,6 +324,94 @@
         `At least ${c.byD([4, 5, 6, 7])} Austrian players in every starting XI.`,
       ],
       finalGoal: () => 'Win the Austrian Bundesliga for the first time since 2008.',
+    },
+
+    // ---------- Romania ----------
+    'FCSB': {
+      name: "The Owner's Club", icon: '👑',
+      tagline: 'The patron always has the final say.',
+      history: "FCSB, formerly Steaua București, are the most successful Romanian club of the modern era and won the SuperLiga in 2024 and 2025. Their owner is famous for having the final say on transfers and team selection. (Who owns the history of Steaua's 1986 European Cup win is the subject of a long legal dispute.)",
+      seasons: [3, 5],
+      blockTags: ['quota', 'sell-star'],
+      core: (c) => [
+        `At least ${c.byD([3, 4, 5, 6])} Romanian players in every starting XI.`,
+        `The owner always cashes in: accept any bid of ${c.byD(['€15M', '€10M', '€8M', '€6M'])} or more for one of your players.`,
+      ],
+      finalGoal: () => 'Win the SuperLiga and reach the Europa League quarter-finals in the same season.',
+    },
+    'Universitatea Craiova': {
+      name: 'Craiova Maxima', icon: '🦁',
+      tagline: 'Bring back the golden team.',
+      history: "In the early 1980s Universitatea Craiova's side, nicknamed 'Craiova Maxima', won back-to-back league titles and in 1983 became the first Romanian team to reach a European semi-final, losing the UEFA Cup tie to Benfica on away goals.",
+      seasons: [4, 6],
+      blockTags: ['quota', 'age'],
+      core: (c) => [
+        `At least ${c.byD([4, 5, 6, 6])} Romanian players in every starting XI.`,
+        `Only sign players aged ${c.byD([26, 25, 24, 23])} or younger.`,
+      ],
+      finalGoal: () => 'Reach a European semi-final, like the Craiova Maxima of 1983.',
+    },
+    'Rapid București': {
+      name: 'The Railwaymen of Giulești', icon: '🚂',
+      tagline: "The fans' club, back for the title.",
+      history: "Rapid were founded in 1923 by workers at Bucharest's Grivița railway workshops and play at Giulești in front of some of Romania's loudest fans. Their last league title came in 2003.",
+      seasons: [3, 6],
+      blockTags: ['academy-promote', 'rivals'],
+      core: (c) => [
+        `Promote at least ${c.byD([1, 2, 2, 3])} academy players to the first team every season.`,
+        'Never sign a player from FCSB or Dinamo București.',
+      ],
+      finalGoal: () => "Win the SuperLiga, Rapid's first league title since 2003.",
+    },
+    'Dinamo București': {
+      name: 'Back from the Brink', icon: '🐕',
+      tagline: 'The Red Dogs rebuild on a shoestring.',
+      history: "Dinamo have won 18 Romanian titles, the last in 2007, but money trouble and insolvency led to relegation in 2022. They won their way back to the top flight a year later and are rebuilding.",
+      seasons: [4, 6],
+      blockTags: ['wage', 'fee'],
+      core: (c) => [
+        `No player may earn more than ${c.wageCap()}/week.`,
+        'In your first season, sign only free agents and loans.',
+      ],
+      finalGoal: () => "Win the SuperLiga, Dinamo's first title since 2007.",
+    },
+    'CFR Cluj': {
+      name: "The Railwaymen's Dynasty", icon: '🚆',
+      tagline: 'Experience wins titles.',
+      history: 'CFR Cluj won their first league title in 2008, more than a century after they were founded, and then won five in a row from 2018 to 2022 with squads built on experienced players.',
+      seasons: [5, 6],
+      blockTags: ['avg-age', 'age'],
+      core: () => [
+        'Your starting XI must average 28 years old or older.',
+        'Sign at least one player aged 30 or over every summer.',
+      ],
+      seasonGoal: (c, s) => (s === 1 ? 'Win the SuperLiga.' : null),
+      finalGoal: () => 'Win five SuperLiga titles in a row, like 2018 to 2022.',
+    },
+    'Farul Constanța': {
+      name: "Hagi's Academy", icon: '🌊',
+      tagline: 'Built by the King of the Carpathians.',
+      history: 'Gheorghe Hagi founded Viitorul Constanța and its academy in 2009 and won the league with them in 2017. Viitorul merged into Farul in 2021, and with Hagi as coach Farul were champions in 2023, mostly with young Romanian players.',
+      seasons: [4, 6],
+      blockTags: ['origin', 'age', 'academy'],
+      core: (c) => [
+        `Only sign Romanian players aged ${c.byD([24, 23, 22, 21])} or younger.`,
+        `At least ${c.byD([2, 3, 4, 5])} academy graduates in every matchday squad.`,
+      ],
+      finalGoal: () => 'Win the SuperLiga with a starting XI averaging under 24.',
+    },
+    'Csíkszereda': {
+      name: "Szeklerland's Club", icon: '🌲',
+      tagline: 'From the Carpathian valleys to the top flight.',
+      history: "FK Csíkszereda play in Miercurea Ciuc, in the mainly Hungarian-speaking Szeklerland region, and are known for their youth academy. In 2025 they reached Romania's top flight for the first time.",
+      seasons: [3, 5],
+      blockTags: ['origin', 'academy'],
+      core: (c) => [
+        'Every signing must be Hungarian or Romanian.',
+        `At least ${c.byD([2, 3, 4, 4])} academy graduates in every matchday squad.`,
+      ],
+      seasonGoal: (c, s) => (s === 1 ? 'Avoid relegation from the SuperLiga.' : null),
+      finalGoal: () => 'Qualify for European football.',
     },
   });
 })(typeof window !== 'undefined' ? window : globalThis);

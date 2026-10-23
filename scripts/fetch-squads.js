@@ -39,7 +39,7 @@ const { leagues } = globalThis.FC26.data;
 const COUNTRY_QIDS = {
   England: ['Q21', 'Q145', 'Q25'], Scotland: ['Q22', 'Q145'], Spain: ['Q29', 'Q228'], Italy: ['Q38'], Germany: ['Q183'],
   France: ['Q142', 'Q235'], Netherlands: ['Q55', 'Q29999'], Portugal: ['Q45'], USA: ['Q30', 'Q16'], 'Saudi Arabia': ['Q851'],
-  Belgium: ['Q31'], 'Türkiye': ['Q43'], Norway: ['Q20'], Denmark: ['Q35'], Austria: ['Q40'],
+  Belgium: ['Q31'], 'Türkiye': ['Q43'], Norway: ['Q20'], Denmark: ['Q35'], Austria: ['Q40'], Romania: ['Q218'],
 };
 
 // Search terms for names that are too short or ambiguous to find on their own.
@@ -80,6 +80,11 @@ const SEARCH_AS = {
   'Blau-Weiß Linz': 'FC Blau-Weiß Linz', 'Red Bull Salzburg': 'FC Red Bull Salzburg', Moreirense: 'Moreirense F.C.',
   'Estoril Praia': 'G.D. Estoril Praia', 'Rio Ave': 'Rio Ave F.C.', 'Santa Clara': 'C.D. Santa Clara', 'Casa Pia': 'Casa Pia A.C.',
   AVS: 'AVS Futebol SAD', 'Gil Vicente': 'Gil Vicente F.C.', 'Vitória SC': 'Vitória S.C.', Inter: 'Inter Milan',
+  FCSB: 'FCSB', 'Rapid București': 'FC Rapid București', 'Dinamo București': 'FC Dinamo București',
+  'Universitatea Craiova': 'CS Universitatea Craiova', 'Universitatea Cluj': 'FC Universitatea Cluj', 'Farul Constanța': 'FCV Farul Constanța',
+  'Petrolul Ploiești': 'FC Petrolul Ploiești', 'UTA Arad': 'FC UTA Arad', 'Oțelul Galați': 'ASC Oțelul Galați', Hermannstadt: 'FC Hermannstadt',
+  'Unirea Slobozia': 'AFC Unirea Slobozia', 'Csíkszereda': 'FK Csíkszereda Miercurea Ciuc', 'Metaloglobus București': 'FC Metaloglobus București',
+  'FC Argeș': 'FC Argeș Pitești', 'CFR Cluj': 'CFR Cluj',
 };
 
 // Wikidata position labels → FC positions. Specific roles first; the bare
