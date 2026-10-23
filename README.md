@@ -85,9 +85,9 @@ Each user's saves are one Firestore document (`users/<uid>`). When a device sign
 1. Create an app at [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) (choose **Web API**).
 2. Add the app's address as a **Redirect URI**, exactly: `https://<your-username>.github.io/fc26_career_mode_challenge/` (for local testing, `http://127.0.0.1:8080/`).
 3. Copy the **Client ID** into `spotifyClientId` in `js/config.js`, rebuild and push. No client secret is needed: sign-in uses PKCE in the browser.
-4. New Spotify apps start in development mode, where only accounts you add under **User Management** (a small allowlist) can connect. That's fine for you and a few friends; opening it to everyone needs Spotify's approval.
+4. New Spotify apps start in development mode, where only accounts you add under **User Management** (up to 5) can connect, and only while the app's owner has Spotify Premium. That's fine for you and a few friends; opening it to everyone needs Spotify's approval.
 
-It only uses what Spotify still opens to new apps (your top artists, search and playlist creation), and it needs the hosted page: Spotify can't send you back to a downloaded file.
+It only uses what Spotify still opens to apps in development mode after its February 2026 changes (your top artists, search, `POST /me/playlists` and `POST /playlists/{id}/items`), and it needs the hosted page: Spotify can't send you back to a downloaded file.
 
 ## Squad data
 

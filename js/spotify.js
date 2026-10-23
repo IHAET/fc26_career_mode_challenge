@@ -4,8 +4,9 @@
  * challenge's mood and the biggest nationalities in your tracked squad).
  *
  * Runs entirely in the browser with Spotify's PKCE sign-in, switched on by
- * FC26.config.spotifyClientId. It uses only endpoints open to new Spotify
- * apps: your top artists (for genres), search by genre, and playlist creation.
+ * FC26.config.spotifyClientId. It uses only endpoints open to apps in
+ * development mode since Spotify's February 2026 changes: your top artists
+ * (for genres), search by genre (10 results a call) and playlist creation.
  */
 (function (root) {
   'use strict';
@@ -16,6 +17,7 @@
   const TOKEN_KEY = 'fc26-spotify-v1';
   const PENDING_KEY = 'fc26-spotify-pending';
   const SCOPES = 'user-top-read playlist-modify-private playlist-modify-public';
+  const SEARCH_PAGE = 10; // the most a development-mode app gets per search
 
   // ---------- Genres that fit a save ----------
 
@@ -179,7 +181,8 @@
         const said = await r.text().then((body) => { try { return (JSON.parse(body).error || {}).message || body; } catch (e) { return body; } }).catch(() => '');
         const why = String(said || '').trim().slice(0, 160);
         if (/premium/i.test(why)) throw new Error(`Spotify refused (“${why}”). Spotify only lets apps in development mode work while the app's owner has Spotify Premium.`);
-        throw new Error(`Spotify refused${why ? ` (“${why}”)` : ''}. This Spotify account isn't on the app's user list yet: in the Spotify dashboard open the app, go to Settings → User Management, add the email this account logs in with, then press Disconnect Spotify below and connect again.`);
+        if (/regist/i.test(why)) throw new Error(`Spotify refused (“${why}”). This Spotify account isn't on the app's user list yet: in the Spotify dashboard open the app, go to Settings → User Management, add the email this account logs in with, then press Disconnect Spotify below and connect again.`);
+        throw new Error(`Spotify refused${why ? ` (“${why}”)` : ''}. Press Disconnect Spotify below, connect again and try once more.`);
       }
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
@@ -219,23 +222,27 @@
   /** Create the playlist on the user's account. Returns { url, name, count }. */
   async function buildPlaylist(entry, genres, size) {
     const ch = entry.challenge;
-    const me = await api('/me');
     const per = Math.ceil(size / genres.length) + 2;
     const seen = new Set();
     const byArtist = {};
     const lists = [];
     for (const g of genres) {
-      const offset = Math.floor(Math.random() * 30);
-      const res = await api(`/search?${new URLSearchParams({ q: `genre:"${g}"`, type: 'track', limit: 50, offset, market: 'from_token' })}`);
+      const start = Math.floor(Math.random() * 30);
       const picks = [];
-      shuffle((res.tracks && res.tracks.items) || []).forEach((t) => {
-        if (!t || !t.uri || seen.has(t.id) || picks.length >= per) return;
-        const artist = (t.artists && t.artists[0] && t.artists[0].id) || t.id;
-        if ((byArtist[artist] || 0) >= 2) return;
-        byArtist[artist] = (byArtist[artist] || 0) + 1;
-        seen.add(t.id);
-        picks.push(t.uri);
-      });
+      // Search hands out 10 tracks a call, so page on until the genre has its share.
+      for (let page = 0; page < Math.min(10, Math.ceil(per / SEARCH_PAGE) + 3) && picks.length < per; page++) {
+        const res = await api(`/search?${new URLSearchParams({ q: `genre:"${g}"`, type: 'track', limit: SEARCH_PAGE, offset: start + page * SEARCH_PAGE, market: 'from_token' })}`);
+        const items = (res.tracks && res.tracks.items) || [];
+        shuffle(items).forEach((t) => {
+          if (!t || !t.uri || seen.has(t.id) || picks.length >= per) return;
+          const artist = (t.artists && t.artists[0] && t.artists[0].id) || t.id;
+          if ((byArtist[artist] || 0) >= 2) return;
+          byArtist[artist] = (byArtist[artist] || 0) + 1;
+          seen.add(t.id);
+          picks.push(t.uri);
+        });
+        if (items.length < SEARCH_PAGE) break;
+      }
       lists.push(picks);
     }
     // Deal the genres out in turn so the playlist mixes them.
@@ -245,9 +252,9 @@
     const name = `FC 26 · ${ch.club.name} · ${ch.archetype.name}`.slice(0, 100);
     const description = `Soundtrack for "${ch.title}" (${ch.difficultyName}). Genres: ${genres.join(', ')}. Made with the FC 26 Career Challenge Builder.`
       .replace(/[\r\n<>]/g, ' ').slice(0, 300);
-    const playlist = await api(`/users/${encodeURIComponent(me.id)}/playlists`, { method: 'POST', body: JSON.stringify({ name, description, public: false }) });
+    const playlist = await api('/me/playlists', { method: 'POST', body: JSON.stringify({ name, description, public: false }) });
     for (let i = 0; i < uris.length; i += 100) {
-      await api(`/playlists/${encodeURIComponent(playlist.id)}/tracks`, { method: 'POST', body: JSON.stringify({ uris: uris.slice(i, i + 100) }) });
+      await api(`/playlists/${encodeURIComponent(playlist.id)}/items`, { method: 'POST', body: JSON.stringify({ uris: uris.slice(i, i + 100) }) });
     }
     return { url: (playlist.external_urls && playlist.external_urls.spotify) || `https://open.spotify.com/playlist/${playlist.id}`, name, count: uris.length };
   }
