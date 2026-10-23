@@ -1,9 +1,10 @@
 /*
  * Known real players, used to tell real signings from regens (players the
- * game generates). Names, nationalities and main positions only, no ratings.
- * It's a list of well-known players, not a full database: anyone missing is
- * treated as a possible regen, and the player can override that (the app
- * then remembers the name as real).
+ * game generates). Two sources: every player in the squad lists (squads.js,
+ * from Wikidata, with club and date of birth), plus this hand-written list of
+ * well-known players (names, nationalities, main positions; no ratings).
+ * Anyone missing is treated as a possible regen, and the player can override
+ * that (the app then remembers the name as real).
  *
  * One player per line: Name|Nationality|Position|alias;alias
  */
@@ -928,7 +929,7 @@ Aleksei Miranchuk|Russian|CAM
     .replace(/ø/g, 'o').replace(/æ/g, 'ae').replace(/ł/g, 'l').replace(/ð/g, 'd').replace(/ı/g, 'i').replace(/ß/g, 'ss')
     .replace(/['’.]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
 
-  const players = LIST.trim().split('\n').map((line) => {
+  const curated = LIST.trim().split('\n').map((line) => {
     const [name, nat, pos, aliases] = line.split('|');
     return { name, nat, pos, aliases: aliases ? aliases.split(';') : [] };
   });
@@ -944,7 +945,53 @@ Aleksei Miranchuk|Russian|CAM
     });
     if (custom) p.custom = true;
   }
-  players.forEach((p) => index(p));
+  // Squad players first (they carry club and date of birth), then the hand-written
+  // list fills gaps and adds aliases such as "Vini Jr".
+  const normNat = (n) => (FC26.compliance ? FC26.compliance.normNat(n) : n);
+  const squadClubs = (FC26.squads && FC26.squads.clubs) || {};
+  const players = [];
+  Object.keys(squadClubs).forEach((club) => {
+    squadClubs[club].forEach(([name, pos, dob, nat]) => {
+      if (byKey.has(key(name))) return; // same name at two clubs: keep the first
+      const p = { name, nat: normNat(nat), pos, dob, club, aliases: [] };
+      players.push(p);
+      index(p);
+    });
+  });
+  curated.forEach((p) => {
+    const existing = byKey.get(key(p.name));
+    if (existing) {
+      if (!existing.nat) existing.nat = p.nat;
+      if (!existing.pos) existing.pos = p.pos;
+      p.aliases.forEach((a) => { if (!byKey.has(key(a))) byKey.set(key(a), existing); });
+      return;
+    }
+    players.push(p);
+    index(p);
+  });
+
+  /** Up to `limit` players whose name starts with (or contains) the text, for autocomplete. */
+  function search(text, limit) {
+    const k = key(text);
+    if (k.length < 2) return [];
+    const starts = [];
+    const contains = [];
+    for (const p of players) {
+      const pk = key(p.name);
+      if (pk.startsWith(k) || pk.split(' ').some((w) => w.startsWith(k))) starts.push(p);
+      else if (pk.includes(k)) contains.push(p);
+      if (starts.length >= (limit || 20)) break;
+    }
+    return starts.concat(contains).slice(0, limit || 20);
+  }
+
+  /** Age on a date ("YYYY-MM-DD") from a date of birth, or '' if unknown. */
+  function ageOn(dob, day) {
+    if (!dob || !day) return '';
+    const [y, m, d] = dob.split('-').map(Number);
+    const [Y, M, D] = day.split('-').map(Number);
+    return Y - y - (M < m || (M === m && D < d) ? 1 : 0);
+  }
 
   /** Add a name the player confirmed is real (not a regen). */
   function addKnown(name, nat, pos) {
@@ -972,5 +1019,5 @@ Aleksei Miranchuk|Russian|CAM
     return null;
   }
 
-  FC26.playerDB = { players, recognise, addKnown, key };
+  FC26.playerDB = { players, curated, recognise, search, addKnown, ageOn, key };
 })(typeof window !== 'undefined' ? window : globalThis);

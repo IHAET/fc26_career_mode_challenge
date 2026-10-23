@@ -881,12 +881,23 @@
   function trackChallenge(ch) {
     const id = saveChallenge(ch, true);
     if (!id) return;
+    // Start from the club's real squad if we have it and nothing's been entered yet.
+    let loaded = 0;
+    if (ch.mode !== 'player') {
+      mutateEntry(id, (e) => {
+        e.tracker = Compliance.normalizeTracker(e.tracker);
+        if (!e.tracker.players.length) {
+          e.tracker.players = Tracker.realSquadPlayers(ch.club.name, e.tracker.season);
+          loaded = e.tracker.players.length;
+        }
+      });
+    }
     Tracker.setTab(id, ch.mode === 'player' ? 'moves' : 'squad');
     storageSet(TC_KEY, id);
     showView('saved', id);
     const item = $(`.saved-item[data-id="${CSS.escape(id)}"]`);
     if (item) item.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    toast('Tracking this challenge 📒');
+    toast(loaded ? `Tracking this challenge 📒 Loaded ${loaded} real players: add their OVRs as you go.` : 'Tracking this challenge 📒');
   }
 
   // ---------- Transfers section ----------
@@ -1229,8 +1240,6 @@
     Tracker.init({ esc, toast, mutateEntry, findEntry, refresh: refreshSavedItem, rememberKnown });
     const known = storageGet(KNOWN_KEY, []);
     if (Array.isArray(known)) known.forEach((x) => x && x.name && PlayerDB.addKnown(x.name, x.nat, x.pos));
-    const knownList = $('#known-players');
-    PlayerDB.players.forEach((p) => knownList.appendChild(new Option(p.name)));
     $('#saved-list').addEventListener('input', (e) => {
       const item = e.target.closest('.saved-item');
       if (item) Tracker.onInput(e, item);

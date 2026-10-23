@@ -1,0 +1,1666 @@
+{
+ "Arsenal": {
+  "qid": "Q9617",
+  "label": "Arsenal F.C."
+ },
+ "Liverpool": {
+  "qid": "Q1130849",
+  "label": "Liverpool F.C."
+ },
+ "Manchester City": {
+  "qid": "Q50602",
+  "label": "Manchester City F.C."
+ },
+ "Chelsea": {
+  "qid": "Q9616",
+  "label": "Chelsea F.C."
+ },
+ "Manchester United": {
+  "qid": "Q18656",
+  "label": "Manchester United F.C."
+ },
+ "Tottenham Hotspur": {
+  "qid": "Q18741",
+  "label": "Tottenham Hotspur F.C."
+ },
+ "Newcastle United": {
+  "qid": "Q18716",
+  "label": "Newcastle United F.C."
+ },
+ "Aston Villa": {
+  "qid": "Q18711",
+  "label": "Aston Villa F.C."
+ },
+ "Brighton & Hove Albion": {
+  "qid": "Q19453",
+  "label": "Brighton & Hove Albion F.C."
+ },
+ "Nottingham Forest": {
+  "qid": "Q19490",
+  "label": "Nottingham Forest F.C."
+ },
+ "Crystal Palace": {
+  "qid": "Q19467",
+  "label": "Crystal Palace F.C."
+ },
+ "AFC Bournemouth": {
+  "qid": "Q19568",
+  "label": "AFC Bournemouth"
+ },
+ "Brentford": {
+  "qid": "Q19571",
+  "label": "Brentford F.C."
+ },
+ "Fulham": {
+  "qid": "Q18708",
+  "label": "Fulham F.C."
+ },
+ "West Ham United": {
+  "qid": "Q18747",
+  "label": "West Ham United F.C."
+ },
+ "Everton": {
+  "qid": "Q5794",
+  "label": "Everton F.C."
+ },
+ "Wolverhampton Wanderers": {
+  "qid": "Q19500",
+  "label": "Wolverhampton Wanderers F.C."
+ },
+ "Leeds United": {
+  "qid": "Q1128631",
+  "label": "Leeds United F.C."
+ },
+ "Burnley": {
+  "qid": "Q19458",
+  "label": "Burnley F.C."
+ },
+ "Sunderland": {
+  "qid": "Q18739",
+  "label": "Sunderland A.F.C."
+ },
+ "Leicester City": {
+  "qid": "Q19481",
+  "label": "Leicester City F.C."
+ },
+ "Southampton": {
+  "qid": "Q18732",
+  "label": "Southampton F.C."
+ },
+ "Ipswich Town": {
+  "qid": "Q9653",
+  "label": "Ipswich Town F.C."
+ },
+ "Sheffield United": {
+  "qid": "Q19607",
+  "label": "Sheffield United F.C."
+ },
+ "Middlesbrough": {
+  "qid": "Q18661",
+  "label": "Middlesbrough F.C."
+ },
+ "Coventry City": {
+  "qid": "Q19580",
+  "label": "Coventry City F.C."
+ },
+ "West Bromwich Albion": {
+  "qid": "Q18744",
+  "label": "West Bromwich Albion F.C."
+ },
+ "Norwich City": {
+  "qid": "Q18721",
+  "label": "Norwich City F.C."
+ },
+ "Watford": {
+  "qid": "Q2714",
+  "label": "Watford F.C."
+ },
+ "Wrexham": {
+  "qid": "Q18529",
+  "label": "Wrexham A.F.C."
+ },
+ "Birmingham City": {
+  "qid": "Q19444",
+  "label": "Birmingham City F.C."
+ },
+ "Hull City": {
+  "qid": "Q19477",
+  "label": "Hull City A.F.C."
+ },
+ "Stoke City": {
+  "qid": "Q18736",
+  "label": "Stoke City F.C."
+ },
+ "Swansea City": {
+  "qid": "Q18659",
+  "label": "Swansea City A.F.C."
+ },
+ "Millwall": {
+  "qid": "Q19487",
+  "label": "Millwall F.C."
+ },
+ "Queens Park Rangers": {
+  "qid": "Q18723",
+  "label": "Queens Park Rangers F.C."
+ },
+ "Preston North End": {
+  "qid": "Q19612",
+  "label": "Preston North End F.C."
+ },
+ "Bristol City": {
+  "qid": "Q19456",
+  "label": "Bristol City F.C."
+ },
+ "Blackburn Rovers": {
+  "qid": "Q19446",
+  "label": "Blackburn Rovers F.C."
+ },
+ "Derby County": {
+  "qid": "Q19470",
+  "label": "Derby County F.C."
+ },
+ "Portsmouth": {
+  "qid": "Q19604",
+  "label": "Portsmouth F.C."
+ },
+ "Oxford United": {
+  "qid": "Q48946",
+  "label": "Oxford United F.C."
+ },
+ "Sheffield Wednesday": {
+  "qid": "Q19498",
+  "label": "Sheffield Wednesday F.C."
+ },
+ "Charlton Athletic": {
+  "qid": "Q19462",
+  "label": "Charlton Athletic F.C."
+ },
+ "Luton Town": {
+  "qid": "Q18520",
+  "label": "Luton Town F.C."
+ },
+ "Plymouth Argyle": {
+  "qid": "Q48947",
+  "label": "Plymouth Argyle F.C."
+ },
+ "Cardiff City": {
+  "qid": "Q18662",
+  "label": "Cardiff City F.C."
+ },
+ "Wigan Athletic": {
+  "qid": "Q18750",
+  "label": "Wigan Athletic F.C."
+ },
+ "Bolton Wanderers": {
+  "qid": "Q19451",
+  "label": "Bolton Wanderers F.C."
+ },
+ "Huddersfield Town": {
+  "qid": "Q19473",
+  "label": "Huddersfield Town A.F.C."
+ },
+ "Stockport County": {
+  "qid": "Q18526",
+  "label": "Stockport County F.C."
+ },
+ "Barnsley": {
+  "qid": "Q19442",
+  "label": "Barnsley F.C."
+ },
+ "Blackpool": {
+  "qid": "Q19449",
+  "label": "Blackpool F.C."
+ },
+ "Reading": {
+  "qid": "Q18729",
+  "label": "Reading F.C."
+ },
+ "Rotherham United": {
+  "qid": "Q48950",
+  "label": "Rotherham United F.C."
+ },
+ "Peterborough United": {
+  "qid": "Q19495",
+  "label": "Peterborough United F.C."
+ },
+ "Lincoln City": {
+  "qid": "Q18519",
+  "label": "Lincoln City F.C."
+ },
+ "Wycombe Wanderers": {
+  "qid": "Q48953",
+  "label": "Wycombe Wanderers F.C."
+ },
+ "Stevenage": {
+  "qid": "Q9426",
+  "label": "Stevenage F.C."
+ },
+ "Leyton Orient": {
+  "qid": "Q19595",
+  "label": "Leyton Orient F.C."
+ },
+ "Mansfield Town": {
+  "qid": "Q18522",
+  "label": "Mansfield Town F.C."
+ },
+ "Exeter City": {
+  "qid": "Q48939",
+  "label": "Exeter City F.C."
+ },
+ "Burton Albion": {
+  "qid": "Q48929",
+  "label": "Burton Albion F.C."
+ },
+ "AFC Wimbledon": {
+  "qid": "Q48851",
+  "label": "AFC Wimbledon"
+ },
+ "Doncaster Rovers": {
+  "qid": "Q19589",
+  "label": "Doncaster Rovers F.C."
+ },
+ "Port Vale": {
+  "qid": "Q48948",
+  "label": "Port Vale F.C."
+ },
+ "Bradford City": {
+  "qid": "Q48879",
+  "label": "Bradford City A.F.C."
+ },
+ "Northampton Town": {
+  "qid": "Q48945",
+  "label": "Northampton Town F.C."
+ },
+ "Bristol Rovers": {
+  "qid": "Q48925",
+  "label": "Bristol Rovers F.C."
+ },
+ "Shrewsbury Town": {
+  "qid": "Q19626",
+  "label": "Shrewsbury Town F.C."
+ },
+ "Crawley Town": {
+  "qid": "Q19584",
+  "label": "Crawley Town F.C."
+ },
+ "Cambridge United": {
+  "qid": "Q18509",
+  "label": "Cambridge United F.C."
+ },
+ "MK Dons": {
+  "qid": "Q248188",
+  "label": "Milton Keynes Dons F.C."
+ },
+ "Notts County": {
+  "qid": "Q19598",
+  "label": "Notts County F.C."
+ },
+ "Chesterfield": {
+  "qid": "Q48935",
+  "label": "Chesterfield F.C."
+ },
+ "Walsall": {
+  "qid": "Q19644",
+  "label": "Walsall F.C."
+ },
+ "Grimsby Town": {
+  "qid": "Q18515",
+  "label": "Grimsby Town F.C."
+ },
+ "Salford City": {
+  "qid": "Q18460",
+  "label": "Salford City F.C."
+ },
+ "Swindon Town": {
+  "qid": "Q19634",
+  "label": "Swindon Town F.C."
+ },
+ "Crewe Alexandra": {
+  "qid": "Q19587",
+  "label": "Crewe Alexandra F.C."
+ },
+ "Gillingham": {
+  "qid": "Q48943",
+  "label": "Gillingham F.C."
+ },
+ "Colchester United": {
+  "qid": "Q19578",
+  "label": "Colchester United F.C."
+ },
+ "Cheltenham Town": {
+  "qid": "Q48932",
+  "label": "Cheltenham Town F.C."
+ },
+ "Tranmere Rovers": {
+  "qid": "Q19637",
+  "label": "Tranmere Rovers F.C."
+ },
+ "Accrington Stanley": {
+  "qid": "Q48843",
+  "label": "Accrington Stanley F.C."
+ },
+ "Fleetwood Town": {
+  "qid": "Q48941",
+  "label": "Fleetwood Town F.C."
+ },
+ "Harrogate Town": {
+  "qid": "Q2219286",
+  "label": "Harrogate Town A.F.C."
+ },
+ "Newport County": {
+  "qid": "Q18523",
+  "label": "Newport County A.F.C."
+ },
+ "Barrow": {
+  "qid": "Q18507",
+  "label": "Barrow A.F.C."
+ },
+ "Bromley": {
+  "qid": "Q1584552",
+  "label": "Bromley F.C."
+ },
+ "Oldham Athletic": {
+  "qid": "Q19601",
+  "label": "Oldham Athletic A.F.C."
+ },
+ "Barnet": {
+  "qid": "Q9408",
+  "label": "Barnet F.C."
+ },
+ "Real Madrid": {
+  "qid": "Q8682",
+  "label": "Real Madrid Club de Fútbol"
+ },
+ "FC Barcelona": {
+  "qid": "Q7156",
+  "label": "FC Barcelona"
+ },
+ "Atlético de Madrid": {
+  "qid": "Q8701",
+  "label": "Atlético Madrid"
+ },
+ "Athletic Club": {
+  "qid": "Q8687",
+  "label": "Athletic Club"
+ },
+ "Villarreal": {
+  "qid": "Q12297",
+  "label": "Villarreal CF"
+ },
+ "Real Betis": {
+  "qid": "Q8723",
+  "label": "Real Betis Balompié"
+ },
+ "Real Sociedad": {
+  "qid": "Q10315",
+  "label": "Real Sociedad"
+ },
+ "Sevilla": {
+  "qid": "Q10329",
+  "label": "Sevilla FC"
+ },
+ "Valencia": {
+  "qid": "Q10333",
+  "label": "Valencia CF"
+ },
+ "Celta Vigo": {
+  "qid": "Q8749",
+  "label": "RC Celta de Vigo"
+ },
+ "Girona": {
+  "qid": "Q11945",
+  "label": "Girona FC"
+ },
+ "Osasuna": {
+  "qid": "Q10286",
+  "label": "Club Atlético Osasuna"
+ },
+ "Rayo Vallecano": {
+  "qid": "Q10300",
+  "label": "Rayo Vallecano"
+ },
+ "RCD Mallorca": {
+  "qid": "Q8835",
+  "label": "RCD Mallorca"
+ },
+ "Getafe": {
+  "qid": "Q8806",
+  "label": "Getafe CF"
+ },
+ "Espanyol": {
+  "qid": "Q8780",
+  "label": "RCD Espanyol de Barcelona"
+ },
+ "Deportivo Alavés": {
+  "qid": "Q223620",
+  "label": "Deportivo Alavés"
+ },
+ "Levante": {
+  "qid": "Q8823",
+  "label": "Levante UD"
+ },
+ "Elche": {
+  "qid": "Q10512",
+  "label": "Elche CF"
+ },
+ "Real Oviedo": {
+  "qid": "Q271574",
+  "label": "Real Oviedo"
+ },
+ "Inter": {
+  "qid": "Q631",
+  "label": "Inter Milan"
+ },
+ "Napoli": {
+  "qid": "Q2641",
+  "label": "SSC Napoli"
+ },
+ "Juventus": {
+  "qid": "Q1422",
+  "label": "Juventus FC"
+ },
+ "AC Milan": {
+  "qid": "Q1543",
+  "label": "AC Milan"
+ },
+ "Atalanta": {
+  "qid": "Q1886",
+  "label": "Atalanta BC"
+ },
+ "Roma": {
+  "qid": "Q56084793",
+  "label": "A.S. Roma Women"
+ },
+ "Lazio": {
+  "qid": "Q2609",
+  "label": "SS Lazio"
+ },
+ "Fiorentina": {
+  "qid": "Q2052",
+  "label": "ACF Fiorentina"
+ },
+ "Bologna": {
+  "qid": "Q1893",
+  "label": "Bologna F.C. 1909"
+ },
+ "Como": {
+  "qid": "Q1120838",
+  "label": "Como 1907"
+ },
+ "Torino": {
+  "qid": "Q2768",
+  "label": "Torino FC"
+ },
+ "Udinese": {
+  "qid": "Q2798",
+  "label": "Udinese Calcio"
+ },
+ "Genoa": {
+  "qid": "Q2074",
+  "label": "Genoa CFC"
+ },
+ "Hellas Verona": {
+  "qid": "Q8639",
+  "label": "Hellas Verona FC"
+ },
+ "Cagliari": {
+  "qid": "Q1900",
+  "label": "Cagliari Calcio"
+ },
+ "Parma": {
+  "qid": "Q2693",
+  "label": "Parma Calcio 1913"
+ },
+ "Sassuolo": {
+  "qid": "Q8603",
+  "label": "US Sassuolo Calcio"
+ },
+ "Lecce": {
+  "qid": "Q13391",
+  "label": "US Lecce"
+ },
+ "Pisa": {
+  "qid": "Q289613",
+  "label": "Pisa SC"
+ },
+ "Cremonese": {
+  "qid": "Q759482",
+  "label": "US Cremonese"
+ },
+ "FC Bayern München": {
+  "qid": "Q15789",
+  "label": "FC Bayern Munich"
+ },
+ "Bayer 04 Leverkusen": {
+  "qid": "Q104761",
+  "label": "Bayer 04 Leverkusen"
+ },
+ "Borussia Dortmund": {
+  "qid": "Q41420",
+  "label": "Borussia Dortmund"
+ },
+ "RB Leipzig": {
+  "qid": "Q702455",
+  "label": "RB Leipzig"
+ },
+ "Eintracht Frankfurt": {
+  "qid": "Q38245",
+  "label": "Eintracht Frankfurt"
+ },
+ "VfB Stuttgart": {
+  "qid": "Q4512",
+  "label": "VfB Stuttgart"
+ },
+ "SC Freiburg": {
+  "qid": "Q106394",
+  "label": "SC Freiburg"
+ },
+ "VfL Wolfsburg": {
+  "qid": "Q101859",
+  "label": "VfL Wolfsburg"
+ },
+ "1. FSV Mainz 05": {
+  "qid": "Q105254",
+  "label": "1. FSV Mainz 05"
+ },
+ "Borussia Mönchengladbach": {
+  "qid": "Q101959",
+  "label": "Borussia Mönchengladbach"
+ },
+ "SV Werder Bremen": {
+  "qid": "Q51976",
+  "label": "SV Werder Bremen"
+ },
+ "TSG Hoffenheim": {
+  "qid": "Q22707",
+  "label": "TSG 1899 Hoffenheim"
+ },
+ "1. FC Union Berlin": {
+  "qid": "Q141971",
+  "label": "1. FC Union Berlin"
+ },
+ "FC Augsburg": {
+  "qid": "Q15755",
+  "label": "FC Augsburg"
+ },
+ "FC St. Pauli": {
+  "qid": "Q6463",
+  "label": "FC St. Pauli"
+ },
+ "1. FC Köln": {
+  "qid": "Q104770",
+  "label": "1. FC Köln"
+ },
+ "Hamburger SV": {
+  "qid": "Q51974",
+  "label": "Hamburger SV"
+ },
+ "1. FC Heidenheim": {
+  "qid": "Q162251",
+  "label": "1. FC Heidenheim 1846"
+ },
+ "Paris Saint-Germain": {
+  "qid": "Q483020",
+  "label": "Paris Saint-Germain FC"
+ },
+ "Olympique de Marseille": {
+  "qid": "Q132885",
+  "label": "Olympique de Marseille"
+ },
+ "LOSC Lille": {
+  "qid": "Q20731437",
+  "label": "LOSC Lille"
+ },
+ "Olympique Lyonnais": {
+  "qid": "Q704",
+  "label": "Olympique Lyonnais"
+ },
+ "OGC Nice": {
+  "qid": "Q185163",
+  "label": "OGC Nice"
+ },
+ "RC Lens": {
+  "qid": "Q191843",
+  "label": "R.C. Lens"
+ },
+ "Stade Rennais": {
+  "qid": "Q19509",
+  "label": "Stade Rennais F.C."
+ },
+ "RC Strasbourg": {
+  "qid": "Q126334",
+  "label": "RC Strasbourg Alsace"
+ },
+ "Stade Brestois": {
+  "qid": "Q218372",
+  "label": "Stade Brestois 29"
+ },
+ "Toulouse": {
+  "qid": "Q19518",
+  "label": "Toulouse FC"
+ },
+ "FC Nantes": {
+  "qid": "Q192071",
+  "label": "FC Nantes"
+ },
+ "AJ Auxerre": {
+  "qid": "Q182876",
+  "label": "AJ Auxerre"
+ },
+ "Paris FC": {
+  "qid": "Q1051013",
+  "label": "Paris FC"
+ },
+ "Angers SCO": {
+  "qid": "Q845137",
+  "label": "Angers SCO"
+ },
+ "Le Havre": {
+  "qid": "Q328658",
+  "label": "Le Havre AC"
+ },
+ "FC Lorient": {
+  "qid": "Q48911",
+  "label": "F.C. Lorient"
+ },
+ "FC Metz": {
+  "qid": "Q221525",
+  "label": "FC Metz"
+ },
+ "PSV": {
+  "qid": "Q11938",
+  "label": "PSV Eindhoven"
+ },
+ "Ajax": {
+  "qid": "Q81888",
+  "label": "AFC Ajax"
+ },
+ "Feyenoord": {
+  "qid": "Q134241",
+  "label": "Feyenoord Rotterdam"
+ },
+ "AZ Alkmaar": {
+  "qid": "Q191264",
+  "label": "AZ Alkmaar"
+ },
+ "FC Twente": {
+  "qid": "Q19603",
+  "label": "FC Twente"
+ },
+ "FC Utrecht": {
+  "qid": "Q24680",
+  "label": "FC Utrecht"
+ },
+ "NEC Nijmegen": {
+  "qid": "Q318348",
+  "label": "N.E.C."
+ },
+ "Go Ahead Eagles": {
+  "qid": "Q749589",
+  "label": "Go Ahead Eagles"
+ },
+ "SC Heerenveen": {
+  "qid": "Q200321",
+  "label": "SC Heerenveen"
+ },
+ "Sparta Rotterdam": {
+  "qid": "Q209895",
+  "label": "Sparta Rotterdam"
+ },
+ "Fortuna Sittard": {
+  "qid": "Q854167",
+  "label": "Fortuna Sittard"
+ },
+ "FC Groningen": {
+  "qid": "Q24711",
+  "label": "FC Groningen"
+ },
+ "PEC Zwolle": {
+  "qid": "Q269151",
+  "label": "PEC Zwolle"
+ },
+ "Heracles Almelo": {
+  "qid": "Q11961",
+  "label": "Heracles Almelo"
+ },
+ "NAC Breda": {
+  "qid": "Q332642",
+  "label": "NAC Breda"
+ },
+ "Excelsior": {
+  "qid": "Q370712",
+  "label": "Excelsior Rotterdam"
+ },
+ "Telstar": {
+  "qid": "Q1071713",
+  "label": "SC Telstar"
+ },
+ "FC Volendam": {
+  "qid": "Q738060",
+  "label": "FC Volendam"
+ },
+ "SL Benfica": {
+  "qid": "Q131499",
+  "label": "S.L. Benfica"
+ },
+ "FC Porto": {
+  "qid": "Q128446",
+  "label": "FC Porto"
+ },
+ "Sporting CP": {
+  "qid": "Q75729",
+  "label": "Sporting CP"
+ },
+ "SC Braga": {
+  "qid": "Q75684",
+  "label": "S.C. Braga"
+ },
+ "Vitória SC": {
+  "qid": "Q223450",
+  "label": "Vitória S.C."
+ },
+ "FC Famalicão": {
+  "qid": "Q1387105",
+  "label": "FC Famalicão"
+ },
+ "Gil Vicente": {
+  "qid": "Q926438",
+  "label": "Gil Vicente F.C."
+ },
+ "Moreirense": {
+  "qid": "Q1346314",
+  "label": "Moreirense F.C."
+ },
+ "Estoril Praia": {
+  "qid": "Q634829",
+  "label": "G.D. Estoril Praia"
+ },
+ "Rio Ave": {
+  "qid": "Q622432",
+  "label": "Rio Ave F.C."
+ },
+ "Santa Clara": {
+  "qid": "Q740637",
+  "label": "C.D. Santa Clara"
+ },
+ "Casa Pia": {
+  "qid": "Q1046440",
+  "label": "Casa Pia A.C."
+ },
+ "FC Arouca": {
+  "qid": "Q1386869",
+  "label": "F.C. Arouca"
+ },
+ "CD Nacional": {
+  "qid": "Q216459",
+  "label": "C.D. Nacional"
+ },
+ "Estrela Amadora": {
+  "qid": "Q838134",
+  "label": "C.F. Estrela da Amadora"
+ },
+ "AVS": {
+  "qid": "Q120775987",
+  "label": "AVS Futebol SAD"
+ },
+ "CD Tondela": {
+  "qid": "Q1023227",
+  "label": "CD Tondela"
+ },
+ "FC Alverca": {
+  "qid": "Q1386850",
+  "label": "F.C. Alverca"
+ },
+ "Celtic": {
+  "qid": "Q19593",
+  "label": "Celtic F.C."
+ },
+ "Rangers": {
+  "qid": "Q19597",
+  "label": "Rangers F.C."
+ },
+ "Heart of Midlothian": {
+  "qid": "Q202093",
+  "label": "Heart of Midlothian F.C."
+ },
+ "Aberdeen": {
+  "qid": "Q187326",
+  "label": "Aberdeen F.C."
+ },
+ "Hibernian": {
+  "qid": "Q192597",
+  "label": "Hibernian F.C."
+ },
+ "Motherwell": {
+  "qid": "Q216523",
+  "label": "Motherwell F.C."
+ },
+ "Dundee United": {
+  "qid": "Q192873",
+  "label": "Dundee United F.C."
+ },
+ "St Mirren": {
+  "qid": "Q319136",
+  "label": "St. Mirren F.C."
+ },
+ "Kilmarnock": {
+  "qid": "Q210961",
+  "label": "Kilmarnock F.C."
+ },
+ "Dundee": {
+  "qid": "Q335483",
+  "label": "Dundee F.C."
+ },
+ "Falkirk": {
+  "qid": "Q219241",
+  "label": "Falkirk F.C."
+ },
+ "Livingston": {
+  "qid": "Q867921",
+  "label": "Livingston F.C."
+ },
+ "Inter Miami CF": {
+  "qid": "Q16844931",
+  "label": "Inter Miami CF"
+ },
+ "LAFC": {
+  "qid": "Q18380286",
+  "label": "Los Angeles FC"
+ },
+ "LA Galaxy": {
+  "qid": "Q204357",
+  "label": "LA Galaxy"
+ },
+ "Columbus Crew": {
+  "qid": "Q457163",
+  "label": "Columbus Crew"
+ },
+ "FC Cincinnati": {
+  "qid": "Q20855983",
+  "label": "FC Cincinnati"
+ },
+ "Seattle Sounders FC": {
+  "qid": "Q632511",
+  "label": "Seattle Sounders FC"
+ },
+ "Philadelphia Union": {
+  "qid": "Q689874",
+  "label": "Philadelphia Union"
+ },
+ "Orlando City": {
+  "qid": "Q15214308",
+  "label": "Orlando City SC"
+ },
+ "Atlanta United": {
+  "qid": "Q16836317",
+  "label": "Atlanta United FC"
+ },
+ "New York City FC": {
+  "qid": "Q13361030",
+  "label": "New York City FC"
+ },
+ "New York Red Bulls": {
+  "qid": "Q204220",
+  "label": "Red Bull New York"
+ },
+ "Vancouver Whitecaps": {
+  "qid": "Q196107",
+  "label": "Vancouver Whitecaps FC"
+ },
+ "Nashville SC": {
+  "qid": "Q47518754",
+  "label": "Nashville SC"
+ },
+ "Minnesota United": {
+  "qid": "Q19828435",
+  "label": "Minnesota United FC"
+ },
+ "Austin FC": {
+  "qid": "Q60643348",
+  "label": "Austin FC"
+ },
+ "Charlotte FC": {
+  "qid": "Q78944434",
+  "label": "Charlotte FC"
+ },
+ "Chicago Fire": {
+  "qid": "Q308683",
+  "label": "Chicago Fire FC"
+ },
+ "Toronto FC": {
+  "qid": "Q327238",
+  "label": "Toronto FC"
+ },
+ "CF Montréal": {
+  "qid": "Q167615",
+  "label": "CF Montréal"
+ },
+ "D.C. United": {
+  "qid": "Q238593",
+  "label": "D.C. United"
+ },
+ "Houston Dynamo": {
+  "qid": "Q328313",
+  "label": "Houston Dynamo FC"
+ },
+ "FC Dallas": {
+  "qid": "Q642291",
+  "label": "FC Dallas"
+ },
+ "Colorado Rapids": {
+  "qid": "Q642408",
+  "label": "Colorado Rapids"
+ },
+ "Portland Timbers": {
+  "qid": "Q1031200",
+  "label": "Portland Timbers"
+ },
+ "Real Salt Lake": {
+  "qid": "Q391353",
+  "label": "Real Salt Lake"
+ },
+ "San Jose Earthquakes": {
+  "qid": "Q575370",
+  "label": "San Jose Earthquakes"
+ },
+ "Sporting Kansas City": {
+  "qid": "Q329812",
+  "label": "Sporting Kansas City"
+ },
+ "St. Louis CITY SC": {
+  "qid": "Q66642491",
+  "label": "St. Louis City SC"
+ },
+ "New England Revolution": {
+  "qid": "Q309095",
+  "label": "New England Revolution"
+ },
+ "San Diego FC": {
+  "qid": "Q118945347",
+  "label": "San Diego FC"
+ },
+ "Al Hilal": {
+  "qid": "Q73965",
+  "label": "Al Hilal SFC"
+ },
+ "Al Nassr": {
+  "qid": "Q482764",
+  "label": "Al-Nassr"
+ },
+ "Al Ittihad": {
+  "qid": "Q309480",
+  "label": "Al Ittihad FC"
+ },
+ "Al Ahli": {
+  "qid": "Q44441",
+  "label": "Al Ahli FC"
+ },
+ "Al Qadsiah": {
+  "qid": "Q286191",
+  "label": "Al Qadsiah FC"
+ },
+ "Al Ettifaq": {
+  "qid": "Q72844",
+  "label": "Al-Ettifaq FC"
+ },
+ "Al Shabab": {
+  "qid": "Q2636005",
+  "label": "Al-Shabab Football Club"
+ },
+ "Al Taawoun": {
+  "qid": "Q2613971",
+  "label": "Al-Taawon FC"
+ },
+ "Al Fateh": {
+  "qid": "Q2701659",
+  "label": "Al Fateh SC"
+ },
+ "Al Khaleej": {
+  "qid": "Q2027718",
+  "label": "Al-Khaleej FC"
+ },
+ "Al Riyadh": {
+  "qid": "Q2655899",
+  "label": "Al-Riyadh SC"
+ },
+ "Al Fayha": {
+  "qid": "Q20081435",
+  "label": "Al-Feiha FC"
+ },
+ "Al Kholood": {
+  "qid": "Q12247459",
+  "label": "Al-Kholood"
+ },
+ "Al Okhdood": {
+  "qid": "Q12247430",
+  "label": "Al Okhdood Club"
+ },
+ "Damac": {
+  "qid": "Q12247594",
+  "label": "Damac Club"
+ },
+ "Al Hazem": {
+  "qid": "Q2499905",
+  "label": "Al Hazem SC"
+ },
+ "Al Najma": {
+  "qid": "Q647556",
+  "label": "Al-Najma"
+ },
+ "NEOM SC": {
+  "qid": "Q12247491",
+  "label": "Neom SC"
+ },
+ "FC Schalke 04": {
+  "qid": "Q32494",
+  "label": "Schalke 04"
+ },
+ "Hertha BSC": {
+  "qid": "Q102720",
+  "label": "Hertha BSC"
+ },
+ "Hannover 96": {
+  "qid": "Q33748",
+  "label": "Hannover 96"
+ },
+ "1. FC Kaiserslautern": {
+  "qid": "Q8466",
+  "label": "1. FC Kaiserslautern"
+ },
+ "Fortuna Düsseldorf": {
+  "qid": "Q151747",
+  "label": "Fortuna Düsseldorf"
+ },
+ "1. FC Nürnberg": {
+  "qid": "Q15786",
+  "label": "1. FC Nürnberg"
+ },
+ "Karlsruher SC": {
+  "qid": "Q105853",
+  "label": "Karlsruher SC"
+ },
+ "SC Paderborn 07": {
+  "qid": "Q160532",
+  "label": "SC Paderborn 07"
+ },
+ "SV Darmstadt 98": {
+  "qid": "Q479351",
+  "label": "SV Darmstadt 98"
+ },
+ "1. FC Magdeburg": {
+  "qid": "Q155730",
+  "label": "1. FC Magdeburg"
+ },
+ "SV Elversberg": {
+  "qid": "Q692691",
+  "label": "SV Elversberg"
+ },
+ "Holstein Kiel": {
+  "qid": "Q157828",
+  "label": "Holstein Kiel"
+ },
+ "VfL Bochum": {
+  "qid": "Q105861",
+  "label": "VfL Bochum"
+ },
+ "SpVgg Greuther Fürth": {
+  "qid": "Q153539",
+  "label": "SpVgg Greuther Fürth"
+ },
+ "Preußen Münster": {
+  "qid": "Q316865",
+  "label": "SC Preußen Münster"
+ },
+ "Eintracht Braunschweig": {
+  "qid": "Q154053",
+  "label": "Eintracht Braunschweig"
+ },
+ "Arminia Bielefeld": {
+  "qid": "Q105844",
+  "label": "Arminia Bielefeld"
+ },
+ "Dynamo Dresden": {
+  "qid": "Q141931",
+  "label": "Dynamo Dresden"
+ },
+ "Monza": {
+  "qid": "Q289482",
+  "label": "AC Monza"
+ },
+ "Palermo": {
+  "qid": "Q2674",
+  "label": "Palermo F.C."
+ },
+ "Venezia": {
+  "qid": "Q501245",
+  "label": "Venezia F.C."
+ },
+ "Empoli": {
+  "qid": "Q6703",
+  "label": "Empoli FC"
+ },
+ "Sampdoria": {
+  "qid": "Q1457",
+  "label": "U.C. Sampdoria"
+ },
+ "Bari": {
+  "qid": "Q6641",
+  "label": "SSC Bari"
+ },
+ "Spezia": {
+  "qid": "Q8615",
+  "label": "Spezia Calcio"
+ },
+ "Modena": {
+  "qid": "Q8408",
+  "label": "Modena F.C."
+ },
+ "Cesena": {
+  "qid": "Q16848949",
+  "label": "Cesena FC"
+ },
+ "Catanzaro": {
+  "qid": "Q501372",
+  "label": "Unione Sportiva Catanzaro"
+ },
+ "Juve Stabia": {
+  "qid": "Q6748",
+  "label": "S.S. Juve Stabia"
+ },
+ "Südtirol": {
+  "qid": "Q1387710",
+  "label": "F.C. Südtirol"
+ },
+ "Carrarese": {
+  "qid": "Q650365",
+  "label": "Carrarese Calcio"
+ },
+ "Reggiana": {
+  "qid": "Q289707",
+  "label": "A.C. Reggiana 1919"
+ },
+ "Mantova": {
+  "qid": "Q430993",
+  "label": "Mantova 1911"
+ },
+ "Frosinone": {
+  "qid": "Q845043",
+  "label": "Frosinone Calcio"
+ },
+ "Padova": {
+  "qid": "Q8428",
+  "label": "Calcio Padova"
+ },
+ "Virtus Entella": {
+  "qid": "Q2276413",
+  "label": "Virtus Entella"
+ },
+ "Avellino": {
+  "qid": "Q298217",
+  "label": "U.S. Avellino 1912"
+ },
+ "Pescara": {
+  "qid": "Q2710",
+  "label": "Delfino Pescara 1936"
+ },
+ "UD Las Palmas": {
+  "qid": "Q11979",
+  "label": "UD Las Palmas"
+ },
+ "CD Leganés": {
+  "qid": "Q856119",
+  "label": "CD Leganés"
+ },
+ "Real Valladolid": {
+  "qid": "Q10319",
+  "label": "Real Valladolid"
+ },
+ "Deportivo de La Coruña": {
+  "qid": "Q1705764",
+  "label": "Deportivo Fabril"
+ },
+ "Sporting Gijón": {
+  "qid": "Q12278",
+  "label": "Sporting de Gijón"
+ },
+ "Racing Santander": {
+  "qid": "Q12236",
+  "label": "Racing de Santander"
+ },
+ "Málaga CF": {
+  "qid": "Q8857",
+  "label": "Málaga CF"
+ },
+ "Real Zaragoza": {
+  "qid": "Q10308",
+  "label": "Real Zaragoza"
+ },
+ "UD Almería": {
+  "qid": "Q2569964",
+  "label": "UD Almería B"
+ },
+ "Cádiz CF": {
+  "qid": "Q460448",
+  "label": "Cádiz Club de Fútbol"
+ },
+ "SD Eibar": {
+  "qid": "Q770740",
+  "label": "SD Eibar"
+ },
+ "Granada CF": {
+  "qid": "Q8812",
+  "label": "Granada CF"
+ },
+ "SD Huesca": {
+  "qid": "Q11971",
+  "label": "Sociedad Deportiva Huesca"
+ },
+ "CD Mirandés": {
+  "qid": "Q11997",
+  "label": "CD Mirandés"
+ },
+ "Albacete": {
+  "qid": "Q576285",
+  "label": "Albacete Balompié"
+ },
+ "Burgos CF": {
+  "qid": "Q852079",
+  "label": "Burgos CF"
+ },
+ "CD Castellón": {
+  "qid": "Q743557",
+  "label": "CD Castellón"
+ },
+ "Córdoba CF": {
+  "qid": "Q10499",
+  "label": "Córdoba CF"
+ },
+ "AD Ceuta": {
+  "qid": "Q290841",
+  "label": "AD Ceuta"
+ },
+ "Cultural Leonesa": {
+  "qid": "Q582342",
+  "label": "Q582342"
+ },
+ "Real Sociedad B": {
+  "qid": "Q1067750",
+  "label": "Real Sociedad B"
+ },
+ "AS Saint-Étienne": {
+  "qid": "Q19521",
+  "label": "AS Saint-Étienne"
+ },
+ "Montpellier HSC": {
+  "qid": "Q19513",
+  "label": "Montpellier Hérault Sport Club"
+ },
+ "Stade de Reims": {
+  "qid": "Q208228",
+  "label": "Stade de Reims"
+ },
+ "SC Bastia": {
+  "qid": "Q208399",
+  "label": "SC Bastia"
+ },
+ "EA Guingamp": {
+  "qid": "Q459148",
+  "label": "En Avant de Guingamp"
+ },
+ "Stade Lavallois": {
+  "qid": "Q760736",
+  "label": "Stade Lavallois"
+ },
+ "FC Annecy": {
+  "qid": "Q1140695",
+  "label": "F.C. Annecy"
+ },
+ "Grenoble Foot 38": {
+  "qid": "Q209509",
+  "label": "Grenoble Foot 38"
+ },
+ "Amiens SC": {
+  "qid": "Q866884",
+  "label": "Amiens SC"
+ },
+ "Pau FC": {
+  "qid": "Q288419",
+  "label": "Foot club de Pau"
+ },
+ "Rodez AF": {
+  "qid": "Q292231",
+  "label": "Rodez AF"
+ },
+ "Red Star FC": {
+  "qid": "Q522283",
+  "label": "Red Star F.C."
+ },
+ "ES Troyes AC": {
+  "qid": "Q501693",
+  "label": "ES Troyes AC"
+ },
+ "Clermont Foot": {
+  "qid": "Q870182",
+  "label": "Clermont Foot 63"
+ },
+ "USL Dunkerque": {
+  "qid": "Q1815297",
+  "label": "USL Dunkerque"
+ },
+ "Le Mans FC": {
+  "qid": "Q210864",
+  "label": "Le Mans F.C."
+ },
+ "AS Nancy Lorraine": {
+  "qid": "Q19523",
+  "label": "A.S. Nancy-Lorraine"
+ },
+ "US Boulogne": {
+  "qid": "Q309400",
+  "label": "US Boulogne"
+ },
+ "Club Brugge": {
+  "qid": "Q190916",
+  "label": "Club Brugge K.V."
+ },
+ "Union Saint-Gilloise": {
+  "qid": "Q196160",
+  "label": "Royale Union Saint-Gilloise"
+ },
+ "RSC Anderlecht": {
+  "qid": "Q187528",
+  "label": "R.S.C. Anderlecht"
+ },
+ "KRC Genk": {
+  "qid": "Q216032",
+  "label": "K.R.C. Genk"
+ },
+ "Royal Antwerp": {
+  "qid": "Q732002",
+  "label": "Royal Antwerp F.C."
+ },
+ "KAA Gent": {
+  "qid": "Q18232",
+  "label": "KAA Gent"
+ },
+ "Standard Liège": {
+  "qid": "Q190561",
+  "label": "Standard Liège"
+ },
+ "KV Mechelen": {
+  "qid": "Q113000",
+  "label": "KV Mechelen"
+ },
+ "KVC Westerlo": {
+  "qid": "Q849544",
+  "label": "K.V.C. Westerlo"
+ },
+ "Cercle Brugge": {
+  "qid": "Q364698",
+  "label": "Cercle Brugge K.S.V."
+ },
+ "Sporting Charleroi": {
+  "qid": "Q19585",
+  "label": "Royal Charleroi S.C."
+ },
+ "OH Leuven": {
+  "qid": "Q916199",
+  "label": "Oud-Heverlee Leuven"
+ },
+ "Sint-Truidense VV": {
+  "qid": "Q138248",
+  "label": "Sint-Truidense V.V."
+ },
+ "FCV Dender EH": {
+  "qid": "Q1065328",
+  "label": "F.C. Verbroedering Dender Eendracht Hekelgem"
+ },
+ "RAAL La Louvière": {
+  "qid": "Q536651",
+  "label": "RAAL La Louvière"
+ },
+ "SV Zulte Waregem": {
+  "qid": "Q376635",
+  "label": "S.V. Zulte Waregem"
+ },
+ "Galatasaray": {
+  "qid": "Q495299",
+  "label": "Galatasaray S.K."
+ },
+ "Fenerbahçe": {
+  "qid": "Q6601875",
+  "label": "Fenerbahçe Istanbul"
+ },
+ "Beşiktaş": {
+  "qid": "Q172567",
+  "label": "Beşiktaş J.K."
+ },
+ "Trabzonspor": {
+  "qid": "Q192641",
+  "label": "Trabzonspor"
+ },
+ "Başakşehir": {
+  "qid": "Q857938",
+  "label": "İstanbul Başakşehir F.K."
+ },
+ "Samsunspor": {
+  "qid": "Q430107",
+  "label": "Samsunspor FC"
+ },
+ "Göztepe": {
+  "qid": "Q1423118",
+  "label": "Göztepe S.K."
+ },
+ "Eyüpspor": {
+  "qid": "Q118919",
+  "label": "Eyüpspor"
+ },
+ "Kasımpaşa": {
+  "qid": "Q138230",
+  "label": "Kasımpaşa S.K."
+ },
+ "Kocaelispor": {
+  "qid": "Q513237",
+  "label": "Kocaelispor"
+ },
+ "Gençlerbirliği": {
+  "qid": "Q641373",
+  "label": "Gençlerbirliği S.K."
+ },
+ "Konyaspor": {
+  "qid": "Q513840",
+  "label": "Konyaspor"
+ },
+ "Antalyaspor": {
+  "qid": "Q43710",
+  "label": "Antalyaspor"
+ },
+ "Alanyaspor": {
+  "qid": "Q1636019",
+  "label": "Alanyaspor"
+ },
+ "Kayserispor": {
+  "qid": "Q608122",
+  "label": "Kayserispor"
+ },
+ "Çaykur Rizespor": {
+  "qid": "Q272712",
+  "label": "Çaykur Rizespor"
+ },
+ "Gaziantep FK": {
+  "qid": "Q824850",
+  "label": "Gaziantep F.K."
+ },
+ "Fatih Karagümrük": {
+  "qid": "Q1398111",
+  "label": "Fatih Karagümrük S.K."
+ },
+ "Bodø/Glimt": {
+  "qid": "Q478167",
+  "label": "FK Bodø/Glimt"
+ },
+ "Brann": {
+  "qid": "Q205685",
+  "label": "SK Brann"
+ },
+ "Viking": {
+  "qid": "Q211177",
+  "label": "Viking FK"
+ },
+ "Rosenborg": {
+  "qid": "Q186785",
+  "label": "Rosenborg BK"
+ },
+ "Molde": {
+  "qid": "Q208552",
+  "label": "Molde FK"
+ },
+ "Fredrikstad": {
+  "qid": "Q216131",
+  "label": "Fredrikstad FK"
+ },
+ "Sarpsborg 08": {
+  "qid": "Q1151909",
+  "label": "Sarpsborg 08 FF"
+ },
+ "Vålerenga": {
+  "qid": "Q212819",
+  "label": "Vålerenga Fotball"
+ },
+ "Tromsø": {
+  "qid": "Q212490",
+  "label": "Tromsø IL"
+ },
+ "Sandefjord": {
+  "qid": "Q861524",
+  "label": "Sandefjord Fotball"
+ },
+ "HamKam": {
+  "qid": "Q1130961",
+  "label": "Hamarkameratene"
+ },
+ "KFUM Oslo": {
+  "qid": "Q3432730",
+  "label": "KFUM-Kameratene Oslo"
+ },
+ "Strømsgodset": {
+  "qid": "Q7482049",
+  "label": "Strømsgodset TF"
+ },
+ "Kristiansund": {
+  "qid": "Q496190",
+  "label": "Kristiansund BK"
+ },
+ "Haugesund": {
+  "qid": "Q750097",
+  "label": "FK Haugesund"
+ },
+ "Bryne": {
+  "qid": "Q995313",
+  "label": "Bryne FK"
+ },
+ "FC Copenhagen": {
+  "qid": "Q188430",
+  "label": "F.C. Copenhagen"
+ },
+ "FC Midtjylland": {
+  "qid": "Q618520",
+  "label": "FC Midtjylland"
+ },
+ "Brøndby IF": {
+  "qid": "Q211906",
+  "label": "Brøndby IF"
+ },
+ "AGF": {
+  "qid": "Q301431",
+  "label": "Aarhus Gymnastikforening"
+ },
+ "FC Nordsjælland": {
+  "qid": "Q210025",
+  "label": "FC Nordsjælland"
+ },
+ "Randers FC": {
+  "qid": "Q729560",
+  "label": "Randers FC"
+ },
+ "Silkeborg IF": {
+  "qid": "Q723489",
+  "label": "Silkeborg IF"
+ },
+ "Viborg FF": {
+  "qid": "Q837956",
+  "label": "Viborg FF"
+ },
+ "OB": {
+  "qid": "Q211912",
+  "label": "Odense Boldklub"
+ },
+ "Vejle BK": {
+  "qid": "Q737936",
+  "label": "Vejle Boldklub"
+ },
+ "FC Fredericia": {
+  "qid": "Q388746",
+  "label": "FC Fredericia"
+ },
+ "Sønderjyske": {
+  "qid": "Q3511548",
+  "label": "Sønderjyske Fodbold"
+ },
+ "Red Bull Salzburg": {
+  "qid": "Q994811",
+  "label": "FC Red Bull Salzburg"
+ },
+ "Sturm Graz": {
+  "qid": "Q124007623",
+  "label": "SK Sturm Graz Women"
+ },
+ "Rapid Wien": {
+  "qid": "Q131215",
+  "label": "SK Rapid Wien"
+ },
+ "Austria Wien": {
+  "qid": "Q131209",
+  "label": "FK Austria Wien"
+ },
+ "LASK": {
+  "qid": "Q392310",
+  "label": "LASK Linz"
+ },
+ "Wolfsberger AC": {
+  "qid": "Q694484",
+  "label": "Wolfsberger AC"
+ },
+ "TSV Hartberg": {
+  "qid": "Q699746",
+  "label": "TSV Hartberg"
+ },
+ "Blau-Weiß Linz": {
+  "qid": "Q696525",
+  "label": "F.C. Blau-Weiß Linz"
+ },
+ "SCR Altach": {
+  "qid": "Q670438",
+  "label": "SC Rheindorf Altach"
+ },
+ "SV Ried": {
+  "qid": "Q457460",
+  "label": "SV Ried"
+ },
+ "WSG Tirol": {
+  "qid": "Q686659",
+  "label": "WSG Tirol"
+ },
+ "Grazer AK": {
+  "qid": "Q659780",
+  "label": "Grazer AK"
+ },
+ "AS Monaco": {
+  "qid": "Q180305",
+  "label": "AS Monaco FC"
+ },
+ "FC Andorra": {
+  "qid": "Q1386854",
+  "label": "FC Andorra"
+ }
+}

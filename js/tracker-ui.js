@@ -34,6 +34,12 @@
   }
 
   const trackerOf = (entry) => C.normalizeTracker(entry.tracker);
+  const realSquad = (club) => (FC26.squads && FC26.squads.clubs && FC26.squads.clubs[club]) || null;
+  // Ages are worked out for the start of the season you're on (season 1 = summer 2025).
+  function seasonDay(season) {
+    const start = (FC26.squads && FC26.squads.seasonStart) || '2025-07-01';
+    return `${Number(start.slice(0, 4)) + (Number(season) || 1) - 1}${start.slice(4)}`;
+  }
   const isPlayer = (entry) => entry.challenge.mode === 'player';
 
   // ---------- Rendering ----------
@@ -79,7 +85,7 @@
   }
 
   function renderSquad(entry, t) {
-    const real = FC26.squads && FC26.squads[entry.challenge.club.name];
+    const real = realSquad(entry.challenge.club.name);
     const rows = t.players.map((p) => `
         <div class="prow ${p.loanedOut ? 'is-out' : ''}" data-pid="${esc(p.id)}">
           <input class="p-name" type="text" data-pfield="name" value="${esc(p.name)}" placeholder="Player name" maxlength="40" aria-label="Name">
@@ -102,7 +108,7 @@
         <div class="tools">
           <button type="button" class="btn btn-small" data-action="squad-add">+ Add player</button>
           <button type="button" class="btn btn-small" data-action="squad-paste">📋 Paste squad</button>
-          ${real ? `<button type="button" class="btn btn-small" data-action="squad-load">⬇️ Load ${esc(entry.challenge.club.name)} squad</button>` : ''}
+          ${real ? `<button type="button" class="btn btn-small${t.players.length ? '' : ' btn-primary'}" data-action="squad-load" title="Real squad list from Wikidata: names, positions, ages and nationalities (no OVR)">⬇️ Load real squad (${real.length})</button>` : ''}
           <span class="muted squad-stats">${esc(squadStats(t))}</span>
         </div>
         <div class="paste-box" hidden>
@@ -115,7 +121,9 @@
           </div>
         </div>
         ${t.players.length ? `<div class="phead" aria-hidden="true"><span>Name</span><span>Pos</span><span>Age</span><span>Nationality</span><span>OVR</span><span>€K/week</span><span>⭐ 🎓 🔁 ✈️ 🧬</span><span></span></div>` : ''}
-        <div class="plist">${rows || '<p class="muted empty-note">No players yet. Add them one by one, or paste your whole squad.</p>'}</div>
+        <div class="plist">${rows || `<p class="muted empty-note">${real
+    ? `No players yet. Press <strong>⬇️ Load real squad</strong> to start from ${esc(entry.challenge.club.name)}'s 2025/26 squad (from Wikidata: names, positions, ages and nationalities; add OVRs yourself), or paste your own list.`
+    : 'No players yet. Add them one by one, or paste your whole squad.'}</p>`}</div>
         <p class="muted legend">⭐ starting XI · 🎓 academy graduate · 🔁 on loan at your club · ✈️ loaned out · 🧬 regen (generated player)</p>
       </div>`;
   }
@@ -347,11 +355,15 @@
     const hit = DB.recognise(v.name);
     if (hit && hit.player) {
       const p = hit.player;
-      note.innerHTML = `👤 Recognised: <strong>${esc(p.name)}</strong>${p.nat ? ` · ${esc(p.nat)}` : ''}${p.pos ? ` · ${esc(p.pos)}` : ''}${p.custom ? ' <span class="muted">(you confirmed this one)</span>' : ''}`;
+      const age = DB.ageOn(p.dob, seasonDay(v.season));
+      const bits = [p.nat, p.pos, age ? `${age} at the start of season ${v.season}` : '', p.club ? `plays for ${p.club}` : ''].filter(Boolean);
+      note.innerHTML = `👤 Recognised: <strong>${esc(p.name)}</strong>${bits.length ? ` · ${bits.map(esc).join(' · ')}` : ''}${p.custom ? ' <span class="muted">(you confirmed this one)</span>' : ''}`;
       setRegen(false);
       if (autofill) {
         if (form.elements.nat && !form.elements.nat.value && p.nat) form.elements.nat.value = p.nat;
         if (form.elements.pos && !form.elements.pos.value && p.pos) form.elements.pos.value = p.pos;
+        if (form.elements.age && !form.elements.age.value && age) form.elements.age.value = age;
+        if (form.elements.club && !form.elements.club.value && p.club) form.elements.club.value = p.club;
       }
     } else if (hit && hit.candidates) {
       note.innerHTML = `Did you mean ${hit.candidates.map((p) => `<button type="button" class="link-btn" data-action="pick-player" data-name="${esc(p.name)}">${esc(p.name)}</button>`).join(', ')}?`;
@@ -384,10 +396,18 @@
       </div>`;
   }
 
+  // Name suggestions as you type (the full list is too long for one dropdown).
+  function suggest(text) {
+    const list = document.getElementById('known-players');
+    if (!list) return;
+    list.innerHTML = DB.search(text, 25).map((p) => `<option value="${esc(p.name)}">${esc([p.pos, p.club].filter(Boolean).join(' · '))}</option>`).join('');
+  }
+
   let liveTimer = null;
   function onInput(e, item) {
     const form = e.target.closest('[data-tform]');
     if (!form) return false;
+    if (e.target.name === 'name' && form.dataset.dir === 'in') suggest(e.target.value);
     if (e.target.name === 'regen') e.target.dataset.touched = '1';
     clearTimeout(liveTimer);
     liveTimer = setTimeout(() => {
@@ -483,12 +503,12 @@
       return true;
     }
     if (action === 'squad-load') {
-      const real = (FC26.squads || {})[item.dataset.club];
+      const real = realSquad(item.dataset.club);
       if (!real) return true;
       const t0 = trackerOf(deps.findEntry(id));
       if (t0.players.length && !root.confirm('Replace your current squad list with the real squad?')) return true;
-      change(item, (t) => { t.players = real.players.map((p) => Object.assign({ id: uid() }, p)); }, ['squad']);
-      deps.toast(`Loaded ${real.players.length} players`);
+      change(item, (t) => { t.players = realSquadPlayers(item.dataset.club, t.season); }, ['squad']);
+      deps.toast(`Loaded ${real.length} players. Add their OVRs as you go.`);
       return true;
     }
     if (action === 'tr-dir') {
@@ -618,9 +638,17 @@
     : `<div data-panel="transfers">${renderTransfers(entry, t)}</div>`}`;
   }
 
+  /** A club's real squad as tracker players, aged for the given season ([] if unknown). */
+  function realSquadPlayers(club, season) {
+    const real = realSquad(club);
+    if (!real) return [];
+    const day = seasonDay(season);
+    return real.map(([name, pos, dob, nat]) => ({ id: uid(), name, pos, age: DB.ageOn(dob, day), nat: C.normNat(nat) }));
+  }
+
   function setTab(id, tab) {
     tabs[id] = tab;
   }
 
-  FC26.trackerUI = { init, renderTracker, renderTransferCentre, setTab, onClick, onChange, onSubmit, onInput, parseSquad, POSITIONS };
+  FC26.trackerUI = { init, renderTracker, renderTransferCentre, realSquadPlayers, setTab, onClick, onChange, onSubmit, onInput, parseSquad, POSITIONS };
 })(typeof window !== 'undefined' ? window : globalThis);

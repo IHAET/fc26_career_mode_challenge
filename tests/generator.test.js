@@ -600,10 +600,10 @@ test('pasting a squad understands common formats', () => {
 const { playerDB: DB, assistant: A } = globalThis.FC26;
 
 test('the known-player list is clean', () => {
-  assert.ok(DB.players.length > 600, `only ${DB.players.length} players`);
+  assert.ok(DB.curated.length > 600, `only ${DB.curated.length} players`);
   const positions = new Set(globalThis.FC26.trackerUI.POSITIONS);
   const seen = new Set();
-  DB.players.forEach((p) => {
+  DB.curated.forEach((p) => {
     assert.ok(C.NATIONALITIES.includes(p.nat), `${p.name}: unknown nationality ${p.nat}`);
     assert.ok(positions.has(p.pos), `${p.name}: unknown position ${p.pos}`);
     assert.ok(!seen.has(DB.key(p.name)), `duplicate ${p.name}`);
