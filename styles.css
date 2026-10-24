@@ -212,6 +212,9 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
   cursor: pointer; font-size: 1.05rem; display: grid; place-items: center;
 }
 .theme-btn:hover { background: var(--panel-2); }
+.lang-btn { position: relative; overflow: hidden; }
+.lang-btn select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; }
+.lang-btn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 .topbar .account-btn { margin-left: auto; }
 
 .more-options { border-top: 1px solid var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 14px; }
@@ -259,12 +262,14 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
 @media (max-width: 560px) {
   .brand { flex: 1 1 0; min-width: 0; }
   .brand-sub { display: none; }
-  .brand h1 { font-size: 1.05rem; }
+  .brand h1 { font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand > div { min-width: 0; }
   /* No blur here: it would make the header the frame for the fixed tab bar below. */
   .topbar { padding-top: 12px; padding-bottom: 12px; backdrop-filter: none; background: var(--bg); }
   .account-btn { order: 1; padding: 6px 10px; }
   .account-btn .account-label { display: none; }
-  .theme-btn { order: 2; width: 34px; height: 34px; }
+  .theme-btn { order: 2; width: 32px; height: 32px; font-size: 0.95rem; }
+  .topbar { gap: 6px; }
   /* Tabs become a bar along the bottom of the screen. */
   .tabs {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; width: 100%;
@@ -274,6 +279,7 @@ select:focus, input:focus, button:focus-visible { outline: 2px solid var(--accen
   .tab { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 2px; font-size: 0.7rem; position: relative; }
   .tab .tab-icon { font-size: 1.25rem; line-height: 1.2; }
   .tab .tab-long { display: none; }
+  .tab .tab-short { display: inline; }
   .tab .count, .tab .dot { position: absolute; top: 2px; left: calc(50% + 8px); }
   body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
   .toast { bottom: calc(80px + env(safe-area-inset-bottom)); }
@@ -1003,7 +1009,8 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
 .p-flags label:hover { opacity: 0.8; background: var(--panel-2); }
 .p-flags label:has(input:checked) { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
 .p-flags label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
-@media (max-width: 560px) { .h1-long { display: none; } .brand h1 { font-size: 1.3rem; } }
+.h1-short, .tab-short { display: none; }
+@media (max-width: 560px) { .h1-long { display: none; } .h1-short { display: inline; } .brand h1 { font-size: 1.3rem; } }
 
 /* ---------- Wonderkid scout ---------- */
 
@@ -1291,3 +1298,5 @@ body.has-dock .yt-float { bottom: 150px; }
 .cm-note-text { font-size: 0.92rem; overflow-wrap: anywhere; }
 .btn.btn-yt-soft { background: rgba(255, 0, 51, 0.1); border-color: rgba(255, 0, 51, 0.35); }
 @media (max-width: 560px) { .cm-row2 { grid-template-columns: 1fr; } .cm-reply { margin-left: 8px; } .cm-pick { flex-wrap: wrap; } }
+/* Phones: the FC26 mark is the title, so the top-bar buttons fit. */
+@media (max-width: 430px) { .brand h1 { display: none; } }

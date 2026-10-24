@@ -1116,3 +1116,19 @@ test('a transfer screenshot\'s text gives the player, rating, fee, wage and club
   assert.equal(none.found.length, 0);
   assert.deepEqual(O.amounts('€45.000.000 and £3.5m and $800k').map((a) => a.value), [45e6, 3.5e6, 8e5]);
 });
+
+test('the interface translates whole labels and keeps the emoji and numbers around them', () => {
+  const I = globalThis.FC26.i18n;
+  const rows = globalThis.FC26.i18nRows;
+  rows.forEach((r) => assert.equal(r.length, I.LANGS.length, `row "${r[0]}" needs ${I.LANGS.length} entries`));
+  const keys = rows.map((r) => r[0]);
+  assert.equal(new Set(keys).size, keys.length, 'no English text twice');
+  assert.equal(I.translate('📒 Track it', 'es'), '📒 Seguirlo');
+  assert.equal(I.translate('  ⚽ Generate challenge ', 'fr'), '  ⚽ Générer un défi ');
+  assert.equal(I.translate('3 seasons', 'de'), '3 Saisons');
+  assert.equal(I.translate('Forgot your password?', 'it'), 'Password dimenticata?');
+  assert.equal(I.translate('Builder', 'zh'), '生成器');
+  // Unknown text and English stay as they are.
+  assert.equal(I.translate('Win the league with Wrexham', 'es'), 'Win the league with Wrexham');
+  assert.equal(I.translate('📒 Track it', 'en'), '📒 Track it');
+});

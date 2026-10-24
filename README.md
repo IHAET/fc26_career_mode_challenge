@@ -34,6 +34,7 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **🎓 Tour**: a short walkthrough of the app on your first visit (Skip, Back, Next, arrow keys, Esc). ❓ in the top bar shows it again.
 - **🔔 Subscriptions** (🔔 in the top bar): the daily challenge as a calendar you subscribe to (Google Calendar, Apple Calendar, Outlook) or an RSS feed; reminder notifications for the daily challenge and for friends' new challenges; **following** friends by username to see the challenges they share and open them; and **⭐ Pro**, a paid monthly plan with coupon codes (unlimited saves, choosing seasons, rules and seed, writing your own challenges, a Pro badge, five colour themes, 75 and 100-track soundtracks). See "Subscriptions, following and Pro" below.
 - **Quick start**: one-click cards on the Builder (Surprise me, Club Heritage, Road to Glory, Player Career, Legendary, today's daily), and a short club reel while a challenge is drawn.
+- **🌐 Languages**: English, Español, Português, Français, Deutsch, Italiano, Română and 中文 from the 🌐 button in the top bar. The app starts in your browser's language when it's one of these and remembers your choice. Tabs, buttons, headings, labels and tooltips are translated; challenge rules, objectives and players' posts stay in English for now.
 - **Light and dark themes** (☀️/🌙 in the top bar; follows your system until you pick), and a bottom tab bar on phones.
 - **🔭 Wonderkid scout**: a Scout tab on every tracked Manager Career challenge (and in the Transfers section) suggests young players from all 432 squads, best prospects first. A hand-picked list of widely rated talents (⭐, e.g. Lamine Yamal, Franco Mastantuono, Estêvão) comes first, then youth and the level of the club. Every suggestion is checked against the challenge's rules (✅ fits / ❌ which rule it breaks); filter by position, age, league or name, keep a 🎯 shortlist on the save, and **Sign** fills in the transfer form. Each prospect shows his FC 26 rating at launch, which also counts in the ranking; potential isn't included, so ask your scouts in the game.
 - **👥 Squad tab**: players grouped into goalkeepers, defenders, midfielders, attackers and out on loan, with coloured position badges, FC-style rating badges, sorting by position, OVR, age or name, and summary cards (players, starting XI, average age and OVR, nationalities, wages).
@@ -180,6 +181,7 @@ npm test         # node --test (Node 18+)
 | `js/proofs.js`, `js/leaderboard.js` | 📸 Proof photos (shrinking, on-device storage, shared copies, viewer, points) and the 🏆 leaderboard |
 | `js/ocr.js` | 📷 Screenshot reader: in-browser text recognition and picking a transfer out of the text |
 | `js/community.js` | 💬 Community: forum, player picks with upvotes, and the video library |
+| `js/i18n.js`, `js/i18n-strings.js` | 🌐 Languages: the translator and the table of interface text in each language |
 | `js/tutorial.js` | The first-visit tour and the ❓ button |
 | `js/subscriptions.js` | 🔔 Subscriptions: feed links, reminders, following, Pro |
 | `sw.js` | Service worker for reminder notifications on phones (no caching) |
