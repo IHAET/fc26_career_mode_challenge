@@ -35,6 +35,23 @@ service cloud.firestore {
       allow create, update: if isUser(uid) && request.resource.data.uids is list && request.resource.data.uids.size() <= 50;
     }
 
+    // 🏆 Leaderboard: everyone signed in can read it; you write only your own row.
+    match /leaderboard/{uid} {
+      allow read: if signedIn();
+      allow delete: if isUser(uid);
+      allow create, update: if isUser(uid)
+        && request.resource.data.keys().hasOnly(['handle', 'name', 'country', 'pro', 'points', 'proofs', 'challenges', 'updated'])
+        && request.resource.data.points is number && request.resource.data.points >= 0 && request.resource.data.points <= 1000000
+        && request.resource.data.handle is string && request.resource.data.handle.matches('^[a-z0-9_]{3,20}$');
+    }
+
+    // 📸 Proof photos: anyone signed in can look; you add and remove your own (each under ~700 KB).
+    match /proofs/{uid}/items/{id} {
+      allow read: if signedIn();
+      allow delete: if isUser(uid);
+      allow create, update: if isUser(uid) && request.resource.data.image is string && request.resource.data.image.size() < 750000;
+    }
+
     // ⭐ Pro: the "Run Payments with Stripe" extension's collections.
     match /customers/{uid} {
       allow read: if isUser(uid);

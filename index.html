@@ -215,6 +215,7 @@
           <p class="muted">Saved on this device (and synced if you sign in). Tick objectives off as you go.</p>
         </div>
         <div class="backup-tools">
+          <button type="button" class="btn btn-small btn-primary" id="board-btn" title="Players and countries ranked by proven objectives">🏆 Leaderboard</button>
           <button type="button" class="btn btn-small" id="backup-export" title="Download all your saves as a file">⬇️ Back up</button>
           <label class="btn btn-small" title="Load saves from a backup file (merged with what's here)">⬆️ Restore<input type="file" id="backup-import" accept="application/json,.json" hidden></label>
         </div>
@@ -245,6 +246,9 @@
 
   <div class="modal" id="login" role="dialog" aria-modal="true" aria-labelledby="login-title" hidden>
     <div class="login-card panel"></div>
+  </div>
+  <div class="modal" id="board" role="dialog" aria-modal="true" aria-labelledby="lb-title" hidden>
+    <div class="lb-card subs-card panel"></div>
   </div>
   <div class="modal" id="subs" role="dialog" aria-modal="true" aria-labelledby="subs-title" hidden>
     <div class="subs-card panel"></div>
@@ -283,6 +287,8 @@
   <script src="js/youtube.js"></script>
   <script src="js/achievements.js"></script>
   <script src="js/subscriptions.js"></script>
+  <script src="js/proofs.js"></script>
+  <script src="js/leaderboard.js"></script>
   <script src="js/tutorial.js"></script>
   <script src="js/app.js"></script>
 </body>

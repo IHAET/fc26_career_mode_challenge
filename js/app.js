@@ -415,6 +415,11 @@
       return `<small class="rule-info" ${x.source ? `title="${esc(x.source)}"` : ''}>ℹ️ ${esc(x.text)}${typed}</small>`;
     };
 
+    // 📸 Proof photos for an objective (on saves): one chip per photo, and a camera to add one.
+    const proofs = (entry && entry.proofs) || {};
+    const proofCtl = (key, text) => (mode === 'saved' ? `
+      <span class="proof">${(proofs[key] || []).map((p, i) => `<button type="button" class="proof-chip" data-action="proof-view" data-key="${esc(key)}" data-i="${i}" title="See the proof">📸</button>`).join('')}
+        <label class="proof-add" title="Add a screenshot as proof (it counts on the leaderboard)">📷<input type="file" accept="image/*" data-proof="${esc(key)}" data-objective="${esc(text)}" hidden></label></span>` : '');
     const check = (key) => (mode === 'saved'
       ? `<input type="checkbox" class="obj-check" data-action="toggle" data-key="${esc(key)}" ${progress[key] ? 'checked' : ''} aria-label="Mark done">`
       : '');
@@ -436,11 +441,11 @@
         <div class="season-num"><span>S${s.season}</span>${s.age ? `<small>age ${Number(s.age)}</small>` : ''}</div>
         <div class="season-body">
           ${s.objectives.map((o, i) => `
-            <label class="objective ${o.type}">
+            <div class="obj-row${(proofs[`s${s.season}-${i}`] || []).length ? ' has-proof' : ''}"><label class="objective ${o.type}">
               ${check(`s${s.season}-${i}`)}
               <span class="obj-icon">${o.type === 'main' ? '🎯' : '➕'}</span>
               <span>${esc(o.text)}</span>
-            </label>`).join('')}
+            </label>${proofCtl(`s${s.season}-${i}`, o.text)}</div>`).join('')}
           ${s.events.map((e) => { const ev = G.splitEvent(e); return `<div class="event${ev.when ? ' midseason' : ''}"><span class="obj-icon">${ev.icon}</span><span>${ev.when ? `<strong>${esc(ev.when)}:</strong> ` : ''}${esc(ev.text)}</span></div>`; }).join('')}
           ${mode === 'saved' ? diaryRow(s.season, log[s.season] || {}) : ''}
         </div>
@@ -509,7 +514,8 @@
 
       ${ch.finalGoal ? `<section class="block final">
         <h3>🏆 Final goal</h3>
-        <label class="objective final-goal">${check('final')}<span>${esc(ch.finalGoal)}</span></label>
+        <div class="obj-row${(proofs.final || []).length ? ' has-proof' : ''}"><label class="objective final-goal">${check('final')}<span>${esc(ch.finalGoal)}</span></label>${proofCtl('final', ch.finalGoal)}</div>
+        ${mode === 'saved' ? `<p class="muted small proof-note">📸 Add a screenshot to an objective to prove it: proven objectives score on the 🏆 leaderboard (${window.FC26.proofs ? window.FC26.proofs.points(entry) : 0} points from this save so far).</p>` : ''}
       </section>` : ''}
 
       <div class="grid-2">
@@ -860,6 +866,7 @@
     if (ok) {
       Account.changed();
       Subs.savesChanged();
+      window.FC26.leaderboard.publish();
     }
     return ok;
   }
@@ -1062,6 +1069,10 @@
 
   // Diary text fields save without re-rendering, so typing isn't interrupted.
   function onSavedChange(e) {
+    if (e.target.matches('[data-proof]')) {
+      addProof(e.target);
+      return;
+    }
     if (e.target.matches('[data-record]')) {
       const item = e.target.closest('.saved-item');
       const value = Number(e.target.value);
@@ -1083,6 +1094,52 @@
     entry.log[season] = Object.assign({}, entry.log[season], { [input.dataset.log]: input.value.trim().slice(0, 200) });
     writeSaved(list);
     $('summary', item).innerHTML = savedSummary(entry);
+  }
+
+  // ---------- 📸 Proof ----------
+
+  async function addProof(input) {
+    const file = input.files && input.files[0];
+    const item = input.closest('.saved-item');
+    if (!file || !item) return;
+    const id = item.dataset.id;
+    const key = input.dataset.proof;
+    const entry = findEntry(id);
+    toast('📸 Adding your proof…');
+    try {
+      const proof = await window.FC26.proofs.add(id, key, file, { title: entry.challenge.title, objective: input.dataset.objective });
+      const before = window.FC26.proofs.points(entry);
+      const next = mutateEntry(id, (en) => {
+        en.proofs = Object.assign({}, en.proofs);
+        en.proofs[key] = (en.proofs[key] || []).concat(proof);
+        en.progress = Object.assign({}, en.progress, { [key]: true });
+      });
+      refreshSavedItem(item, next);
+      const gained = window.FC26.proofs.points(next) - before;
+      toast(`📸 Proof added${gained ? `: +${gained} points` : ''}${proof.shared ? '' : ' (kept on this device: sign in with a username to share it)'}`);
+      if (window.FC26.leaderboard) window.FC26.leaderboard.publish();
+    } catch (err) {
+      toast(err.message || 'That photo couldn\'t be added');
+    }
+  }
+
+  async function viewProofs(id, key, start) {
+    const entry = findEntry(id);
+    const list = ((entry && entry.proofs) || {})[key] || [];
+    const photos = await Promise.all(list.map((p) => window.FC26.proofs.photo(p)));
+    const shown = list.map((p, i) => ({ p, photo: photos[i] })).filter((x) => x.photo);
+    if (!shown.length) { toast('That photo is on another device'); return; }
+    window.FC26.proofs.show(shown.map(({ p, photo }) => ({ src: photo.image, caption: `${new Date(p.at).toLocaleDateString()}${p.shared ? ' · shared' : ' · on this device'}` })), Math.min(start, shown.length - 1), {
+      onRemove: async (i) => {
+        const gone = shown[i].p;
+        await window.FC26.proofs.remove(gone);
+        const next = mutateEntry(id, (en) => { en.proofs[key] = (en.proofs[key] || []).filter((x) => x.id !== gone.id); });
+        const item = $(`.saved-item[data-id="${CSS.escape(id)}"]`);
+        if (item && next) refreshSavedItem(item, next);
+        toast('Proof removed');
+        if (window.FC26.leaderboard) window.FC26.leaderboard.publish();
+      },
+    });
   }
 
   /** Save a challenge (unless it's already saved). Returns its id, or null if storage failed. */
@@ -1446,6 +1503,8 @@
       const tab = $('.ttab[data-tab="challenge"]', item);
       if (tab && !tab.classList.contains('is-active')) tab.click();
       openSoundtrack(item, true);
+    } else if (action === 'proof-view') {
+      viewProofs(id, btn.dataset.key, Number(btn.dataset.i) || 0);
     } else if (action === 'delete') {
       if (window.confirm(`Delete "${entry.challenge.title}"?`)) {
         writeSaved(loadSaved().filter((x) => x.id !== id));
@@ -1571,6 +1630,7 @@
       shareHash: async (ch) => (await shareUrl(ch)).split('#')[1] || '',
     });
     Subs.onProChange(syncProLocks);
+    window.FC26.leaderboard.init({ esc, toast, entries: loadSaved, storageGet, storageSet });
     syncProLocks();
     initAccount();
     initSoundtrack();

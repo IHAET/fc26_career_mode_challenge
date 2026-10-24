@@ -1183,8 +1183,25 @@ body.has-dock .toast { bottom: 150px; }
 
 .yt-block > summary { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; cursor: pointer; }
 .yt-block > summary h3 { margin: 0; }
-.yt-player { margin: 12px 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
-.yt-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; }
+.yt-float {
+  position: fixed; right: 16px; bottom: 16px; z-index: 45; width: 360px; max-width: calc(100vw - 24px);
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+}
+.yt-float[hidden] { display: none; }
+.yt-float.is-big { width: 640px; }
+.yt-float.is-dragging { opacity: 0.9; }
+.yt-float-bar { display: flex; align-items: center; gap: 6px; padding: 6px 8px; cursor: grab; touch-action: none; user-select: none; }
+.yt-float.is-dragging .yt-float-bar { cursor: grabbing; }
+.yt-float-title { flex: 1; min-width: 0; font-size: 0.82rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.yt-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; }
+.yt-float.is-dragging .yt-frame { pointer-events: none; }
+/* With the soundtrack bar open, sit above it. */
+body.has-dock .yt-float { bottom: 150px; }
+@media (max-width: 560px) {
+  .yt-float { right: 12px; left: auto; bottom: calc(76px + env(safe-area-inset-bottom)); width: min(300px, calc(100vw - 24px)); }
+  .yt-float.is-big { width: calc(100vw - 24px); }
+  body.has-dock .yt-float { bottom: calc(220px + env(safe-area-inset-bottom)); }
+}
 .yt-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .yt-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 12px 0; }
 .yt-card { display: flex; flex-direction: column; gap: 6px; padding: 0; border: 0; background: none; text-align: left; cursor: pointer; color: var(--text); font: inherit; min-width: 0; }
@@ -1200,6 +1217,46 @@ body.has-dock .toast { bottom: 150px; }
 .yt-meta small { font-size: 0.78rem; }
 .yt-more { text-decoration: none; color: var(--text); }
 @media (max-width: 560px) { .yt-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
+
+/* ---------- 📸 Proof ---------- */
+
+.obj-row { display: flex; align-items: center; gap: 8px; }
+.obj-row > .objective { flex: 1; min-width: 0; }
+.proof { display: inline-flex; align-items: center; gap: 4px; flex: none; }
+.proof-chip, .proof-add { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; font-size: 0.95rem; padding: 0; }
+.proof-add { opacity: 0.55; }
+.proof-add:hover, .proof-add:focus-within { opacity: 1; border-color: var(--accent); }
+.proof-chip { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.obj-row.has-proof .objective { font-weight: 600; }
+.proof-note { margin: 8px 0 0; }
+.proof-viewer { z-index: 120; }
+.pv-card { position: relative; margin: 0; max-width: min(960px, 100%); background: var(--panel); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.pv-card img { max-width: 100%; max-height: 75vh; object-fit: contain; border-radius: 10px; display: block; margin: 0 auto; }
+.pv-card figcaption { font-size: 0.88rem; }
+.pv-close { position: absolute; top: 8px; right: 8px; background: var(--panel); }
+.pv-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ---------- 🏆 Leaderboard ---------- */
+
+.lb-card { width: min(620px, 100%); }
+.lb-me { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); }
+.lb-country { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; }
+.lb-country select { width: auto; flex: 1; max-width: 240px; }
+.lb-tabs { margin-top: 4px; }
+.lb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.lb-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); }
+.lb-row.is-me { border-color: var(--accent); background: var(--accent-soft); }
+.lb-rank { width: 30px; text-align: center; font-weight: 800; font-size: 1.05rem; flex: none; }
+.lb-name { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.lb-name small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-pts { font-family: var(--font-display, inherit); font-size: 1.3rem; font-weight: 800; color: var(--accent); }
+.lb-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.lb-shot { display: flex; flex-direction: column; gap: 4px; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: var(--text); font: inherit; }
+.lb-shot img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
+.lb-shot small { font-size: 0.75rem; }
+.lb-proofs { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.lb-proofs h3 { margin: 0; }
+.lb-shot > span { display: flex; flex-direction: column; gap: 1px; }
 </style>
   <script>
     // Theme before first paint: the saved choice, else the system's.
@@ -1406,6 +1463,7 @@ body.has-dock .toast { bottom: 150px; }
           <p class="muted">Saved on this device (and synced if you sign in). Tick objectives off as you go.</p>
         </div>
         <div class="backup-tools">
+          <button type="button" class="btn btn-small btn-primary" id="board-btn" title="Players and countries ranked by proven objectives">🏆 Leaderboard</button>
           <button type="button" class="btn btn-small" id="backup-export" title="Download all your saves as a file">⬇️ Back up</button>
           <label class="btn btn-small" title="Load saves from a backup file (merged with what's here)">⬆️ Restore<input type="file" id="backup-import" accept="application/json,.json" hidden></label>
         </div>
@@ -1433,6 +1491,9 @@ body.has-dock .toast { bottom: 150px; }
 
   <div class="modal" id="login" role="dialog" aria-modal="true" aria-labelledby="login-title" hidden>
     <div class="login-card panel"></div>
+  </div>
+  <div class="modal" id="board" role="dialog" aria-modal="true" aria-labelledby="lb-title" hidden>
+    <div class="lb-card subs-card panel"></div>
   </div>
   <div class="modal" id="subs" role="dialog" aria-modal="true" aria-labelledby="subs-title" hidden>
     <div class="subs-card panel"></div>
@@ -8727,6 +8788,7 @@ Aleksei Miranchuk|Russian|CAM
  *   signOut(), load(uid) → doc | null, save(uid, doc)
  * and, for profiles, following and Pro (js/subscriptions.js), an optional
  *   data: { get(path), set(path, value, merge?), remove(path), add(collection, value) → id,
+ *           list(collection) → [docs], top(collection, field, n) → [docs, highest first],
  *           watch(path, cb) → stop, watchAll(collection, cb) → stop, call(name, payload) }
  *
  * Each user has one document: { v, updated, challenges, deleted, known },
@@ -8825,6 +8887,8 @@ Aleksei Miranchuk|Russian|CAM
         set: (path, value, merge) => F.setDoc(F.doc(db, path), value, merge ? { merge: true } : {}),
         remove: (path) => F.deleteDoc(F.doc(db, path)),
         add: async (collection, value) => (await F.addDoc(F.collection(db, collection), value)).id,
+        list: async (collection) => (await F.getDocs(F.collection(db, collection))).docs.map((d) => Object.assign({ id: d.id }, d.data())),
+        top: async (collection, field, n) => (await F.getDocs(F.query(F.collection(db, collection), F.orderBy(field, 'desc'), F.limit(n)))).docs.map((d) => Object.assign({ id: d.id }, d.data())),
         watch: (path, cb) => F.onSnapshot(F.doc(db, path), (snap) => cb(snap.exists() ? snap.data() : null), () => cb(null)),
         watchAll: (collection, cb) => F.onSnapshot(F.collection(db, collection), (q) => cb(q.docs.map((d) => Object.assign({ id: d.id }, d.data()))), () => cb([])),
         // A callable Cloud Function (the Stripe extension's customer portal link), without the Functions SDK.
@@ -9705,20 +9769,25 @@ Aleksei Miranchuk|Russian|CAM
 (function (root) {
   'use strict';
   const FC26 = (root.FC26 = root.FC26 || {});
-  FC26.videos = {"fetched":"2026-10-24","byType":{"road-to-glory":[{"id":"NUVMSoAsqO8","title":"I Used Moneyball to Rebuild a League Two Club For 15 SEASONS","channel":"MWS","length":"35:26"},{"id":"Z7kmii74vfE","title":"I Rebuilt A League Two Club For 15 SEASONS","channel":"MWS","length":"1:00:00"},{"id":"Zi1BtERpG0g","title":"FC 26 OLDHAM - #1 TEN YEAR PROJECT","channel":"Barfieboy","length":"24:06"},{"id":"1l7fZP6ysGw","title":"I Rebuilt a League Two Club Using Youth Academy Only For 15 SEASONS","channel":"MWS","length":"48:45"},{"id":"FvdH73giue0","title":"I Rebuild The ABSOLUTE WORST Team In ENGLAND!","channel":"CaniSports","length":"33:39"},{"id":"e-rL7nWwyb8","title":"I Rebuilt the Worst team in FC 26","channel":"MWS","length":"49:31"},{"id":"aASF8pT_l_U","title":"4 Fun Fallen Giants You Can Rebuild!","channel":"Geografifa","length":"10:50"},{"id":"rHUlFHILLPk","title":"I Rebuilt Bolton Wanderers In FC26 With 'Realistic' Transfers!!..","channel":"ScottAttemptsGaming","length":"44:33"}],"youth-revolution":[{"id":"hgWneX0vD-4","title":"I Rebuild A YOUTH ACADEMY Team With BEST SCOUTS & COACHES!","channel":"CaniSports","length":"28:14"},{"id":"1l7fZP6ysGw","title":"I Rebuilt a League Two Club Using Youth Academy Only For 15 SEASONS","channel":"MWS","length":"48:45"},{"id":"BsSd6Nw0utU","title":"I Rebuilt Barcelona Using Youth Academy Wonderkids Only","channel":"Ramman","length":"2:00:24"},{"id":"FYwkIZLi2qU","title":"I Built the World’s Greatest Youth Academy","channel":"S2G","length":"24:29"},{"id":"7JG7px1O0AE","title":"I Built The Best ASIAN ONLY Youth Academy Ever!","channel":"CaniSports","length":"27:15"},{"id":"Ibna9ntH5uU","title":"I Rebuild FC BARCELONA With YOUTH ACADEMY Only!","channel":"CaniSports","length":"29:39"},{"id":"JpYigJFcUBw","title":"I Built the World’s Greatest Youth Academy","channel":"Pace","length":"26:16"},{"id":"kEwLkJExGfw","title":"I Created a Youth Academy Only Club","channel":"Tyztir","length":"7:23:48"}],"moneyball":[{"id":"NUVMSoAsqO8","title":"I Used Moneyball to Rebuild a League Two Club For 15 SEASONS","channel":"MWS","length":"35:26"},{"id":"pxv2IOVx0Ow","title":"I Used Moneyball to Rebuild a Sleeping Giant","channel":"MWS","length":"29:12"},{"id":"vjOFh0BiW9M","title":"I Used Moneyball to Rebuild a League Two Club","channel":"JarradHD","length":"35:33"},{"id":"_9hjxyYDEo4","title":"True Moneyball Is Now Possible in Career Mode!","channel":"Geografifa","length":"8:22"},{"id":"v8FEm1F_0C4","title":"I Used Moneyball to Rebuild a Fallen Giant","channel":"MWS","length":"24:47"},{"id":"t7OJDJlgl1g","title":"I Used Moneyball to Rebuild Brighton","channel":"MWS","length":"27:51"},{"id":"gnckdqRuw10","title":"I Used Moneyball to Rebuild Brentford","channel":"MWS","length":"31:41"},{"id":"mlGH8JqJUVA","title":"Are Moneyball Saves Now Possible in Career Mode?","channel":"Geografifa","length":"8:33"}],"fallen-giant":[{"id":"YqLgaur-t8U","title":"Rebuilding A FALLEN GIANT Of English Football!","channel":"JiroTF16","length":"15:31"},{"id":"LnbH5J7SRTU","title":"Rebuilding The Biggest FALLEN GIANT In Football!","channel":"JiroTF16","length":"12:20"},{"id":"1OZKx8xeL2Q","title":"The 3 Most Interesting Fallen Giant Rebuild Saves!","channel":"Geografifa","length":"9:05"},{"id":"aASF8pT_l_U","title":"4 Fun Fallen Giants You Can Rebuild!","channel":"Geografifa","length":"10:50"},{"id":"MhVTvmMSk3s","title":"Can I Rebuild Italy's Fallen Giant?","channel":"MWS","length":"20:42"},{"id":"UT9tXd8si2I","title":"Can I Save A Fallen Giant! - FC 26 Parma Career Mode | Episode 1","channel":"TVPlayzz","length":"40:28"},{"id":"7zVhW-9JCx4","title":"Rebuilding A Fallen Giant! - FC 26 Hamburger SV Career Mode EP 1","channel":"TVPlayzz","length":"54:54"},{"id":"GVowCrA4PVM","title":"THE FEYENOORD PROJECT! Hyper Realistic FC26 Rebuild!","channel":"LLfifa","length":"28:37"}],"homegrown":[{"id":"3SuiF2LAmyI","title":"Can I Save a RELEGATED Club using Free Agents ONLY?","channel":"Goodwin","length":"30:20"},{"id":"zVvM0gzvY-c","title":"Can I Save the WORST Club with YOUTH ACADEMY Only?!","channel":"Goodwin","length":"29:04"},{"id":"NokHk7JoPac","title":"5 Challenges you MUST TRY in FC 26 Career Mode!","channel":"JJLozzer","length":"11:27"},{"id":"zcBhvY8-sJQ","title":"I Rebuild With YOUTH ACADEMY From The UK Only!","channel":"CaniSports","length":"27:04"},{"id":"jx123JyRSuA","title":"I Found the Fastest way to Develop Wonderkids!","channel":"Geografifa","length":"8:14"},{"id":"qhLugsA5MXg","title":"I Rebuild Until I Become The BEST MANAGER In The WORLD!","channel":"CaniSports","length":"39:59"},{"id":"Memz5i2mEtI","title":"I Manage the Worst Premier League Club… in FC 26","channel":"S2G","length":"24:36"},{"id":"LECVvLv5iuw","title":"I Rebuilt a League two Club Using Free Agents Only","channel":"MWS","length":"30:51"}],"loan-army":[{"id":"jx123JyRSuA","title":"I Found the Fastest way to Develop Wonderkids!","channel":"Geografifa","length":"8:14"},{"id":"hqo_GZ8MTTo","title":"I Rebuild Using REGENS ONLY & Found The NEXT RONALDO!","channel":"CaniSports","length":"31:12"},{"id":"HVineWqEvCs","title":"YOUTH ACADEMY LOAN GLITCH IN EA FC 26 CAREER MODE!","channel":"Lloyds Gaming ","length":"4:37"},{"id":"nlBetRSRCRI","title":"FC 26 Youth Academy Guide - Find The BEST Players!","channel":"Cutzy","length":"10:10"},{"id":"hgWneX0vD-4","title":"I Rebuild A YOUTH ACADEMY Team With BEST SCOUTS & COACHES!","channel":"CaniSports","length":"28:14"},{"id":"EMvbstKVKyI","title":"I Created the World's Best Youth Academy Using Glitches","channel":"Ramman","length":"1:05:33"},{"id":"kP6I96HPkyw","title":"I Found Out Exactly How the FC26 Youth Academy Works!","channel":"Geografifa","length":"8:51"}],"journeyman":[{"id":"qhLugsA5MXg","title":"I Rebuild Until I Become The BEST MANAGER In The WORLD!","channel":"CaniSports","length":"39:59"},{"id":"qoDwROa6QCU","title":"I Become the Greatest Manager of All Time","channel":"MWS","length":"6:57:52"},{"id":"nInDp5RDWTQ","title":"I Started Career Mode Unemployed…","channel":"S2G","length":"29:45"},{"id":"onIlaH6wMjI","title":"I Become the World's Best Manager...","channel":"S2G","length":"50:42"},{"id":"sPR3r39V5Zs","title":"I Manage the Worst Club in Italy...","channel":"S2G","length":"22:16"},{"id":"wQk6VLwVaBE","title":"I Became the Greatest Journeyman Manager!","channel":"JarradHD","length":"26:54"},{"id":"Z7kmii74vfE","title":"I Rebuilt A League Two Club For 15 SEASONS","channel":"MWS","length":"1:00:00"},{"id":"KxmWz_Z71VA","title":"I Started Career Mode Unemployed..","channel":"Goodwin","length":"25:28"}],"galacticos":[{"id":"uXJWElqV5k0","title":"I Takeover Real Madrid for 10 Seasons... in FC 26","channel":"S2G","length":"28:28"},{"id":"a2NybOY0LAA","title":"I Built the Most Expensive Team… in FC 26","channel":"S2G","length":"8:12"},{"id":"qnfMajkiaEc","title":"I Built the Highest Potential Team… in FC 26","channel":"S2G","length":"13:01"},{"id":"PCG9mEMM-JY","title":"Was FC26 a Good Game?","channel":"Geografifa","length":"8:02"},{"id":"2gziVTfSCdM","title":"NEW FC 26 CAREER MODE UPDATE","channel":"FCG","length":"4:02"},{"id":"FgL24cOxk9k","title":"NEW FC 26 CAREER MODE UPDATE","channel":"FCG","length":"4:41"},{"id":"xAUN_5Yf62A","title":"NEW FC 26 CAREER MODE UPDATE","channel":"FCG","length":"5:21"},{"id":"aASF8pT_l_U","title":"4 Fun Fallen Giants You Can Rebuild!","channel":"Geografifa","length":"10:50"}],"underdog-europe":[{"id":"kUf-c1uCFF0","title":"Can I Win The Champions League With Feyenoord In FC26?!!..","channel":"ScottAttemptsGaming","length":"22:41"},{"id":"ujIn88IeenY","title":"Charlton Career Mode!!! #TheMovie | FC26 Career Mode","channel":"JustMarco","length":"2:47:18"},{"id":"OJtnWgjvE38","title":"UNDERDOG STORY SHOCKS THE LEAGUE | FC 26 Create-a-Club Career Mode Series | Episode 24","channel":"Therios","length":"36:26"},{"id":"MtP5ozS92Y8","title":"TOP 10 Teams for EA FC 26 Career Mode: From Fallen Giants to Modern Underdogs | Gamejoytactics","channel":"GameJoyTactics","length":"6:06"},{"id":"xt61Vf-u2XY","title":"THIS CHAMPIONS LEAGUE MATCH DECIDED MY ENTIRE SEASON! - FC 26 PLAYER CAREER","channel":"StaxMontana","length":"45:54"},{"id":"F_yl033hsVM","title":"🚀 FC 26 Career Mode LIVE | From Underdogs to Champions!","channel":"DoomGaming","length":"2:30:48"},{"id":"l5TAbVXk4aY","title":"EA FC26 UEFA Champions League Full Gameplay Walkthrough","channel":"Nad Noddy","length":"3:41:26"},{"id":"lI2aAY2DBnQ","title":"TOP 15 Teams For Career Mode in FC26!","channel":"GameJoyTactics","length":"11:07"}],"one-nation":[{"id":"R0weUXXljH4","title":"International Career Mode Showdown vs Pazjor","channel":"JarradHD and Pazjor","length":"14:37"},{"id":"bGI409ZBuko","title":"World Cup But Your Club Decides Your Country","channel":"Pazjor","length":"15:48"},{"id":"h0_fr8nxNEA","title":"A NEW ERA BEGINS... - FC26 PLAYER CAREER MODE EP1","channel":"Lil Jr","length":"27:43"},{"id":"NokHk7JoPac","title":"5 Challenges you MUST TRY in FC 26 Career Mode!","channel":"JJLozzer","length":"11:27"},{"id":"96mI7kyR6EE","title":"I Spent 7 Days Playing FC 26, Here`s What Happened...","channel":"Blushh","length":"19:42"},{"id":"GzZzT-RmEd4","title":"Noob vs Pro Career Mode Player…","channel":"S2G and RazzHD","length":"36:31"}],"veterans":[{"id":"Zhj3TvKO2DI","title":"I Rebuilt the Oldest Club Using Old Players ONLY","channel":"MWS","length":"34:51"},{"id":"yeAXXO2VBTI","title":"I Built the Oldest Team in FC 26...","channel":"Tyztir","length":"34:47"},{"id":"hqo_GZ8MTTo","title":"I Rebuild Using REGENS ONLY & Found The NEXT RONALDO!","channel":"CaniSports","length":"31:12"},{"id":"nInDp5RDWTQ","title":"I Started Career Mode Unemployed…","channel":"S2G","length":"29:45"},{"id":"NokHk7JoPac","title":"5 Challenges you MUST TRY in FC 26 Career Mode!","channel":"JJLozzer","length":"11:27"},{"id":"2EhuR6hIe-Q","title":"I Rebuild With SONS Of RETIRED FOOTBALLERS Only!","channel":"CaniSports","length":"30:46"},{"id":"1l7fZP6ysGw","title":"I Rebuilt a League Two Club Using Youth Academy Only For 15 SEASONS","channel":"MWS","length":"48:45"},{"id":"KVrgtGqQOSE","title":"I FIXED the WORST Club with YOUTH ACADEMY Players Only...👶","channel":"S2G","length":"32:18"}],"wonderkid-factory":[{"id":"Zj5R3843MBM","title":"FC 26 | WONDERKIDS TO SIGN IN EVERY POSITIONS ON CAREER MODE✔️! CHEAP & EXPENSIVE | FUT 26","channel":"VIVALAFIFA","length":"16:04"},{"id":"qnfMajkiaEc","title":"I Built the Highest Potential Team… in FC 26","channel":"S2G","length":"13:01"},{"id":"nlBetRSRCRI","title":"FC 26 Youth Academy Guide - Find The BEST Players!","channel":"Cutzy","length":"10:10"},{"id":"jx123JyRSuA","title":"I Found the Fastest way to Develop Wonderkids!","channel":"Geografifa","length":"8:14"},{"id":"cyrPCDCBpP0","title":"100+ BEST Wonderkids You Must Sign in FC 26 Career Mode!🔥","channel":"IvoZ","length":"48:25"},{"id":"AAM-UpISyy8","title":"The Best Hidden Gems in FC 26 Career Mode! 🔥","channel":"IvoZ","length":"22:49"},{"id":"hgWneX0vD-4","title":"I Rebuild A YOUTH ACADEMY Team With BEST SCOUTS & COACHES!","channel":"CaniSports","length":"28:14"},{"id":"0WIiGI2aHlo","title":"FC 26 | HIDDEN GEMS WONDERKIDS TO SIGN IN EVERY POSITIONS CAREER MODE✔️! CHEAP & EXPENSIVE | FUT 26","channel":"VIVALAFIFA","length":"15:27"}],"chaos":[{"id":"NokHk7JoPac","title":"5 Challenges you MUST TRY in FC 26 Career Mode!","channel":"JJLozzer","length":"11:27"},{"id":"nt7wBPjSBgg","title":"Using Data to Find FC26’s Hardest Career Mode","channel":"Geografifa","length":"9:36"},{"id":"SmBgbJZcCFE","title":"Career Mode Showdown vs. Pazjor!","channel":"BFordLancer","length":"20:42"},{"id":"sPR3r39V5Zs","title":"I Manage the Worst Club in Italy...","channel":"S2G","length":"22:16"},{"id":"kr8oDAy1DN0","title":"These Are My 4 Favourite Saves on FC26!","channel":"Geografifa","length":"7:30"},{"id":"duN6W4HDNLw","title":"10 Things I Do To Make Career Mode Feel Realistic!","channel":"Geografifa","length":"8:48"},{"id":"biV8c4DEnTU","title":"LEICESTER vs WREXHAM Rebuild Showdown!","channel":"CaniSports and S2G","length":"34:56"},{"id":"nx8zl8-XKX4","title":"I Started Career Mode Unemployed..","channel":"Goodwin","length":"36:18"}],"one-club-legend":[{"id":"Q7jzIMSwig8","title":"How to Request Transfer Player Career Mode EA FC 26","channel":"JT11 Games","length":"3:10"},{"id":"WiUIAKEtyrc","title":"FC 26 Old Gen Nintendo Switch Player Career Gameplay","channel":"FP Good Game","length":"17:06"},{"id":"lqnKdFoP9bM","title":"EA SPORTS FC 26™ | I JOINED A RIVAL AND SHOCKED THE WORLD!!!👀 | PLAYER CAREER MODE | PS5™","channel":"Vance Studios","length":"23:25"},{"id":"wvomayyAY6s","title":"EA SPORTS FC 26™ | NEW CLUB, NEW COUNTRY, NEW ERA - JAYDEN VICENTE 🔥 | PLAYER CAREER MODE | PS5™","channel":"Vance Studios","length":"26:34"},{"id":"dmWLQ166rlo","title":"Player Career Mode Is dead on FC26.","channel":"Geografifa","length":"8:18"},{"id":"TjNra1lYPBo","title":"FC 26 My Player Career Mode EP1...","channel":"Tyztir Plus","length":"51:27"}],"wonderkid":[{"id":"Zj5R3843MBM","title":"FC 26 | WONDERKIDS TO SIGN IN EVERY POSITIONS ON CAREER MODE✔️! CHEAP & EXPENSIVE | FUT 26","channel":"VIVALAFIFA","length":"16:04"},{"id":"k-H6a6ZTQ2M","title":"FC26 Hidden Wonderkids With Real Faces You Didn't Know Were in Career Mode","channel":"tayzrr","length":"4:01"},{"id":"jx123JyRSuA","title":"I Found the Fastest way to Develop Wonderkids!","channel":"Geografifa","length":"8:14"},{"id":"EV63GnswtdI","title":"FC 26 | HIDDEN GEMS WITH REAL FACES 🔥– 50 Wonderkids Under €5M!","channel":"JRAM eleven","length":"3:17"},{"id":"f_PdNZ8CLhc","title":"FC26 Best Meta Wonderkids To Help You Win More Games!|Career Mode","channel":"tayzrr","length":"3:14"},{"id":"Eqk2u0EW8ME","title":"I Rebuild With WASTED WONDERKIDS Of 2025!","channel":"CaniSports","length":"33:12"},{"id":"svKkVcMq5mc","title":"Best Teenage Wonderkids With Highest Potential (16-19!)|FC26 Career Mode","channel":"tayzrr","length":"6:00"},{"id":"nZ0M1T7K0_E","title":"FC 26 | 50 HIDDEN GEMS WITH REAL FACES 🔥 AFTER ALL TITLE UPDATES","channel":"JRAM eleven","length":"4:26"}],"hometown-hero":[{"id":"wvomayyAY6s","title":"EA SPORTS FC 26™ | NEW CLUB, NEW COUNTRY, NEW ERA - JAYDEN VICENTE 🔥 | PLAYER CAREER MODE | PS5™","channel":"Vance Studios","length":"26:34"},{"id":"lqnKdFoP9bM","title":"EA SPORTS FC 26™ | I JOINED A RIVAL AND SHOCKED THE WORLD!!!👀 | PLAYER CAREER MODE | PS5™","channel":"Vance Studios","length":"23:25"},{"id":"m4OobFb0B68","title":"I PLAYED FC 26 PLAYER CAREER MODE… Good or Bad? 🤔","channel":"Vapex Karma","length":"8:01"},{"id":"Q7jzIMSwig8","title":"How to Request Transfer Player Career Mode EA FC 26","channel":"JT11 Games","length":"3:10"},{"id":"5e4WQQPFRZU","title":"The Most Realistic Career Mode | Episode 1","channel":"Leon's Echo","length":"17:35"}],"dream-move":[{"id":"EQ1GV4pejQE","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:58:28"},{"id":"dmWLQ166rlo","title":"Player Career Mode Is dead on FC26.","channel":"Geografifa","length":"8:18"},{"id":"Q7jzIMSwig8","title":"How to Request Transfer Player Career Mode EA FC 26","channel":"JT11 Games","length":"3:10"},{"id":"5j0Vr0Whgnw","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:56:58"},{"id":"AOtxfwzS9NI","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:58:03"},{"id":"HxlO1soBmhc","title":"HOW TO GET TO MAX LEVEL FAST IN EA FC 26 PLAYER CAREER MODE!","channel":"Lloyds Gaming ","length":"4:47"},{"id":"WK-nsyDjDjo","title":"Player Career Mode | Football League 2026 | Club Transfer and League Promotion ","channel":"ECO GAMEZ","length":"19:45"}],"globetrotter":[{"id":"dmWLQ166rlo","title":"Player Career Mode Is dead on FC26.","channel":"Geografifa","length":"8:18"},{"id":"ZwB6hmeoKe0","title":"TOP 8 Positions to Play in EA FC 26 Player Career: Choose the Right Position for YOU!","channel":"GameJoyTactics","length":"10:41"},{"id":"IC0XE3M3vTA","title":"I Played the Entire Career of Lamine Yamal","channel":"EdgarAS","length":"23:25"},{"id":"EQ1GV4pejQE","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:58:28"},{"id":"HxlO1soBmhc","title":"HOW TO GET TO MAX LEVEL FAST IN EA FC 26 PLAYER CAREER MODE!","channel":"Lloyds Gaming ","length":"4:47"},{"id":"9dEHAobSoWg","title":"HOW TO WIN THE BALLON D’OR in FC26 Player Career – FULL GUIDE","channel":"Sani The Rebel","length":"3:06"},{"id":"5j0Vr0Whgnw","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:56:58"},{"id":"d-OdpgX2hO0","title":"I Played My Entire Career in FC 26","channel":"Tyztir Plus","length":"13:13:58"}],"last-line":[{"id":"uFkAUhCwN5A","title":"FC 26 Goalkeeper My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:58:47"},{"id":"77p_boQFaR8","title":"Can I Become The BEST GOALKEEPER?! [GK CAREER EP. 1]","channel":"JiroTF16","length":"16:30"},{"id":"Dv-k13IbgAc","title":"I Became a Goalkeeper on FC 26","channel":"Tyztir","length":"3:58:55"},{"id":"4p0qyixE3cg","title":"I Played My Entire Career as a Goalkeeper","channel":"EdgarAS","length":"17:33"},{"id":"jL8GpoQhsDM","title":"FC 26 GOALKEEPER TUTORIAL! - All NEW System and Controls Explained!","channel":"TheRedCapsicum75","length":"13:51"},{"id":"ev28EHuoCD0","title":"Why is Goalkeeper Career Mode ACTUALLY This Good?! - Episode 1 🤯🔥","channel":"TheRedCapsicum75","length":"20:40"},{"id":"M_v_FF9ik_w","title":"FC 26 - GOALKEEPER TUTORIAL","channel":"Mace","length":"12:57"}],"goal-machine":[{"id":"Rje8eDZVhaY","title":"I SCORED 1000 GOALS!! ⚽️⚽️ | FC26 Player Career Mode w/ Storylines #50 (Part 1)","channel":"DefsNotZedd","length":"30:39"},{"id":"QHG7dJQP31c","title":"FC 26 Player Career Mode – 50 Goals!","channel":"FRANK","length":"8:45"},{"id":"2DVb2YMJ7NQ","title":"FC 26 Player Career Mode – The Record Breaker!","channel":"FRANK","length":"22:11"},{"id":"_bN175KA9Vo","title":"FC26 My Player Career Mode EP1... NEXT SUPERSTAR!","channel":"J21","length":"13:50"},{"id":"5ZxuFs4ufFc","title":"What Happens When You Create a 99 Overall Player in FC 26? 🤔","channel":"Vapex Karma","length":"8:58"},{"id":"5j0Vr0Whgnw","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:56:58"},{"id":"AOtxfwzS9NI","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:58:03"},{"id":"l3kdP0mbbao","title":"Can I Score Against The Unbeatable Goalkeeper In FC 26? (99 Overall)","channel":"Vapex Karma","length":"9:51"}],"goalscoring-defender":[{"id":"BksCkV0uwjc","title":"FC 26 CB Career #1 - I BECOME A DEFENDER...","channel":"Tyztir","length":"50:16"},{"id":"sHMYHftLFzY","title":"I Become a CB in FC 26 - Full Movie","channel":"Tyztir","length":"3:57:20"},{"id":"ZwB6hmeoKe0","title":"TOP 8 Positions to Play in EA FC 26 Player Career: Choose the Right Position for YOU!","channel":"GameJoyTactics","length":"10:41"},{"id":"Dv-k13IbgAc","title":"I Became a Goalkeeper on FC 26","channel":"Tyztir","length":"3:58:55"},{"id":"EQ1GV4pejQE","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:58:28"},{"id":"5aV_ImuslGI","title":"FC 26 | BEST YOUNG CB/DEFENDERS IN FC 26 CAREER MODE!🔥💪| CHEAP HIGHEST POTENTIAL WONDERKIDS💪⚽ FUT 26","channel":"VIVALAFIFA","length":"13:52"},{"id":"dmWLQ166rlo","title":"Player Career Mode Is dead on FC26.","channel":"Geografifa","length":"8:18"},{"id":"HxlO1soBmhc","title":"HOW TO GET TO MAX LEVEL FAST IN EA FC 26 PLAYER CAREER MODE!","channel":"Lloyds Gaming ","length":"4:47"}]},"queries":{"road-to-glory":"FC 26 career mode road to glory lower league rebuild","youth-revolution":"FC 26 career mode youth academy only challenge","moneyball":"FC 26 career mode moneyball challenge","fallen-giant":"FC 26 career mode fallen giant rebuild","homegrown":"FC 26 career mode homegrown players only challenge","loan-army":"FC 26 career mode loan players only challenge","journeyman":"FC 26 career mode journeyman manager challenge","galacticos":"FC 26 career mode galacticos superteam","underdog-europe":"FC 26 career mode underdog champions league","one-nation":"FC 26 career mode one nationality only challenge","veterans":"FC 26 career mode old players only challenge","wonderkid-factory":"FC 26 career mode wonderkids challenge","club-heritage":"FC 26 career mode realistic rebuild","chaos":"FC 26 career mode random challenge","one-club-legend":"FC 26 player career one club legend","wonderkid":"FC 26 player career wonderkid","hometown-hero":"FC 26 player career hometown club","dream-move":"FC 26 player career dream move","globetrotter":"FC 26 player career every league","last-line":"FC 26 player career goalkeeper","goal-machine":"FC 26 player career striker goals record","goalscoring-defender":"FC 26 player career defender","wildcard-career":"FC 26 player career challenge"}};
+  FC26.videos = {"fetched":"2026-10-24","byType":{"road-to-glory":[{"id":"NUVMSoAsqO8","title":"I Used Moneyball to Rebuild a League Two Club For 15 SEASONS","channel":"MWS","length":"35:26"},{"id":"Z7kmii74vfE","title":"I Rebuilt A League Two Club For 15 SEASONS","channel":"MWS","length":"1:00:00"},{"id":"FvdH73giue0","title":"I Rebuild The ABSOLUTE WORST Team In ENGLAND!","channel":"CaniSports","length":"33:39"},{"id":"egP1cDF7QLo","title":"The WORST Team In ENGLAND... I tried to rebuild it","channel":"CaniSports","length":"27:42"},{"id":"Zi1BtERpG0g","title":"FC 26 OLDHAM - #1 TEN YEAR PROJECT","channel":"Barfieboy","length":"24:06"},{"id":"e-rL7nWwyb8","title":"I Rebuilt the Worst team in FC 26","channel":"MWS","length":"49:31"},{"id":"Vmz1CiLFMFQ","title":"I Rebuild The POOREST Team In SPAIN To Ruin BARCA & REAL!","channel":"CaniSports","length":"30:19"},{"id":"_Ex8KOvEWU8","title":"I Rebuilt a League Two Club Using AI For 15 SEASONS","channel":"MWS","length":"38:57"}],"youth-revolution":[{"id":"hgWneX0vD-4","title":"I Rebuild A YOUTH ACADEMY Team With BEST SCOUTS & COACHES!","channel":"CaniSports","length":"28:14"},{"id":"1l7fZP6ysGw","title":"I Rebuilt a League Two Club Using Youth Academy Only For 15 SEASONS","channel":"MWS","length":"48:45"},{"id":"BsSd6Nw0utU","title":"I Rebuilt Barcelona Using Youth Academy Wonderkids Only","channel":"Ramman","length":"2:00:24"},{"id":"FYwkIZLi2qU","title":"I Built the World’s Greatest Youth Academy","channel":"S2G","length":"24:29"},{"id":"7JG7px1O0AE","title":"I Built The Best ASIAN ONLY Youth Academy Ever!","channel":"CaniSports","length":"27:15"},{"id":"Ibna9ntH5uU","title":"I Rebuild FC BARCELONA With YOUTH ACADEMY Only!","channel":"CaniSports","length":"29:39"},{"id":"JpYigJFcUBw","title":"I Built the World’s Greatest Youth Academy","channel":"Pace","length":"26:16"},{"id":"kEwLkJExGfw","title":"I Created a Youth Academy Only Club","channel":"Tyztir","length":"7:23:48"}],"moneyball":[{"id":"NUVMSoAsqO8","title":"I Used Moneyball to Rebuild a League Two Club For 15 SEASONS","channel":"MWS","length":"35:26"},{"id":"pxv2IOVx0Ow","title":"I Used Moneyball to Rebuild a Sleeping Giant","channel":"MWS","length":"29:12"},{"id":"vjOFh0BiW9M","title":"I Used Moneyball to Rebuild a League Two Club","channel":"JarradHD","length":"35:33"},{"id":"_9hjxyYDEo4","title":"True Moneyball Is Now Possible in Career Mode!","channel":"Geografifa","length":"8:22"},{"id":"v8FEm1F_0C4","title":"I Used Moneyball to Rebuild a Fallen Giant","channel":"MWS","length":"24:47"},{"id":"t7OJDJlgl1g","title":"I Used Moneyball to Rebuild Brighton","channel":"MWS","length":"27:51"},{"id":"gnckdqRuw10","title":"I Used Moneyball to Rebuild Brentford","channel":"MWS","length":"31:41"},{"id":"mlGH8JqJUVA","title":"Are Moneyball Saves Now Possible in Career Mode?","channel":"Geografifa","length":"8:33"}],"fallen-giant":[{"id":"YqLgaur-t8U","title":"Rebuilding A FALLEN GIANT Of English Football!","channel":"JiroTF16","length":"15:31"},{"id":"LnbH5J7SRTU","title":"Rebuilding The Biggest FALLEN GIANT In Football!","channel":"JiroTF16","length":"12:20"},{"id":"1OZKx8xeL2Q","title":"The 3 Most Interesting Fallen Giant Rebuild Saves!","channel":"Geografifa","length":"9:05"},{"id":"aASF8pT_l_U","title":"4 Fun Fallen Giants You Can Rebuild!","channel":"Geografifa","length":"10:50"},{"id":"MhVTvmMSk3s","title":"Can I Rebuild Italy's Fallen Giant?","channel":"MWS","length":"20:42"},{"id":"UT9tXd8si2I","title":"Can I Save A Fallen Giant! - FC 26 Parma Career Mode | Episode 1","channel":"TVPlayzz","length":"40:28"},{"id":"7zVhW-9JCx4","title":"Rebuilding A Fallen Giant! - FC 26 Hamburger SV Career Mode EP 1","channel":"TVPlayzz","length":"54:54"},{"id":"GVowCrA4PVM","title":"THE FEYENOORD PROJECT! Hyper Realistic FC26 Rebuild!","channel":"LLfifa","length":"28:37"}],"homegrown":[{"id":"wm-h4CdrQvM","title":"Can You Become The Best Team With ONLY Homegrown Players In Fc 26?","channel":"BleedGreenGames","length":"10:07"},{"id":"NokHk7JoPac","title":"5 Challenges you MUST TRY in FC 26 Career Mode!","channel":"JJLozzer","length":"11:27"},{"id":"jx123JyRSuA","title":"I Found the Fastest way to Develop Wonderkids!","channel":"Geografifa","length":"8:14"},{"id":"zcBhvY8-sJQ","title":"I Rebuild With YOUTH ACADEMY From The UK Only!","channel":"CaniSports","length":"27:04"},{"id":"Memz5i2mEtI","title":"I Manage the Worst Premier League Club… in FC 26","channel":"S2G","length":"24:36"},{"id":"FYwkIZLi2qU","title":"I Built the World’s Greatest Youth Academy","channel":"S2G","length":"24:29"},{"id":"mWwiRQrC-Co","title":"I Rebuilt Schalke Using FAILED Wonderkids Only!","channel":"MWS","length":"27:21"},{"id":"hgWneX0vD-4","title":"I Rebuild A YOUTH ACADEMY Team With BEST SCOUTS & COACHES!","channel":"CaniSports","length":"28:14"}],"loan-army":[{"id":"jx123JyRSuA","title":"I Found the Fastest way to Develop Wonderkids!","channel":"Geografifa","length":"8:14"},{"id":"hqo_GZ8MTTo","title":"I Rebuild Using REGENS ONLY & Found The NEXT RONALDO!","channel":"CaniSports","length":"31:12"},{"id":"3SuiF2LAmyI","title":"Can I Save a RELEGATED Club using Free Agents ONLY?","channel":"Goodwin","length":"30:20"},{"id":"1l7fZP6ysGw","title":"I Rebuilt a League Two Club Using Youth Academy Only For 15 SEASONS","channel":"MWS","length":"48:45"},{"id":"HVineWqEvCs","title":"YOUTH ACADEMY LOAN GLITCH IN EA FC 26 CAREER MODE!","channel":"Lloyds Gaming ","length":"4:37"},{"id":"nlBetRSRCRI","title":"FC 26 Youth Academy Guide - Find The BEST Players!","channel":"Cutzy","length":"10:10"}],"journeyman":[{"id":"qhLugsA5MXg","title":"I Rebuild Until I Become The BEST MANAGER In The WORLD!","channel":"CaniSports","length":"39:59"},{"id":"qoDwROa6QCU","title":"I Become the Greatest Manager of All Time","channel":"MWS","length":"6:57:52"},{"id":"nInDp5RDWTQ","title":"I Started Career Mode Unemployed…","channel":"S2G","length":"29:45"},{"id":"GosaU_6_Ndc","title":"I Played My Entire Manager Career in FC 26","channel":"Tyztir","length":"10:08:41"},{"id":"wQk6VLwVaBE","title":"I Became the Greatest Journeyman Manager!","channel":"JarradHD","length":"26:54"},{"id":"a_dIHtpoPjY","title":"FC26 Journeyman Career Mode EP1...","channel":"MWS2 and MWS","length":"24:15"},{"id":"KxmWz_Z71VA","title":"I Started Career Mode Unemployed..","channel":"Goodwin","length":"25:28"},{"id":"Z7kmii74vfE","title":"I Rebuilt A League Two Club For 15 SEASONS","channel":"MWS","length":"1:00:00"}],"galacticos":[{"id":"uXJWElqV5k0","title":"I Takeover Real Madrid for 10 Seasons... in FC 26","channel":"S2G","length":"28:28"},{"id":"a2NybOY0LAA","title":"I Built the Most Expensive Team… in FC 26","channel":"S2G","length":"8:12"},{"id":"PCG9mEMM-JY","title":"Was FC26 a Good Game?","channel":"Geografifa","length":"8:02"},{"id":"FgL24cOxk9k","title":"NEW FC 26 CAREER MODE UPDATE","channel":"FCG","length":"4:41"},{"id":"2gziVTfSCdM","title":"NEW FC 26 CAREER MODE UPDATE","channel":"FCG","length":"4:02"},{"id":"xAUN_5Yf62A","title":"NEW FC 26 CAREER MODE UPDATE","channel":"FCG","length":"5:21"},{"id":"aASF8pT_l_U","title":"4 Fun Fallen Giants You Can Rebuild!","channel":"Geografifa","length":"10:50"},{"id":"Ov7jZt7uzLQ","title":"NEW FC 26 CAREER MODE UPDATE","channel":"FCG","length":"3:27"}],"underdog-europe":[{"id":"kUf-c1uCFF0","title":"Can I Win The Champions League With Feyenoord In FC26?!!..","channel":"ScottAttemptsGaming","length":"22:41"},{"id":"ujIn88IeenY","title":"Charlton Career Mode!!! #TheMovie | FC26 Career Mode","channel":"JustMarco","length":"2:47:18"},{"id":"OJtnWgjvE38","title":"UNDERDOG STORY SHOCKS THE LEAGUE | FC 26 Create-a-Club Career Mode Series | Episode 24","channel":"Therios","length":"36:26"},{"id":"MtP5ozS92Y8","title":"TOP 10 Teams for EA FC 26 Career Mode: From Fallen Giants to Modern Underdogs | Gamejoytactics","channel":"GameJoyTactics","length":"6:06"},{"id":"F_yl033hsVM","title":"🚀 FC 26 Career Mode LIVE | From Underdogs to Champions!","channel":"DoomGaming","length":"2:30:48"},{"id":"xt61Vf-u2XY","title":"THIS CHAMPIONS LEAGUE MATCH DECIDED MY ENTIRE SEASON! - FC 26 PLAYER CAREER","channel":"StaxMontana","length":"45:54"},{"id":"l5TAbVXk4aY","title":"EA FC26 UEFA Champions League Full Gameplay Walkthrough","channel":"Nad Noddy","length":"3:41:26"},{"id":"iYPsO4bga5s","title":"Best Custom Tactics in EA FC 26 Career Mode | For Underdog Teams","channel":"F3T GAMING","length":"3:16"}],"one-nation":[{"id":"bGI409ZBuko","title":"World Cup But Your Club Decides Your Country","channel":"Pazjor","length":"15:48"},{"id":"R0weUXXljH4","title":"International Career Mode Showdown vs Pazjor","channel":"JarradHD and Pazjor","length":"14:37"},{"id":"F4M1-WK0IJ8","title":"I Takeover the World’s Richest Club…","channel":"S2G","length":"27:44"},{"id":"h0_fr8nxNEA","title":"A NEW ERA BEGINS... - FC26 PLAYER CAREER MODE EP1","channel":"Lil Jr","length":"27:43"},{"id":"96mI7kyR6EE","title":"I Spent 7 Days Playing FC 26, Here`s What Happened...","channel":"Blushh","length":"19:42"},{"id":"NokHk7JoPac","title":"5 Challenges you MUST TRY in FC 26 Career Mode!","channel":"JJLozzer","length":"11:27"},{"id":"GzZzT-RmEd4","title":"Noob vs Pro Career Mode Player…","channel":"S2G and RazzHD","length":"36:31"}],"veterans":[{"id":"Zhj3TvKO2DI","title":"I Rebuilt the Oldest Club Using Old Players ONLY","channel":"MWS","length":"34:51"},{"id":"wLxEnpN3XiY","title":"I Takeover the WORST PLAYER in FC26","channel":"BFordLancer","length":"23:09"},{"id":"2EhuR6hIe-Q","title":"I Rebuild With SONS Of RETIRED FOOTBALLERS Only!","channel":"CaniSports","length":"30:46"},{"id":"hqo_GZ8MTTo","title":"I Rebuild Using REGENS ONLY & Found The NEXT RONALDO!","channel":"CaniSports","length":"31:12"},{"id":"yeAXXO2VBTI","title":"I Built the Oldest Team in FC 26...","channel":"Tyztir","length":"34:47"},{"id":"NokHk7JoPac","title":"5 Challenges you MUST TRY in FC 26 Career Mode!","channel":"JJLozzer","length":"11:27"},{"id":"kEwLkJExGfw","title":"I Created a Youth Academy Only Club","channel":"Tyztir","length":"7:23:48"},{"id":"7JG7px1O0AE","title":"I Built The Best ASIAN ONLY Youth Academy Ever!","channel":"CaniSports","length":"27:15"}],"wonderkid-factory":[{"id":"Zj5R3843MBM","title":"FC 26 | WONDERKIDS TO SIGN IN EVERY POSITIONS ON CAREER MODE✔️! CHEAP & EXPENSIVE | FUT 26","channel":"VIVALAFIFA","length":"16:04"},{"id":"qnfMajkiaEc","title":"I Built the Highest Potential Team… in FC 26","channel":"S2G","length":"13:01"},{"id":"nlBetRSRCRI","title":"FC 26 Youth Academy Guide - Find The BEST Players!","channel":"Cutzy","length":"10:10"},{"id":"jx123JyRSuA","title":"I Found the Fastest way to Develop Wonderkids!","channel":"Geografifa","length":"8:14"},{"id":"cyrPCDCBpP0","title":"100+ BEST Wonderkids You Must Sign in FC 26 Career Mode!🔥","channel":"IvoZ","length":"48:25"},{"id":"AAM-UpISyy8","title":"The Best Hidden Gems in FC 26 Career Mode! 🔥","channel":"IvoZ","length":"22:49"},{"id":"_FYTFNdejcU","title":"BEST Wonderkids & Hidden Gems (Every Position) on FC26 Career Mode ⚽","channel":"IvoZ","length":"30:45"},{"id":"0WIiGI2aHlo","title":"FC 26 | HIDDEN GEMS WONDERKIDS TO SIGN IN EVERY POSITIONS CAREER MODE✔️! CHEAP & EXPENSIVE | FUT 26","channel":"VIVALAFIFA","length":"15:27"}],"club-heritage":[{"id":"14p8m5BtoCc","title":"THE KRC GENK PROJECT! Hyper Realistic FC26 Rebuild","channel":"LLfifa","length":"24:16"},{"id":"Rn0hvCUNfXo","title":"I Attempted To Rebuild Lincoln City In FC26 With 'Realistic Transfers'!!..","channel":"ScottAttemptsGaming","length":"39:40"},{"id":"-OIYk9qk5pY","title":"Hyper Realistic NEWCASTLE Rebuild With MATTHIAS JAISSLE in FC26","channel":"MoreADR","length":"1:04:40"},{"id":"KRLfdiNbyWI","title":"I Realistically Rebuilt Torino Into Italy's Best Club - Full Movie","channel":"Geografifa","length":"1:18:21"},{"id":"_kQP9dCs4O4","title":"I Attempted To Rebuild Coventry City In FC26 With 'Realistic Transfers'!!..","channel":"ScottAttemptsGaming","length":"26:01"},{"id":"8d-cKuJnSvo","title":"THE EVERTON PROJECT! Hyper Realistic FC26 Rebuild!","channel":"LLfifa","length":"1:00:21"},{"id":"TyzJl8BZm9c","title":"THE CRYSTAL PALACE PROJECT! Hyper Realistic FC26 Rebuild","channel":"LLfifa","length":"27:37"},{"id":"wZv9yua9jGU","title":"Hyper Realistic HULL CITY Rebuild From PROMOTION in FC26","channel":"MoreADR","length":"1:10:47"}],"chaos":[{"id":"NokHk7JoPac","title":"5 Challenges you MUST TRY in FC 26 Career Mode!","channel":"JJLozzer","length":"11:27"},{"id":"nt7wBPjSBgg","title":"Using Data to Find FC26’s Hardest Career Mode","channel":"Geografifa","length":"9:36"},{"id":"SmBgbJZcCFE","title":"Career Mode Showdown vs. Pazjor!","channel":"BFordLancer","length":"20:42"},{"id":"sPR3r39V5Zs","title":"I Manage the Worst Club in Italy...","channel":"S2G","length":"22:16"},{"id":"kr8oDAy1DN0","title":"These Are My 4 Favourite Saves on FC26!","channel":"Geografifa","length":"7:30"},{"id":"biV8c4DEnTU","title":"LEICESTER vs WREXHAM Rebuild Showdown!","channel":"CaniSports and S2G","length":"34:56"},{"id":"duN6W4HDNLw","title":"10 Things I Do To Make Career Mode Feel Realistic!","channel":"Geografifa","length":"8:48"},{"id":"nx8zl8-XKX4","title":"I Started Career Mode Unemployed..","channel":"Goodwin","length":"36:18"}],"one-club-legend":[{"id":"Q7jzIMSwig8","title":"How to Request Transfer Player Career Mode EA FC 26","channel":"JT11 Games","length":"3:10"},{"id":"WiUIAKEtyrc","title":"FC 26 Old Gen Nintendo Switch Player Career Gameplay","channel":"FP Good Game","length":"17:06"},{"id":"lqnKdFoP9bM","title":"EA SPORTS FC 26™ | I JOINED A RIVAL AND SHOCKED THE WORLD!!!👀 | PLAYER CAREER MODE | PS5™","channel":"Vance Studios","length":"23:25"},{"id":"wvomayyAY6s","title":"EA SPORTS FC 26™ | NEW CLUB, NEW COUNTRY, NEW ERA - JAYDEN VICENTE 🔥 | PLAYER CAREER MODE | PS5™","channel":"Vance Studios","length":"26:34"},{"id":"dmWLQ166rlo","title":"Player Career Mode Is dead on FC26.","channel":"Geografifa","length":"8:18"},{"id":"TjNra1lYPBo","title":"FC 26 My Player Career Mode EP1...","channel":"Tyztir Plus","length":"51:27"}],"wonderkid":[{"id":"Zj5R3843MBM","title":"FC 26 | WONDERKIDS TO SIGN IN EVERY POSITIONS ON CAREER MODE✔️! CHEAP & EXPENSIVE | FUT 26","channel":"VIVALAFIFA","length":"16:04"},{"id":"k-H6a6ZTQ2M","title":"FC26 Hidden Wonderkids With Real Faces You Didn't Know Were in Career Mode","channel":"tayzrr","length":"4:01"},{"id":"jx123JyRSuA","title":"I Found the Fastest way to Develop Wonderkids!","channel":"Geografifa","length":"8:14"},{"id":"Eqk2u0EW8ME","title":"I Rebuild With WASTED WONDERKIDS Of 2025!","channel":"CaniSports","length":"33:12"},{"id":"JsHWcaEAs0s","title":"I Built The World's Best Youth Academy to Dominate World Football","channel":"Ramman","length":"1:14:03"},{"id":"f_PdNZ8CLhc","title":"FC26 Best Meta Wonderkids To Help You Win More Games!|Career Mode","channel":"tayzrr","length":"3:14"},{"id":"bAd9I6OQt88","title":"I Started Player Career Mode as a Failed Wonderkid...","channel":"davzskill","length":"12:51"},{"id":"EV63GnswtdI","title":"FC 26 | HIDDEN GEMS WITH REAL FACES 🔥– 50 Wonderkids Under €5M!","channel":"JRAM eleven","length":"3:17"}],"hometown-hero":[{"id":"wvomayyAY6s","title":"EA SPORTS FC 26™ | NEW CLUB, NEW COUNTRY, NEW ERA - JAYDEN VICENTE 🔥 | PLAYER CAREER MODE | PS5™","channel":"Vance Studios","length":"26:34"},{"id":"lqnKdFoP9bM","title":"EA SPORTS FC 26™ | I JOINED A RIVAL AND SHOCKED THE WORLD!!!👀 | PLAYER CAREER MODE | PS5™","channel":"Vance Studios","length":"23:25"},{"id":"m4OobFb0B68","title":"I PLAYED FC 26 PLAYER CAREER MODE… Good or Bad? 🤔","channel":"Vapex Karma","length":"8:01"},{"id":"EQ1GV4pejQE","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:58:28"},{"id":"5e4WQQPFRZU","title":"The Most Realistic Career Mode | Episode 1","channel":"Leon's Echo","length":"17:35"},{"id":"Q7jzIMSwig8","title":"How to Request Transfer Player Career Mode EA FC 26","channel":"JT11 Games","length":"3:10"}],"dream-move":[{"id":"EQ1GV4pejQE","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:58:28"},{"id":"dmWLQ166rlo","title":"Player Career Mode Is dead on FC26.","channel":"Geografifa","length":"8:18"},{"id":"Q7jzIMSwig8","title":"How to Request Transfer Player Career Mode EA FC 26","channel":"JT11 Games","length":"3:10"},{"id":"5j0Vr0Whgnw","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:56:58"},{"id":"HxlO1soBmhc","title":"HOW TO GET TO MAX LEVEL FAST IN EA FC 26 PLAYER CAREER MODE!","channel":"Lloyds Gaming ","length":"4:47"},{"id":"AOtxfwzS9NI","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:58:03"},{"id":"EbtEusYfGGM","title":"HOW TO GO OUT ON LOAN IN EA FC 26 PLAYER CAREER MODE!","channel":"Lloyds Gaming ","length":"3:00"},{"id":"m4OobFb0B68","title":"I PLAYED FC 26 PLAYER CAREER MODE… Good or Bad? 🤔","channel":"Vapex Karma","length":"8:01"}],"globetrotter":[{"id":"dmWLQ166rlo","title":"Player Career Mode Is dead on FC26.","channel":"Geografifa","length":"8:18"},{"id":"ZwB6hmeoKe0","title":"TOP 8 Positions to Play in EA FC 26 Player Career: Choose the Right Position for YOU!","channel":"GameJoyTactics","length":"10:41"},{"id":"EQ1GV4pejQE","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:58:28"},{"id":"HxlO1soBmhc","title":"HOW TO GET TO MAX LEVEL FAST IN EA FC 26 PLAYER CAREER MODE!","channel":"Lloyds Gaming ","length":"4:47"},{"id":"5j0Vr0Whgnw","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:56:58"},{"id":"IC0XE3M3vTA","title":"I Played the Entire Career of Lamine Yamal","channel":"EdgarAS","length":"23:25"},{"id":"EsU3BaSj7CY","title":"I Replayed the Career of Neymar Jr...","channel":"S2G","length":"25:59"},{"id":"d-OdpgX2hO0","title":"I Played My Entire Career in FC 26","channel":"Tyztir Plus","length":"13:13:58"}],"last-line":[{"id":"uFkAUhCwN5A","title":"FC 26 Goalkeeper My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:58:47"},{"id":"77p_boQFaR8","title":"Can I Become The BEST GOALKEEPER?! [GK CAREER EP. 1]","channel":"JiroTF16","length":"16:30"},{"id":"Dv-k13IbgAc","title":"I Became a Goalkeeper on FC 26","channel":"Tyztir","length":"3:58:55"},{"id":"jL8GpoQhsDM","title":"FC 26 GOALKEEPER TUTORIAL! - All NEW System and Controls Explained!","channel":"TheRedCapsicum75","length":"13:51"},{"id":"_Hj_XfId3Zs","title":"I Came Back to My FC 26 Goalkeeper Career Mode... Big Mistake?","channel":"Vapex Karma","length":"14:16"},{"id":"4p0qyixE3cg","title":"I Played My Entire Career as a Goalkeeper","channel":"EdgarAS","length":"17:33"},{"id":"ev28EHuoCD0","title":"Why is Goalkeeper Career Mode ACTUALLY This Good?! - Episode 1 🤯🔥","channel":"TheRedCapsicum75","length":"20:40"},{"id":"sUQUCh2fvgg","title":"Becoming The Best Goalkeeper In The World... [GK CAREER EP. 2]","channel":"JiroTF16","length":"15:19"}],"goal-machine":[{"id":"63wXVsda3oE","title":"EA FC 26 PLAYER CAREER MODE STRIKER BUILD!","channel":"Lloyds Gaming ","length":"3:16"},{"id":"SIAeMa2iQYA","title":"WHERE TO PUT ATTRIBUTE POINTS IN EA FC 26 PLAYER CAREER MODE! (STRIKER BUILD)","channel":"Lloyds Gaming ","length":"5:24"},{"id":"h0_fr8nxNEA","title":"A NEW ERA BEGINS... - FC26 PLAYER CAREER MODE EP1","channel":"Lil Jr","length":"27:43"},{"id":"Rje8eDZVhaY","title":"I SCORED 1000 GOALS!! ⚽️⚽️ | FC26 Player Career Mode w/ Storylines #50 (Part 1)","channel":"DefsNotZedd","length":"30:39"},{"id":"zqv1ubyLomY","title":"MAX LEVEL STRIKER BUILD IN EA FC 26 PLAYER CAREER MODE!","channel":"Lloyds Gaming ","length":"5:15"},{"id":"cpKTzejab94","title":"FC 26 STRIKER CAREER MODE #1 4K📽  || THE WONDERKID FROM AMSTERDAM🇳🇱❌❌❌","channel":"DwaNeStaR 2","length":"28:57"},{"id":"d-OdpgX2hO0","title":"I Played My Entire Career in FC 26","channel":"Tyztir Plus","length":"13:13:58"},{"id":"HZY9FI2MFDk","title":"EA FC 26 PLAYER CAREER MODE BEST STRIKER BUILD!","channel":"Lloyds Gaming ","length":"4:58"}],"goalscoring-defender":[{"id":"BksCkV0uwjc","title":"FC 26 CB Career #1 - I BECOME A DEFENDER...","channel":"Tyztir","length":"50:16"},{"id":"sHMYHftLFzY","title":"I Become a CB in FC 26 - Full Movie","channel":"Tyztir","length":"3:57:20"},{"id":"ZwB6hmeoKe0","title":"TOP 8 Positions to Play in EA FC 26 Player Career: Choose the Right Position for YOU!","channel":"GameJoyTactics","length":"10:41"},{"id":"Dv-k13IbgAc","title":"I Became a Goalkeeper on FC 26","channel":"Tyztir","length":"3:58:55"},{"id":"dmWLQ166rlo","title":"Player Career Mode Is dead on FC26.","channel":"Geografifa","length":"8:18"},{"id":"EQ1GV4pejQE","title":"FC 26 My Player Career Mode - Full Movie","channel":"Tyztir","length":"3:58:28"},{"id":"5aV_ImuslGI","title":"FC 26 | BEST YOUNG CB/DEFENDERS IN FC 26 CAREER MODE!🔥💪| CHEAP HIGHEST POTENTIAL WONDERKIDS💪⚽ FUT 26","channel":"VIVALAFIFA","length":"13:52"}],"wildcard-career":[{"id":"NokHk7JoPac","title":"5 Challenges you MUST TRY in FC 26 Career Mode!","channel":"JJLozzer","length":"11:27"},{"id":"SmBgbJZcCFE","title":"Career Mode Showdown vs. Pazjor!","channel":"BFordLancer","length":"20:42"},{"id":"wLxEnpN3XiY","title":"I Takeover the WORST PLAYER in FC26","channel":"BFordLancer","length":"23:09"},{"id":"biV8c4DEnTU","title":"LEICESTER vs WREXHAM Rebuild Showdown!","channel":"CaniSports and S2G","length":"34:56"},{"id":"kr8oDAy1DN0","title":"These Are My 4 Favourite Saves on FC26!","channel":"Geografifa","length":"7:30"},{"id":"nt7wBPjSBgg","title":"Using Data to Find FC26’s Hardest Career Mode","channel":"Geografifa","length":"9:36"},{"id":"hgWneX0vD-4","title":"I Rebuild A YOUTH ACADEMY Team With BEST SCOUTS & COACHES!","channel":"CaniSports","length":"28:14"},{"id":"TrVkyi_aZHA","title":"4 Fresh Career Mode Saves to Try Now","channel":"Geografifa","length":"9:51"}],"general":[{"id":"kr8oDAy1DN0","title":"These Are My 4 Favourite Saves on FC26!","channel":"Geografifa","length":"7:30"},{"id":"NokHk7JoPac","title":"5 Challenges you MUST TRY in FC 26 Career Mode!","channel":"JJLozzer","length":"11:27"},{"id":"MT1NWLgznVs","title":"How to Make FC 26 Career Mode Brutally Difficult","channel":"Geografifa","length":"8:12"},{"id":"duN6W4HDNLw","title":"10 Things I Do To Make Career Mode Feel Realistic!","channel":"Geografifa","length":"8:48"},{"id":"SmBgbJZcCFE","title":"Career Mode Showdown vs. Pazjor!","channel":"BFordLancer","length":"20:42"},{"id":"Lka5O1Xc9og","title":"I Rate Your Best FC26 Saves!","channel":"Geografifa","length":"11:21"},{"id":"TrVkyi_aZHA","title":"4 Fresh Career Mode Saves to Try Now","channel":"Geografifa","length":"9:51"},{"id":"aASF8pT_l_U","title":"4 Fun Fallen Giants You Can Rebuild!","channel":"Geografifa","length":"10:50"}]},"queries":{"road-to-glory":"FC 26 career mode road to glory lower league rebuild","youth-revolution":"FC 26 career mode youth academy only challenge","moneyball":"FC 26 career mode moneyball challenge","fallen-giant":"FC 26 career mode fallen giant rebuild","homegrown":"FC 26 career mode homegrown players only challenge","loan-army":"FC 26 career mode loan players only challenge","journeyman":"FC 26 career mode journeyman manager challenge","galacticos":"FC 26 career mode galacticos superteam","underdog-europe":"FC 26 career mode underdog champions league","one-nation":"FC 26 career mode one nationality only challenge","veterans":"FC 26 career mode old players only challenge","wonderkid-factory":"FC 26 career mode wonderkids challenge","club-heritage":"FC 26 career mode realistic rebuild","chaos":"FC 26 career mode random challenge","one-club-legend":"FC 26 player career one club legend","wonderkid":"FC 26 player career wonderkid","hometown-hero":"FC 26 player career hometown club","dream-move":"FC 26 player career dream move","globetrotter":"FC 26 player career every league","last-line":"FC 26 player career goalkeeper","goal-machine":"FC 26 player career striker goals record","goalscoring-defender":"FC 26 player career defender","wildcard-career":"FC 26 player career challenge","general":"FC 26 career mode challenge ideas"}};
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/youtube.js */
 /*
  * 📺 Watch: YouTube videos of creators playing career modes like a challenge
- * (js/videos.js, one search per challenge type), played in YouTube's embedded
- * player without leaving the app, plus a YouTube search for more.
+ * (js/videos.js, one search per challenge type), played in a small floating
+ * window (YouTube's embedded player) that stays on screen while you use the
+ * rest of the app, plus a YouTube search for more.
  */
 (function (root) {
   'use strict';
   const FC26 = (root.FC26 = root.FC26 || {});
 
-  const videosFor = (ch) => ((FC26.videos && FC26.videos.byType) || {})[ch && ch.archetype && ch.archetype.id] || [];
+  const videosFor = (ch) => {
+    const by = (FC26.videos && FC26.videos.byType) || {};
+    const own = by[ch && ch.archetype && ch.archetype.id];
+    return own && own.length ? own : by.general || [];
+  };
 
   /** A YouTube search for this challenge, for "More on YouTube". */
   function searchUrl(ch) {
@@ -9732,8 +9801,7 @@ Aleksei Miranchuk|Russian|CAM
     if (!list.length) return '';
     return `
       <details class="block yt-block">
-        <summary><h3>📺 Watch creators play it</h3><span class="muted small">${list.length} videos like ${esc(ch.archetype.name)}</span></summary>
-        <div class="yt-player" data-yt-player hidden></div>
+        <summary><h3>📺 Watch creators play it</h3><span class="muted small">${list.length} videos like ${esc(ch.archetype.name)} · plays in a small window while you carry on</span></summary>
         <div class="yt-list">${list.map((v) => `
           <button type="button" class="yt-card" data-yt="${esc(v.id)}" data-yt-title="${esc(v.title)}">
             <span class="yt-thumb"><img src="https://i.ytimg.com/vi/${esc(v.id)}/mqdefault.jpg" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="yt-len">${esc(v.length)}</span><span class="yt-play" aria-hidden="true">▶</span></span>
@@ -9743,34 +9811,84 @@ Aleksei Miranchuk|Russian|CAM
       </details>`;
   }
 
-  /** Clicks inside a Watch section: play the video in its player. Returns true if handled. */
+  // ---------- The floating player: a small window that stays while you use the app ----------
+
+  let float = null;
+  let drag = null;
+
+  function ensureFloat() {
+    if (float) return float;
+    float = document.createElement('div');
+    float.className = 'yt-float';
+    float.setAttribute('role', 'region');
+    float.setAttribute('aria-label', 'Video player');
+    float.innerHTML = `
+      <div class="yt-float-bar" data-yt-drag title="Drag to move">
+        <span class="yt-float-title"></span>
+        <button type="button" class="icon-btn" data-yt-size aria-label="Bigger">⤢</button>
+        <button type="button" class="icon-btn" data-yt-close aria-label="Close the video">✕</button>
+      </div>
+      <div class="yt-frame"></div>`;
+    document.body.appendChild(float);
+    // Drag by the bar (mouse or finger); the window stays inside the screen.
+    const bar = float.querySelector('[data-yt-drag]');
+    bar.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('button')) return;
+      const r = float.getBoundingClientRect();
+      drag = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+      bar.setPointerCapture(e.pointerId);
+      float.classList.add('is-dragging');
+    });
+    bar.addEventListener('pointermove', (e) => {
+      if (!drag) return;
+      const w = float.offsetWidth;
+      const h = float.offsetHeight;
+      const x = Math.max(4, Math.min(root.innerWidth - w - 4, e.clientX - drag.dx));
+      const y = Math.max(4, Math.min(root.innerHeight - h - 4, e.clientY - drag.dy));
+      Object.assign(float.style, { left: `${x}px`, top: `${y}px`, right: 'auto', bottom: 'auto' });
+    });
+    const stop = () => { drag = null; float.classList.remove('is-dragging'); };
+    bar.addEventListener('pointerup', stop);
+    bar.addEventListener('pointercancel', stop);
+    return float;
+  }
+
+  /** Play a video in the floating window. */
+  function play(id, title) {
+    ensureFloat();
+    float.hidden = false;
+    document.body.classList.add('has-video');
+    float.querySelector('.yt-float-title').textContent = title || 'Video';
+    float.querySelector('.yt-frame').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0&playsinline=1" title="${String(title || 'Video').replace(/"/g, '&quot;')}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+    document.querySelectorAll('.yt-card').forEach((c) => c.classList.toggle('is-playing', c.dataset.yt === id));
+    // Stop the soundtrack so the two don't play over each other.
+    if (FC26.spPlayer) FC26.spPlayer.close();
+  }
+
+  function close() {
+    if (!float) return;
+    float.querySelector('.yt-frame').innerHTML = '';
+    float.hidden = true;
+    document.body.classList.remove('has-video');
+    document.querySelectorAll('.yt-card.is-playing').forEach((c) => c.classList.remove('is-playing'));
+  }
+
+  /** Clicks on video cards and the floating window's buttons. Returns true if handled. */
   function onClick(e) {
     const card = e.target.closest('[data-yt]');
     if (card) {
-      const block = card.closest('.yt-block');
-      const player = block.querySelector('[data-yt-player]');
-      player.hidden = false;
-      player.innerHTML = `
-        <div class="yt-frame"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(card.dataset.yt)}?autoplay=1&rel=0" title="${card.dataset.ytTitle.replace(/"/g, '&quot;')}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
-        <button type="button" class="btn btn-small" data-yt-close>✕ Close video</button>`;
-      block.querySelectorAll('.yt-card').forEach((c) => c.classList.toggle('is-playing', c === card));
-      // Stop the soundtrack so the two don't play over each other.
-      if (FC26.spPlayer) FC26.spPlayer.close();
-      player.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      play(card.dataset.yt, card.dataset.ytTitle);
       return true;
     }
-    const close = e.target.closest('[data-yt-close]');
-    if (close) {
-      const player = close.closest('[data-yt-player]');
-      player.innerHTML = '';
-      player.hidden = true;
-      player.closest('.yt-block').querySelectorAll('.yt-card').forEach((c) => c.classList.remove('is-playing'));
+    if (e.target.closest('[data-yt-close]')) { close(); return true; }
+    if (e.target.closest('[data-yt-size]')) {
+      float.classList.toggle('is-big');
       return true;
     }
     return false;
   }
 
-  FC26.youtube = { section, onClick, videosFor, searchUrl };
+  FC26.youtube = { section, onClick, play, close, videosFor, searchUrl };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/achievements.js */
@@ -10424,9 +10542,389 @@ Aleksei Miranchuk|Russian|CAM
 
   FC26.subscriptions = {
     init, onAccount, savesChanged, isPro, locked, feedUrls, open, findCoupon, ACCENTS, HANDLE_RE,
+    /** Your profile (username, name), once loaded, or null. */
+    profile: () => st.profile,
     /** Call fn(isPro) whenever Pro starts or stops. */
     onProChange: (fn) => proListeners.push(fn),
   };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/proofs.js */
+/*
+ * 📸 Proof: screenshots that show you completed an objective (or the whole
+ * challenge). Photos are shrunk and kept on this device (IndexedDB); the save
+ * only notes which objectives have proof, so it stays small enough to sync.
+ * Signed in with a username, a copy also goes to proofs/{uid}/items/{id},
+ * where other players can see it from the leaderboard.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const DB_NAME = 'fc26-proofs';
+  const STORE = 'photos';
+
+  // ---------- Shrinking a photo ----------
+
+  /** A File → JPEG data URL, at most `max` pixels on its longest side. */
+  function shrink(file, max, quality) {
+    return new Promise((resolve, reject) => {
+      if (!/^image\//.test(file.type)) { reject(new Error('That isn’t a picture.')); return; }
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, max / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('That picture couldn’t be opened.')); };
+      img.src = url;
+    });
+  }
+
+  // ---------- On this device ----------
+
+  let dbp = null;
+  function idb() {
+    if (dbp) return dbp;
+    dbp = new Promise((resolve, reject) => {
+      if (!root.indexedDB) { reject(new Error('This browser can’t store photos.')); return; }
+      const req = root.indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = () => req.result.createObjectStore(STORE);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    dbp.catch(() => { dbp = null; });
+    return dbp;
+  }
+  async function tx(mode, fn) {
+    const db = await idb();
+    return new Promise((resolve, reject) => {
+      const t = db.transaction(STORE, mode);
+      const req = fn(t.objectStore(STORE));
+      t.oncomplete = () => resolve(req && req.result);
+      t.onerror = () => reject(t.error);
+    });
+  }
+  const putLocal = (id, photo) => tx('readwrite', (s) => s.put(photo, id));
+  const getLocal = (id) => tx('readonly', (s) => s.get(id));
+  const delLocal = (id) => tx('readwrite', (s) => s.delete(id));
+
+  // ---------- Adding, viewing and removing ----------
+
+  const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  const cloud = () => (FC26.account && FC26.account.data && FC26.account.data()) || null;
+  const me = () => { const s = FC26.account && FC26.account.state(); return s && s.user ? s.user.uid : null; };
+
+  /**
+   * Add a photo as proof of `key` ("s1-0", "final") on a saved challenge.
+   * Returns the new proof { id, key, at, shared }. `meta`: { title, objective }.
+   */
+  async function add(entryId, key, file, meta) {
+    const [image, thumb, small] = await Promise.all([shrink(file, 1600, 0.82), shrink(file, 360, 0.7), shrink(file, 960, 0.6)]);
+    const proof = { id: `${entryId}_${uid()}`, key, at: Date.now(), shared: false };
+    await putLocal(proof.id, { image, thumb });
+    const d = cloud();
+    const user = me();
+    if (d && user && small.length < 700000) {
+      try {
+        await d.set(`proofs/${user}/items/${proof.id}`, {
+          entryId, key, image: small, title: String((meta && meta.title) || '').slice(0, 120),
+          objective: String((meta && meta.objective) || '').slice(0, 200), at: proof.at,
+        });
+        proof.shared = true;
+      } catch (e) { proof.shared = false; }
+    }
+    return proof;
+  }
+
+  async function remove(proof) {
+    await delLocal(proof.id).catch(() => {});
+    const d = cloud();
+    const user = me();
+    if (d && user && proof.shared) await d.remove(`proofs/${user}/items/${proof.id}`).catch(() => {});
+  }
+
+  /** A proof's photo (this device first, else the shared copy): { image, thumb } or null. */
+  async function photo(proof) {
+    const local = await getLocal(proof.id).catch(() => null);
+    if (local) return local;
+    const d = cloud();
+    const user = me();
+    if (d && user && proof.shared) {
+      const doc = await d.get(`proofs/${user}/items/${proof.id}`).catch(() => null);
+      if (doc && doc.image) return { image: doc.image, thumb: doc.image };
+    }
+    return null;
+  }
+
+  /** Someone's shared proofs (for the leaderboard), newest first. */
+  async function sharedBy(userId) {
+    const d = cloud();
+    if (!d || !d.list) return [];
+    const items = await d.list(`proofs/${userId}/items`);
+    return items.sort((a, b) => (b.at || 0) - (a.at || 0));
+  }
+
+  // ---------- A viewer ----------
+
+  let viewer = null;
+  let removeCb = null;
+  /** Show photos full size: [{ src, caption }], starting at `index`. opts.onRemove(i) adds a Remove button. */
+  function show(photos, index, opts) {
+    removeCb = (opts && opts.onRemove) || null;
+    if (!viewer) {
+      viewer = document.createElement('div');
+      viewer.className = 'modal proof-viewer';
+      viewer.setAttribute('role', 'dialog');
+      viewer.setAttribute('aria-modal', 'true');
+      viewer.setAttribute('aria-label', 'Proof photo');
+      document.body.appendChild(viewer);
+      viewer.addEventListener('click', (e) => {
+        if (e.target === viewer || e.target.closest('[data-pv="close"]')) { viewer.hidden = true; document.body.classList.remove('modal-open'); return; }
+        const step = e.target.closest('[data-pv-step]');
+        if (step) render(Number(step.dataset.pvStep));
+        const del = e.target.closest('[data-pv="remove"]');
+        if (del && removeCb && window.confirm('Remove this proof?')) {
+          removeCb(Number(del.dataset.i));
+          viewer.hidden = true;
+          document.body.classList.remove('modal-open');
+        }
+      });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && viewer && !viewer.hidden) { viewer.hidden = true; document.body.classList.remove('modal-open'); } });
+    }
+    let list = photos;
+    let at = index || 0;
+    function render(i) {
+      at = (i + list.length) % list.length;
+      const p = list[at];
+      viewer.innerHTML = `
+        <figure class="pv-card">
+          <button type="button" class="icon-btn pv-close" data-pv="close" aria-label="Close">✕</button>
+          <img src="${p.src}" alt="${(p.caption || 'Proof').replace(/"/g, '&quot;')}">
+          <figcaption>${(p.caption || '').replace(/</g, '&lt;')}${list.length > 1 ? ` <span class="muted">(${at + 1} of ${list.length})</span>` : ''}</figcaption>
+          <div class="pv-nav">
+            ${list.length > 1 ? `<button type="button" class="btn btn-small" data-pv-step="${at - 1}">← Previous</button><button type="button" class="btn btn-small" data-pv-step="${at + 1}">Next →</button>` : ''}
+            ${removeCb ? `<button type="button" class="btn btn-small btn-danger-soft" data-pv="remove" data-i="${at}">🗑️ Remove</button>` : ''}
+          </div>
+        </figure>`;
+    }
+    list = photos;
+    render(at);
+    viewer.hidden = false;
+    document.body.classList.add('modal-open');
+  }
+
+  /** Points a save's proven objectives are worth: main 10, side 5, final goal 30, × difficulty. */
+  function points(entry) {
+    const ch = entry.challenge;
+    const proofs = entry.proofs || {};
+    const mult = [1, 1, 1.25, 1.5, 2][Number(ch.difficulty) || 1] || 1;
+    let total = 0;
+    ch.roadmap.forEach((s) => s.objectives.forEach((o, i) => {
+      if ((proofs[`s${s.season}-${i}`] || []).length) total += o.type === 'main' ? 10 : 5;
+    }));
+    if ((proofs.final || []).length) total += 30;
+    return Math.round(total * mult);
+  }
+  const proofCount = (entry) => Object.values(entry.proofs || {}).reduce((n, list) => n + list.length, 0);
+
+  FC26.proofs = { add, remove, photo, show, sharedBy, points, proofCount, shrink };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/leaderboard.js */
+/*
+ * 🏆 Leaderboard: players ranked by points from proven objectives (an
+ * objective counts once it has a 📸 proof photo), and countries by the
+ * points of their players. Each player's totals live in leaderboard/{uid},
+ * written by their own app; their proof photos are one tap away.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const COUNTRY_KEY = 'fc26-country-v1';
+  const SHOW_KEY = 'fc26-on-board-v1';
+  const TOP = 200;
+
+  let deps = null; // { esc, toast, entries(), storageGet, storageSet }
+  let modal = null;
+  const st = { tab: 'players', rows: null, loading: false, error: '', viewing: null };
+
+  const esc = (v) => deps.esc(v == null ? '' : v);
+  const data = () => (FC26.account && FC26.account.data && FC26.account.data()) || null;
+  const account = () => (FC26.account && FC26.account.state()) || { status: 'off' };
+  const profile = () => (FC26.subscriptions && FC26.subscriptions.profile && FC26.subscriptions.profile()) || null;
+  const country = () => deps.storageGet(COUNTRY_KEY, '');
+  const onBoard = () => deps.storageGet(SHOW_KEY, true) !== false;
+
+  /** Your totals from your saves. */
+  function totals() {
+    const P = FC26.proofs;
+    const list = deps.entries();
+    return {
+      points: list.reduce((n, e) => n + P.points(e), 0),
+      proofs: list.reduce((n, e) => n + P.proofCount(e), 0),
+      challenges: list.filter((e) => P.proofCount(e) > 0).length,
+    };
+  }
+
+  let timer = null;
+  /** Put your totals on the leaderboard (soon after a change), if you're signed in with a username. */
+  function publish() {
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      const d = data();
+      const p = profile();
+      const s = account();
+      if (!d || !p || !p.handle || !s.user) return;
+      try {
+        if (!onBoard()) { await d.remove(`leaderboard/${s.user.uid}`); return; }
+        await d.set(`leaderboard/${s.user.uid}`, Object.assign({ handle: p.handle, name: p.name || '', country: country(), pro: Boolean(p.pro), updated: Date.now() }, totals()));
+      } catch (e) { /* rules not published yet: the panel says so */ }
+    }, 1500);
+  }
+
+  async function load() {
+    const d = data();
+    st.loading = true;
+    st.error = '';
+    render();
+    try {
+      st.rows = await d.top('leaderboard', 'points', TOP);
+    } catch (e) {
+      st.error = /permission/i.test(String(e.code || e.message))
+        ? 'The database refused that. If you run this copy of the app, publish the latest firestore.rules in Firebase.'
+        : (e.message || 'Couldn’t load the leaderboard.');
+    }
+    st.loading = false;
+    render();
+  }
+
+  function countries(rows) {
+    const by = new Map();
+    rows.filter((r) => r.country).forEach((r) => {
+      const c = by.get(r.country) || { country: r.country, points: 0, players: 0, best: r };
+      c.points += Number(r.points) || 0;
+      c.players += 1;
+      if ((Number(r.points) || 0) > (Number(c.best.points) || 0)) c.best = r;
+      by.set(r.country, c);
+    });
+    return Array.from(by.values()).sort((a, b) => b.points - a.points);
+  }
+
+  const medal = (i) => ['🥇', '🥈', '🥉'][i] || `${i + 1}`;
+
+  function body() {
+    const s = account();
+    if (s.status === 'off') return '<p class="muted">The leaderboard needs accounts, which aren’t switched on for this copy of the app.</p>';
+    if (s.status !== 'signed-in') return '<p class="muted">Sign in to see the leaderboard and get on it.</p><button type="button" class="btn btn-primary btn-small" data-lb="signin">👤 Sign in</button>';
+    const p = profile();
+    const t = totals();
+    const mine = `
+      <div class="lb-me">
+        <div><strong>${p && p.handle ? `@${esc(p.handle)}` : 'You'}</strong> · ${t.points} points · ${t.proofs} proof${t.proofs === 1 ? '' : 's'}
+          ${p && p.handle ? '' : '<br><span class="muted small">Pick a username in 🔔 Subscriptions → Following to appear here.</span>'}</div>
+        <label class="lb-country">Your country <select data-lb-field="country"><option value="">Choose…</option>${FC26.compliance.NATIONALITIES.map((n) => `<option ${country() === n ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
+        <label class="toggle"><input type="checkbox" data-lb-field="show" ${onBoard() ? 'checked' : ''}> Show me on the leaderboard</label>
+      </div>`;
+    if (st.viewing) {
+      const v = st.viewing;
+      return `${mine}
+        <div class="lb-proofs">
+          <button type="button" class="btn btn-small" data-lb="back">← Back</button>
+          <h3>📸 @${esc(v.row.handle)}'s proofs</h3>
+          ${v.items == null ? '<p class="muted">Loading…</p>' : v.items.length ? `<div class="lb-gallery">${v.items.map((it, i) => `
+            <button type="button" class="lb-shot" data-lb="shot" data-i="${i}"><img src="${it.image}" alt=""><span><strong>${esc(it.objective || 'Challenge')}</strong><small class="muted">${esc(it.title || '')}</small></span></button>`).join('')}</div>` : '<p class="muted">No shared proofs yet.</p>'}
+        </div>`;
+    }
+    const tabs = `<div class="seg lb-tabs"><button type="button" class="${st.tab === 'players' ? 'is-on' : ''}" data-lb="tab" data-tab="players">👤 Players</button><button type="button" class="${st.tab === 'countries' ? 'is-on' : ''}" data-lb="tab" data-tab="countries">🌍 Countries</button></div>`;
+    if (st.error) return `${mine}${tabs}<p class="login-error">${esc(st.error)}</p>`;
+    if (st.loading || !st.rows) return `${mine}${tabs}<p class="muted">Loading…</p>`;
+    const rows = st.rows.filter((r) => (Number(r.points) || 0) > 0);
+    if (st.tab === 'countries') {
+      const list = countries(rows);
+      return `${mine}${tabs}${list.length ? `<ol class="lb-list">${list.map((c, i) => `
+        <li class="lb-row${c.country === country() ? ' is-me' : ''}"><span class="lb-rank">${medal(i)}</span><span class="lb-name"><strong>${esc(c.country)}</strong><small class="muted">${c.players} player${c.players === 1 ? '' : 's'} · best @${esc(c.best.handle)}</small></span><span class="lb-pts">${c.points}</span></li>`).join('')}</ol>`
+        : '<p class="muted">No countries yet: set yours above.</p>'}`;
+    }
+    const meUid = account().user.uid;
+    return `${mine}${tabs}${rows.length ? `<ol class="lb-list">${rows.map((r, i) => `
+      <li class="lb-row${r.id === meUid ? ' is-me' : ''}"><span class="lb-rank">${medal(i)}</span>
+        <span class="lb-name"><strong>@${esc(r.handle)}${r.pro ? ' <span class="pro-badge">⭐ PRO</span>' : ''}</strong><small class="muted">${esc([r.country, `${r.proofs || 0} proof${r.proofs === 1 ? '' : 's'}`, `${r.challenges || 0} challenge${r.challenges === 1 ? '' : 's'}`].filter(Boolean).join(' · '))}</small></span>
+        <span class="lb-pts">${Number(r.points) || 0}</span>
+        <button type="button" class="btn btn-small" data-lb="view" data-uid="${esc(r.id)}">📸</button></li>`).join('')}</ol>`
+      : '<p class="muted">Nobody has proven an objective yet. Add a 📸 screenshot to one of yours to be first!</p>'}`;
+  }
+
+  function render() {
+    if (!modal || modal.hidden) return;
+    modal.querySelector('.lb-card').innerHTML = `
+      <button type="button" class="icon-btn subs-close" data-lb="close" aria-label="Close">✕</button>
+      <h2 id="lb-title">🏆 Leaderboard</h2>
+      <p class="muted small">Points come from objectives you've proven with a 📸 screenshot: main 10, side 5, final goal 30, more on harder difficulties.</p>
+      ${body()}`;
+  }
+
+  function open() {
+    modal.hidden = false;
+    document.body.classList.add('modal-open');
+    st.viewing = null;
+    render();
+    if (account().status === 'signed-in') { publish(); load(); }
+  }
+
+  function close() {
+    modal.hidden = true;
+    document.body.classList.remove('modal-open');
+  }
+
+  async function onClick(e) {
+    if (e.target === modal) return close();
+    const b = e.target.closest('[data-lb]');
+    if (!b) return undefined;
+    const what = b.dataset.lb;
+    if (what === 'close') return close();
+    if (what === 'signin') { close(); return document.getElementById('account-btn').click(); }
+    if (what === 'tab') { st.tab = b.dataset.tab; return render(); }
+    if (what === 'back') { st.viewing = null; return render(); }
+    if (what === 'view') {
+      const row = (st.rows || []).find((r) => r.id === b.dataset.uid);
+      st.viewing = { row, items: null };
+      render();
+      st.viewing.items = await FC26.proofs.sharedBy(b.dataset.uid).catch(() => []);
+      return render();
+    }
+    if (what === 'shot') {
+      const items = st.viewing.items;
+      return FC26.proofs.show(items.map((it) => ({ src: it.image, caption: `@${st.viewing.row.handle}: ${it.objective || ''} (${it.title || ''})` })), Number(b.dataset.i));
+    }
+    return undefined;
+  }
+
+  function onChange(e) {
+    const f = e.target.dataset.lbField;
+    if (f === 'country') deps.storageSet(COUNTRY_KEY, e.target.value);
+    if (f === 'show') deps.storageSet(SHOW_KEY, e.target.checked);
+    publish();
+    deps.toast(f === 'country' ? `Country set to ${e.target.value || 'none'}` : e.target.checked ? 'You’re on the leaderboard 🏆' : 'You’re off the leaderboard');
+    setTimeout(load, 1800);
+  }
+
+  function init(d) {
+    deps = d;
+    modal = document.getElementById('board');
+    const btn = document.getElementById('board-btn');
+    if (!modal || !btn) return;
+    btn.addEventListener('click', open);
+    modal.addEventListener('click', onClick);
+    modal.addEventListener('change', onChange);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden && !document.querySelector('.proof-viewer:not([hidden])')) close(); });
+  }
+
+  FC26.leaderboard = { init, open, publish, totals, countries };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/tutorial.js */
@@ -11038,6 +11536,11 @@ Aleksei Miranchuk|Russian|CAM
       return `<small class="rule-info" ${x.source ? `title="${esc(x.source)}"` : ''}>ℹ️ ${esc(x.text)}${typed}</small>`;
     };
 
+    // 📸 Proof photos for an objective (on saves): one chip per photo, and a camera to add one.
+    const proofs = (entry && entry.proofs) || {};
+    const proofCtl = (key, text) => (mode === 'saved' ? `
+      <span class="proof">${(proofs[key] || []).map((p, i) => `<button type="button" class="proof-chip" data-action="proof-view" data-key="${esc(key)}" data-i="${i}" title="See the proof">📸</button>`).join('')}
+        <label class="proof-add" title="Add a screenshot as proof (it counts on the leaderboard)">📷<input type="file" accept="image/*" data-proof="${esc(key)}" data-objective="${esc(text)}" hidden></label></span>` : '');
     const check = (key) => (mode === 'saved'
       ? `<input type="checkbox" class="obj-check" data-action="toggle" data-key="${esc(key)}" ${progress[key] ? 'checked' : ''} aria-label="Mark done">`
       : '');
@@ -11059,11 +11562,11 @@ Aleksei Miranchuk|Russian|CAM
         <div class="season-num"><span>S${s.season}</span>${s.age ? `<small>age ${Number(s.age)}</small>` : ''}</div>
         <div class="season-body">
           ${s.objectives.map((o, i) => `
-            <label class="objective ${o.type}">
+            <div class="obj-row${(proofs[`s${s.season}-${i}`] || []).length ? ' has-proof' : ''}"><label class="objective ${o.type}">
               ${check(`s${s.season}-${i}`)}
               <span class="obj-icon">${o.type === 'main' ? '🎯' : '➕'}</span>
               <span>${esc(o.text)}</span>
-            </label>`).join('')}
+            </label>${proofCtl(`s${s.season}-${i}`, o.text)}</div>`).join('')}
           ${s.events.map((e) => { const ev = G.splitEvent(e); return `<div class="event${ev.when ? ' midseason' : ''}"><span class="obj-icon">${ev.icon}</span><span>${ev.when ? `<strong>${esc(ev.when)}:</strong> ` : ''}${esc(ev.text)}</span></div>`; }).join('')}
           ${mode === 'saved' ? diaryRow(s.season, log[s.season] || {}) : ''}
         </div>
@@ -11132,7 +11635,8 @@ Aleksei Miranchuk|Russian|CAM
 
       ${ch.finalGoal ? `<section class="block final">
         <h3>🏆 Final goal</h3>
-        <label class="objective final-goal">${check('final')}<span>${esc(ch.finalGoal)}</span></label>
+        <div class="obj-row${(proofs.final || []).length ? ' has-proof' : ''}"><label class="objective final-goal">${check('final')}<span>${esc(ch.finalGoal)}</span></label>${proofCtl('final', ch.finalGoal)}</div>
+        ${mode === 'saved' ? `<p class="muted small proof-note">📸 Add a screenshot to an objective to prove it: proven objectives score on the 🏆 leaderboard (${window.FC26.proofs ? window.FC26.proofs.points(entry) : 0} points from this save so far).</p>` : ''}
       </section>` : ''}
 
       <div class="grid-2">
@@ -11483,6 +11987,7 @@ Aleksei Miranchuk|Russian|CAM
     if (ok) {
       Account.changed();
       Subs.savesChanged();
+      window.FC26.leaderboard.publish();
     }
     return ok;
   }
@@ -11685,6 +12190,10 @@ Aleksei Miranchuk|Russian|CAM
 
   // Diary text fields save without re-rendering, so typing isn't interrupted.
   function onSavedChange(e) {
+    if (e.target.matches('[data-proof]')) {
+      addProof(e.target);
+      return;
+    }
     if (e.target.matches('[data-record]')) {
       const item = e.target.closest('.saved-item');
       const value = Number(e.target.value);
@@ -11706,6 +12215,52 @@ Aleksei Miranchuk|Russian|CAM
     entry.log[season] = Object.assign({}, entry.log[season], { [input.dataset.log]: input.value.trim().slice(0, 200) });
     writeSaved(list);
     $('summary', item).innerHTML = savedSummary(entry);
+  }
+
+  // ---------- 📸 Proof ----------
+
+  async function addProof(input) {
+    const file = input.files && input.files[0];
+    const item = input.closest('.saved-item');
+    if (!file || !item) return;
+    const id = item.dataset.id;
+    const key = input.dataset.proof;
+    const entry = findEntry(id);
+    toast('📸 Adding your proof…');
+    try {
+      const proof = await window.FC26.proofs.add(id, key, file, { title: entry.challenge.title, objective: input.dataset.objective });
+      const before = window.FC26.proofs.points(entry);
+      const next = mutateEntry(id, (en) => {
+        en.proofs = Object.assign({}, en.proofs);
+        en.proofs[key] = (en.proofs[key] || []).concat(proof);
+        en.progress = Object.assign({}, en.progress, { [key]: true });
+      });
+      refreshSavedItem(item, next);
+      const gained = window.FC26.proofs.points(next) - before;
+      toast(`📸 Proof added${gained ? `: +${gained} points` : ''}${proof.shared ? '' : ' (kept on this device: sign in with a username to share it)'}`);
+      if (window.FC26.leaderboard) window.FC26.leaderboard.publish();
+    } catch (err) {
+      toast(err.message || 'That photo couldn\'t be added');
+    }
+  }
+
+  async function viewProofs(id, key, start) {
+    const entry = findEntry(id);
+    const list = ((entry && entry.proofs) || {})[key] || [];
+    const photos = await Promise.all(list.map((p) => window.FC26.proofs.photo(p)));
+    const shown = list.map((p, i) => ({ p, photo: photos[i] })).filter((x) => x.photo);
+    if (!shown.length) { toast('That photo is on another device'); return; }
+    window.FC26.proofs.show(shown.map(({ p, photo }) => ({ src: photo.image, caption: `${new Date(p.at).toLocaleDateString()}${p.shared ? ' · shared' : ' · on this device'}` })), Math.min(start, shown.length - 1), {
+      onRemove: async (i) => {
+        const gone = shown[i].p;
+        await window.FC26.proofs.remove(gone);
+        const next = mutateEntry(id, (en) => { en.proofs[key] = (en.proofs[key] || []).filter((x) => x.id !== gone.id); });
+        const item = $(`.saved-item[data-id="${CSS.escape(id)}"]`);
+        if (item && next) refreshSavedItem(item, next);
+        toast('Proof removed');
+        if (window.FC26.leaderboard) window.FC26.leaderboard.publish();
+      },
+    });
   }
 
   /** Save a challenge (unless it's already saved). Returns its id, or null if storage failed. */
@@ -12069,6 +12624,8 @@ Aleksei Miranchuk|Russian|CAM
       const tab = $('.ttab[data-tab="challenge"]', item);
       if (tab && !tab.classList.contains('is-active')) tab.click();
       openSoundtrack(item, true);
+    } else if (action === 'proof-view') {
+      viewProofs(id, btn.dataset.key, Number(btn.dataset.i) || 0);
     } else if (action === 'delete') {
       if (window.confirm(`Delete "${entry.challenge.title}"?`)) {
         writeSaved(loadSaved().filter((x) => x.id !== id));
@@ -12194,6 +12751,7 @@ Aleksei Miranchuk|Russian|CAM
       shareHash: async (ch) => (await shareUrl(ch)).split('#')[1] || '',
     });
     Subs.onProChange(syncProLocks);
+    window.FC26.leaderboard.init({ esc, toast, entries: loadSaved, storageGet, storageSet });
     syncProLocks();
     initAccount();
     initSoundtrack();

@@ -41,11 +41,23 @@ const QUERIES = {
   'goal-machine': 'FC 26 player career striker goals record',
   'goalscoring-defender': 'FC 26 player career defender',
   'wildcard-career': 'FC 26 player career challenge',
+  // For any type that comes back empty.
+  general: 'FC 26 career mode challenge ideas',
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function search(q) {
+async function search(q, attempt = 0) {
+  try {
+    return await searchOnce(q);
+  } catch (e) {
+    if (attempt >= 3) throw e;
+    await sleep(3000 * (attempt + 1));
+    return search(q, attempt + 1);
+  }
+}
+
+async function searchOnce(q) {
   const r = await fetch(`https://www.youtube.com/results?${new URLSearchParams({ search_query: q, hl: 'en', gl: 'GB' })}`, {
     headers: { 'User-Agent': 'Mozilla/5.0', 'Accept-Language': 'en' },
   });
@@ -72,6 +84,9 @@ async function search(q) {
 }
 
 async function main() {
+  // A type whose search fails keeps the videos it had.
+  let before = {};
+  try { require(OUT); before = (globalThis.FC26.videos || {}).byType || {}; } catch (e) { before = {}; }
   const out = {};
   for (const [type, q] of Object.entries(QUERIES)) {
     try {
@@ -81,7 +96,8 @@ async function main() {
         .map((v) => ({ id: v.id, title: v.title.slice(0, 120), channel: v.channel.slice(0, 60), length: v.length }));
       console.log(`${type}: ${out[type].length}`);
     } catch (e) {
-      console.warn(`${type}: ${e.message}`);
+      console.warn(`${type}: ${e.message}${before[type] ? ' (kept the old list)' : ''}`);
+      if (before[type]) out[type] = before[type];
     }
     await sleep(800);
   }

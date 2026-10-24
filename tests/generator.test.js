@@ -1083,3 +1083,15 @@ test('club records are well-formed', () => {
     assert.ok(/^[£€$]\d/.test(r.fee) && r.eur > 0 && r.player && (!r.year || (r.year >= 1950 && r.year <= 2025)), `${club}: ${JSON.stringify(r)}`);
   });
 });
+
+test('proven objectives score points, more on harder difficulties', () => {
+  const P = globalThis.FC26.proofs;
+  const ch = { difficulty: 4, roadmap: [{ season: 1, objectives: [{ type: 'main' }, { type: 'side' }] }, { season: 2, objectives: [{ type: 'main' }] }] };
+  const proof = [{ id: 'p', at: 1 }];
+  assert.equal(P.points({ challenge: ch, proofs: {} }), 0);
+  assert.equal(P.points({ challenge: ch, proofs: { 's1-0': proof, 's1-1': proof } }), 30); // (10 + 5) × 2 on Legendary
+  assert.equal(P.points({ challenge: Object.assign({}, ch, { difficulty: 1 }), proofs: { 's2-0': proof, final: proof } }), 40);
+  assert.equal(P.proofCount({ proofs: { a: [1, 2], b: [3] } }), 3);
+  const C = globalThis.FC26.leaderboard.countries([{ country: 'English', points: 10, handle: 'a' }, { country: 'English', points: 30, handle: 'b' }, { country: 'Welsh', points: 25, handle: 'c' }, { points: 99, handle: 'd' }]);
+  assert.deepEqual(C.map((c) => [c.country, c.points, c.players, c.best.handle]), [['English', 40, 2, 'b'], ['Welsh', 25, 1, 'c']]);
+});

@@ -585,6 +585,8 @@
 
   FC26.subscriptions = {
     init, onAccount, savesChanged, isPro, locked, feedUrls, open, findCoupon, ACCENTS, HANDLE_RE,
+    /** Your profile (username, name), once loaded, or null. */
+    profile: () => st.profile,
     /** Call fn(isPro) whenever Pro starts or stops. */
     onProChange: (fn) => proListeners.push(fn),
   };
