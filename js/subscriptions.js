@@ -141,7 +141,8 @@
   function friendlyError(e) {
     const code = (e && e.code) || '';
     if (/permission-denied/.test(code) || /insufficient permissions/i.test(String(e && e.message))) {
-      return "The database refused that. If you run this copy of the app, publish the latest firestore.rules in Firebase (see the README).";
+      console.warn('Subscriptions: the database refused. Publish the latest firestore.rules in Firebase.');
+      return 'This isn’t available yet. Check back soon!';
     }
     if (/unavailable|network/i.test(code)) return 'No connection. Check your internet and try again.';
     return (e && e.message) || 'Something went wrong. Try again.';

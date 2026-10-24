@@ -57,9 +57,10 @@
     try {
       st.rows = await d.top('leaderboard', 'points', TOP);
     } catch (e) {
-      st.error = /permission/i.test(String(e.code || e.message))
-        ? 'The database refused that. If you run this copy of the app, publish the latest firestore.rules in Firebase.'
-        : (e.message || 'Couldn’t load the leaderboard.');
+      // The site owner's hint goes to the console; players get a plain message.
+      const refused = /permission/i.test(String(e.code || e.message));
+      if (refused) console.warn('Leaderboard: the database refused. Publish the latest firestore.rules in Firebase.');
+      st.error = refused ? '🏆 The leaderboard isn’t open yet. Check back soon!' : 'Couldn’t load the leaderboard. Check your connection and try again.';
     }
     st.loading = false;
     render();
