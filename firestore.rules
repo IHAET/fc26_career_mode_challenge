@@ -1,9 +1,61 @@
 rules_version = '2';
-// Each signed-in user can read and write only their own document (users/<their uid>).
+// Paste this into Firebase → Firestore Database → Rules and press Publish.
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isUser(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // Saved challenges: each user reads and writes only their own document.
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, write: if isUser(uid);
+    }
+
+    // Public profiles: any signed-in user can read them (to follow people);
+    // only the owner writes, and only these fields.
+    match /profiles/{uid} {
+      allow read: if signedIn();
+      allow write: if isUser(uid)
+        && request.resource.data.keys().hasOnly(['handle', 'name', 'shared', 'challenges', 'pro', 'updated'])
+        && request.resource.data.handle is string && request.resource.data.handle.matches('^[a-z0-9_]{3,20}$')
+        && request.resource.data.challenges is list && request.resource.data.challenges.size() <= 30;
+      allow delete: if isUser(uid);
+    }
+
+    // Usernames: one owner each, first come first served.
+    match /handles/{handle} {
+      allow read: if signedIn();
+      allow create: if signedIn() && handle.matches('^[a-z0-9_]{3,20}$')
+        && request.resource.data.keys().hasOnly(['uid']) && request.resource.data.uid == request.auth.uid;
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    // Who you follow: private.
+    match /follows/{uid} {
+      allow read, delete: if isUser(uid);
+      allow create, update: if isUser(uid) && request.resource.data.uids is list && request.resource.data.uids.size() <= 50;
+    }
+
+    // ⭐ Pro: the "Run Payments with Stripe" extension's collections.
+    match /customers/{uid} {
+      allow read: if isUser(uid);
+      match /checkout_sessions/{id} {
+        allow read, write: if isUser(uid);
+      }
+      match /subscriptions/{id} {
+        allow read: if isUser(uid);
+      }
+      match /payments/{id} {
+        allow read: if isUser(uid);
+      }
+    }
+    match /products/{id} {
+      allow read: if true;
+      match /prices/{id} {
+        allow read: if true;
+      }
+      match /tax_rates/{id} {
+        allow read: if true;
+      }
     }
   }
 }

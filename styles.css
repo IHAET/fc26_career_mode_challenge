@@ -1008,3 +1008,79 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
 /* What FC 26 calls an unlicensed club, under its name on the challenge card. */
 .game-name { margin: 2px 0 4px; font-size: 0.85rem; }
 .game-name strong { color: var(--text); }
+
+/* ---------- The tour ---------- */
+
+.subs-btn { order: 5; position: relative; }
+.help-btn { order: 6; }
+@media (max-width: 560px) { .subs-btn { order: 3; } .help-btn { order: 4; } }
+.tour { position: fixed; inset: 0; z-index: 100; }
+.tour.is-centered { background: rgba(5, 10, 20, 0.66); }
+.tour-spot {
+  position: fixed; border-radius: 14px; pointer-events: none; outline: 2px solid var(--accent); outline-offset: 0;
+  box-shadow: 0 0 0 9999px rgba(5, 10, 20, 0.66); transition: left 0.25s ease, top 0.25s ease, width 0.25s ease, height 0.25s ease;
+}
+.tour-card {
+  position: fixed; width: 340px; max-width: calc(100vw - 24px); padding: 18px; border-radius: 16px; outline: none;
+  background: var(--panel); color: var(--text); border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  transition: left 0.25s ease, top 0.25s ease;
+}
+.tour-card h3 { margin: 4px 0 6px; font-size: 1.1rem; }
+.tour-text { margin: 0 0 12px; line-height: 1.5; }
+.tour-step { font-size: 0.8rem; }
+.tour-dots { display: flex; gap: 5px; margin-bottom: 14px; }
+.tour-dots span { width: 7px; height: 7px; border-radius: 4px; background: var(--line); transition: width 0.2s ease; }
+.tour-dots span.is-on { width: 18px; background: var(--accent); }
+.tour-actions { display: flex; align-items: center; gap: 8px; }
+.tour-skip { margin-right: auto; font-size: 0.9rem; }
+@media (prefers-reduced-motion: reduce) { .tour-spot, .tour-card, .tour-dots span { transition: none; } }
+
+/* ---------- Subscriptions ---------- */
+
+.subs-btn .dot { position: absolute; top: 3px; right: 3px; margin: 0; background: var(--accent); }
+.subs-card { position: relative; width: min(560px, 100%); padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+.subs-card h2 { margin: 0; font-size: 1.35rem; padding-right: 36px; }
+.subs-close { position: absolute; top: 12px; right: 12px; }
+.subs-sec { border-top: 1px solid var(--line); padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.subs-sec h3 { margin: 0; font-size: 1rem; }
+.subs-sec p { margin: 0; }
+.subs-sec .small { font-size: 0.82rem; }
+.subs-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.toggle .subs-time { width: auto; height: auto; padding: 4px 8px; margin-left: 2px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-2); color: var(--text); font: inherit; }
+.subs-actions a.btn { text-decoration: none; color: var(--text); }
+.subs-actions a.btn-primary { color: var(--accent-ink); }
+.subs-inline input, .subs-form .field input { background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--text); font: inherit; }
+.subs-form { display: flex; flex-direction: column; gap: 10px; }
+.subs-form .field input { width: 100%; }
+.subs-inline { flex-direction: row; align-items: center; }
+.subs-inline input { flex: 1; min-width: 0; }
+.me-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.friends { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.friend { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--bg-2); }
+.friend-head { display: flex; align-items: center; gap: 10px; }
+.friend .avatar {
+  width: 32px; height: 32px; flex: none; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: 0.85rem;
+}
+.friend-name { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; }
+.friend-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.friend-list li { display: flex; align-items: center; gap: 8px; }
+.fc-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.fc-main strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pro-badge { font-size: 0.68rem; font-weight: 800; padding: 2px 6px; border-radius: 6px; background: linear-gradient(135deg, #ffd76e, #f5a524); color: #2a1e00; white-space: nowrap; }
+.perks { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.btn.btn-pro { align-self: flex-start; background: linear-gradient(135deg, #ffd76e, #f5a524); color: #2a1e00; border-color: transparent; font-weight: 800; }
+.accents { display: flex; flex-wrap: wrap; gap: 6px; }
+.accent-chip { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 99px; padding: 5px 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+.accent-chip.is-on { border-color: var(--accent); background: var(--accent-soft); }
+
+/* Pro colour themes: the accent colour, for the dark and light themes. */
+:root[data-accent="gold"] { --accent: #f5c542; --accent-ink: #2a1e00; --accent-soft: rgba(245, 197, 66, 0.13); --accent-hi: #ffd76e; --glow: rgba(245, 197, 66, 0.35); }
+:root[data-accent="blue"] { --accent: #4cb3ff; --accent-ink: #031a2e; --accent-soft: rgba(76, 179, 255, 0.13); --accent-hi: #7cc8ff; --glow: rgba(76, 179, 255, 0.35); }
+:root[data-accent="purple"] { --accent: #b18cff; --accent-ink: #1a0b33; --accent-soft: rgba(177, 140, 255, 0.14); --accent-hi: #c9adff; --glow: rgba(177, 140, 255, 0.35); }
+:root[data-accent="red"] { --accent: #ff5c6c; --accent-ink: #2e0308; --accent-soft: rgba(255, 92, 108, 0.13); --accent-hi: #ff8591; --glow: rgba(255, 92, 108, 0.35); }
+:root[data-theme="light"][data-accent="gold"] { --accent: #9a6c00; --accent-ink: #ffffff; --accent-soft: rgba(154, 108, 0, 0.1); --accent-hi: #b07c00; --glow: rgba(154, 108, 0, 0.28); }
+:root[data-theme="light"][data-accent="blue"] { --accent: #0b6bcb; --accent-ink: #ffffff; --accent-soft: rgba(11, 107, 203, 0.1); --accent-hi: #1f82e6; --glow: rgba(11, 107, 203, 0.28); }
+:root[data-theme="light"][data-accent="purple"] { --accent: #6d3fd6; --accent-ink: #ffffff; --accent-soft: rgba(109, 63, 214, 0.1); --accent-hi: #8257e8; --glow: rgba(109, 63, 214, 0.28); }
+:root[data-theme="light"][data-accent="red"] { --accent: #c9283a; --accent-ink: #ffffff; --accent-soft: rgba(201, 40, 58, 0.1); --accent-hi: #e03a4c; --glow: rgba(201, 40, 58, 0.28); }
+.subs-sec > .btn { align-self: flex-start; }

@@ -16,7 +16,7 @@
   const API = 'https://api.spotify.com/v1';
   const TOKEN_KEY = 'fc26-spotify-v1';
   const PENDING_KEY = 'fc26-spotify-pending';
-  const SCOPES = 'user-top-read playlist-modify-private playlist-modify-public';
+  const SCOPES = 'user-top-read user-read-private playlist-read-private playlist-modify-private playlist-modify-public';
   const SEARCH_PAGE = 10; // the most a development-mode app gets per search
 
   // ---------- Genres that fit a save ----------
@@ -105,6 +105,8 @@
     root.location.assign(`${AUTH}/authorize?${new URLSearchParams({
       response_type: 'code', client_id: clientId(), scope: SCOPES, redirect_uri: redirectUri(),
       code_challenge_method: 'S256', code_challenge: challenge, state,
+      // Always ask, so a connection made before a new permission was added gets it too.
+      show_dialog: 'true',
     })}`);
   }
 
@@ -120,7 +122,7 @@
   function saveToken(j, id) {
     const old = store.get(TOKEN_KEY) || {};
     store.set(TOKEN_KEY, {
-      access: j.access_token, refresh: j.refresh_token || old.refresh, clientId: id || old.clientId,
+      access: j.access_token, refresh: j.refresh_token || old.refresh, clientId: id || old.clientId, scope: j.scope || old.scope || '',
       expires: Date.now() + ((Number(j.expires_in) || 3600) - 60) * 1000,
     });
   }
@@ -182,7 +184,7 @@
         const why = String(said || '').trim().slice(0, 160);
         if (/premium/i.test(why)) throw new Error(`Spotify refused (“${why}”). Spotify only lets apps in development mode work while the app's owner has Spotify Premium.`);
         if (/regist/i.test(why)) throw new Error(`Spotify refused (“${why}”). This Spotify account isn't on the app's user list yet: in the Spotify dashboard open the app, go to Settings → User Management, add the email this account logs in with, then press Disconnect Spotify below and connect again.`);
-        throw new Error(`Spotify refused${why ? ` (“${why}”)` : ''}. Press Disconnect Spotify below, connect again and try once more.`);
+        throw new Error(`Spotify refused${why ? ` (“${why}”)` : ''}. Press Disconnect Spotify below, connect again and allow everything Spotify asks. If it still happens, check the app's owner has Spotify Premium: Spotify needs that for apps in development mode.`);
       }
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
@@ -222,6 +224,14 @@
   /** Create the playlist on the user's account. Returns { url, name, count }. */
   async function buildPlaylist(entry, genres, size) {
     const ch = entry.challenge;
+    // A connection without the playlist permissions can't work: start it again.
+    const granted = String((store.get(TOKEN_KEY) || {}).scope || '');
+    if (granted && !['playlist-modify-private', 'playlist-modify-public'].every((x) => granted.split(' ').includes(x))) {
+      store.del(TOKEN_KEY);
+      throw new Error('Spotify gave this app fewer permissions than it needs. Connect Spotify again and allow everything it asks.');
+    }
+    // Say which step Spotify refused.
+    const step = (label, p) => p.catch((err) => { throw new Error(`${label}: ${err.message}`); });
     const per = Math.ceil(size / genres.length) + 2;
     const seen = new Set();
     const byArtist = {};
@@ -231,7 +241,7 @@
       const picks = [];
       // Search hands out 10 tracks a call, so page on until the genre has its share.
       for (let page = 0; page < Math.min(10, Math.ceil(per / SEARCH_PAGE) + 3) && picks.length < per; page++) {
-        const res = await api(`/search?${new URLSearchParams({ q: `genre:"${g}"`, type: 'track', limit: SEARCH_PAGE, offset: start + page * SEARCH_PAGE, market: 'from_token' })}`);
+        const res = await step('Searching for tracks', api(`/search?${new URLSearchParams({ q: `genre:"${g}"`, type: 'track', limit: SEARCH_PAGE, offset: start + page * SEARCH_PAGE })}`));
         const items = (res.tracks && res.tracks.items) || [];
         shuffle(items).forEach((t) => {
           if (!t || !t.uri || seen.has(t.id) || picks.length >= per) return;
@@ -252,9 +262,9 @@
     const name = `FC 26 · ${ch.club.name} · ${ch.archetype.name}`.slice(0, 100);
     const description = `Soundtrack for "${ch.title}" (${ch.difficultyName}). Genres: ${genres.join(', ')}. Made with the FC 26 Career Challenge Builder.`
       .replace(/[\r\n<>]/g, ' ').slice(0, 300);
-    const playlist = await api('/me/playlists', { method: 'POST', body: JSON.stringify({ name, description, public: false }) });
+    const playlist = await step('Creating the playlist', api('/me/playlists', { method: 'POST', body: JSON.stringify({ name, description, public: false }) }));
     for (let i = 0; i < uris.length; i += 100) {
-      await api(`/playlists/${encodeURIComponent(playlist.id)}/items`, { method: 'POST', body: JSON.stringify({ uris: uris.slice(i, i + 100) }) });
+      await step('Adding the tracks', api(`/playlists/${encodeURIComponent(playlist.id)}/items`, { method: 'POST', body: JSON.stringify({ uris: uris.slice(i, i + 100) }) }));
     }
     return { url: (playlist.external_urls && playlist.external_urls.spotify) || `https://open.spotify.com/playlist/${playlist.id}`, name, count: uris.length };
   }
@@ -298,7 +308,7 @@
       <form class="sp-add" data-sp-form>
         <input type="text" name="genre" maxlength="40" placeholder="Add a genre, e.g. jersey club" aria-label="Add a genre">
         <button type="submit" class="btn btn-small">Add</button>
-        <label class="sp-size">Tracks <select name="size">${[20, 30, 50].map((n) => `<option ${n === (v.size || 30) ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+        <label class="sp-size">Tracks <select name="size">${(FC26.subscriptions && FC26.subscriptions.isPro() ? [20, 30, 50, 75, 100] : [20, 30, 50]).map((n) => `<option ${n === (v.size || 30) ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
       </form>
       ${v.error ? `<p class="neg">${esc(v.error)}</p>` : ''}
       <div class="sp-actions">

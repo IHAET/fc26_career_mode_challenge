@@ -1,7 +1,7 @@
 /* UI for the FC 26 Career Challenge Builder. */
 (function () {
   'use strict';
-  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker, playerDB: PlayerDB, account: Account, login: Login, spotify: Spotify } = window.FC26;
+  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker, playerDB: PlayerDB, account: Account, login: Login, spotify: Spotify, tutorial: Tutorial, subscriptions: Subs } = window.FC26;
 
   const STORE_KEY = 'fc26-challenges-v1';
   const OPTIONS_KEY = 'fc26-options-v1';
@@ -845,7 +845,10 @@
     Account.stampChanges(Array.isArray(before) ? before : [], list, deleted, Date.now());
     const ok = storageSet(STORE_KEY, list);
     storageSet(DELETED_KEY, deleted);
-    if (ok) Account.changed();
+    if (ok) {
+      Account.changed();
+      Subs.savesChanged();
+    }
     return ok;
   }
 
@@ -1515,8 +1518,14 @@
     $('#saved-count').textContent = loadSaved().length;
     initTheme();
     initMoreOptions();
+    Subs.init({
+      esc, toast, storageGet, storageSet, entries: loadSaved,
+      dailySeen: (key) => loadCheckins().includes(key),
+      shareHash: async (ch) => (await shareUrl(ch)).split('#')[1] || '',
+    });
     initAccount();
     initSoundtrack();
+    Tutorial.init({ showView });
     syncDailyDot();
     setInterval(tickDaily, 30000);
     if (window.location.hash === '#daily') showView('daily');
@@ -1594,7 +1603,7 @@
         if (!$('#view-saved').hidden) renderSaved(open ? open.dataset.id : null);
         if (!$('#view-transfers').hidden) renderTransfersView();
       },
-      onChange: onAccountChange,
+      onChange: (st) => { onAccountChange(st); Subs.onAccount(st); },
     });
     // Pick up changes made on another device when coming back to this tab.
     document.addEventListener('visibilitychange', () => { if (!document.hidden) Account.changed(); });

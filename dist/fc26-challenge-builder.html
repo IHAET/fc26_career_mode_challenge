@@ -1020,6 +1020,82 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
 /* What FC 26 calls an unlicensed club, under its name on the challenge card. */
 .game-name { margin: 2px 0 4px; font-size: 0.85rem; }
 .game-name strong { color: var(--text); }
+
+/* ---------- The tour ---------- */
+
+.subs-btn { order: 5; position: relative; }
+.help-btn { order: 6; }
+@media (max-width: 560px) { .subs-btn { order: 3; } .help-btn { order: 4; } }
+.tour { position: fixed; inset: 0; z-index: 100; }
+.tour.is-centered { background: rgba(5, 10, 20, 0.66); }
+.tour-spot {
+  position: fixed; border-radius: 14px; pointer-events: none; outline: 2px solid var(--accent); outline-offset: 0;
+  box-shadow: 0 0 0 9999px rgba(5, 10, 20, 0.66); transition: left 0.25s ease, top 0.25s ease, width 0.25s ease, height 0.25s ease;
+}
+.tour-card {
+  position: fixed; width: 340px; max-width: calc(100vw - 24px); padding: 18px; border-radius: 16px; outline: none;
+  background: var(--panel); color: var(--text); border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  transition: left 0.25s ease, top 0.25s ease;
+}
+.tour-card h3 { margin: 4px 0 6px; font-size: 1.1rem; }
+.tour-text { margin: 0 0 12px; line-height: 1.5; }
+.tour-step { font-size: 0.8rem; }
+.tour-dots { display: flex; gap: 5px; margin-bottom: 14px; }
+.tour-dots span { width: 7px; height: 7px; border-radius: 4px; background: var(--line); transition: width 0.2s ease; }
+.tour-dots span.is-on { width: 18px; background: var(--accent); }
+.tour-actions { display: flex; align-items: center; gap: 8px; }
+.tour-skip { margin-right: auto; font-size: 0.9rem; }
+@media (prefers-reduced-motion: reduce) { .tour-spot, .tour-card, .tour-dots span { transition: none; } }
+
+/* ---------- Subscriptions ---------- */
+
+.subs-btn .dot { position: absolute; top: 3px; right: 3px; margin: 0; background: var(--accent); }
+.subs-card { position: relative; width: min(560px, 100%); padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+.subs-card h2 { margin: 0; font-size: 1.35rem; padding-right: 36px; }
+.subs-close { position: absolute; top: 12px; right: 12px; }
+.subs-sec { border-top: 1px solid var(--line); padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.subs-sec h3 { margin: 0; font-size: 1rem; }
+.subs-sec p { margin: 0; }
+.subs-sec .small { font-size: 0.82rem; }
+.subs-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.toggle .subs-time { width: auto; height: auto; padding: 4px 8px; margin-left: 2px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-2); color: var(--text); font: inherit; }
+.subs-actions a.btn { text-decoration: none; color: var(--text); }
+.subs-actions a.btn-primary { color: var(--accent-ink); }
+.subs-inline input, .subs-form .field input { background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--text); font: inherit; }
+.subs-form { display: flex; flex-direction: column; gap: 10px; }
+.subs-form .field input { width: 100%; }
+.subs-inline { flex-direction: row; align-items: center; }
+.subs-inline input { flex: 1; min-width: 0; }
+.me-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.friends { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.friend { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--bg-2); }
+.friend-head { display: flex; align-items: center; gap: 10px; }
+.friend .avatar {
+  width: 32px; height: 32px; flex: none; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: 0.85rem;
+}
+.friend-name { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; }
+.friend-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.friend-list li { display: flex; align-items: center; gap: 8px; }
+.fc-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.fc-main strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pro-badge { font-size: 0.68rem; font-weight: 800; padding: 2px 6px; border-radius: 6px; background: linear-gradient(135deg, #ffd76e, #f5a524); color: #2a1e00; white-space: nowrap; }
+.perks { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.btn.btn-pro { align-self: flex-start; background: linear-gradient(135deg, #ffd76e, #f5a524); color: #2a1e00; border-color: transparent; font-weight: 800; }
+.accents { display: flex; flex-wrap: wrap; gap: 6px; }
+.accent-chip { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 99px; padding: 5px 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+.accent-chip.is-on { border-color: var(--accent); background: var(--accent-soft); }
+
+/* Pro colour themes: the accent colour, for the dark and light themes. */
+:root[data-accent="gold"] { --accent: #f5c542; --accent-ink: #2a1e00; --accent-soft: rgba(245, 197, 66, 0.13); --accent-hi: #ffd76e; --glow: rgba(245, 197, 66, 0.35); }
+:root[data-accent="blue"] { --accent: #4cb3ff; --accent-ink: #031a2e; --accent-soft: rgba(76, 179, 255, 0.13); --accent-hi: #7cc8ff; --glow: rgba(76, 179, 255, 0.35); }
+:root[data-accent="purple"] { --accent: #b18cff; --accent-ink: #1a0b33; --accent-soft: rgba(177, 140, 255, 0.14); --accent-hi: #c9adff; --glow: rgba(177, 140, 255, 0.35); }
+:root[data-accent="red"] { --accent: #ff5c6c; --accent-ink: #2e0308; --accent-soft: rgba(255, 92, 108, 0.13); --accent-hi: #ff8591; --glow: rgba(255, 92, 108, 0.35); }
+:root[data-theme="light"][data-accent="gold"] { --accent: #9a6c00; --accent-ink: #ffffff; --accent-soft: rgba(154, 108, 0, 0.1); --accent-hi: #b07c00; --glow: rgba(154, 108, 0, 0.28); }
+:root[data-theme="light"][data-accent="blue"] { --accent: #0b6bcb; --accent-ink: #ffffff; --accent-soft: rgba(11, 107, 203, 0.1); --accent-hi: #1f82e6; --glow: rgba(11, 107, 203, 0.28); }
+:root[data-theme="light"][data-accent="purple"] { --accent: #6d3fd6; --accent-ink: #ffffff; --accent-soft: rgba(109, 63, 214, 0.1); --accent-hi: #8257e8; --glow: rgba(109, 63, 214, 0.28); }
+:root[data-theme="light"][data-accent="red"] { --accent: #c9283a; --accent-ink: #ffffff; --accent-soft: rgba(201, 40, 58, 0.1); --accent-hi: #e03a4c; --glow: rgba(201, 40, 58, 0.28); }
+.subs-sec > .btn { align-self: flex-start; }
 </style>
   <script>
     // Theme before first paint: the saved choice, else the system's.
@@ -1047,6 +1123,8 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
       <button class="tab" role="tab" data-view="saved" aria-selected="false"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4-6.5 4v-16a1 1 0 0 1 1-1z"/></svg><span class="tab-label"><span class="tab-long">My </span>Challenges</span> <span class="count" id="saved-count">0</span></button>
     </nav>
     <button type="button" class="theme-btn" id="theme-btn" aria-label="Switch to light theme" title="Switch to light theme">☀️</button>
+    <button type="button" class="theme-btn subs-btn" id="subs-btn" aria-label="Subscriptions" title="Subscriptions: daily feed, reminders, following, Pro">🔔<span class="dot" id="subs-dot" hidden></span></button>
+    <button type="button" class="theme-btn help-btn" id="help-btn" aria-label="Show the tour" title="Show the tour">❓</button>
     <button type="button" class="account-btn" id="account-btn"><span aria-hidden="true">👤</span><span class="account-label">Sign in</span></button>
   </header>
 
@@ -1252,6 +1330,9 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
   <div class="modal" id="login" role="dialog" aria-modal="true" aria-labelledby="login-title" hidden>
     <div class="login-card panel"></div>
   </div>
+  <div class="modal" id="subs" role="dialog" aria-modal="true" aria-labelledby="subs-title" hidden>
+    <div class="subs-card panel"></div>
+  </div>
   <div class="toast" id="toast" role="status" hidden></div>
   <datalist id="nat-list"></datalist>
   <datalist id="known-players"></datalist>
@@ -1280,6 +1361,13 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
     },
     // Spotify soundtracks: the Client ID of your app on developer.spotify.com.
     spotifyClientId: 'ff827bba45294114a91167c8870f5826',
+    // Where the site lives, for the daily challenge calendar and RSS feeds.
+    siteUrl: 'https://ihaet.github.io/fc26_career_mode_challenge/',
+    // ⭐ Pro, a paid monthly plan, runs on Stripe through Firebase's "Run Payments
+    // with Stripe" extension. Off until a Stripe price id is filled in, e.g.
+    // { price: 'price_123', label: '€2.99 a month', region: 'europe-west2' }
+    // (region: where the extension's functions run). See "Pro plan" in the README.
+    pro: { price: '', label: '', region: 'us-central1' },
   }, FC26.config);
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
@@ -8388,6 +8476,9 @@ Aleksei Miranchuk|Russian|CAM
  * FC26.config.firebase), or anything with the same methods via useAdapter().
  *   onUser(cb), signIn(email, pw), signUp(email, pw), reset(email), google(),
  *   signOut(), load(uid) → doc | null, save(uid, doc)
+ * and, for profiles, following and Pro (js/subscriptions.js), an optional
+ *   data: { get(path), set(path, value, merge?), remove(path), add(collection, value) → id,
+ *           watch(path, cb) → stop, watchAll(collection, cb) → stop, call(name, payload) }
  *
  * Each user has one document: { v, updated, challenges, deleted, known },
  * with the lists stored as JSON text. Merging is per challenge: the most
@@ -8477,6 +8568,24 @@ Aleksei Miranchuk|Russian|CAM
       signOut: () => A.signOut(auth),
       load: async (uid) => { const snap = await F.getDoc(ref(uid)); return snap.exists() ? snap.data() : null; },
       save: (uid, doc) => F.setDoc(ref(uid), doc),
+      data: {
+        get: async (path) => { const snap = await F.getDoc(F.doc(db, path)); return snap.exists() ? snap.data() : null; },
+        set: (path, value, merge) => F.setDoc(F.doc(db, path), value, merge ? { merge: true } : {}),
+        remove: (path) => F.deleteDoc(F.doc(db, path)),
+        add: async (collection, value) => (await F.addDoc(F.collection(db, collection), value)).id,
+        watch: (path, cb) => F.onSnapshot(F.doc(db, path), (snap) => cb(snap.exists() ? snap.data() : null), () => cb(null)),
+        watchAll: (collection, cb) => F.onSnapshot(F.collection(db, collection), (q) => cb(q.docs.map((d) => Object.assign({ id: d.id }, d.data()))), () => cb([])),
+        // A callable Cloud Function (the Stripe extension's customer portal link), without the Functions SDK.
+        call: async (name, payload, region) => {
+          const token = await auth.currentUser.getIdToken();
+          const r = await fetch(`https://${region || 'us-central1'}-${config.projectId}.cloudfunctions.net/${name}`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ data: payload || {} }),
+          });
+          const j = await r.json().catch(() => ({}));
+          if (!r.ok || j.error) throw new Error((j.error && j.error.message) || `Request failed (${r.status})`);
+          return j.result;
+        },
+      },
     };
   }
 
@@ -8583,6 +8692,8 @@ Aleksei Miranchuk|Russian|CAM
       },
       /** Swap in another backend (also used by the browser tests). */
       useAdapter: attach,
+      /** Document access for the signed-in user (profiles, following, Pro), or null. */
+      data: () => (adapter && user && adapter.data) || null,
       signIn: (email, pw) => run(() => adapter.signIn(email, pw)),
       signUp: (email, pw) => run(() => adapter.signUp(email, pw)),
       reset: (email) => run(() => adapter.reset(email)),
@@ -8804,7 +8915,7 @@ Aleksei Miranchuk|Russian|CAM
   const API = 'https://api.spotify.com/v1';
   const TOKEN_KEY = 'fc26-spotify-v1';
   const PENDING_KEY = 'fc26-spotify-pending';
-  const SCOPES = 'user-top-read playlist-modify-private playlist-modify-public';
+  const SCOPES = 'user-top-read user-read-private playlist-read-private playlist-modify-private playlist-modify-public';
   const SEARCH_PAGE = 10; // the most a development-mode app gets per search
 
   // ---------- Genres that fit a save ----------
@@ -8893,6 +9004,8 @@ Aleksei Miranchuk|Russian|CAM
     root.location.assign(`${AUTH}/authorize?${new URLSearchParams({
       response_type: 'code', client_id: clientId(), scope: SCOPES, redirect_uri: redirectUri(),
       code_challenge_method: 'S256', code_challenge: challenge, state,
+      // Always ask, so a connection made before a new permission was added gets it too.
+      show_dialog: 'true',
     })}`);
   }
 
@@ -8908,7 +9021,7 @@ Aleksei Miranchuk|Russian|CAM
   function saveToken(j, id) {
     const old = store.get(TOKEN_KEY) || {};
     store.set(TOKEN_KEY, {
-      access: j.access_token, refresh: j.refresh_token || old.refresh, clientId: id || old.clientId,
+      access: j.access_token, refresh: j.refresh_token || old.refresh, clientId: id || old.clientId, scope: j.scope || old.scope || '',
       expires: Date.now() + ((Number(j.expires_in) || 3600) - 60) * 1000,
     });
   }
@@ -8970,7 +9083,7 @@ Aleksei Miranchuk|Russian|CAM
         const why = String(said || '').trim().slice(0, 160);
         if (/premium/i.test(why)) throw new Error(`Spotify refused (“${why}”). Spotify only lets apps in development mode work while the app's owner has Spotify Premium.`);
         if (/regist/i.test(why)) throw new Error(`Spotify refused (“${why}”). This Spotify account isn't on the app's user list yet: in the Spotify dashboard open the app, go to Settings → User Management, add the email this account logs in with, then press Disconnect Spotify below and connect again.`);
-        throw new Error(`Spotify refused${why ? ` (“${why}”)` : ''}. Press Disconnect Spotify below, connect again and try once more.`);
+        throw new Error(`Spotify refused${why ? ` (“${why}”)` : ''}. Press Disconnect Spotify below, connect again and allow everything Spotify asks. If it still happens, check the app's owner has Spotify Premium: Spotify needs that for apps in development mode.`);
       }
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
@@ -9010,6 +9123,14 @@ Aleksei Miranchuk|Russian|CAM
   /** Create the playlist on the user's account. Returns { url, name, count }. */
   async function buildPlaylist(entry, genres, size) {
     const ch = entry.challenge;
+    // A connection without the playlist permissions can't work: start it again.
+    const granted = String((store.get(TOKEN_KEY) || {}).scope || '');
+    if (granted && !['playlist-modify-private', 'playlist-modify-public'].every((x) => granted.split(' ').includes(x))) {
+      store.del(TOKEN_KEY);
+      throw new Error('Spotify gave this app fewer permissions than it needs. Connect Spotify again and allow everything it asks.');
+    }
+    // Say which step Spotify refused.
+    const step = (label, p) => p.catch((err) => { throw new Error(`${label}: ${err.message}`); });
     const per = Math.ceil(size / genres.length) + 2;
     const seen = new Set();
     const byArtist = {};
@@ -9019,7 +9140,7 @@ Aleksei Miranchuk|Russian|CAM
       const picks = [];
       // Search hands out 10 tracks a call, so page on until the genre has its share.
       for (let page = 0; page < Math.min(10, Math.ceil(per / SEARCH_PAGE) + 3) && picks.length < per; page++) {
-        const res = await api(`/search?${new URLSearchParams({ q: `genre:"${g}"`, type: 'track', limit: SEARCH_PAGE, offset: start + page * SEARCH_PAGE, market: 'from_token' })}`);
+        const res = await step('Searching for tracks', api(`/search?${new URLSearchParams({ q: `genre:"${g}"`, type: 'track', limit: SEARCH_PAGE, offset: start + page * SEARCH_PAGE })}`));
         const items = (res.tracks && res.tracks.items) || [];
         shuffle(items).forEach((t) => {
           if (!t || !t.uri || seen.has(t.id) || picks.length >= per) return;
@@ -9040,9 +9161,9 @@ Aleksei Miranchuk|Russian|CAM
     const name = `FC 26 · ${ch.club.name} · ${ch.archetype.name}`.slice(0, 100);
     const description = `Soundtrack for "${ch.title}" (${ch.difficultyName}). Genres: ${genres.join(', ')}. Made with the FC 26 Career Challenge Builder.`
       .replace(/[\r\n<>]/g, ' ').slice(0, 300);
-    const playlist = await api('/me/playlists', { method: 'POST', body: JSON.stringify({ name, description, public: false }) });
+    const playlist = await step('Creating the playlist', api('/me/playlists', { method: 'POST', body: JSON.stringify({ name, description, public: false }) }));
     for (let i = 0; i < uris.length; i += 100) {
-      await api(`/playlists/${encodeURIComponent(playlist.id)}/items`, { method: 'POST', body: JSON.stringify({ uris: uris.slice(i, i + 100) }) });
+      await step('Adding the tracks', api(`/playlists/${encodeURIComponent(playlist.id)}/items`, { method: 'POST', body: JSON.stringify({ uris: uris.slice(i, i + 100) }) }));
     }
     return { url: (playlist.external_urls && playlist.external_urls.spotify) || `https://open.spotify.com/playlist/${playlist.id}`, name, count: uris.length };
   }
@@ -9086,7 +9207,7 @@ Aleksei Miranchuk|Russian|CAM
       <form class="sp-add" data-sp-form>
         <input type="text" name="genre" maxlength="40" placeholder="Add a genre, e.g. jersey club" aria-label="Add a genre">
         <button type="submit" class="btn btn-small">Add</button>
-        <label class="sp-size">Tracks <select name="size">${[20, 30, 50].map((n) => `<option ${n === (v.size || 30) ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+        <label class="sp-size">Tracks <select name="size">${(FC26.subscriptions && FC26.subscriptions.isPro() ? [20, 30, 50, 75, 100] : [20, 30, 50]).map((n) => `<option ${n === (v.size || 30) ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
       </form>
       ${v.error ? `<p class="neg">${esc(v.error)}</p>` : ''}
       <div class="sp-actions">
@@ -9237,11 +9358,760 @@ Aleksei Miranchuk|Russian|CAM
   FC26.achievements = { evaluate, DEFS };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
+  <script>/* js/subscriptions.js */
+/*
+ * 🔔 Subscriptions: the daily challenge in your calendar or feed reader,
+ * reminders, following friends, and ⭐ Pro.
+ *
+ * - The feeds are static files CI rebuilds every day (scripts/build-feeds.js).
+ * - Reminders are browser notifications, shown while the site is open in a tab
+ *   (through sw.js, which phones need for notifications; it caches nothing).
+ * - Following uses the account backend: profiles/{uid} (readable by signed-in
+ *   users), handles/{handle} → { uid } (unique usernames) and follows/{uid}
+ *   (who you follow, private). Sharing your challenges is opt-in.
+ * - Pro runs on Stripe through Firebase's "Run Payments with Stripe" extension:
+ *   checkouts in customers/{uid}/checkout_sessions, plans in
+ *   customers/{uid}/subscriptions. Off until FC26.config.pro.price is set.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+
+  const REMIND_KEY = 'fc26-reminders-v1';
+  const PRO_KEY = 'fc26-pro-v1'; // last known Pro state, so the colours don't flash on load
+  const ACCENT_KEY = 'fc26-accent-v1';
+  const SEEN_KEY = 'fc26-friends-seen-v1'; // uid → newest savedAt already seen
+  const HANDLE_RE = /^[a-z0-9_]{3,20}$/;
+  const MAX_FOLLOWS = 50;
+  const MAX_SHARED = 30;
+  const ACCENTS = [['', '🟢 Pitch green'], ['gold', '🟡 Gold'], ['blue', '🔵 Ocean'], ['purple', '🟣 Royal'], ['red', '🔴 Derby red']];
+  const PERKS = ['⭐ A Pro badge on your profile', '🎨 Five colour themes for the app', '🎧 Spotify soundtracks of 75 or 100 tracks', '❤️ Keeps the app going'];
+
+  let deps = null; // { esc, toast, storageGet, storageSet, entries(), dailySeen(key), shareHash(ch) }
+  let account = { status: 'off', user: null };
+  let uid = null;
+  const st = { profile: null, following: [], feed: [], pro: false, busy: '', error: '', newCount: 0, editing: false };
+  let stopPro = null;
+  let reminderTimer = null;
+  let publishTimer = null;
+  let modal = null;
+  let worker = null; // service worker registration, for notifications on phones
+
+  const esc = (v) => deps.esc(v == null ? '' : v);
+  const data = () => (FC26.account && FC26.account.data && FC26.account.data()) || null;
+  const proConfig = () => (FC26.config && FC26.config.pro) || {};
+  const proOn = () => Boolean(proConfig().price);
+  const isPro = () => st.pro;
+
+  // ---------- Daily challenge feed ----------
+
+  /** Feed addresses: this site's when it's hosted, the configured one otherwise (a downloaded file, localhost). */
+  function feedUrls() {
+    const hosted = /^https?:$/.test(root.location.protocol) && !/^(localhost|127\.|\[::1\])/.test(root.location.hostname);
+    const base = hosted ? `${root.location.origin}${root.location.pathname.replace(/[^/]*$/, '')}` : String((FC26.config && FC26.config.siteUrl) || '').replace(/\/?$/, '/');
+    const ics = `${base}feeds/daily.ics`;
+    const webcal = ics.replace(/^https?:/, 'webcal:');
+    return { ics, webcal, rss: `${base}feeds/daily.xml`, google: `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcal)}` };
+  }
+
+  // ---------- Reminders ----------
+
+  const reminders = () => Object.assign({ daily: false, time: '09:00', friends: false, last: '' }, deps.storageGet(REMIND_KEY, {}));
+  const setReminders = (change) => deps.storageSet(REMIND_KEY, Object.assign(reminders(), change));
+  const canNotify = () => 'Notification' in root;
+
+  async function registerWorker() {
+    if (worker || !('serviceWorker' in navigator) || !/^https?:$/.test(root.location.protocol)) return worker;
+    try { worker = await navigator.serviceWorker.register('sw.js'); } catch (e) { worker = null; }
+    return worker;
+  }
+
+  /** Show a notification; clicking it opens `hash` on the site. False if it couldn't be shown. */
+  async function notify(title, body, tag, hash) {
+    if (!canNotify() || Notification.permission !== 'granted') return false;
+    const url = `${root.location.pathname}${root.location.search}${hash || ''}`;
+    try {
+      const reg = await registerWorker();
+      if (reg && reg.showNotification) {
+        await reg.showNotification(title, { body, tag, data: { url } });
+        return true;
+      }
+      const n = new Notification(title, { body, tag });
+      n.onclick = () => { root.focus(); if (hash) root.location.hash = hash; n.close(); };
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /** Remind at the chosen time each day, unless today's challenge was already opened. */
+  function scheduleReminder() {
+    clearTimeout(reminderTimer);
+    const r = reminders();
+    if (!r.daily || !FC26.daily) return;
+    const [h, m] = String(r.time || '09:00').split(':').map(Number);
+    const now = new Date();
+    const at = new Date(now);
+    at.setHours(h || 0, m || 0, 0, 0);
+    if (at <= now) at.setDate(at.getDate() + 1);
+    reminderTimer = setTimeout(async () => {
+      const key = FC26.daily.dateKey(new Date());
+      const again = reminders();
+      if (again.daily && again.last !== key && !deps.dailySeen(key)) {
+        const ch = FC26.daily.challenge(key);
+        if (await notify("📅 Today's FC 26 challenge is ready", `Daily #${ch.daily.number}: ${ch.title}`, 'fc26-daily', '#daily')) setReminders({ last: key });
+      }
+      scheduleReminder();
+    }, Math.min(at - now, 2147000000));
+  }
+
+  async function askPermission() {
+    if (!canNotify()) return 'unsupported';
+    if (Notification.permission === 'default') {
+      try { await Notification.requestPermission(); } catch (e) { /* old Safari: callback form only */ }
+    }
+    return Notification.permission;
+  }
+
+  // ---------- Following ----------
+
+  async function loadMine() {
+    const d = data();
+    if (!d || !uid) return;
+    try {
+      const [profile, follows] = await Promise.all([d.get(`profiles/${uid}`), d.get(`follows/${uid}`)]);
+      st.profile = profile;
+      st.following = follows && Array.isArray(follows.uids) ? follows.uids.slice(0, MAX_FOLLOWS) : [];
+      st.error = '';
+    } catch (e) {
+      st.error = friendlyError(e);
+    }
+  }
+
+  function friendlyError(e) {
+    const code = (e && e.code) || '';
+    if (/permission-denied/.test(code) || /insufficient permissions/i.test(String(e && e.message))) {
+      return "The database refused that. If you run this copy of the app, publish the latest firestore.rules in Firebase (see the README).";
+    }
+    if (/unavailable|network/i.test(code)) return 'No connection. Check your internet and try again.';
+    return (e && e.message) || 'Something went wrong. Try again.';
+  }
+
+  /** What a follower sees of one saved challenge. */
+  async function summary(e) {
+    const ch = e.challenge;
+    const total = ch.roadmap.reduce((n, s) => n + s.objectives.length, 0) + 1;
+    let link = '';
+    try { link = await deps.shareHash(ch); } catch (err) { link = ''; }
+    return {
+      id: String(e.id), title: String(ch.title).slice(0, 120), club: String(ch.club.name).slice(0, 60), mode: ch.mode === 'player' ? 'player' : 'manager',
+      difficulty: String(ch.difficultyName || ''), icon: String(ch.archetype.icon || '⚽'), seasons: Number(ch.seasons) || 0,
+      done: Object.values(e.progress || {}).filter(Boolean).length, total, savedAt: Number(e.savedAt) || 0,
+      link: link.length <= 3000 ? link : '',
+    };
+  }
+
+  async function publish() {
+    const d = data();
+    if (!d || !uid || !st.profile) return;
+    const shared = Boolean(st.profile.shared);
+    const challenges = shared ? await Promise.all(deps.entries().slice(0, MAX_SHARED).map(summary)) : [];
+    st.profile = Object.assign({}, st.profile, { challenges, pro: st.pro, updated: Date.now() });
+    await d.set(`profiles/${uid}`, st.profile);
+  }
+
+  async function claimHandle(raw, name) {
+    const d = data();
+    const handle = String(raw || '').trim().toLowerCase().replace(/^@/, '');
+    if (!HANDLE_RE.test(handle)) throw new Error('Usernames are 3 to 20 letters, numbers or _.');
+    const mine = st.profile && st.profile.handle;
+    if (handle !== mine) {
+      const taken = await d.get(`handles/${handle}`);
+      if (taken && taken.uid !== uid) throw new Error(`@${handle} is taken. Try another.`);
+      try {
+        if (!taken) await d.set(`handles/${handle}`, { uid });
+      } catch (e) {
+        throw new Error(/permission/i.test(String(e.code || e.message)) ? `@${handle} is taken. Try another.` : friendlyError(e));
+      }
+      if (mine) await d.remove(`handles/${mine}`).catch(() => {});
+    }
+    st.profile = Object.assign({ shared: false, challenges: [] }, st.profile, { handle, name: String(name || '').trim().slice(0, 40), pro: st.pro, updated: Date.now() });
+    await d.set(`profiles/${uid}`, st.profile);
+  }
+
+  async function follow(raw) {
+    const d = data();
+    const handle = String(raw || '').trim().toLowerCase().replace(/^@/, '');
+    if (!HANDLE_RE.test(handle)) throw new Error('Type their username, e.g. @gaffer99.');
+    const hit = await d.get(`handles/${handle}`);
+    if (!hit || !hit.uid) throw new Error(`Nobody is called @${handle}.`);
+    if (hit.uid === uid) throw new Error("That's you!");
+    if (st.following.includes(hit.uid)) throw new Error(`You already follow @${handle}.`);
+    if (st.following.length >= MAX_FOLLOWS) throw new Error(`You can follow up to ${MAX_FOLLOWS} people.`);
+    st.following = st.following.concat(hit.uid);
+    await d.set(`follows/${uid}`, { uids: st.following });
+    return handle;
+  }
+
+  async function unfollow(who) {
+    const d = data();
+    st.following = st.following.filter((x) => x !== who);
+    st.feed = st.feed.filter((f) => f.uid !== who);
+    await d.set(`follows/${uid}`, { uids: st.following });
+  }
+
+  /** Everyone you follow with their shared challenges; counts (and announces) new ones. */
+  async function refreshFeed(announce) {
+    const d = data();
+    if (!d || !uid) return;
+    const profiles = await Promise.all(st.following.map((who) => d.get(`profiles/${who}`).then((p) => p && Object.assign({ uid: who }, p)).catch(() => null)));
+    st.feed = profiles.filter(Boolean);
+    const seen = deps.storageGet(SEEN_KEY, {});
+    const fresh = [];
+    st.feed.forEach((f) => {
+      const newest = Math.max(0, ...(f.challenges || []).map((c) => Number(c.savedAt) || 0));
+      if (seen[f.uid] && newest > seen[f.uid]) fresh.push(...(f.challenges || []).filter((c) => c.savedAt > seen[f.uid]).map((c) => [f, c]));
+      if (!seen[f.uid] || announce === 'seen') seen[f.uid] = newest || 1;
+    });
+    st.newCount = fresh.length;
+    if (announce === 'seen') st.newCount = 0;
+    deps.storageSet(SEEN_KEY, seen);
+    syncDot();
+    if (announce === true && fresh.length && reminders().friends) {
+      const [f, c] = fresh[0];
+      notify(`👥 @${f.handle} saved a new challenge`, `${c.icon} ${c.title}${fresh.length > 1 ? ` (+${fresh.length - 1} more)` : ''}`, 'fc26-friends', '');
+    }
+  }
+
+  // ---------- Pro ----------
+
+  function applyAccent() {
+    const accent = st.pro ? deps.storageGet(ACCENT_KEY, '') : '';
+    if (accent) document.documentElement.dataset.accent = accent;
+    else delete document.documentElement.dataset.accent;
+  }
+
+  function watchPro() {
+    if (stopPro) stopPro();
+    stopPro = null;
+    const d = data();
+    if (!d || !uid || !proOn()) return;
+    stopPro = d.watchAll(`customers/${uid}/subscriptions`, (subs) => {
+      const was = st.pro;
+      st.pro = subs.some((s) => s.status === 'active' || s.status === 'trialing');
+      deps.storageSet(PRO_KEY, st.pro);
+      applyAccent();
+      if (was !== st.pro && st.profile) publish().catch(() => {});
+      render();
+    });
+  }
+
+  /** Start a Stripe Checkout for the Pro price (the extension writes back its address). */
+  async function checkout() {
+    const d = data();
+    const here = `${root.location.origin}${root.location.pathname}`;
+    const id = await d.add(`customers/${uid}/checkout_sessions`, {
+      price: proConfig().price, mode: 'subscription', allow_promotion_codes: true, success_url: `${here}#pro=welcome`, cancel_url: here,
+    });
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => { stop(); reject(new Error("Checkout didn't start. If you run this copy of the app, check the Stripe extension in Firebase.")); }, 25000);
+      const stop = d.watch(`customers/${uid}/checkout_sessions/${id}`, (s) => {
+        if (s && s.url) { clearTimeout(timer); stop(); root.location.assign(s.url); resolve(); }
+        if (s && s.error) { clearTimeout(timer); stop(); reject(new Error(s.error.message || 'Checkout failed.')); }
+      });
+    });
+  }
+
+  async function portal() {
+    const res = await data().call('ext-firestore-stripe-payments-createPortalLink', { returnUrl: `${root.location.origin}${root.location.pathname}`, locale: 'auto' }, proConfig().region);
+    root.location.assign(res.url);
+  }
+
+  // ---------- The panel ----------
+
+  function syncDot() {
+    const dot = document.getElementById('subs-dot');
+    if (dot) dot.hidden = !st.newCount;
+  }
+
+  function feedSection() {
+    const u = feedUrls();
+    return `
+      <section class="subs-sec">
+        <h3>📅 Daily challenge feed</h3>
+        <p class="muted">Every day's new challenge, straight into your calendar or feed reader. Free, no account needed.</p>
+        <div class="subs-actions">
+          <a class="btn btn-small btn-primary" href="${esc(u.google)}" target="_blank" rel="noopener">📆 Google Calendar</a>
+          <a class="btn btn-small" href="${esc(u.webcal)}">🍎 Apple / Outlook</a>
+          <a class="btn btn-small" href="${esc(u.rss)}" target="_blank" rel="noopener">📰 RSS feed</a>
+          <button type="button" class="btn btn-small" data-subs="copy">🔗 Copy calendar link</button>
+        </div>
+      </section>`;
+  }
+
+  function remindSection() {
+    const r = reminders();
+    const perm = canNotify() ? Notification.permission : 'unsupported';
+    const note = perm === 'unsupported' ? "This browser can't show notifications. On an iPhone, add the site to your Home Screen first."
+      : perm === 'denied' ? 'Notifications are blocked for this site: allow them in your browser’s site settings, then come back.'
+        : 'They come as notifications while the site is open in a tab (it can be in the background).';
+    return `
+      <section class="subs-sec">
+        <h3>🔔 Reminders</h3>
+        <label class="toggle"><input type="checkbox" data-subs-field="daily" ${r.daily ? 'checked' : ''} ${perm === 'unsupported' ? 'disabled' : ''}>
+          Remind me about the daily challenge at <input type="time" class="subs-time" data-subs-field="time" value="${esc(r.time)}" aria-label="Reminder time"></label>
+        <label class="toggle"><input type="checkbox" data-subs-field="friends" ${r.friends ? 'checked' : ''} ${perm === 'unsupported' ? 'disabled' : ''}>
+          Tell me when someone I follow saves a challenge</label>
+        <p class="muted small">${esc(note)}</p>
+        ${perm === 'granted' ? '<button type="button" class="btn btn-small" data-subs="test">Send a test</button>' : ''}
+      </section>`;
+  }
+
+  function friendCard(f) {
+    const list = (f.challenges || []).slice(0, 3);
+    return `
+      <li class="friend">
+        <div class="friend-head">
+          <span class="avatar">${esc(String(f.name || f.handle || '?').slice(0, 1).toUpperCase())}</span>
+          <span class="friend-name"><span><strong>@${esc(f.handle)}</strong>${f.pro ? ' <span class="pro-badge">⭐ PRO</span>' : ''}</span>
+            <small class="muted">${esc(f.name || '')}${f.shared ? ` · ${(f.challenges || []).length} challenge${(f.challenges || []).length === 1 ? '' : 's'}` : ' · not sharing yet'}</small></span>
+          <button type="button" class="btn btn-small" data-subs="unfollow" data-uid="${esc(f.uid)}">Unfollow</button>
+        </div>
+        ${list.length ? `<ul class="friend-list">${list.map((c) => `
+          <li><span class="fc-icon">${esc(c.icon)}</span><span class="fc-main"><strong>${esc(c.title)}</strong>
+            <small class="muted">${esc([c.difficulty, c.mode === 'player' ? 'Player Career' : '', `${c.done}/${c.total} ✅`].filter(Boolean).join(' · '))}</small></span>
+            ${c.link ? `<button type="button" class="btn btn-small" data-subs="open" data-link="${esc(c.link)}">Open</button>` : ''}</li>`).join('')}</ul>` : ''}
+      </li>`;
+  }
+
+  function followSection() {
+    let body;
+    if (account.status === 'off') body = '<p class="muted">Following needs accounts, which aren’t switched on for this copy of the app.</p>';
+    else if (account.status === 'loading') body = '<p class="muted">Connecting…</p>';
+    else if (account.status !== 'signed-in') body = '<p class="muted">Follow friends to see the challenges they save, and share yours.</p><button type="button" class="btn btn-small btn-primary" data-subs="signin">👤 Sign in</button>';
+    else if (!st.profile || !st.profile.handle || st.editing) {
+      body = `
+        <p class="muted">${st.profile && st.profile.handle ? 'Change your username.' : 'Pick a username so friends can find you.'}</p>
+        <form class="subs-form" data-subs-form="handle">
+          <label class="field"><span>Username</span><input name="handle" maxlength="21" placeholder="@gaffer99" value="${esc(st.profile && st.profile.handle ? `@${st.profile.handle}` : '')}" autocomplete="off" required></label>
+          <label class="field"><span>Name (optional)</span><input name="name" maxlength="40" placeholder="What friends see" value="${esc((st.profile && st.profile.name) || (account.user && account.user.name) || '')}"></label>
+          <button type="submit" class="btn btn-small btn-primary">Save</button>
+        </form>`;
+    } else {
+      body = `
+        <div class="me-row"><span>You're <strong>@${esc(st.profile.handle)}</strong>${st.pro ? ' <span class="pro-badge">⭐ PRO</span>' : ''}</span>
+          <button type="button" class="login-link" data-subs="edit">Change</button></div>
+        <label class="toggle"><input type="checkbox" data-subs-field="shared" ${st.profile.shared ? 'checked' : ''}> Share my saved challenges with people who follow me</label>
+        <form class="subs-form subs-inline" data-subs-form="follow">
+          <input name="handle" maxlength="21" placeholder="Follow someone: @username" aria-label="Username to follow" autocomplete="off">
+          <button type="submit" class="btn btn-small btn-primary">Follow</button>
+        </form>
+        ${st.feed.length ? `<ul class="friends">${st.feed.map(friendCard).join('')}</ul>`
+    : `<p class="muted small">${st.following.length ? 'Loading…' : 'You don’t follow anyone yet.'}</p>`}`;
+    }
+    return `<section class="subs-sec"><h3>👥 Following</h3>${body}</section>`;
+  }
+
+  function proSection() {
+    let body;
+    if (!proOn()) body = '<p class="muted small">Pro isn’t switched on for this copy of the app yet.</p>';
+    else if (account.status !== 'signed-in') body = '<button type="button" class="btn btn-small btn-primary" data-subs="signin">👤 Sign in to go Pro</button>';
+    else if (st.pro) {
+      const accent = deps.storageGet(ACCENT_KEY, '');
+      body = `
+        <p><strong>You're Pro ⭐ Thank you!</strong></p>
+        <div class="accents" role="radiogroup" aria-label="Colour theme">${ACCENTS.map(([id, label]) => `
+          <button type="button" class="accent-chip${accent === id ? ' is-on' : ''}" data-subs="accent" data-accent="${id}" role="radio" aria-checked="${accent === id}">${esc(label)}</button>`).join('')}</div>
+        <button type="button" class="btn btn-small" data-subs="portal">Manage or cancel</button>`;
+    } else body = `<button type="button" class="btn btn-small btn-pro" data-subs="checkout">⭐ Go Pro${proConfig().label ? ` · ${esc(proConfig().label)}` : ''}</button>
+      <p class="muted small">Paid securely through Stripe. Cancel any time.</p>`;
+    return `
+      <section class="subs-sec subs-pro">
+        <h3>⭐ Pro</h3>
+        <ul class="perks">${PERKS.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>
+        ${body}
+      </section>`;
+  }
+
+  function render() {
+    if (!modal || modal.hidden) return;
+    modal.querySelector('.subs-card').innerHTML = `
+      <button type="button" class="icon-btn subs-close" data-subs="close" aria-label="Close">✕</button>
+      <h2 id="subs-title">🔔 Subscriptions</h2>
+      ${st.error ? `<p class="login-error">${esc(st.error)}</p>` : ''}
+      ${st.busy ? `<p class="muted small">${esc(st.busy)}</p>` : ''}
+      ${feedSection()}${remindSection()}${followSection()}${proSection()}`;
+  }
+
+  async function act(label, fn) {
+    st.busy = label;
+    st.error = '';
+    render();
+    try {
+      await fn();
+    } catch (e) {
+      st.error = e && e.message ? e.message : friendlyError(e);
+    }
+    st.busy = '';
+    render();
+  }
+
+  function open() {
+    modal.hidden = false;
+    document.body.classList.add('modal-open');
+    render();
+    modal.querySelector('.subs-close').focus();
+    if (account.status === 'signed-in') act('', async () => { await loadMine(); await refreshFeed('seen'); });
+  }
+
+  function close() {
+    modal.hidden = true;
+    document.body.classList.remove('modal-open');
+    st.editing = false;
+    const btn = document.getElementById('subs-btn');
+    if (btn) btn.focus();
+  }
+
+  function onClick(e) {
+    if (e.target === modal) return close();
+    const b = e.target.closest('[data-subs]');
+    if (!b) return undefined;
+    switch (b.dataset.subs) {
+      case 'close': return close();
+      case 'signin': close(); return document.getElementById('account-btn').click();
+      case 'copy':
+        return navigator.clipboard.writeText(feedUrls().ics).then(() => deps.toast('Calendar link copied 🔗'), () => deps.toast(feedUrls().ics));
+      case 'test':
+        return notify('🔔 Reminders are on', "This is what a reminder looks like. See you for today's challenge!", 'fc26-test', '#daily')
+          .then((ok) => deps.toast(ok ? 'Sent a test notification' : "Couldn't show a notification in this browser"));
+      case 'edit': st.editing = true; return render();
+      case 'open':
+        close();
+        root.location.hash = b.dataset.link;
+        return undefined;
+      case 'unfollow': return act('', () => unfollow(b.dataset.uid));
+      case 'accent':
+        deps.storageSet(ACCENT_KEY, b.dataset.accent);
+        applyAccent();
+        return render();
+      case 'checkout': return act('Opening Stripe checkout…', checkout);
+      case 'portal': return act('Opening your subscription…', portal);
+      default: return undefined;
+    }
+  }
+
+  async function onChange(e) {
+    const field = e.target.dataset.subsField;
+    if (!field) return;
+    if (field === 'daily' || field === 'friends') {
+      const on = e.target.checked;
+      if (on && (await askPermission()) !== 'granted') {
+        e.target.checked = false;
+        render();
+        deps.toast('Allow notifications for this site to get reminders');
+        return;
+      }
+      setReminders({ [field]: on });
+      if (on) registerWorker();
+      scheduleReminder();
+      deps.toast(on ? (field === 'daily' ? `I'll remind you at ${reminders().time} 🔔` : "I'll tell you when friends save a challenge 👥") : 'Reminder off');
+      render();
+    } else if (field === 'time') {
+      setReminders({ time: e.target.value || '09:00' });
+      scheduleReminder();
+    } else if (field === 'shared') {
+      const on = e.target.checked;
+      act(on ? 'Sharing your challenges…' : '', async () => {
+        st.profile = Object.assign({}, st.profile, { shared: on });
+        await publish();
+        deps.toast(on ? 'Your followers can now see your challenges 👥' : 'Your challenges are private again');
+      });
+    }
+  }
+
+  function onSubmit(e) {
+    const kind = e.target.dataset.subsForm;
+    if (!kind) return;
+    e.preventDefault();
+    const f = e.target.elements;
+    if (kind === 'handle') {
+      act('Saving…', async () => {
+        await claimHandle(f.handle.value, f.name.value);
+        st.editing = false;
+        deps.toast(`You're @${st.profile.handle} 👋`);
+      });
+    } else if (kind === 'follow') {
+      act('Looking them up…', async () => {
+        const handle = await follow(f.handle.value);
+        await refreshFeed('seen');
+        deps.toast(`Following @${handle} 👥`);
+      });
+    }
+  }
+
+  // ---------- Wiring ----------
+
+  /** The app calls this when the account state changes. */
+  function onAccount(state) {
+    account = state || { status: 'off', user: null };
+    const next = account.status === 'signed-in' && account.user ? account.user.uid : null;
+    // The remembered Pro state only bridges the moment the account takes to load.
+    if (!next && account.status !== 'loading' && st.pro) {
+      st.pro = false;
+      deps.storageSet(PRO_KEY, false);
+      applyAccent();
+    }
+    if (next !== uid) {
+      uid = next;
+      st.profile = null;
+      st.following = [];
+      st.feed = [];
+      st.newCount = 0;
+      if (!uid) {
+        st.pro = false;
+        if (stopPro) stopPro();
+        stopPro = null;
+        deps.storageSet(PRO_KEY, false);
+        applyAccent();
+        syncDot();
+      } else {
+        watchPro();
+        loadMine().then(() => refreshFeed(false)).then(render).catch(() => {});
+      }
+    }
+    render();
+  }
+
+  /** The app calls this after every save: shared challenges follow along. */
+  function savesChanged() {
+    if (!st.profile || !st.profile.shared) return;
+    clearTimeout(publishTimer);
+    publishTimer = setTimeout(() => publish().catch(() => {}), 3000);
+  }
+
+  function init(d) {
+    deps = d;
+    modal = document.getElementById('subs');
+    const btn = document.getElementById('subs-btn');
+    if (!modal || !btn) return;
+    btn.addEventListener('click', open);
+    modal.addEventListener('click', onClick);
+    modal.addEventListener('change', onChange);
+    modal.addEventListener('submit', onSubmit);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) close(); });
+    // The last known Pro state, until the account says otherwise.
+    st.pro = proOn() && deps.storageGet(PRO_KEY, false) === true;
+    applyAccent();
+    scheduleReminder();
+    if (reminders().daily || reminders().friends) registerWorker();
+    // Back from Stripe Checkout.
+    if (root.location.hash === '#pro=welcome') {
+      root.history.replaceState(null, '', root.location.pathname + root.location.search);
+      deps.toast('Welcome to Pro ⭐ It can take a few seconds to show.');
+    }
+    // New challenges from people you follow, every 10 minutes while the site is open.
+    setInterval(() => { if (uid && st.following.length) refreshFeed(true).catch(() => {}); }, 600000);
+  }
+
+  FC26.subscriptions = { init, onAccount, savesChanged, isPro, feedUrls, open, ACCENTS, HANDLE_RE };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/tutorial.js */
+/*
+ * The tour: a few steps that point at each part of the app, shown on a first
+ * visit and again from the ❓ button. Each step can switch to a view first and
+ * highlights its target; steps whose target isn't on screen are skipped.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const DONE_KEY = 'fc26-tour-v1';
+
+  const STEPS = [
+    { title: 'Welcome to the FC 26 Career Challenge Builder 👋', text: "Here's a quick tour of what it does. Skip it if you like: ❓ at the top brings it back any time." },
+    { view: 'builder', target: '#options', title: '⚙️ Set it up', text: 'Pick Manager or Player Career, a difficulty, a challenge type or a club. Or leave everything on 🎲 and be surprised.' },
+    { view: 'builder', target: '#options button[type=submit]', title: '⚽ Generate a challenge', text: 'You get rules, a season-by-season roadmap and mid-season dramas. Lock 🔒 the parts you like, Reroll the rest, then 💾 Save it.' },
+    { target: '.tab[data-view=daily]', title: '📅 The daily challenge', text: 'The same challenge for everyone, every day. Compare with friends, or subscribe to get it in your calendar.' },
+    { target: '.tab[data-view=transfers]', title: '🔁 Transfers', text: "Log signings, sales and 🔄 swaps. The assistant reads moves you describe in your own words and checks them against your challenge's rules." },
+    { target: '.tab[data-view=saved]', title: '📂 My Challenges', text: "📒 Track it loads your club's squad straight from FC 26. Then tick off objectives, keep a diary, scout wonderkids and make a 🎧 Spotify soundtrack." },
+    { target: '#subs-btn', title: '🔔 Subscriptions', text: 'Get the daily challenge in your calendar, turn on reminders, follow friends, or go ⭐ Pro.' },
+    { target: '#account-btn', title: '👤 Your account', text: 'Sign in to keep your challenges on every device and to follow friends.' },
+    { target: '#help-btn', title: "That's the tour!", text: 'Bring it back from here whenever you like. Good luck with the save ⚽' },
+  ];
+
+  const store = {
+    get: (k) => { try { return root.localStorage.getItem(k); } catch (e) { return null; } },
+    set: (k, v) => { try { root.localStorage.setItem(k, v); } catch (e) { /* private mode: the tour just shows again */ } },
+  };
+
+  let deps = { showView: () => {} };
+  let el = null; // the open tour
+  let steps = [];
+  let at = 0;
+  let returnFocus = null;
+
+  const visible = (node) => {
+    if (!node) return false;
+    const r = node.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && getComputedStyle(node).visibility !== 'hidden';
+  };
+  const targetOf = (step) => (step.target ? document.querySelector(step.target) : null);
+
+  function render() {
+    const step = steps[at];
+    el.querySelector('.tour-step').textContent = `${at + 1} / ${steps.length}`;
+    el.querySelector('#tour-title').textContent = step.title;
+    el.querySelector('.tour-text').textContent = step.text;
+    el.querySelector('[data-tour=back]').hidden = at === 0;
+    el.querySelector('[data-tour=next]').textContent = at === steps.length - 1 ? 'Done' : at === 0 ? 'Start the tour' : 'Next';
+    el.querySelector('.tour-dots').innerHTML = steps.map((_, i) => `<span class="${i === at ? 'is-on' : ''}"></span>`).join('');
+    const target = targetOf(step);
+    if (target) target.scrollIntoView({ block: 'center', inline: 'nearest' });
+    place();
+    el.querySelector('.tour-card').focus({ preventScroll: true });
+  }
+
+  /** Put the highlight on the target and the card next to it, inside the screen. */
+  function place() {
+    if (!el) return;
+    const target = targetOf(steps[at]);
+    const spot = el.querySelector('.tour-spot');
+    const card = el.querySelector('.tour-card');
+    const W = root.innerWidth;
+    const H = root.innerHeight;
+    const narrow = W < 640;
+    card.style.width = narrow ? `${W - 24}px` : '';
+    const cw = card.offsetWidth;
+    const ch = card.offsetHeight;
+    el.classList.toggle('is-centered', !target);
+    if (!target) {
+      spot.hidden = true;
+      card.style.left = `${Math.max(12, (W - cw) / 2)}px`;
+      card.style.top = `${Math.max(12, (H - ch) / 2)}px`;
+      return;
+    }
+    const r = target.getBoundingClientRect();
+    const pad = 6;
+    // On phones the tab bar sits along the bottom: keep the card above it (unless it's the target).
+    const tabs = document.querySelector('.tabs');
+    const tr = tabs && tabs.getBoundingClientRect();
+    const floor = tr && tr.top > H / 2 && !tabs.contains(target) ? tr.top : H;
+    // ...and the header along the top, which stays put while the page scrolls under it.
+    const header = document.querySelector('.topbar');
+    const hr = header && !header.contains(target) && /sticky|fixed/.test(getComputedStyle(header).position) ? header.getBoundingClientRect() : null;
+    const ceiling = hr && hr.top <= 0 ? hr.bottom : 0;
+    spot.hidden = false;
+    const spotTop = Math.max(4, ceiling + 4, r.top - pad);
+    const spotBottom = Math.min(H - 4, r.bottom + pad);
+    Object.assign(spot.style, { left: `${r.left - pad}px`, top: `${spotTop}px`, width: `${r.width + pad * 2}px`, height: `${Math.max(0, spotBottom - spotTop)}px` });
+    const clampY = (y) => Math.max(12, Math.min(floor - ch - 12, y));
+    const below = r.bottom + pad + 12;
+    const above = r.top - pad - 12 - ch;
+    let left = narrow ? 12 : Math.max(12, Math.min(W - cw - 12, r.left + r.width / 2 - cw / 2));
+    let top;
+    if (below + ch <= floor - 12) top = below;
+    else if (above >= 12) top = above;
+    // Too tall to go above or below: beside it on a wide screen, at the bottom on a phone.
+    else if (!narrow && r.right + 24 + cw <= W) { left = r.right + 12; top = clampY(r.top); }
+    else if (!narrow && r.left - 24 - cw >= 0) { left = r.left - 12 - cw; top = clampY(r.top); }
+    else top = clampY(floor - ch - 12);
+    card.style.left = `${left}px`;
+    card.style.top = `${top}px`;
+  }
+
+  function go(i) {
+    if (i < 0) return;
+    if (i >= steps.length) { finish(); return; }
+    at = i;
+    const step = steps[at];
+    if (step.view) deps.showView(step.view);
+    // The view may have changed what's on screen: skip steps whose target isn't there.
+    if (step.target && !visible(targetOf(step))) {
+      steps.splice(at, 1);
+      go(at);
+      return;
+    }
+    render();
+  }
+
+  function onKey(e) {
+    if (!el) return;
+    if (e.key === 'Escape') { e.preventDefault(); finish(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); go(at + 1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); go(at - 1); }
+  }
+
+  function finish() {
+    store.set(DONE_KEY, 'done');
+    if (!el) return;
+    el.remove();
+    el = null;
+    document.body.classList.remove('touring');
+    root.removeEventListener('resize', place);
+    root.removeEventListener('scroll', place, true);
+    document.removeEventListener('keydown', onKey);
+    if (returnFocus && returnFocus.focus) returnFocus.focus();
+  }
+
+  function start() {
+    if (el) return;
+    returnFocus = document.activeElement;
+    steps = STEPS.filter((step) => !step.target || document.querySelector(step.target));
+    el = document.createElement('div');
+    el.className = 'tour';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-labelledby', 'tour-title');
+    el.innerHTML = `
+      <div class="tour-spot" hidden></div>
+      <div class="tour-card" tabindex="-1">
+        <div class="tour-step muted"></div>
+        <h3 id="tour-title"></h3>
+        <p class="tour-text" aria-live="polite"></p>
+        <div class="tour-dots" aria-hidden="true"></div>
+        <div class="tour-actions">
+          <button type="button" class="link-btn tour-skip" data-tour="skip">Skip the tour</button>
+          <button type="button" class="btn btn-small" data-tour="back">Back</button>
+          <button type="button" class="btn btn-small btn-primary" data-tour="next">Next</button>
+        </div>
+      </div>`;
+    el.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-tour]');
+      if (!b) return;
+      if (b.dataset.tour === 'skip') finish();
+      else go(at + (b.dataset.tour === 'next' ? 1 : -1));
+    });
+    document.body.appendChild(el);
+    document.body.classList.add('touring');
+    root.addEventListener('resize', place);
+    root.addEventListener('scroll', place, true);
+    document.addEventListener('keydown', onKey);
+    go(0);
+  }
+
+  /** Set up the ❓ button, and start the tour on a first visit (not when opening a shared challenge). */
+  function init(d) {
+    deps = Object.assign(deps, d);
+    const btn = document.getElementById('help-btn');
+    if (btn) btn.addEventListener('click', start);
+    const shared = /^#[cx]=/.test(root.location.hash);
+    // Wait for any open dialog (the sign-in offer on a first visit) to close first.
+    const later = () => {
+      if (store.get(DONE_KEY)) return;
+      if (document.querySelector('.modal:not([hidden])')) setTimeout(later, 600);
+      else start();
+    };
+    if (!store.get(DONE_KEY) && !shared) setTimeout(later, 700);
+  }
+
+  FC26.tutorial = { init, start, finish, STEPS, DONE_KEY, isOpen: () => Boolean(el) };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
   <script>/* js/app.js */
 /* UI for the FC 26 Career Challenge Builder. */
 (function () {
   'use strict';
-  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker, playerDB: PlayerDB, account: Account, login: Login, spotify: Spotify } = window.FC26;
+  const { data, modes, generator: G, daily: Daily, shareImage, compliance: Compliance, trackerUI: Tracker, playerDB: PlayerDB, account: Account, login: Login, spotify: Spotify, tutorial: Tutorial, subscriptions: Subs } = window.FC26;
 
   const STORE_KEY = 'fc26-challenges-v1';
   const OPTIONS_KEY = 'fc26-options-v1';
@@ -10085,7 +10955,10 @@ Aleksei Miranchuk|Russian|CAM
     Account.stampChanges(Array.isArray(before) ? before : [], list, deleted, Date.now());
     const ok = storageSet(STORE_KEY, list);
     storageSet(DELETED_KEY, deleted);
-    if (ok) Account.changed();
+    if (ok) {
+      Account.changed();
+      Subs.savesChanged();
+    }
     return ok;
   }
 
@@ -10755,8 +11628,14 @@ Aleksei Miranchuk|Russian|CAM
     $('#saved-count').textContent = loadSaved().length;
     initTheme();
     initMoreOptions();
+    Subs.init({
+      esc, toast, storageGet, storageSet, entries: loadSaved,
+      dailySeen: (key) => loadCheckins().includes(key),
+      shareHash: async (ch) => (await shareUrl(ch)).split('#')[1] || '',
+    });
     initAccount();
     initSoundtrack();
+    Tutorial.init({ showView });
     syncDailyDot();
     setInterval(tickDaily, 30000);
     if (window.location.hash === '#daily') showView('daily');
@@ -10834,7 +11713,7 @@ Aleksei Miranchuk|Russian|CAM
         if (!$('#view-saved').hidden) renderSaved(open ? open.dataset.id : null);
         if (!$('#view-transfers').hidden) renderTransfersView();
       },
-      onChange: onAccountChange,
+      onChange: (st) => { onAccountChange(st); Subs.onAccount(st); },
     });
     // Pick up changes made on another device when coming back to this tab.
     document.addEventListener('visibilitychange', () => { if (!document.hidden) Account.changed(); });

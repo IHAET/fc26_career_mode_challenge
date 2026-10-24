@@ -1002,3 +1002,35 @@ test('a swap is read from a sentence, checked as two moves and logged as both', 
   assert.deepEqual(after.players.map((x) => x.name).sort(), ['Victor Osimhen', 'Young Yaw']);
   assert.equal(after.transfers.length, 2);
 });
+
+// ---------- Subscriptions: daily challenge feeds ----------
+
+test('the daily feeds hold each day\'s challenge, as a valid calendar and RSS', () => {
+  const F = require('../scripts/build-feeds.js');
+  const D = globalThis.FC26.daily;
+  const days = ['2026-10-22', '2026-10-23', '2026-10-24'];
+  const ics = F.calendar(days);
+  assert.match(ics, /^BEGIN:VCALENDAR\r\n/);
+  assert.match(ics, /END:VCALENDAR\r\n$/);
+  assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, 3);
+  assert.match(ics, /DTSTART;VALUE=DATE:20261023\r\nDTEND;VALUE=DATE:20261024/);
+  // Lines fold at 75 bytes, never inside a character.
+  assert.ok(ics.split('\r\n').every((l) => Buffer.byteLength(l) <= 75), 'a line is over 75 bytes');
+  const unfolded = ics.replace(/\r\n /g, '');
+  assert.ok(unfolded.includes(`SUMMARY:⚽ FC 26 Daily #2: ${F.icsText(D.challenge('2026-10-23').title)}`));
+  // The link opens that day's challenge.
+  const url = unfolded.match(/URL:(\S+)/)[1];
+  const key = JSON.parse(Buffer.from(url.split('#c=')[1], 'base64url').toString());
+  assert.equal(G.fromShareKey(key).title, D.challenge('2026-10-22').title);
+  const rss = F.rss(days);
+  assert.equal((rss.match(/<item>/g) || []).length, 3);
+  assert.ok(rss.indexOf('fc26-daily-2026-10-24') < rss.indexOf('fc26-daily-2026-10-22'), 'newest first');
+  assert.ok(!/<item>[\s\S]*<script/i.test(rss));
+  assert.equal(F.icsText('a, b; c\\d\ne'), 'a\\, b\\; c\\\\d\\ne');
+});
+
+test('usernames for following are short, lower-case and safe', () => {
+  const S = globalThis.FC26.subscriptions;
+  ['gaffer_99', 'abc', 'a_b_c_d_e_f_g_h_i_jk'].forEach((h) => assert.ok(S.HANDLE_RE.test(h), h));
+  ['ab', 'Gaffer', 'has space', 'x'.repeat(21), 'dot.name', '<b>'].forEach((h) => assert.ok(!S.HANDLE_RE.test(h), h));
+});

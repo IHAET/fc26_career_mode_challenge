@@ -21,5 +21,12 @@
     },
     // Spotify soundtracks: the Client ID of your app on developer.spotify.com.
     spotifyClientId: 'ff827bba45294114a91167c8870f5826',
+    // Where the site lives, for the daily challenge calendar and RSS feeds.
+    siteUrl: 'https://ihaet.github.io/fc26_career_mode_challenge/',
+    // ⭐ Pro, a paid monthly plan, runs on Stripe through Firebase's "Run Payments
+    // with Stripe" extension. Off until a Stripe price id is filled in, e.g.
+    // { price: 'price_123', label: '€2.99 a month', region: 'europe-west2' }
+    // (region: where the extension's functions run). See "Pro plan" in the README.
+    pro: { price: '', label: '', region: 'us-central1' },
   }, FC26.config);
 })(typeof window !== 'undefined' ? window : globalThis);

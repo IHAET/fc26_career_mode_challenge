@@ -26,6 +26,8 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **🧬 Regens**: signings are matched against every squad player plus a hand-written list of well-known players. A known player's club, age, nationality and position are filled in as you type. Anyone it doesn't recognise is marked as a regen, as are academy promotions. Untick it for a real player it doesn't know and it remembers them.
 - **🎧 Spotify soundtracks (optional)**: make a playlist for a save from your favourite genres plus ones that fit the club, the challenge and your squad.
 - **👤 Accounts (optional)**: sign in with email and password or Google, and your saved challenges, trackers, diaries and confirmed players sync across your devices. Without an account (or before accounts are set up) everything stays on the device as before. See "Accounts and Spotify" below.
+- **🎓 Tour**: a short walkthrough of the app on your first visit (Skip, Back, Next, arrow keys, Esc). ❓ in the top bar shows it again.
+- **🔔 Subscriptions** (🔔 in the top bar): the daily challenge as a calendar you subscribe to (Google Calendar, Apple Calendar, Outlook) or an RSS feed; reminder notifications for the daily challenge and for friends' new challenges; **following** friends by username to see the challenges they share and open them; and **⭐ Pro**, an optional paid plan (a Pro badge, five colour themes, 75 and 100-track soundtracks). See "Subscriptions, following and Pro" below.
 - **Quick start**: one-click cards on the Builder (Surprise me, Club Heritage, Road to Glory, Player Career, Legendary, today's daily), and a short club reel while a challenge is drawn.
 - **Light and dark themes** (☀️/🌙 in the top bar; follows your system until you pick), and a bottom tab bar on phones.
 - **🔭 Wonderkid scout**: a Scout tab on every tracked Manager Career challenge (and in the Transfers section) suggests young players from all 432 squads, best prospects first. A hand-picked list of widely rated talents (⭐, e.g. Lamine Yamal, Franco Mastantuono, Estêvão) comes first, then youth and the level of the club. Every suggestion is checked against the challenge's rules (✅ fits / ❌ which rule it breaks); filter by position, age, league or name, keep a 🎯 shortlist on the save, and **Sign** fills in the transfer form. Ratings and potential aren't included (they're EA's), so confirm them with your scouts in the game.
@@ -80,7 +82,7 @@ Each user's saves are one Firestore document (`users/<uid>`). When a device sign
 
 ### Spotify soundtracks
 
-**🎧 Soundtrack** on a saved challenge makes a private Spotify playlist for that save. It mixes the genres you play most (from your top artists) with genres that fit the save: the club's country (britpop for an English club, flamenco for a Spanish one), the challenge's mood (punk for Underdog in Europe, classic rock for Dad's Army) and the biggest nationalities in your tracked squad (afrobeats for a Nigerian core). Tick or untick genres, add your own, and pick 20, 30 or 50 tracks. To switch it on:
+**🎧 Soundtrack** on a saved challenge makes a private Spotify playlist for that save. It mixes the genres you play most (from your top artists) with genres that fit the save: the club's country (britpop for an English club, flamenco for a Spanish one), the challenge's mood (punk for Underdog in Europe, classic rock for Dad's Army) and the biggest nationalities in your tracked squad (afrobeats for a Nigerian core). Tick or untick genres, add your own, and pick 20, 30 or 50 tracks (75 or 100 with Pro). To switch it on:
 
 1. Create an app at [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) (choose **Web API**).
 2. Add the app's address as a **Redirect URI**, exactly: `https://<your-username>.github.io/fc26_career_mode_challenge/` (for local testing, `http://127.0.0.1:8080/`).
@@ -88,6 +90,23 @@ Each user's saves are one Firestore document (`users/<uid>`). When a device sign
 4. New Spotify apps start in development mode, where only accounts you add under **User Management** (up to 5) can connect, and only while the app's owner has Spotify Premium. That's fine for you and a few friends; opening it to everyone needs Spotify's approval.
 
 It only uses what Spotify still opens to apps in development mode after its February 2026 changes (your top artists, search, `POST /me/playlists` and `POST /playlists/{id}/items`), and it needs the hosted page: Spotify can't send you back to a downloaded file.
+
+## Subscriptions, following and Pro
+
+**Daily challenge feeds** need nothing set up: CI builds `feeds/daily.ics` (a week back, two months ahead) and `feeds/daily.xml` (RSS, the last two weeks) with `scripts/build-feeds.js` on every deploy and once a day. Each entry links to that day's challenge.
+
+**Reminders** are browser notifications shown while the site is open in a tab (it can be in the background). `sw.js` is only there so phones can show them; it caches nothing. On an iPhone, notifications need the site added to the Home Screen.
+
+**Following** uses the Firebase account. After updating, paste the latest `firestore.rules` into **Firestore Database → Rules** and press **Publish**: it adds `profiles` (readable by signed-in users, written only by their owner), `handles` (unique usernames) and `follows` (private). Sharing your challenges with followers is off until you tick it.
+
+**⭐ Pro** is off until you set it up, and it involves real money, so it needs an adult's Stripe account:
+
+1. Create a [Stripe](https://stripe.com) account (you must be 18 or over) and, under **Product catalogue**, a product with a monthly price. Copy the price id (`price_…`).
+2. In Firebase, upgrade the project to the **Blaze** (pay as you go) plan, which extensions need; small projects stay within the free allowance.
+3. Install the **Run Payments with Stripe** extension (`invertase/firestore-stripe-payments`) with the default collection names (`customers`, `products`), give it your Stripe secret key, and add the webhook it shows in Stripe (**Developers → Webhooks**) with the events it lists. Turn on Stripe's customer portal (**Settings → Billing → Customer portal**) so people can cancel.
+4. Fill in `pro` in `js/config.js`: `{ price: 'price_…', label: '€2.99 a month', region: '<the extension's region>' }`, publish the latest `firestore.rules`, rebuild and push.
+
+The app has no server of its own, so Pro is checked in the browser: it unlocks looks and bigger playlists, not anything that needs protecting.
 
 ## Squad data
 
@@ -145,10 +164,14 @@ npm test         # node --test (Node 18+)
 | `js/achievements.js` | Achievements worked out from your saves |
 | `js/scout.js` | Wonderkid scout: young players from the squad data, ranked, with the hand-picked talent list |
 | `js/spotify.js` | Spotify soundtracks: PKCE sign-in, genres for a save, playlist building and the panel on saved challenges |
-| `firestore.rules` | Firestore security rules: each user can only reach their own saves |
+| `firestore.rules` | Firestore security rules: own saves only, public profiles and usernames, private follows, the Stripe extension's collections |
+| `js/tutorial.js` | The first-visit tour and the ❓ button |
+| `js/subscriptions.js` | 🔔 Subscriptions: feed links, reminders, following, Pro |
+| `sw.js` | Service worker for reminder notifications on phones (no caching) |
+| `scripts/build-feeds.js` | Builds the daily challenge calendar and RSS feeds (run by CI) |
 | `styles.css` | Styling (responsive down to phone width) |
 | `scripts/build-single.js` | Bundles everything into the single-file version |
-| `.github/workflows/pages.yml` | CI: tests, checks the single file is fresh, deploys to GitHub Pages |
+| `.github/workflows/pages.yml` | CI: tests, checks the single file is fresh, builds the feeds, deploys to GitHub Pages (also daily) |
 
 To add a heritage challenge, add an entry to the right file in `js/heritage/`, keyed by the club's name as written in `js/data.js`. List any rule topics it covers in `blockTags`. The tests flag a core rule that overlaps an extra rule without blocking it. To pin one season's target (e.g. "win the league in your first season up"), use `seasonGoal`.
 

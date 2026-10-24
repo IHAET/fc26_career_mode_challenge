@@ -6,6 +6,9 @@
  * FC26.config.firebase), or anything with the same methods via useAdapter().
  *   onUser(cb), signIn(email, pw), signUp(email, pw), reset(email), google(),
  *   signOut(), load(uid) → doc | null, save(uid, doc)
+ * and, for profiles, following and Pro (js/subscriptions.js), an optional
+ *   data: { get(path), set(path, value, merge?), remove(path), add(collection, value) → id,
+ *           watch(path, cb) → stop, watchAll(collection, cb) → stop, call(name, payload) }
  *
  * Each user has one document: { v, updated, challenges, deleted, known },
  * with the lists stored as JSON text. Merging is per challenge: the most
@@ -95,6 +98,24 @@
       signOut: () => A.signOut(auth),
       load: async (uid) => { const snap = await F.getDoc(ref(uid)); return snap.exists() ? snap.data() : null; },
       save: (uid, doc) => F.setDoc(ref(uid), doc),
+      data: {
+        get: async (path) => { const snap = await F.getDoc(F.doc(db, path)); return snap.exists() ? snap.data() : null; },
+        set: (path, value, merge) => F.setDoc(F.doc(db, path), value, merge ? { merge: true } : {}),
+        remove: (path) => F.deleteDoc(F.doc(db, path)),
+        add: async (collection, value) => (await F.addDoc(F.collection(db, collection), value)).id,
+        watch: (path, cb) => F.onSnapshot(F.doc(db, path), (snap) => cb(snap.exists() ? snap.data() : null), () => cb(null)),
+        watchAll: (collection, cb) => F.onSnapshot(F.collection(db, collection), (q) => cb(q.docs.map((d) => Object.assign({ id: d.id }, d.data()))), () => cb([])),
+        // A callable Cloud Function (the Stripe extension's customer portal link), without the Functions SDK.
+        call: async (name, payload, region) => {
+          const token = await auth.currentUser.getIdToken();
+          const r = await fetch(`https://${region || 'us-central1'}-${config.projectId}.cloudfunctions.net/${name}`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ data: payload || {} }),
+          });
+          const j = await r.json().catch(() => ({}));
+          if (!r.ok || j.error) throw new Error((j.error && j.error.message) || `Request failed (${r.status})`);
+          return j.result;
+        },
+      },
     };
   }
 
@@ -201,6 +222,8 @@
       },
       /** Swap in another backend (also used by the browser tests). */
       useAdapter: attach,
+      /** Document access for the signed-in user (profiles, following, Pro), or null. */
+      data: () => (adapter && user && adapter.data) || null,
       signIn: (email, pw) => run(() => adapter.signIn(email, pw)),
       signUp: (email, pw) => run(() => adapter.signUp(email, pw)),
       reset: (email) => run(() => adapter.reset(email)),
