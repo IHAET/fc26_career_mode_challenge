@@ -21,11 +21,11 @@
   }
 
   /** The Watch section for a challenge card (HTML), or '' when there's nothing to show. */
-  function section(ch, esc) {
+  function section(ch, esc, open) {
     const list = videosFor(ch);
     if (!list.length) return '';
     return `
-      <details class="block yt-block">
+      <details class="block yt-block"${open ? ' open' : ''}>
         <summary><h3>📺 Watch creators play it</h3><span class="muted small">${list.length} videos like ${esc(ch.archetype.name)} · plays in a small window while you carry on</span></summary>
         <div class="yt-list">${list.map((v) => `
           <button type="button" class="yt-card" data-yt="${esc(v.id)}" data-yt-title="${esc(v.title)}">

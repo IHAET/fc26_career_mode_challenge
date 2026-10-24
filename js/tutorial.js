@@ -15,6 +15,7 @@
     { target: '.tab[data-view=daily]', title: '📅 The daily challenge', text: 'The same challenge for everyone, every day. Compare with friends, or subscribe to get it in your calendar.' },
     { target: '.tab[data-view=transfers]', title: '🔁 Transfers', text: "Log signings, sales and 🔄 swaps. The assistant reads moves you describe in your own words and checks them against your challenge's rules." },
     { target: '.tab[data-view=saved]', title: '📂 My Challenges', text: "📒 Track it loads your club's squad straight from FC 26. Then tick off objectives, keep a diary, scout wonderkids and make a 🎧 Spotify soundtrack." },
+    { target: '.tab[data-view=community]', title: '💬 Community', text: 'Chat in the forum, share and upvote player tips, and watch creators play career modes in a little window while you carry on.' },
     { target: '#subs-btn', title: '🔔 Subscriptions', text: 'Get the daily challenge in your calendar, turn on reminders, follow friends, or go ⭐ Pro.' },
     { target: '#account-btn', title: '👤 Your account', text: 'Sign in to keep your challenges on every device and to follow friends.' },
     { target: '#help-btn', title: "That's the tour!", text: 'Bring it back from here whenever you like. Good luck with the save ⚽' },

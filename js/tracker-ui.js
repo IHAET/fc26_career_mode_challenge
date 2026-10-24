@@ -57,6 +57,7 @@
             ${isPlayer(entry) ? '' : `<select data-tracker="window" aria-label="Current transfer window">${opts([['summer', 'Summer window'], ['winter', 'January window']], t.window)}</select>`}
           </span>
           <button type="button" class="btn btn-small btn-spotify-soft" data-action="open-soundtrack" title="Make a Spotify playlist for this save">🎧 Soundtrack</button>
+          <button type="button" class="btn btn-small btn-yt-soft" data-action="open-videos" title="Videos of creators playing career modes like this">📺 Videos</button>
           <button type="button" class="btn btn-small btn-danger-soft" data-action="delete" title="Delete this save" aria-label="Delete this save">🗑️</button>
           <div class="tracker-tabs" role="tablist">
             ${tabBtn('challenge', '📋 Challenge')}

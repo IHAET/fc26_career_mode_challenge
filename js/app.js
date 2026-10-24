@@ -499,7 +499,7 @@
     : ch.archetype.desc ? `<p class="desc">${esc(ch.archetype.desc)}</p>` : ''}
 
       ${mode !== 'saved' && !player ? xiPreview(ch.club.name) : ''}
-      ${window.FC26.youtube ? window.FC26.youtube.section(ch, esc) : ''}
+      ${window.FC26.youtube ? window.FC26.youtube.section(ch, esc, mode !== 'saved') : ''}
 
       <section class="block">
         <h3>📜 Rules</h3>
@@ -1267,6 +1267,8 @@
     $('#view-daily').hidden = view !== 'daily';
     $('#view-saved').hidden = view !== 'saved';
     $('#view-transfers').hidden = view !== 'transfers';
+    $('#view-community').hidden = view !== 'community';
+    if (view === 'community') window.FC26.community.show();
     if (view === 'saved') renderSaved(openId);
     if (view === 'transfers') renderTransfersView();
     if (view === 'daily') renderDaily(state.dailyKey || Daily.dateKey());
@@ -1498,6 +1500,12 @@
       showView('transfers');
     } else if (action === 'soundtrack') {
       openSoundtrack(item);
+    } else if (action === 'open-videos') {
+      // From the bar on any tab: show the challenge and open its videos.
+      const tab = $('.ttab[data-tab="challenge"]', item);
+      if (tab && !tab.classList.contains('is-active')) tab.click();
+      const block = $('.yt-block', item);
+      if (block) { block.open = true; block.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     } else if (action === 'open-soundtrack') {
       // From the bar on any tab: show the challenge and open its soundtrack panel.
       const tab = $('.ttab[data-tab="challenge"]', item);
@@ -1631,6 +1639,7 @@
     });
     Subs.onProChange(syncProLocks);
     window.FC26.leaderboard.init({ esc, toast, entries: loadSaved, storageGet, storageSet });
+    window.FC26.community.init({ esc, toast, showView });
     syncProLocks();
     initAccount();
     initSoundtrack();
@@ -1712,7 +1721,7 @@
         if (!$('#view-saved').hidden) renderSaved(open ? open.dataset.id : null);
         if (!$('#view-transfers').hidden) renderTransfersView();
       },
-      onChange: (st) => { onAccountChange(st); Subs.onAccount(st); },
+      onChange: (st) => { onAccountChange(st); Subs.onAccount(st); window.FC26.community.onAccount(st); },
     });
     // Pick up changes made on another device when coming back to this tab.
     document.addEventListener('visibilitychange', () => { if (!document.hidden) Account.changed(); });

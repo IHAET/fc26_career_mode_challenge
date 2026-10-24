@@ -52,6 +52,41 @@ service cloud.firestore {
       allow create, update: if isUser(uid) && request.resource.data.image is string && request.resource.data.image.size() < 750000;
     }
 
+    // 💬 Community. Posting needs a username, and the post carries that same username.
+    function myHandle() { return get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.handle; }
+    function canPost() { return signedIn() && exists(/databases/$(database)/documents/profiles/$(request.auth.uid))
+      && request.resource.data.uid == request.auth.uid && request.resource.data.handle == myHandle(); }
+    // Others may only bump a count by one (replies on a thread, votes on a pick).
+    function bumps(fields, counter) { return signedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields)
+      && (request.resource.data[counter] - resource.data[counter] == 1 || request.resource.data[counter] - resource.data[counter] == -1); }
+
+    match /forum/{id} {
+      allow read: if signedIn();
+      allow create: if canPost() && request.resource.data.title is string && request.resource.data.title.size() <= 100
+        && request.resource.data.body is string && request.resource.data.body.size() <= 2000 && request.resource.data.replies == 0;
+      allow update: if (isUser(resource.data.uid) && request.resource.data.uid == resource.data.uid) || bumps(['replies', 'lastAt'], 'replies');
+      allow delete: if isUser(resource.data.uid);
+      match /replies/{rid} {
+        allow read: if signedIn();
+        allow create: if canPost() && request.resource.data.body is string && request.resource.data.body.size() <= 1000;
+        allow delete: if isUser(resource.data.uid);
+      }
+    }
+    match /picks/{id} {
+      allow read: if signedIn();
+      allow create: if canPost() && request.resource.data.note is string && request.resource.data.note.size() <= 300 && request.resource.data.votes == 0;
+      allow update: if bumps(['votes'], 'votes');
+      allow delete: if isUser(resource.data.uid);
+      match /votes/{uid} {
+        allow read: if signedIn();
+        allow create, delete: if isUser(uid);
+      }
+    }
+    // Reports: anyone signed in can file one; only you (in the Firebase console) read them.
+    match /reports/{id} {
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+    }
+
     // ⭐ Pro: the "Run Payments with Stripe" extension's collections.
     match /customers/{uid} {
       allow read: if isUser(uid);
