@@ -1095,3 +1095,24 @@ test('proven objectives score points, more on harder difficulties', () => {
   const C = globalThis.FC26.leaderboard.countries([{ country: 'English', points: 10, handle: 'a' }, { country: 'English', points: 30, handle: 'b' }, { country: 'Welsh', points: 25, handle: 'c' }, { points: 99, handle: 'd' }]);
   assert.deepEqual(C.map((c) => [c.country, c.points, c.players, c.best.handle]), [['English', 40, 2, 'b'], ['Welsh', 25, 1, 'c']]);
 });
+
+test('a transfer screenshot\'s text gives the player, rating, fee, wage and club', () => {
+  const O = globalThis.FC26.ocr;
+  const shot = `TRANSFER COMPLETE\nFlorian Wirtz\nCAM  OVR 90  Age 22\nFrom: Bayer 04 Leverkusen\nTransfer Fee  €117.5M\nWage €350K / week`;
+  const r = O.parseShot(shot);
+  assert.equal(r.name, 'Florian Wirtz');
+  assert.equal(r.dir, 'in');
+  assert.equal(r.ovr, 90);
+  assert.equal(r.fee, 117.5);
+  assert.equal(r.wage, 350);
+  assert.equal(r.age, 22);
+  assert.match(r.club, /Leverkusen/);
+  // A sale of someone in your squad, with a fee written out in full.
+  const sale = O.parseShot('Player sold\nYoung Yaw has left the club\nFee received: £12,500,000', { squad: [{ name: 'Young Yaw' }] });
+  assert.deepEqual([sale.name, sale.dir, sale.type, sale.fee], ['Young Yaw', 'out', 'sale', 12.5]);
+  // Nothing to read.
+  const none = O.parseShot('Main menu\nPress any button');
+  assert.equal(none.name, '');
+  assert.equal(none.found.length, 0);
+  assert.deepEqual(O.amounts('€45.000.000 and £3.5m and $800k').map((a) => a.value), [45e6, 3.5e6, 8e5]);
+});

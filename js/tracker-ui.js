@@ -362,7 +362,7 @@
           <label><span>Pos</span><select name="pos"${owner('pos')}><option value=""></option>${opts(POSITIONS.map((x) => [x, x]), v.pos)}</select></label>
           <label><span>Age</span><input name="age" type="number" min="14" max="50" value="${val('age')}"${owner('age')}></label>
           <label><span>Nationality</span><input name="nat" type="text" list="nat-list" maxlength="30" value="${val('nat')}"${owner('nat')}></label>
-          <label><span>OVR</span><input name="ovr" type="number" min="1" max="99" value="${val('ovr')}"></label>
+          <label><span>OVR</span><input name="ovr" type="number" min="1" max="99" value="${val('ovr')}"${owner('ovr')}></label>
           <label><span>Wage €K/w</span><input name="wage" type="number" min="0" step="0.1" value="${val('wage')}"></label>` : ''}
           <label><span>Season</span><select name="season">${opts(seasons, v.season || t.season)}</select></label>
           <label><span>Window</span><select name="window">${opts([['summer', 'Summer'], ['winter', 'January']], v.window || t.window)}</select></label>
@@ -383,6 +383,7 @@
         <div class="assistant-row">
           <input type="text" data-assist maxlength="200" placeholder="e.g. Signed Florian Wirtz from Leverkusen for €60m in January" aria-label="Describe a transfer">
           <button type="submit" class="btn btn-small btn-primary">Read it</button>
+          <label class="btn btn-small shot-btn" title="Upload a screenshot of a transfer from the game: I'll read the player, rating and fee">📷 Read a screenshot<input type="file" accept="image/*" data-shot hidden></label>
         </div>
         <div class="assist-note muted" data-assist-note></div>
       </form>`;
@@ -961,6 +962,10 @@
       }, ['transfers', 'moves']);
       return true;
     }
+    if (el.matches('[data-shot]')) {
+      readShot(el, item);
+      return true;
+    }
     if (el.matches('[data-squad-sort]')) {
       squadSort[item.dataset.id] = el.value;
       const entry = deps.findEntry(item.dataset.id);
@@ -988,6 +993,36 @@
       return true;
     }
     return false;
+  }
+
+  /** 📷 A transfer screenshot: read it and fill in the form. */
+  async function readShot(input, item) {
+    const file = input.files && input.files[0];
+    input.value = '';
+    const entry = file && deps.findEntry(item.dataset.id);
+    if (!entry || !FC26.ocr) return;
+    const note = item.querySelector('[data-assist-note]');
+    note.innerHTML = '📷 Reading your screenshot… <span data-shot-pct>0%</span> <span class="muted">(the first time downloads the text reader, about 7 MB)</span>';
+    try {
+      const t = trackerOf(entry);
+      const res = await FC26.ocr.analyze(file, {
+        squad: t.players,
+        onProgress: (pct) => { const el = note.querySelector('[data-shot-pct]'); if (el) el.textContent = `${pct}%`; },
+      });
+      const old = item.querySelector('[data-tform]');
+      old.outerHTML = transferForm(entry, t, res.dir, res);
+      const tform = item.querySelector('[data-tform]');
+      updateRecognition(tform, item, true);
+      updatePrecheck(tform, item);
+      note.innerHTML = res.found.length
+        ? `📷 I read: <strong>${res.found.map(esc).join(' · ')}</strong>. Check the form, fix anything I misread, then log it.
+          <details class="shot-text"><summary>What I saw</summary><pre>${esc(res.text.trim().slice(0, 1500))}</pre></details>`
+        : `📷 I couldn't find a transfer in that picture. Try a sharper screenshot of the transfer screen, or type it in.
+          <details class="shot-text"><summary>What I saw</summary><pre>${esc(res.text.trim().slice(0, 1500) || '(no text)')}</pre></details>`;
+      tform.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      note.textContent = `📷 ${err.message || 'That screenshot couldn\'t be read.'}`;
+    }
   }
 
   /** The stand-alone Transfers section for one challenge. */

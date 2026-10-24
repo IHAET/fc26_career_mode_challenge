@@ -1245,3 +1245,6 @@ body.has-dock .yt-float { bottom: 150px; }
 .lb-proofs { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
 .lb-proofs h3 { margin: 0; }
 .lb-shot > span { display: flex; flex-direction: column; gap: 1px; }
+.shot-btn { white-space: nowrap; }
+.shot-text { margin-top: 6px; }
+.shot-text pre { white-space: pre-wrap; max-height: 180px; overflow: auto; font-size: 0.75rem; background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin: 6px 0 0; }
