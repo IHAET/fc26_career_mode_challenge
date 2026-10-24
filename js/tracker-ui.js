@@ -64,6 +64,7 @@
             ${isPlayer(entry)
     ? tabBtn('moves', '🧳 Career moves', t.moves.length)
     : `${tabBtn('squad', '👥 Squad', t.players.filter((p) => !p.loanedOut).length)}${tabBtn('transfers', '🔁 Transfers', t.transfers.length)}${tabBtn('scout', '🔭 Scout', (entry.shortlist || []).length || null)}`}
+            ${FC26.matches ? tabBtn('matches', '📰 Matches', (entry.matches || []).length) : ''}
           </div>
         </div>
         <div class="tpanel" data-panel="challenge" ${tab === 'challenge' ? '' : 'hidden'}>${challengeHtml}</div>
@@ -72,6 +73,7 @@
     : `<div class="tpanel" data-panel="squad" ${tab === 'squad' ? '' : 'hidden'}>${renderSquad(entry, t)}</div>
         <div class="tpanel" data-panel="transfers" ${tab === 'transfers' ? '' : 'hidden'}>${renderTransfers(entry, t)}</div>
         <div class="tpanel" data-panel="scout" ${tab === 'scout' ? '' : 'hidden'}>${tab === 'scout' ? renderScout(entry, t) : ''}</div>`}
+        ${FC26.matches ? `<div class="tpanel" data-panel="matches" ${tab === 'matches' ? '' : 'hidden'}>${FC26.matches.render(entry)}</div>` : ''}
       </div>`;
   }
 
@@ -747,6 +749,7 @@
       if (btn.dataset.tab === 'scout') rerenderPanel(item, deps.findEntry(id), 'scout');
       return true;
     }
+    if (FC26.matches && FC26.matches.onClick(e, item)) return true;
     if (action === 'squad-add') {
       change(item, (t) => t.players.push({ id: uid(), name: '' }), ['squad']);
       const inputs = item.querySelectorAll('.p-name');
@@ -870,6 +873,7 @@
 
   function onSubmit(e, item) {
     const form = e.target;
+    if (FC26.matches && form.matches('[data-mt-form]')) { FC26.matches.onSubmit(e, item); return true; }
     if (form.matches('[data-scout-form]')) {
       e.preventDefault();
       return true;
@@ -937,6 +941,7 @@
 
   function onChange(e, item) {
     const el = e.target;
+    if (FC26.matches && el.closest('[data-panel="matches"]')) { FC26.matches.onChange(e, item); return true; }
     const tform = el.closest('[data-tform]');
     if (tform) {
       // Some browsers report a picked suggestion or autofill only as "change", not "input".

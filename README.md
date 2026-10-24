@@ -32,6 +32,8 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **📷 Read a transfer screenshot**: in the transfer assistant, upload a screenshot of a transfer from the game and it reads the player, rating, fee, wage, age, position and club into the form (text recognition runs in your browser with Tesseract.js, downloaded the first time, about 7 MB; the picture never leaves your device). Check what it read before logging it.
 - **🏆 Challenge of the week** (Community → 🏆 Weekly): everyone gets the same challenge from Monday to Sunday night. Prove objectives with 📸 screenshots; the standings rank proven points, and the winner gets the 👑 weekly champion badge when the week ends.
 - **⚔️ Head-to-head** (Community → ⚔️ Head-to-head, or **⚔️ Challenge a friend** on a save): send a save to a friend by username. Once they accept, you both play the same challenge and see each other's proven points, objectives, trophies and season side by side, with 👑 on whoever's ahead.
+- **📰 Match log and newspaper** (📰 Matches tab on every save, optional): log any match's score, opponent, home or away, competition, scorers and a quote, with an optional photo. Each result gets a newspaper front page written from your log: a headline that fits the result (hat-tricks, thrashings, cup finals, losing streaks…), a match report, the season table, form, top scorers, the latest signing and challenge progress. Pick any match's edition, add a photo for the front page, and save the paper as a 1080×1350 image. Photos stay on the device (like proof photos); the results sync with your save.
+- **🆕 What's new**: returning players get a short notice after each update (once), and 🆕 What's new in the footer shows it and the earlier updates any time. New updates go at the top of `UPDATES` in `js/whatsnew.js`.
 - **📸 Season card**: a 1080×1920 picture of a save's results (objectives, trophies, score, season by season, rules) sized for TikTok and Instagram stories, with the site's address on it. On phones it opens the share sheet.
 - **🎖️ Badges**: next to usernames in the forum, player picks, standings and head-to-heads: leaderboard rank (🥇🥈🥉 or #N), 👑 weekly wins, ⭐ Pro and your latest achievements (hover for the full list).
 - **📲 Install as an app**: "Add to Home Screen" on phones, or install from Chrome/Edge on a computer (📲 Install the app in the footer or 🔔 Subscriptions). It gets its own icon, opens full screen and works offline: `sw.js` keeps the site's files and fetches fresh ones whenever there's a connection.
@@ -188,6 +190,8 @@ npm test         # node --test (Node 18+)
 | `js/config.js` | Keys for the optional online features (Firebase accounts, Spotify) |
 | `js/account.js` | Accounts: sign-in through a swappable backend (Firebase by default) and merging saves between devices |
 | `js/login.js` | The sign-in card (on the intro page and in the account dialog) and the account button |
+| `js/matches.js` | 📰 The match log and the newspaper written from it |
+| `js/whatsnew.js` | 🆕 The What's new notice and its list of updates |
 | `js/intro.js` | 👋 The intro page a first visit starts on |
 | `js/achievements.js` | Achievements worked out from your saves |
 | `js/scout.js` | Wonderkid scout: young players from the squad data, ranked, with the hand-picked talent list |

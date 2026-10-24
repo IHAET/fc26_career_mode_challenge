@@ -474,5 +474,5 @@
     return deliver(renderSeason(d), `fc26-season-${slug(d.club)}.png`, `${d.club}: ${d.title}`);
   }
 
-  FC26.shareImage = { render, exportImage, renderSeason, exportSeason };
+  FC26.shareImage = { render, exportImage, renderSeason, exportSeason, deliver };
 })(typeof window !== 'undefined' ? window : globalThis);

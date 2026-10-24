@@ -1170,3 +1170,31 @@ test('head-to-head leader and profile badges', () => {
   assert.match(html, /👑×2/);
   assert.equal(B.html(B.of(null, 0)), '');
 });
+
+test('the match log works out records, scorers and newspaper stories', () => {
+  const M = globalThis.FC26.matches;
+  const ms = [
+    { id: 'a', season: 1, comp: 'league', venue: 'H', opp: 'Arsenal', gf: 3, ga: 0, scorers: 'Haaland 2, Saka' },
+    { id: 'b', season: 1, comp: 'league', venue: 'A', opp: 'Chelsea', gf: 1, ga: 1, scorers: 'Haaland' },
+    { id: 'c', season: 1, comp: 'cup', venue: 'H', opp: 'Leeds', gf: 0, ga: 2, scorers: '' },
+    { id: 'd', season: 1, comp: 'friendly', venue: 'H', opp: 'Ajax', gf: 4, ga: 1, scorers: 'Mbappé x3, Kane (pen)' },
+  ];
+  assert.deepEqual(M.record(ms.slice(0, 3)), { p: 3, w: 1, d: 1, l: 1, gf: 4, ga: 3, pts: 4 });
+  assert.deepEqual(M.scorers(ms), [['Haaland', 3], ['Mbappé', 3], ['Kane', 1], ['Saka', 1]]);
+  const hat = M.story(ms, 3, 'Wrexham', '');
+  assert.match(hat.head, /MBAPPÉ/);
+  assert.ok(hat.body.some((t) => /Mbappé \(3\)/.test(t)));
+  const loss = M.story(ms, 2, 'Wrexham', 'Z');
+  assert.match(loss.deck, /lose 0-2 to Leeds/);
+  // The same match always gets the same headline.
+  assert.equal(M.story(ms, 0, 'Wrexham', '').head, M.story(ms, 0, 'Wrexham', '').head);
+  const ch = globalThis.FC26.generator.generateChallenge({ difficulty: 'random', archetype: 'any', club: 'any', league: 'any', tier: 'any', seasons: 'auto', ruleCount: 'auto', events: true }, 'paper');
+  const p = M.paper({ challenge: ch, matches: ms, progress: {}, tracker: { transfers: [{ dir: 'in', name: 'Kees Smit', fee: 25 }] } }, 'b');
+  assert.equal(p.match.id, 'b');
+  assert.equal(p.matchday, 2);
+  assert.deepEqual(p.form, ['W', 'D']);
+  assert.match(p.transfer, /Kees Smit .* €25M/);
+  assert.equal(M.paper({ challenge: ch, matches: [] }), null);
+  const ids = globalThis.FC26.whatsNew.UPDATES.map((u) => u.id);
+  assert.equal(new Set(ids).size, ids.length);
+});

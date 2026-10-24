@@ -287,6 +287,7 @@
 
   <footer class="footer">
     Fan-made tool, not affiliated with EA SPORTS. Club list based on the 2025/26 season; club sizes are approximate.
+    <br><button type="button" class="link-btn" id="news-link">🆕 What's new</button>
     <!-- hosted-only -->
     <br><button type="button" class="link-btn" id="install-link">📲 Install the app</button> on your phone or computer, or <a href="dist/fc26-challenge-builder.html" download>download it as a single HTML file</a>.
     <!-- /hosted-only -->
@@ -300,6 +301,9 @@
   </div>
   <div class="modal" id="subs" role="dialog" aria-modal="true" aria-labelledby="subs-title" hidden>
     <div class="subs-card panel"></div>
+  </div>
+  <div class="modal" id="news" role="dialog" aria-modal="true" aria-labelledby="news-title" hidden>
+    <div class="news-card subs-card panel"></div>
   </div>
   <div class="toast" id="toast" role="status" hidden></div>
   <datalist id="nat-list"></datalist>
@@ -326,6 +330,7 @@
   <script src="js/assistant.js"></script>
   <script src="js/ocr.js"></script>
   <script src="js/scout.js"></script>
+  <script src="js/matches.js"></script>
   <script src="js/tracker-ui.js"></script>
   <script src="js/share-image.js"></script>
   <script src="js/account.js"></script>
@@ -343,6 +348,7 @@
   <script src="js/badges.js"></script>
   <script src="js/duels.js"></script>
   <script src="js/community.js"></script>
+  <script src="js/whatsnew.js"></script>
   <script src="js/tutorial.js"></script>
   <script src="js/i18n-strings.js"></script>
   <script src="js/i18n.js"></script>

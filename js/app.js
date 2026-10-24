@@ -1630,6 +1630,7 @@
       if (item && !Soundtrack.onSubmit(e, item)) Tracker.onSubmit(e, item);
     });
     Tracker.init({ esc, toast, mutateEntry, findEntry, refresh: refreshSavedItem, rememberKnown });
+    window.FC26.matches.init({ esc, toast, mutateEntry, findEntry });
     const known = storageGet(KNOWN_KEY, []);
     if (Array.isArray(known)) known.forEach((x) => x && x.name && PlayerDB.addKnown(x.name, x.nat, x.pos));
     $('#saved-list').addEventListener('input', (e) => {
@@ -1717,6 +1718,7 @@
     initAccount();
     initSoundtrack();
     Tutorial.init({ showView });
+    window.FC26.whatsNew.init({ esc, showView, storageGet, storageSet });
     syncDailyDot();
     setInterval(tickDaily, 30000);
     if (window.location.hash === '#daily') showView('daily');

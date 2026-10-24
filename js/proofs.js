@@ -180,5 +180,8 @@
   }
   const proofCount = (entry) => Object.values(entry.proofs || {}).reduce((n, list) => n + list.length, 0);
 
-  FC26.proofs = { add, remove, photo, show, sharedBy, points, proofCount, shrink };
+  /** The on-device photo store, for other photos (e.g. match photos): put(id, {image, thumb}), get(id), del(id). */
+  const local = { put: putLocal, get: getLocal, del: delLocal };
+
+  FC26.proofs = { add, remove, photo, show, sharedBy, points, proofCount, shrink, local };
 })(typeof window !== 'undefined' ? window : globalThis);
