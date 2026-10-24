@@ -74,7 +74,7 @@ The site appears at `https://<your-username>.github.io/fc26_career_mode_challeng
 
 ### Mac app (.dmg)
 
-`desktop/` is a small Electron app that opens the hosted site in its own window (so accounts, sync and Spotify work), with the single-file copy bundled for when there's no connection. `.github/workflows/desktop.yml` builds `FC26-Challenges.dmg` on a GitHub Mac runner (Intel and Apple Silicon in one) whenever `desktop/` or `dist/` changes, and attaches it to the `desktop` release; the site links to it. It's ad-hoc signed, not signed with an Apple Developer ID, so the first time people open it they right-click the app and choose **Open** (or System Settings → Privacy & Security → **Open Anyway**). Signing and notarising it needs the Apple Developer Program (US$99 a year, 18+).
+`desktop/` is a small Electron app that opens the hosted site in its own window (so accounts, sync and Spotify work), with the single-file copy bundled for when there's no connection. `.github/workflows/desktop.yml` builds `FC26-Challenges.dmg` on a GitHub Mac runner (Intel and Apple Silicon in one) whenever `desktop/` or `dist/` changes, and attaches it to the `desktop` release; the site links to it. It's ad-hoc signed, not signed with an Apple Developer ID, so the first time people open it macOS says it "Not Opened": click **Done**, then System Settings → Privacy & Security → **Open Anyway** (or run `xattr -cr "/Applications/FC26 Challenges.app"` in Terminal). Right-click → Open no longer works for this on recent macOS. Signing and notarising it needs the Apple Developer Program (US$99 a year, 18+).
 
 To try it locally on a Mac: `cd desktop && npm install && npm start`.
 
