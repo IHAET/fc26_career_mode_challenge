@@ -1465,3 +1465,77 @@ html.intro-on body { overflow: hidden; }
 .news-older { display: flex; flex-direction: column; gap: 8px; }
 .news-older .news-item { margin-top: 8px; }
 .news-ok { align-self: flex-end; }
+
+/* ---------- ⚽ Lineup: formation, XI, bench ---------- */
+
+.lu { display: flex; flex-direction: column; gap: 10px; }
+.lu-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.lu-formation { display: flex; flex-direction: column; gap: 2px; font-size: 0.75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.lu-formation select { font-size: 0.95rem; font-weight: 700; text-transform: none; letter-spacing: 0; min-width: 170px; }
+.lu-ratings { display: flex; gap: 6px; }
+.lu-ratings span { display: flex; flex-direction: column; align-items: center; padding: 4px 10px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); min-width: 48px; }
+.lu-ratings small { font-size: 0.65rem; color: var(--muted); font-weight: 800; letter-spacing: 0.06em; }
+.lu-ratings strong { font-size: 1.15rem; line-height: 1.1; }
+.lu-ratings span:first-child { border-color: var(--accent); background: var(--accent-soft); }
+.lu-tools { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.lu-warn { margin: 0; padding: 8px 12px; border-radius: 10px; font-size: 0.88rem; background: rgba(255, 201, 77, 0.1); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); }
+.lu-hint { margin: 0; }
+.lu-pitch {
+  position: relative; width: 100%; max-width: 620px; margin: 0 auto; aspect-ratio: 68 / 80; border-radius: 14px; overflow: hidden;
+  background: repeating-linear-gradient(180deg, #1f7a3e 0 10%, #237f43 10% 20%); border: 2px solid rgba(255, 255, 255, 0.35);
+}
+.lu-pitch::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: rgba(255, 255, 255, 0.35); }
+.lu-circle { position: absolute; left: 50%; top: 50%; width: 22%; aspect-ratio: 1; transform: translate(-50%, -50%); border: 2px solid rgba(255, 255, 255, 0.35); border-radius: 50%; }
+.lu-box { position: absolute; left: 25%; width: 50%; height: 14%; border: 2px solid rgba(255, 255, 255, 0.35); }
+.lu-box-top { top: -2px; }
+.lu-box-bottom { bottom: -2px; }
+.lu-slot {
+  position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 1px;
+  background: none; border: 0; padding: 2px; cursor: pointer; color: #fff; width: 19%; max-width: 96px; font: inherit;
+}
+.lu-dot {
+  width: clamp(34px, 9vw, 46px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: clamp(0.8rem, 2.4vw, 1rem);
+  background: #0b0f14; color: #fff; border: 3px solid #fff; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4); transition: transform 0.12s;
+}
+.lu-slot:hover .lu-dot, .lu-slot:focus-visible .lu-dot { transform: scale(1.08); }
+.lu-slot.fit-good .lu-dot { border-color: #19e68c; }
+.lu-slot.fit-ok .lu-dot { border-color: #ffc94d; }
+.lu-slot.fit-bad .lu-dot { border-color: #ff5c6c; }
+.lu-slot.is-empty .lu-dot { background: rgba(11, 15, 20, 0.45); border-style: dashed; border-color: rgba(255, 255, 255, 0.75); font-size: 1.2rem; }
+.lu-slot.is-picking .lu-dot { outline: 3px solid #fff; outline-offset: 3px; }
+.lu-pos { font-size: 0.62rem; font-weight: 900; letter-spacing: 0.05em; background: rgba(0, 0, 0, 0.45); padding: 0 5px; border-radius: 4px; }
+.lu-name { font-size: clamp(0.66rem, 2vw, 0.8rem); font-weight: 800; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lu-tags { display: flex; gap: 2px; }
+.lu-tags i { font-style: normal; font-size: 0.56rem; font-weight: 900; background: #ffc94d; color: #2a1e00; border-radius: 3px; padding: 0 3px; }
+.lu-picker { border: 1px solid var(--accent); border-radius: 12px; background: var(--bg-2); padding: 10px; max-width: 620px; width: 100%; margin: 0 auto; }
+.lu-picker-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.lu-picker-head strong { flex: 1; }
+.lu-options { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 320px; overflow-y: auto; }
+.lu-opt { width: 100%; display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 8px; border: 1px solid transparent; background: var(--panel); color: var(--text); cursor: pointer; text-align: left; font: inherit; }
+.lu-opt:hover { border-color: var(--line); background: var(--panel-2); }
+.lu-opt.is-current { border-color: var(--accent); }
+.lu-opt-ovr { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; font-weight: 900; background: var(--bg); border: 2px solid var(--line); flex: none; }
+.lu-opt-ovr.fit-good { border-color: #19e68c; }
+.lu-opt-ovr.fit-ok { border-color: #ffc94d; }
+.lu-opt-ovr.fit-bad { border-color: #ff5c6c; }
+.lu-opt-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.lu-opt-main small { color: var(--muted); }
+.lu-opt-where { font-size: 0.72rem; font-weight: 800; color: var(--accent); white-space: nowrap; }
+.lu-sub-head { margin: 4px 0 0; }
+.lu-bench { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+.lu-sub { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); color: var(--text); cursor: pointer; text-align: left; font: inherit; min-width: 0; }
+.lu-sub:hover { border-color: var(--accent); }
+.lu-sub.is-empty { border-style: dashed; color: var(--muted); }
+.lu-sub.is-picking { border-color: var(--accent); background: var(--accent-soft); }
+.lu-sub-ovr { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-weight: 900; background: var(--panel); flex: none; }
+.lu-sub-main { display: flex; flex-direction: column; min-width: 0; }
+.lu-sub-main strong { font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lu-sub-main small { color: var(--muted); font-size: 0.72rem; }
+.lu-reserves { margin: 0; }
+.lu-roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.lu-role { display: flex; flex-direction: column; gap: 2px; font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.lu-role select { min-width: 0; width: 100%; }
+@media (max-width: 560px) {
+  .lu-tools { margin-left: 0; width: 100%; }
+  .lu-ratings span { min-width: 40px; padding: 3px 7px; }
+}

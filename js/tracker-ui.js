@@ -206,6 +206,25 @@
       </div>`;
   }
 
+  // The formation and lineup (lineup.js), or the simple pitch if it isn't loaded.
+  const lineupHTML = (entry, t) => (FC26.lineup ? FC26.lineup.render(entry, t, esc) : renderPitch(t));
+  const LU = () => FC26.lineup;
+
+  /** Redraw just the lineup (pitch, bench, picker). */
+  function redrawLineup(item) {
+    const entry = deps.findEntry(item.dataset.id);
+    const el = item.querySelector('[data-pitch]');
+    if (entry && el) el.innerHTML = lineupHTML(entry, trackerOf(entry));
+  }
+
+  /** Change the lineup: fn(lineup, tracker) returns the new lineup, which is saved with everyone's ⭐ to match. */
+  function changeLineup(item, fn) {
+    return change(item, (t, e) => {
+      const lu = LU().ensure(t, LU().ruleFormation(e.challenge));
+      LU().apply(t, fn(lu, t));
+    }, ['squad']);
+  }
+
   /** Eleven players in a 4-3-3: best by OVR (list order breaks ties) in each part of the pitch, gaps filled from the rest. */
   function bestXI(players) {
     const pool = players.filter((p) => !p.loanedOut).map((p, i) => ({ p, i, ovr: n(p.ovr) || 0 }))
@@ -315,7 +334,7 @@
           <span class="muted squad-stats" hidden>${esc(squadStats(t))}</span>
         </div>
         ${t.players.length ? squadCards(t) : ''}
-        <div class="pitch-wrap" data-pitch>${renderPitch(t)}</div>
+        <div class="pitch-wrap" data-pitch>${lineupHTML(entry, t)}</div>
         <div class="paste-box" hidden>
           <p class="muted">One player per line: <code>Name, Position, Age, Nationality, OVR, Wage</code>. Only the name is required, and the other values can come in any order. Copying a table from a ratings site works too.</p>
           <textarea rows="6" data-paste placeholder="Bukayo Saka, RW, 24, English, 87&#10;Jamie Gittens LW 21 English 80"></textarea>
@@ -716,7 +735,7 @@
     const stats = item.querySelector('.squad-stats');
     if (stats) stats.textContent = squadStats(t);
     const pitch = item.querySelector('[data-pitch]');
-    if (pitch) pitch.innerHTML = renderPitch(t);
+    if (pitch) pitch.innerHTML = lineupHTML(entry, t);
   }
 
   // Save a tracker change, then refresh rule checks and counts around it.
@@ -816,6 +835,50 @@
       form.elements.fee.focus({ preventScroll: true });
       deps.toast(`Fill in the fee for ${p.name}, then log the signing`);
       return true;
+    }
+    if (action && action.startsWith('lu-') && LU()) {
+      const L = LU();
+      if (action === 'lu-slot') {
+        const where = { kind: btn.dataset.kind, i: Number(btn.dataset.i) };
+        const open = L.picks[id];
+        L.picks[id] = open && open.kind === where.kind && open.i === where.i ? null : where;
+        redrawLineup(item);
+        const pk = item.querySelector('.lu-picker');
+        if (pk) pk.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        return true;
+      }
+      if (action === 'lu-close') { L.picks[id] = null; redrawLineup(item); return true; }
+      if (action === 'lu-pick') {
+        const where = L.picks[id];
+        if (!where) return true;
+        L.picks[id] = null;
+        changeLineup(item, (lu) => L.place(lu, where, btn.dataset.pid || null));
+        return true;
+      }
+      if (action === 'lu-auto') {
+        const t0 = trackerOf(deps.findEntry(id));
+        if (t0.players.some((p) => p.starter) && !root.confirm('Replace your XI and bench with the best picks for this formation?')) return true;
+        L.picks[id] = null;
+        changeLineup(item, (lu, t) => L.autoPick(t, lu.formation));
+        deps.toast(t0.players.some((p) => n(p.ovr)) ? 'Picked your best XI and bench ⭐' : 'Picked an XI by position. Add OVRs and it picks your best players.');
+        return true;
+      }
+      if (action === 'lu-clear') {
+        if (!root.confirm('Empty the starting XI and the bench?')) return true;
+        L.picks[id] = null;
+        changeLineup(item, (lu) => ({ formation: lu.formation, slots: lu.slots.map(() => null), bench: lu.bench.map(() => null) }));
+        return true;
+      }
+      if (action === 'lu-use') {
+        changeLineup(item, (lu, t) => L.changeFormation(t, lu, btn.dataset.formation));
+        deps.toast(`Switched to ${btn.dataset.formation}`);
+        return true;
+      }
+      if (action === 'lu-image') {
+        const entry = deps.findEntry(id);
+        L.exportImage(entry, trackerOf(entry)).then((r) => { if (r === 'downloaded') deps.toast('Lineup saved 📸'); }, () => deps.toast("Couldn't create the image in this browser"));
+        return true;
+      }
     }
     if (action === 'pick-xi') {
       const t0 = trackerOf(deps.findEntry(id));
@@ -970,6 +1033,16 @@
     }
     if (el.matches('[data-shot]')) {
       readShot(el, item);
+      return true;
+    }
+    if (LU() && el.matches('[data-lu-formation]')) {
+      LU().picks[item.dataset.id] = null;
+      changeLineup(item, (lu, t) => LU().changeFormation(t, lu, el.value));
+      return true;
+    }
+    if (LU() && el.matches('[data-lu-role]')) {
+      const key = el.dataset.luRole;
+      changeLineup(item, (lu) => Object.assign({}, lu, { [key]: el.value || null }));
       return true;
     }
     if (el.matches('[data-squad-sort]')) {

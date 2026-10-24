@@ -14,6 +14,17 @@
   // Newest first. go: a tab the "Try it" button opens.
   const UPDATES = [
     {
+      id: '2026-10-25', date: '25 October 2026', title: '⚽ Formations, starting XI and bench',
+      items: [
+        'Pick from 18 formations in the Squad tab, then click any position on the pitch to choose who plays there, just like the game.',
+        'Fill a 9-player bench, and pick your captain, penalty, free-kick and corner takers.',
+        'Players out of position play worse: green, amber or red rings show how well each one fits, with team OVR, ATT, MID and DEF.',
+        '⭐ Auto-pick builds the best XI and bench for your formation, and you get a warning if your rules say to play a different one.',
+        '📸 Save your lineup as a picture to share.',
+      ],
+      go: 'saved',
+    },
+    {
       id: '2026-10-24c', date: '24 October 2026', title: '💻 A Mac app',
       items: ['Download FC26 Challenges for Mac (.dmg) from the footer or 🔔 → Get the app. It has its own window and Dock icon, and opens a built-in copy when you\'re offline.'],
     },

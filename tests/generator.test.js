@@ -1198,3 +1198,43 @@ test('the match log works out records, scorers and newspaper stories', () => {
   const ids = globalThis.FC26.whatsNew.UPDATES.map((u) => u.id);
   assert.equal(new Set(ids).size, ids.length);
 });
+
+test('lineups: formations, position fit, auto-pick, swaps and the rules\' formation', () => {
+  const L = globalThis.FC26.lineup;
+  Object.entries(L.LAYOUTS).forEach(([name, slots]) => {
+    assert.equal(slots.length, 11, name);
+    assert.equal(slots.filter(([pos]) => pos === 'GK').length, 1, name);
+  });
+  globalThis.FC26.data.formations.forEach((f) => assert.ok(L.LAYOUTS[f], `layout for ${f}`));
+  assert.equal(L.fit('LB', 'LB'), 'good');
+  assert.equal(L.fit('CDM', 'CB'), 'ok');
+  assert.equal(L.fit('ST', 'CB'), 'bad');
+  assert.equal(L.rating({ pos: 'CM', ovr: 80 }, 'CDM'), 77);
+  assert.equal(L.rating({ pos: 'ST', ovr: 80 }, 'GK'), 40);
+  const pos = ['GK', 'GK', 'LB', 'RB', 'CB', 'CB', 'CB', 'CDM', 'CM', 'CM', 'CAM', 'LW', 'RW', 'ST', 'ST', 'CM'];
+  const t = { players: pos.map((p, i) => ({ id: `p${i}`, name: `Player ${i}`, pos: p, ovr: 70 + (i % 7) })) };
+  const lu = L.autoPick(t, '4-3-3');
+  assert.equal(lu.slots.filter(Boolean).length, 11);
+  assert.equal(new Set(lu.slots).size, 11);
+  lu.slots.forEach((id, i) => assert.equal(L.fit(t.players.find((p) => p.id === id).pos, L.LAYOUTS['4-3-3'][i][0]), 'good'));
+  assert.equal(t.players.find((p) => p.id === lu.bench[0]).pos, 'GK'); // a keeper on the bench
+  assert.ok(lu.captain && lu.pk);
+  L.apply(t, lu);
+  assert.equal(t.players.filter((p) => p.starter).length, 11);
+  // Swapping: a bench player into the XI sends the starter to the bench.
+  const sub = lu.bench[1];
+  const moved = L.place(lu, { kind: 'xi', i: 5 }, sub);
+  assert.equal(moved.slots[5], sub);
+  assert.equal(moved.bench[1], lu.slots[5]);
+  // A new formation keeps the same eleven.
+  const f442 = L.changeFormation(t, lu, '4-4-2 (Flat)');
+  assert.deepEqual(new Set(f442.slots), new Set(lu.slots));
+  // Ticked starters with no saved lineup get placed.
+  const loose = { players: t.players.map((p) => Object.assign({}, p)) };
+  const e = L.ensure(loose, '');
+  assert.equal(e.slots.filter(Boolean).length, 11);
+  assert.ok(L.ratings(loose, e).ovr >= 70);
+  assert.equal(L.ruleFormation({ coreRules: [], rules: [{ text: 'Play 5-3-2 in every match — no formation changes.' }] }), '5-3-2');
+  assert.equal(L.ruleFormation({ coreRules: [], rules: [{ text: 'Tactical reset: play 4-4-2 (Holding) for the whole season.' }] }), '4-4-2 (Holding)');
+  assert.equal(L.ruleFormation({ coreRules: [], rules: [{ text: 'Sign a striker' }] }), '');
+});

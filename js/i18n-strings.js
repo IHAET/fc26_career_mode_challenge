@@ -279,6 +279,18 @@
     ['Daily and weekly', 'Diarios y semanales', 'Diários e semanais', 'Quotidiens et hebdos', 'Täglich und wöchentlich', 'Giornaliere e settimanali', 'Zilnice și săptămânale', '每日与每周'],
     ['Season cards', 'Tarjetas de temporada', 'Cards da temporada', 'Cartes de saison', 'Saisonkarten', 'Card stagionali', 'Carduri de sezon', '赛季卡片'],
 
+    // Lineup
+    ['Formation', 'Formación', 'Formação', 'Formation', 'Formation', 'Modulo', 'Formație', '阵型'],
+    ['Auto-pick', 'Elegir automático', 'Escolha automática', 'Choix auto', 'Automatisch wählen', 'Scelta automatica', 'Alegere automată', '自动选择'],
+    ['Lineup image', 'Imagen de la alineación', 'Imagem da escalação', 'Image de la compo', 'Aufstellungsbild', 'Immagine formazione', 'Imagine echipă', '阵容图片'],
+    ['Clear', 'Vaciar', 'Limpar', 'Vider', 'Leeren', 'Svuota', 'Golește', '清空'],
+    ['Bench', 'Banquillo', 'Banco', 'Banc', 'Bank', 'Panchina', 'Rezerve', '替补席'],
+    ['Captain', 'Capitán', 'Capitão', 'Capitaine', 'Kapitän', 'Capitano', 'Căpitan', '队长'],
+    ['Penalties', 'Penaltis', 'Pênaltis', 'Penaltys', 'Elfmeter', 'Rigori', 'Penalty-uri', '点球'],
+    ['Free kicks', 'Tiros libres', 'Faltas', 'Coups francs', 'Freistöße', 'Punizioni', 'Lovituri libere', '任意球'],
+    ['Corners', 'Córners', 'Escanteios', 'Corners', 'Ecken', 'Calci d’angolo', 'Cornere', '角球'],
+    ['Leave empty', 'Dejar vacío', 'Deixar vazio', 'Laisser vide', 'Leer lassen', 'Lascia vuoto', 'Lasă gol', '留空'],
+
     // Footer and search
     ['Fan-made tool, not affiliated with EA SPORTS. Club list based on the 2025/26 season; club sizes are approximate.', 'Herramienta hecha por fans, sin relación con EA SPORTS. Lista de clubes de la temporada 2025/26; los tamaños son aproximados.', 'Ferramenta feita por fãs, sem ligação com a EA SPORTS. Lista de clubes da temporada 2025/26; tamanhos aproximados.', 'Outil créé par des fans, sans lien avec EA SPORTS. Clubs de la saison 2025/26 ; tailles approximatives.', 'Von Fans gemacht, nicht mit EA SPORTS verbunden. Vereinsliste der Saison 2025/26; Größen sind ungefähr.', 'Strumento fatto dai fan, non affiliato a EA SPORTS. Club della stagione 2025/26; dimensioni approssimative.', 'Instrument făcut de fani, fără legătură cu EA SPORTS. Lista cluburilor din sezonul 2025/26; mărimile sunt aproximative.', '粉丝制作，与 EA SPORTS 无关。俱乐部列表基于 2025/26 赛季，规模为估计值。'],
     ['Download the app as a single HTML file', 'Descarga la app como un único archivo HTML', 'Baixe o app como um único arquivo HTML', 'Télécharger l’appli en un seul fichier HTML', 'App als einzelne HTML-Datei herunterladen', 'Scarica l’app come singolo file HTML', 'Descarcă aplicația ca un singur fișier HTML', '下载单文件 HTML 版'],

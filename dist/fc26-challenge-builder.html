@@ -1478,6 +1478,80 @@ html.intro-on body { overflow: hidden; }
 .news-older { display: flex; flex-direction: column; gap: 8px; }
 .news-older .news-item { margin-top: 8px; }
 .news-ok { align-self: flex-end; }
+
+/* ---------- ⚽ Lineup: formation, XI, bench ---------- */
+
+.lu { display: flex; flex-direction: column; gap: 10px; }
+.lu-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.lu-formation { display: flex; flex-direction: column; gap: 2px; font-size: 0.75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.lu-formation select { font-size: 0.95rem; font-weight: 700; text-transform: none; letter-spacing: 0; min-width: 170px; }
+.lu-ratings { display: flex; gap: 6px; }
+.lu-ratings span { display: flex; flex-direction: column; align-items: center; padding: 4px 10px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); min-width: 48px; }
+.lu-ratings small { font-size: 0.65rem; color: var(--muted); font-weight: 800; letter-spacing: 0.06em; }
+.lu-ratings strong { font-size: 1.15rem; line-height: 1.1; }
+.lu-ratings span:first-child { border-color: var(--accent); background: var(--accent-soft); }
+.lu-tools { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.lu-warn { margin: 0; padding: 8px 12px; border-radius: 10px; font-size: 0.88rem; background: rgba(255, 201, 77, 0.1); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); }
+.lu-hint { margin: 0; }
+.lu-pitch {
+  position: relative; width: 100%; max-width: 620px; margin: 0 auto; aspect-ratio: 68 / 80; border-radius: 14px; overflow: hidden;
+  background: repeating-linear-gradient(180deg, #1f7a3e 0 10%, #237f43 10% 20%); border: 2px solid rgba(255, 255, 255, 0.35);
+}
+.lu-pitch::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: rgba(255, 255, 255, 0.35); }
+.lu-circle { position: absolute; left: 50%; top: 50%; width: 22%; aspect-ratio: 1; transform: translate(-50%, -50%); border: 2px solid rgba(255, 255, 255, 0.35); border-radius: 50%; }
+.lu-box { position: absolute; left: 25%; width: 50%; height: 14%; border: 2px solid rgba(255, 255, 255, 0.35); }
+.lu-box-top { top: -2px; }
+.lu-box-bottom { bottom: -2px; }
+.lu-slot {
+  position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 1px;
+  background: none; border: 0; padding: 2px; cursor: pointer; color: #fff; width: 19%; max-width: 96px; font: inherit;
+}
+.lu-dot {
+  width: clamp(34px, 9vw, 46px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: clamp(0.8rem, 2.4vw, 1rem);
+  background: #0b0f14; color: #fff; border: 3px solid #fff; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4); transition: transform 0.12s;
+}
+.lu-slot:hover .lu-dot, .lu-slot:focus-visible .lu-dot { transform: scale(1.08); }
+.lu-slot.fit-good .lu-dot { border-color: #19e68c; }
+.lu-slot.fit-ok .lu-dot { border-color: #ffc94d; }
+.lu-slot.fit-bad .lu-dot { border-color: #ff5c6c; }
+.lu-slot.is-empty .lu-dot { background: rgba(11, 15, 20, 0.45); border-style: dashed; border-color: rgba(255, 255, 255, 0.75); font-size: 1.2rem; }
+.lu-slot.is-picking .lu-dot { outline: 3px solid #fff; outline-offset: 3px; }
+.lu-pos { font-size: 0.62rem; font-weight: 900; letter-spacing: 0.05em; background: rgba(0, 0, 0, 0.45); padding: 0 5px; border-radius: 4px; }
+.lu-name { font-size: clamp(0.66rem, 2vw, 0.8rem); font-weight: 800; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lu-tags { display: flex; gap: 2px; }
+.lu-tags i { font-style: normal; font-size: 0.56rem; font-weight: 900; background: #ffc94d; color: #2a1e00; border-radius: 3px; padding: 0 3px; }
+.lu-picker { border: 1px solid var(--accent); border-radius: 12px; background: var(--bg-2); padding: 10px; max-width: 620px; width: 100%; margin: 0 auto; }
+.lu-picker-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.lu-picker-head strong { flex: 1; }
+.lu-options { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 320px; overflow-y: auto; }
+.lu-opt { width: 100%; display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 8px; border: 1px solid transparent; background: var(--panel); color: var(--text); cursor: pointer; text-align: left; font: inherit; }
+.lu-opt:hover { border-color: var(--line); background: var(--panel-2); }
+.lu-opt.is-current { border-color: var(--accent); }
+.lu-opt-ovr { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; font-weight: 900; background: var(--bg); border: 2px solid var(--line); flex: none; }
+.lu-opt-ovr.fit-good { border-color: #19e68c; }
+.lu-opt-ovr.fit-ok { border-color: #ffc94d; }
+.lu-opt-ovr.fit-bad { border-color: #ff5c6c; }
+.lu-opt-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.lu-opt-main small { color: var(--muted); }
+.lu-opt-where { font-size: 0.72rem; font-weight: 800; color: var(--accent); white-space: nowrap; }
+.lu-sub-head { margin: 4px 0 0; }
+.lu-bench { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+.lu-sub { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); color: var(--text); cursor: pointer; text-align: left; font: inherit; min-width: 0; }
+.lu-sub:hover { border-color: var(--accent); }
+.lu-sub.is-empty { border-style: dashed; color: var(--muted); }
+.lu-sub.is-picking { border-color: var(--accent); background: var(--accent-soft); }
+.lu-sub-ovr { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-weight: 900; background: var(--panel); flex: none; }
+.lu-sub-main { display: flex; flex-direction: column; min-width: 0; }
+.lu-sub-main strong { font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lu-sub-main small { color: var(--muted); font-size: 0.72rem; }
+.lu-reserves { margin: 0; }
+.lu-roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.lu-role { display: flex; flex-direction: column; gap: 2px; font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.lu-role select { min-width: 0; width: 100%; }
+@media (max-width: 560px) {
+  .lu-tools { margin-left: 0; width: 100%; }
+  .lu-ratings span { min-width: 40px; padding: 3px 7px; }
+}
 </style>
   <script>
     // Theme before first paint: the saved choice, else the system's.
@@ -7880,6 +7954,469 @@ Aleksei Miranchuk|Russian|CAM
   FC26.scout = { prospects, extraLeagues, KNOWN, GROUPS };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
+  <script>/* js/lineup.js */
+/*
+ * ⚽ Lineup: the squad tab's starting XI in a formation, like the game's team
+ * management screen. Pick a formation, click a position to put a player there,
+ * fill the bench, choose a captain and set-piece takers.
+ *
+ * Kept on the tracker as t.lineup = { formation, slots: [11 player ids|null],
+ * bench: [BENCH ids|null], captain, pk, fk, ck }. Each player's `starter` flag
+ * still says who's in the XI (the rule checks use it); the lineup says where.
+ *
+ * Players out of position play worse, as in the game: a natural position
+ * keeps their OVR, a nearby one costs 3, anything else 12 (a keeper out of
+ * goal, or an outfielder in it, much more).
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const BENCH = 9;
+
+  // [position, x %, y %] from the left touchline and from the opponents' goal line.
+  const D4 = [['LB', 12, 72], ['CB', 37, 76], ['CB', 63, 76], ['RB', 88, 72]];
+  const D3 = [['CB', 25, 76], ['CB', 50, 78], ['CB', 75, 76]];
+  const D5 = [['LWB', 9, 64], ['CB', 29, 76], ['CB', 50, 78], ['CB', 71, 76], ['RWB', 91, 64]];
+  const GK = [['GK', 50, 92]];
+  const LAYOUTS = {
+    '4-3-3': GK.concat(D4, [['CM', 28, 50], ['CM', 50, 54], ['CM', 72, 50], ['LW', 16, 22], ['ST', 50, 14], ['RW', 84, 22]]),
+    '4-3-3 (Attack)': GK.concat(D4, [['CM', 30, 52], ['CAM', 50, 38], ['CM', 70, 52], ['LW', 16, 20], ['ST', 50, 12], ['RW', 84, 20]]),
+    '4-3-3 (Holding)': GK.concat(D4, [['CDM', 50, 60], ['CM', 30, 46], ['CM', 70, 46], ['LW', 16, 22], ['ST', 50, 13], ['RW', 84, 22]]),
+    '4-2-3-1 (Wide)': GK.concat(D4, [['CDM', 36, 58], ['CDM', 64, 58], ['LM', 14, 36], ['CAM', 50, 36], ['RM', 86, 36], ['ST', 50, 13]]),
+    '4-4-2 (Flat)': GK.concat(D4, [['LM', 12, 46], ['CM', 37, 50], ['CM', 63, 50], ['RM', 88, 46], ['ST', 36, 16], ['ST', 64, 16]]),
+    '4-4-2 (Holding)': GK.concat(D4, [['LM', 12, 44], ['CDM', 37, 58], ['CDM', 63, 58], ['RM', 88, 44], ['ST', 36, 16], ['ST', 64, 16]]),
+    '4-1-2-1-2 (Narrow)': GK.concat(D4, [['CDM', 50, 60], ['CM', 30, 48], ['CM', 70, 48], ['CAM', 50, 34], ['ST', 36, 15], ['ST', 64, 15]]),
+    '4-2-2-2': GK.concat(D4, [['CDM', 36, 58], ['CDM', 64, 58], ['CAM', 22, 36], ['CAM', 78, 36], ['ST', 36, 15], ['ST', 64, 15]]),
+    '4-3-2-1': GK.concat(D4, [['CM', 28, 52], ['CM', 50, 56], ['CM', 72, 52], ['CF', 32, 30], ['CF', 68, 30], ['ST', 50, 13]]),
+    '4-5-1 (Flat)': GK.concat(D4, [['LM', 10, 44], ['CM', 30, 50], ['CM', 50, 54], ['CM', 70, 50], ['RM', 90, 44], ['ST', 50, 15]]),
+    '4-1-4-1': GK.concat(D4, [['CDM', 50, 60], ['LM', 12, 42], ['CM', 37, 44], ['CM', 63, 44], ['RM', 88, 42], ['ST', 50, 15]]),
+    '3-5-2': GK.concat(D3, [['CDM', 36, 58], ['CDM', 64, 58], ['LM', 10, 44], ['CAM', 50, 36], ['RM', 90, 44], ['ST', 36, 15], ['ST', 64, 15]]),
+    '3-4-3': GK.concat(D3, [['LM', 12, 48], ['CM', 37, 52], ['CM', 63, 52], ['RM', 88, 48], ['LW', 18, 22], ['ST', 50, 14], ['RW', 82, 22]]),
+    '3-4-2-1': GK.concat(D3, [['LM', 12, 48], ['CM', 37, 54], ['CM', 63, 54], ['RM', 88, 48], ['CF', 32, 30], ['CF', 68, 30], ['ST', 50, 13]]),
+    '3-1-4-2': GK.concat(D3, [['CDM', 50, 62], ['LM', 12, 44], ['CM', 37, 46], ['CM', 63, 46], ['RM', 88, 44], ['ST', 36, 15], ['ST', 64, 15]]),
+    '5-3-2': GK.concat(D5, [['CM', 28, 48], ['CM', 50, 52], ['CM', 72, 48], ['ST', 36, 16], ['ST', 64, 16]]),
+    '5-2-1-2': GK.concat(D5, [['CM', 34, 52], ['CM', 66, 52], ['CAM', 50, 36], ['ST', 36, 15], ['ST', 64, 15]]),
+    '5-4-1': GK.concat(D5, [['LM', 14, 44], ['CM', 38, 48], ['CM', 62, 48], ['RM', 86, 44], ['ST', 50, 15]]),
+  };
+  const NAMES = Object.keys(LAYOUTS);
+  const DEFAULT = '4-3-3';
+
+  // Natural positions, and nearby ones a player can cover (as in the game's position ratings).
+  const FIT = {
+    GK: [['GK'], []],
+    CB: [['CB'], ['CDM', 'LB', 'RB']],
+    LB: [['LB', 'LWB'], ['LM', 'CB', 'RB']],
+    RB: [['RB', 'RWB'], ['RM', 'CB', 'LB']],
+    LWB: [['LWB', 'LB'], ['LM', 'LW', 'RWB']],
+    RWB: [['RWB', 'RB'], ['RM', 'RW', 'LWB']],
+    CDM: [['CDM'], ['CM', 'CB']],
+    CM: [['CM'], ['CDM', 'CAM', 'LM', 'RM']],
+    CAM: [['CAM'], ['CM', 'CF', 'LW', 'RW']],
+    LM: [['LM', 'LW'], ['LWB', 'CM', 'RM', 'LB']],
+    RM: [['RM', 'RW'], ['RWB', 'CM', 'LM', 'RB']],
+    LW: [['LW', 'LM'], ['ST', 'CF', 'RW', 'CAM']],
+    RW: [['RW', 'RM'], ['ST', 'CF', 'LW', 'CAM']],
+    CF: [['CF', 'ST'], ['CAM', 'LW', 'RW']],
+    ST: [['ST', 'CF'], ['LW', 'RW', 'CAM']],
+  };
+  const LINE = { GK: 'def', CB: 'def', LB: 'def', RB: 'def', LWB: 'def', RWB: 'def', CDM: 'mid', CM: 'mid', CAM: 'mid', LM: 'mid', RM: 'mid', LW: 'att', RW: 'att', CF: 'att', ST: 'att' };
+
+  const num = (v) => { const x = Number(v); return Number.isFinite(x) && v !== '' && v != null ? x : null; };
+
+  /** How well a player in `playerPos` fits a slot: 'good', 'ok' or 'bad'. */
+  function fit(playerPos, slotPos) {
+    const f = FIT[slotPos];
+    if (!f || !playerPos) return 'ok';
+    if (f[0].includes(playerPos)) return 'good';
+    if (f[1].includes(playerPos)) return 'ok';
+    return 'bad';
+  }
+
+  /** A player's rating in a slot, after any out-of-position penalty (null when unrated). */
+  function rating(p, slotPos) {
+    const ovr = num(p && p.ovr);
+    if (ovr == null) return null;
+    const f = fit(p.pos, slotPos);
+    if (f === 'good') return ovr;
+    if ((slotPos === 'GK') !== (p.pos === 'GK') && p.pos) return Math.max(1, ovr - 40);
+    return Math.max(1, ovr - (f === 'ok' ? 3 : 12));
+  }
+
+  // For choosing: fit first, then rating (unrated players count as 60).
+  const score = (p, slotPos) => ({ good: 1000, ok: 500, bad: 0 }[fit(p.pos, slotPos)]) + (rating(p, slotPos) == null ? 60 : rating(p, slotPos));
+
+  const active = (t) => (t.players || []).filter((p) => !p.loanedOut && p.id);
+  const layout = (name) => LAYOUTS[name] || LAYOUTS[DEFAULT];
+
+  /**
+   * Better placements by swapping: two slots trade players, or a slot takes
+   * someone from `spare`, whenever that raises the total. `fixedSet` slots stay put.
+   */
+  function improve(ids, positions, byId, spare, fixedSet) {
+    const val = (id, i) => (id ? score(byId.get(id), positions[i]) : 0);
+    const out = ids.slice();
+    const pool = (spare || []).slice();
+    for (let round = 0; round < 20; round++) {
+      let better = false;
+      for (let a = 0; a < out.length; a++) {
+        if (fixedSet && fixedSet.has(a)) continue;
+        for (let b = a + 1; b < out.length; b++) {
+          if (fixedSet && fixedSet.has(b)) continue;
+          if (val(out[b], a) + val(out[a], b) > val(out[a], a) + val(out[b], b)) { [out[a], out[b]] = [out[b], out[a]]; better = true; }
+        }
+        pool.forEach((id, k) => {
+          if (val(id, a) > val(out[a], a)) { const was = out[a]; out[a] = id; pool[k] = was; better = true; }
+        });
+      }
+      if (!better) break;
+    }
+    return out;
+  }
+
+  /** Put `players` into the formation's slots, scarcest slots first. Returns 11 ids/nulls. */
+  function assign(players, formation, fixed) {
+    const slots = layout(formation).map(([pos]) => ({ pos, id: null }));
+    const pool = players.slice();
+    (fixed || []).forEach((id, i) => { if (id && slots[i]) { slots[i].id = id; const k = pool.findIndex((p) => p.id === id); if (k >= 0) pool.splice(k, 1); } });
+    const open = slots.map((s, i) => i).filter((i) => !slots[i].id);
+    const goodCount = (i) => pool.filter((p) => fit(p.pos, slots[i].pos) === 'good').length;
+    open.sort((a, b) => (slots[a].pos === 'GK' ? -1 : 0) - (slots[b].pos === 'GK' ? -1 : 0) || goodCount(a) - goodCount(b));
+    open.forEach((i) => {
+      if (!pool.length) return;
+      let best = 0;
+      pool.forEach((p, k) => { if (score(p, slots[i].pos) > score(pool[best], slots[i].pos)) best = k; });
+      slots[i].id = pool[best].id;
+      pool.splice(best, 1);
+    });
+    const byId = new Map(players.map((p) => [p.id, p]));
+    const fixedSet = new Set((fixed || []).map((id, i) => (id ? i : -1)).filter((i) => i >= 0));
+    return improve(slots.map((s) => s.id), slots.map((s) => s.pos), byId, [], fixedSet);
+  }
+
+  /** The best XI and bench for a formation from the whole squad. */
+  function autoPick(t, formation) {
+    const players = active(t);
+    const byOvr = players.slice().sort((a, b) => (num(b.ovr) || 0) - (num(a.ovr) || 0));
+    // Take the strongest candidates for each slot in turn, scarcest positions first.
+    const slots = layout(formation).map(([pos]) => pos);
+    const chosen = new Set();
+    const order = slots.map((pos, i) => i).sort((a, b) => (slots[a] === 'GK' ? -1 : 0) - (slots[b] === 'GK' ? -1 : 0)
+      || players.filter((p) => fit(p.pos, slots[a]) === 'good').length - players.filter((p) => fit(p.pos, slots[b]) === 'good').length);
+    const ids = new Array(slots.length).fill(null);
+    order.forEach((i) => {
+      let best = null;
+      players.forEach((p) => { if (!chosen.has(p.id) && (!best || score(p, slots[i]) > score(best, slots[i]))) best = p; });
+      if (best) { ids[i] = best.id; chosen.add(best.id); }
+    });
+    // Then swap players around (and in from the rest of the squad) while that helps.
+    const byIdAll = new Map(players.map((p) => [p.id, p]));
+    const better = improve(ids, slots, byIdAll, players.filter((p) => !chosen.has(p.id)).map((p) => p.id));
+    better.forEach((id, i) => { ids[i] = id; });
+    chosen.clear();
+    ids.forEach((id) => { if (id) chosen.add(id); });
+    // Bench: a keeper first, then the best of the rest.
+    const rest = byOvr.filter((p) => !chosen.has(p.id));
+    const keeper = rest.find((p) => p.pos === 'GK');
+    const bench = (keeper ? [keeper] : []).concat(rest.filter((p) => p !== keeper)).slice(0, BENCH).map((p) => p.id);
+    while (bench.length < BENCH) bench.push(null);
+    const xi = ids.map((id) => players.find((p) => p.id === id)).filter(Boolean);
+    const best = (key) => xi.slice().sort((a, b) => (num(b.ovr) || 0) - (num(a.ovr) || 0)).filter((p) => key(p))[0];
+    const captain = best(() => true);
+    return {
+      formation, slots: ids, bench,
+      captain: captain ? captain.id : null,
+      pk: (best((p) => ['ST', 'CF'].includes(p.pos)) || captain || {}).id || null,
+      fk: (best((p) => ['CAM', 'CM', 'LW', 'RW', 'LM', 'RM'].includes(p.pos)) || captain || {}).id || null,
+      ck: (best((p) => ['CM', 'CAM', 'LM', 'RM', 'LW', 'RW', 'LB', 'RB'].includes(p.pos)) || captain || {}).id || null,
+    };
+  }
+
+  /**
+   * The lineup as it stands: the saved one, tidied up against the squad. Players
+   * ticked ⭐ but not placed go into the best free slots; players no longer
+   * starting (or gone) leave theirs.
+   */
+  function ensure(t, preferred) {
+    const players = active(t);
+    const ids = new Set(players.map((p) => p.id));
+    const starters = new Set(players.filter((p) => p.starter).map((p) => p.id));
+    const saved = t.lineup && typeof t.lineup === 'object' ? t.lineup : {};
+    const formation = LAYOUTS[saved.formation] ? saved.formation : (LAYOUTS[preferred] ? preferred : DEFAULT);
+    const n = layout(formation).length;
+    let slots = (Array.isArray(saved.slots) ? saved.slots : []).slice(0, n).map((id) => (id && starters.has(id) ? id : null));
+    while (slots.length < n) slots.push(null);
+    slots = slots.map((id, i) => (slots.indexOf(id) === i ? id : null));
+    const loose = players.filter((p) => starters.has(p.id) && !slots.includes(p.id));
+    if (loose.length) slots = assign(loose, formation, slots);
+    let bench = (Array.isArray(saved.bench) ? saved.bench : []).slice(0, BENCH).map((id) => (id && ids.has(id) && !starters.has(id) ? id : null));
+    bench = bench.map((id, i) => (id && bench.indexOf(id) === i ? id : null));
+    while (bench.length < BENCH) bench.push(null);
+    const role = (id) => (id && slots.includes(id) ? id : null);
+    return { formation, slots, bench, captain: role(saved.captain), pk: role(saved.pk), fk: role(saved.fk), ck: role(saved.ck) };
+  }
+
+  /** Save a lineup on the tracker and set everyone's ⭐ to match. */
+  function apply(t, lu) {
+    t.lineup = { formation: lu.formation, slots: lu.slots.slice(), bench: lu.bench.slice(), captain: lu.captain || null, pk: lu.pk || null, fk: lu.fk || null, ck: lu.ck || null };
+    const xi = new Set(lu.slots.filter(Boolean));
+    (t.players || []).forEach((p) => { p.starter = xi.has(p.id); });
+    return t.lineup;
+  }
+
+  /** A new formation: the same XI, moved into the new shape's slots. */
+  function changeFormation(t, lu, formation) {
+    const xi = lu.slots.filter(Boolean).map((id) => active(t).find((p) => p.id === id)).filter(Boolean);
+    return Object.assign({}, lu, { formation, slots: assign(xi, formation, []) });
+  }
+
+  /**
+   * Put a player in a place ({ kind: 'xi'|'bench', i }), or empty it (pid null).
+   * If he was already in the XI or on the bench, whoever had this place takes his.
+   */
+  function place(lu, where, pid) {
+    const out = { formation: lu.formation, slots: lu.slots.slice(), bench: lu.bench.slice(), captain: lu.captain, pk: lu.pk, fk: lu.fk, ck: lu.ck };
+    const list = where.kind === 'bench' ? out.bench : out.slots;
+    const current = list[where.i] || null;
+    if (pid) {
+      const inXI = out.slots.indexOf(pid);
+      const onBench = out.bench.indexOf(pid);
+      if (inXI >= 0) out.slots[inXI] = current;
+      else if (onBench >= 0) out.bench[onBench] = current;
+    }
+    list[where.i] = pid || null;
+    ['captain', 'pk', 'fk', 'ck'].forEach((k) => { if (out[k] && !out.slots.includes(out[k])) out[k] = null; });
+    return out;
+  }
+
+  /** Team ratings like the game's: overall, attack, midfield, defence (null when nobody's rated). */
+  function ratings(t, lu) {
+    const byId = new Map(active(t).map((p) => [p.id, p]));
+    const parts = { all: [], att: [], mid: [], def: [] };
+    layout(lu.formation).forEach(([pos], i) => {
+      const p = byId.get(lu.slots[i]);
+      const r = p ? rating(p, pos) : null;
+      if (r == null) return;
+      parts.all.push(r);
+      parts[LINE[pos]].push(r);
+    });
+    const avg = (v) => (v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null);
+    return { ovr: parts.all.length ? avg(parts.all) : null, att: avg(parts.att), mid: avg(parts.mid), def: avg(parts.def), filled: lu.slots.filter(Boolean).length };
+  }
+
+  /** A formation the challenge's rules or events name (e.g. "Play 5-3-2 in every match"), or ''. */
+  function ruleFormation(ch) {
+    if (!ch) return '';
+    const text = [].concat(ch.coreRules || [], ch.rules || []).map((r) => r.text || '').join(' ');
+    const hits = NAMES.filter((name) => text.includes(name)).sort((a, b) => b.length - a.length);
+    if (hits.length) return hits[0];
+    const bare = text.match(/\b([345]-\d(?:-\d){1,3})\b/);
+    if (!bare) return '';
+    return NAMES.find((name) => name === bare[1]) || NAMES.find((name) => name.startsWith(`${bare[1]} `)) || '';
+  }
+
+  // ---------- Drawing ----------
+
+  const picks = {}; // saved entry id → the place being picked for: { kind, i } or null
+
+  function render(entry, t, esc) {
+    const players = active(t);
+    if (!players.length) return '';
+    const wanted = ruleFormation(entry.challenge);
+    const lu = ensure(t, wanted);
+    const L = layout(lu.formation);
+    const byId = new Map(players.map((p) => [p.id, p]));
+    const r = ratings(t, lu);
+    const surname = (name) => String(name || '?').trim().split(/\s+/).slice(-1)[0];
+    const tags = (id) => [lu.captain === id ? 'C' : '', lu.pk === id ? 'PK' : '', lu.fk === id ? 'FK' : '', lu.ck === id ? 'CK' : ''].filter(Boolean);
+    const open = picks[entry.id];
+    const slot = (pos, x, y, i) => {
+      const p = byId.get(lu.slots[i]);
+      const f = p ? fit(p.pos, pos) : '';
+      const v = p ? rating(p, pos) : null;
+      const sel = open && open.kind === 'xi' && open.i === i;
+      return `<button type="button" class="lu-slot${p ? ` fit-${f}` : ' is-empty'}${sel ? ' is-picking' : ''}${p && p.regen ? ' is-regen' : ''}" style="left:${x}%;top:${y}%" data-action="lu-slot" data-kind="xi" data-i="${i}"
+          title="${esc(p ? `${p.name}${p.pos ? ` (${p.pos})` : ''} at ${pos}${v != null ? `: ${v}` : ''}${f === 'ok' ? ', slightly out of position' : f === 'bad' ? ', out of position' : ''}` : `Pick a ${pos}`)}">
+          <span class="lu-dot">${p ? (v != null ? v : esc(p.pos || '?')) : '+'}</span>
+          <span class="lu-pos">${esc(pos)}</span>
+          ${p ? `<span class="lu-name">${esc(surname(p.name))}</span>` : ''}
+          ${p && tags(p.id).length ? `<span class="lu-tags">${tags(p.id).map((x) => `<i>${x}</i>`).join('')}</span>` : ''}
+        </button>`;
+    };
+    const benchSlot = (id, i) => {
+      const p = byId.get(id);
+      const sel = open && open.kind === 'bench' && open.i === i;
+      return `<button type="button" class="lu-sub${p ? '' : ' is-empty'}${sel ? ' is-picking' : ''}" data-action="lu-slot" data-kind="bench" data-i="${i}" title="${esc(p ? `${p.name}${p.pos ? ` (${p.pos})` : ''}` : 'Add a substitute')}">
+          <span class="lu-sub-ovr">${p ? esc(num(p.ovr) || '–') : '+'}</span>
+          <span class="lu-sub-main"><strong>${p ? esc(surname(p.name)) : `SUB ${i + 1}`}</strong><small>${p ? esc(p.pos || '') : ''}</small></span>
+        </button>`;
+    };
+    const placed = new Set(lu.slots.concat(lu.bench).filter(Boolean));
+    const reserves = players.filter((p) => !placed.has(p.id)).sort((a, b) => (num(b.ovr) || 0) - (num(a.ovr) || 0));
+    const xiPlayers = lu.slots.map((id) => byId.get(id)).filter(Boolean);
+    const roleSel = (key, label) => `<label class="lu-role"><span>${label}</span><select data-lu-role="${key}" aria-label="${label}"><option value="">–</option>${xiPlayers.map((p) => `<option value="${esc(p.id)}" ${lu[key] === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>`;
+    const bad = lu.slots.map((id, i) => [byId.get(id), L[i][0]]).filter(([p, pos]) => p && fit(p.pos, pos) === 'bad');
+    return `
+      <div class="lu">
+        <div class="lu-head">
+          <label class="lu-formation"><span>Formation</span><select data-lu-formation aria-label="Formation">${NAMES.map((name) => `<option ${name === lu.formation ? 'selected' : ''}>${esc(name)}</option>`).join('')}</select></label>
+          <div class="lu-ratings" title="Average of your XI's ratings in their positions">
+            <span><small>OVR</small><strong>${r.ovr == null ? '–' : r.ovr}</strong></span>
+            <span><small>ATT</small><strong>${r.att == null ? '–' : r.att}</strong></span>
+            <span><small>MID</small><strong>${r.mid == null ? '–' : r.mid}</strong></span>
+            <span><small>DEF</small><strong>${r.def == null ? '–' : r.def}</strong></span>
+          </div>
+          <div class="lu-tools">
+            <button type="button" class="btn btn-small btn-primary" data-action="lu-auto" title="Pick the best XI and bench for this formation">⭐ Auto-pick</button>
+            <button type="button" class="btn btn-small" data-action="lu-image" title="Save your lineup as a picture">📸 Lineup image</button>
+            <button type="button" class="btn btn-small" data-action="lu-clear" title="Empty the XI and bench">Clear</button>
+          </div>
+        </div>
+        ${wanted && wanted !== lu.formation ? `<p class="lu-warn">📋 Your rules say <strong>${esc(wanted)}</strong>. <button type="button" class="login-link" data-action="lu-use" data-formation="${esc(wanted)}">Switch to it</button></p>` : ''}
+        ${bad.length ? `<p class="lu-warn">⚠️ Out of position: ${bad.map(([p, pos]) => `${esc(surname(p.name))} (${esc(p.pos)}) at ${esc(pos)}`).join(', ')}</p>` : ''}
+        <p class="muted small lu-hint">${r.filled}/11 picked. Click a position to choose who plays there; pick someone already in the team to swap them.</p>
+        <div class="lu-pitch" role="group" aria-label="Starting XI in a ${esc(lu.formation)}">
+          <span class="lu-box lu-box-top"></span><span class="lu-box lu-box-bottom"></span><span class="lu-circle"></span>
+          ${L.map(([pos, x, y], i) => slot(pos, x, y, i)).join('')}
+        </div>
+        ${open ? picker(entry, t, lu, open, esc) : ''}
+        <h4 class="lu-sub-head">🪑 Bench <span class="count">${lu.bench.filter(Boolean).length}/${BENCH}</span></h4>
+        <div class="lu-bench">${lu.bench.map(benchSlot).join('')}</div>
+        ${reserves.length ? `<p class="muted small lu-reserves">Reserves: ${reserves.map((p) => esc(`${surname(p.name)}${p.pos ? ` ${p.pos}` : ''}${num(p.ovr) ? ` ${p.ovr}` : ''}`)).join(' · ')}</p>` : ''}
+        ${xiPlayers.length ? `<div class="lu-roles">${roleSel('captain', '©️ Captain')}${roleSel('pk', '🎯 Penalties')}${roleSel('fk', '🌀 Free kicks')}${roleSel('ck', '🚩 Corners')}</div>` : ''}
+      </div>`;
+  }
+
+  function picker(entry, t, lu, open, esc) {
+    const players = active(t);
+    const L = layout(lu.formation);
+    const pos = open.kind === 'xi' ? L[open.i][0] : null;
+    const where = (id) => {
+      const i = lu.slots.indexOf(id);
+      if (i >= 0) return `XI · ${L[i][0]}`;
+      const b = lu.bench.indexOf(id);
+      return b >= 0 ? 'Bench' : '';
+    };
+    const sorted = players.slice().sort(pos
+      ? (a, b) => score(b, pos) - score(a, pos)
+      : (a, b) => (lu.slots.includes(a.id) - lu.slots.includes(b.id)) || (num(b.ovr) || 0) - (num(a.ovr) || 0));
+    const current = (open.kind === 'xi' ? lu.slots : lu.bench)[open.i];
+    return `
+      <div class="lu-picker" role="dialog" aria-label="Pick a player">
+        <div class="lu-picker-head"><strong>${pos ? `Who plays ${esc(pos)}?` : `Substitute ${open.i + 1}`}</strong>
+          ${current ? '<button type="button" class="btn btn-small" data-action="lu-pick" data-pid="">Leave empty</button>' : ''}
+          <button type="button" class="icon-btn" data-action="lu-close" aria-label="Close">✕</button></div>
+        <ul class="lu-options">${sorted.map((p) => {
+    const f = pos ? fit(p.pos, pos) : 'good';
+    const v = pos ? rating(p, pos) : num(p.ovr);
+    const w = where(p.id);
+    return `<li><button type="button" class="lu-opt${p.id === current ? ' is-current' : ''}" data-action="lu-pick" data-pid="${esc(p.id)}">
+            <span class="lu-opt-ovr fit-${f}">${v == null ? '–' : v}</span>
+            <span class="lu-opt-main"><strong>${esc(p.name)}</strong><small>${esc([p.pos, num(p.age) ? `${p.age} yrs` : '', pos && f !== 'good' && num(p.ovr) ? `${p.ovr} in his position` : ''].filter(Boolean).join(' · '))}</small></span>
+            ${w ? `<span class="lu-opt-where">${esc(w)}</span>` : ''}
+          </button></li>`;
+  }).join('')}</ul>
+      </div>`;
+  }
+
+  // ---------- The lineup as a picture ----------
+
+  async function exportImage(entry, t) {
+    const players = active(t);
+    const lu = ensure(t, ruleFormation(entry.challenge));
+    const L = layout(lu.formation);
+    const byId = new Map(players.map((p) => [p.id, p]));
+    const r = ratings(t, lu);
+    const W = 1080;
+    const H = 1350;
+    const c = document.createElement('canvas');
+    c.width = W;
+    c.height = H;
+    const ctx = c.getContext('2d');
+    const FONT = 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+    ctx.fillStyle = '#0b0f14';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#19e68c';
+    ctx.font = `800 30px ${FONT}`;
+    ctx.fillText(`${lu.formation.toUpperCase()}${r.ovr ? `  ·  TEAM OVR ${r.ovr}` : ''}`, 60, 80);
+    ctx.fillStyle = '#e9eef5';
+    ctx.font = `900 64px ${FONT}`;
+    ctx.fillText(String(entry.challenge.club.name).toUpperCase().slice(0, 26), 60, 150);
+    ctx.fillStyle = '#8d9bb0';
+    ctx.font = `600 28px ${FONT}`;
+    ctx.fillText(String(entry.challenge.title).slice(0, 60), 60, 192);
+    // Pitch
+    const px = 60;
+    const py = 230;
+    const pw = W - 120;
+    const ph = 860;
+    const g = ctx.createLinearGradient(0, py, 0, py + ph);
+    g.addColorStop(0, '#1f7a3e');
+    g.addColorStop(1, '#165c2e');
+    ctx.fillStyle = g;
+    ctx.fillRect(px, py, pw, ph);
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(px, py, pw, ph);
+    ctx.beginPath();
+    ctx.moveTo(px, py + ph / 2);
+    ctx.lineTo(px + pw, py + ph / 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(px + pw / 2, py + ph / 2, 90, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeRect(px + pw * 0.25, py, pw * 0.5, 130);
+    ctx.strokeRect(px + pw * 0.25, py + ph - 130, pw * 0.5, 130);
+    ctx.textAlign = 'center';
+    L.forEach(([pos, x, y], i) => {
+      const p = byId.get(lu.slots[i]);
+      const cx = px + (pw * x) / 100;
+      const cy = py + (ph * (y - 4)) / 96;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 40, 0, Math.PI * 2);
+      ctx.fillStyle = '#0b0f14';
+      ctx.fill();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = !p ? 'rgba(255,255,255,0.4)' : { good: '#19e68c', ok: '#ffc94d', bad: '#ff5c6c' }[fit(p.pos, pos)];
+      ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.font = `800 28px ${FONT}`;
+      const v = p ? rating(p, pos) : null;
+      ctx.fillText(p ? String(v != null ? v : pos) : pos, cx, cy + 10);
+      ctx.font = `800 26px ${FONT}`;
+      ctx.shadowColor = 'rgba(0,0,0,0.7)';
+      ctx.shadowBlur = 6;
+      const name = p ? String(p.name).trim().split(/\s+/).slice(-1)[0] : '';
+      ctx.fillText(`${name.slice(0, 14)}${p && lu.captain === p.id ? ' ©' : ''}`, cx, cy + 74);
+      ctx.shadowBlur = 0;
+    });
+    ctx.textAlign = 'left';
+    // Bench
+    const subs = lu.bench.map((id) => byId.get(id)).filter(Boolean);
+    ctx.fillStyle = '#19e68c';
+    ctx.font = `800 26px ${FONT}`;
+    ctx.fillText('BENCH', 60, 1140);
+    ctx.fillStyle = '#e9eef5';
+    ctx.font = `500 25px ${FONT}`;
+    const benchText = subs.map((p) => `${String(p.name).trim().split(/\s+/).slice(-1)[0]}${p.pos ? ` (${p.pos})` : ''}`).join(' · ') || '–';
+    const words = benchText.split(' ');
+    let line = '';
+    let y = 1180;
+    words.forEach((w) => {
+      const test = line ? `${line} ${w}` : w;
+      if (ctx.measureText(test).width > W - 120 && line) { ctx.fillText(line, 60, y); y += 34; line = w; } else line = test;
+    });
+    if (line && y < 1260) ctx.fillText(line, 60, y);
+    ctx.fillStyle = '#8d9bb0';
+    ctx.font = `600 22px ${FONT}`;
+    const site = /^https?:$/.test(root.location.protocol) ? (root.location.host + root.location.pathname).replace(/index\.html$/, '').replace(/\/$/, '') : String((FC26.config && FC26.config.siteUrl) || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+    ctx.fillText(`FC26 Career Challenge${site ? `  ·  ${site}` : ''}`, 60, H - 40);
+    const slug = String(entry.challenge.club.name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    return FC26.shareImage.deliver(c, `fc26-lineup-${slug}.png`, `${entry.challenge.club.name} lineup`);
+  }
+
+  FC26.lineup = { LAYOUTS, NAMES, BENCH, FIT, fit, rating, assign, autoPick, ensure, apply, changeFormation, place, ratings, ruleFormation, render, picks, exportImage };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
   <script>/* js/matches.js */
 /*
  * 📰 Matches: an optional match log on a saved challenge, and a newspaper
@@ -8573,6 +9110,25 @@ Aleksei Miranchuk|Russian|CAM
       </div>`;
   }
 
+  // The formation and lineup (lineup.js), or the simple pitch if it isn't loaded.
+  const lineupHTML = (entry, t) => (FC26.lineup ? FC26.lineup.render(entry, t, esc) : renderPitch(t));
+  const LU = () => FC26.lineup;
+
+  /** Redraw just the lineup (pitch, bench, picker). */
+  function redrawLineup(item) {
+    const entry = deps.findEntry(item.dataset.id);
+    const el = item.querySelector('[data-pitch]');
+    if (entry && el) el.innerHTML = lineupHTML(entry, trackerOf(entry));
+  }
+
+  /** Change the lineup: fn(lineup, tracker) returns the new lineup, which is saved with everyone's ⭐ to match. */
+  function changeLineup(item, fn) {
+    return change(item, (t, e) => {
+      const lu = LU().ensure(t, LU().ruleFormation(e.challenge));
+      LU().apply(t, fn(lu, t));
+    }, ['squad']);
+  }
+
   /** Eleven players in a 4-3-3: best by OVR (list order breaks ties) in each part of the pitch, gaps filled from the rest. */
   function bestXI(players) {
     const pool = players.filter((p) => !p.loanedOut).map((p, i) => ({ p, i, ovr: n(p.ovr) || 0 }))
@@ -8682,7 +9238,7 @@ Aleksei Miranchuk|Russian|CAM
           <span class="muted squad-stats" hidden>${esc(squadStats(t))}</span>
         </div>
         ${t.players.length ? squadCards(t) : ''}
-        <div class="pitch-wrap" data-pitch>${renderPitch(t)}</div>
+        <div class="pitch-wrap" data-pitch>${lineupHTML(entry, t)}</div>
         <div class="paste-box" hidden>
           <p class="muted">One player per line: <code>Name, Position, Age, Nationality, OVR, Wage</code>. Only the name is required, and the other values can come in any order. Copying a table from a ratings site works too.</p>
           <textarea rows="6" data-paste placeholder="Bukayo Saka, RW, 24, English, 87&#10;Jamie Gittens LW 21 English 80"></textarea>
@@ -9083,7 +9639,7 @@ Aleksei Miranchuk|Russian|CAM
     const stats = item.querySelector('.squad-stats');
     if (stats) stats.textContent = squadStats(t);
     const pitch = item.querySelector('[data-pitch]');
-    if (pitch) pitch.innerHTML = renderPitch(t);
+    if (pitch) pitch.innerHTML = lineupHTML(entry, t);
   }
 
   // Save a tracker change, then refresh rule checks and counts around it.
@@ -9183,6 +9739,50 @@ Aleksei Miranchuk|Russian|CAM
       form.elements.fee.focus({ preventScroll: true });
       deps.toast(`Fill in the fee for ${p.name}, then log the signing`);
       return true;
+    }
+    if (action && action.startsWith('lu-') && LU()) {
+      const L = LU();
+      if (action === 'lu-slot') {
+        const where = { kind: btn.dataset.kind, i: Number(btn.dataset.i) };
+        const open = L.picks[id];
+        L.picks[id] = open && open.kind === where.kind && open.i === where.i ? null : where;
+        redrawLineup(item);
+        const pk = item.querySelector('.lu-picker');
+        if (pk) pk.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        return true;
+      }
+      if (action === 'lu-close') { L.picks[id] = null; redrawLineup(item); return true; }
+      if (action === 'lu-pick') {
+        const where = L.picks[id];
+        if (!where) return true;
+        L.picks[id] = null;
+        changeLineup(item, (lu) => L.place(lu, where, btn.dataset.pid || null));
+        return true;
+      }
+      if (action === 'lu-auto') {
+        const t0 = trackerOf(deps.findEntry(id));
+        if (t0.players.some((p) => p.starter) && !root.confirm('Replace your XI and bench with the best picks for this formation?')) return true;
+        L.picks[id] = null;
+        changeLineup(item, (lu, t) => L.autoPick(t, lu.formation));
+        deps.toast(t0.players.some((p) => n(p.ovr)) ? 'Picked your best XI and bench ⭐' : 'Picked an XI by position. Add OVRs and it picks your best players.');
+        return true;
+      }
+      if (action === 'lu-clear') {
+        if (!root.confirm('Empty the starting XI and the bench?')) return true;
+        L.picks[id] = null;
+        changeLineup(item, (lu) => ({ formation: lu.formation, slots: lu.slots.map(() => null), bench: lu.bench.map(() => null) }));
+        return true;
+      }
+      if (action === 'lu-use') {
+        changeLineup(item, (lu, t) => L.changeFormation(t, lu, btn.dataset.formation));
+        deps.toast(`Switched to ${btn.dataset.formation}`);
+        return true;
+      }
+      if (action === 'lu-image') {
+        const entry = deps.findEntry(id);
+        L.exportImage(entry, trackerOf(entry)).then((r) => { if (r === 'downloaded') deps.toast('Lineup saved 📸'); }, () => deps.toast("Couldn't create the image in this browser"));
+        return true;
+      }
     }
     if (action === 'pick-xi') {
       const t0 = trackerOf(deps.findEntry(id));
@@ -9337,6 +9937,16 @@ Aleksei Miranchuk|Russian|CAM
     }
     if (el.matches('[data-shot]')) {
       readShot(el, item);
+      return true;
+    }
+    if (LU() && el.matches('[data-lu-formation]')) {
+      LU().picks[item.dataset.id] = null;
+      changeLineup(item, (lu, t) => LU().changeFormation(t, lu, el.value));
+      return true;
+    }
+    if (LU() && el.matches('[data-lu-role]')) {
+      const key = el.dataset.luRole;
+      changeLineup(item, (lu) => Object.assign({}, lu, { [key]: el.value || null }));
       return true;
     }
     if (el.matches('[data-squad-sort]')) {
@@ -13294,6 +13904,17 @@ Aleksei Miranchuk|Russian|CAM
   // Newest first. go: a tab the "Try it" button opens.
   const UPDATES = [
     {
+      id: '2026-10-25', date: '25 October 2026', title: '⚽ Formations, starting XI and bench',
+      items: [
+        'Pick from 18 formations in the Squad tab, then click any position on the pitch to choose who plays there, just like the game.',
+        'Fill a 9-player bench, and pick your captain, penalty, free-kick and corner takers.',
+        'Players out of position play worse: green, amber or red rings show how well each one fits, with team OVR, ATT, MID and DEF.',
+        '⭐ Auto-pick builds the best XI and bench for your formation, and you get a warning if your rules say to play a different one.',
+        '📸 Save your lineup as a picture to share.',
+      ],
+      go: 'saved',
+    },
+    {
       id: '2026-10-24c', date: '24 October 2026', title: '💻 A Mac app',
       items: ['Download FC26 Challenges for Mac (.dmg) from the footer or 🔔 → Get the app. It has its own window and Dock icon, and opens a built-in copy when you\'re offline.'],
     },
@@ -13883,6 +14504,18 @@ Aleksei Miranchuk|Russian|CAM
     ['Real FC 26 squads', 'Plantillas reales de FC 26', 'Elencos reais do FC 26', 'Vrais effectifs FC 26', 'Echte FC-26-Kader', 'Rose vere di FC 26', 'Loturi reale din FC 26', '真实 FC 26 阵容'],
     ['Daily and weekly', 'Diarios y semanales', 'Diários e semanais', 'Quotidiens et hebdos', 'Täglich und wöchentlich', 'Giornaliere e settimanali', 'Zilnice și săptămânale', '每日与每周'],
     ['Season cards', 'Tarjetas de temporada', 'Cards da temporada', 'Cartes de saison', 'Saisonkarten', 'Card stagionali', 'Carduri de sezon', '赛季卡片'],
+
+    // Lineup
+    ['Formation', 'Formación', 'Formação', 'Formation', 'Formation', 'Modulo', 'Formație', '阵型'],
+    ['Auto-pick', 'Elegir automático', 'Escolha automática', 'Choix auto', 'Automatisch wählen', 'Scelta automatica', 'Alegere automată', '自动选择'],
+    ['Lineup image', 'Imagen de la alineación', 'Imagem da escalação', 'Image de la compo', 'Aufstellungsbild', 'Immagine formazione', 'Imagine echipă', '阵容图片'],
+    ['Clear', 'Vaciar', 'Limpar', 'Vider', 'Leeren', 'Svuota', 'Golește', '清空'],
+    ['Bench', 'Banquillo', 'Banco', 'Banc', 'Bank', 'Panchina', 'Rezerve', '替补席'],
+    ['Captain', 'Capitán', 'Capitão', 'Capitaine', 'Kapitän', 'Capitano', 'Căpitan', '队长'],
+    ['Penalties', 'Penaltis', 'Pênaltis', 'Penaltys', 'Elfmeter', 'Rigori', 'Penalty-uri', '点球'],
+    ['Free kicks', 'Tiros libres', 'Faltas', 'Coups francs', 'Freistöße', 'Punizioni', 'Lovituri libere', '任意球'],
+    ['Corners', 'Córners', 'Escanteios', 'Corners', 'Ecken', 'Calci d’angolo', 'Cornere', '角球'],
+    ['Leave empty', 'Dejar vacío', 'Deixar vazio', 'Laisser vide', 'Leer lassen', 'Lascia vuoto', 'Lasă gol', '留空'],
 
     // Footer and search
     ['Fan-made tool, not affiliated with EA SPORTS. Club list based on the 2025/26 season; club sizes are approximate.', 'Herramienta hecha por fans, sin relación con EA SPORTS. Lista de clubes de la temporada 2025/26; los tamaños son aproximados.', 'Ferramenta feita por fãs, sem ligação com a EA SPORTS. Lista de clubes da temporada 2025/26; tamanhos aproximados.', 'Outil créé par des fans, sans lien avec EA SPORTS. Clubs de la saison 2025/26 ; tailles approximatives.', 'Von Fans gemacht, nicht mit EA SPORTS verbunden. Vereinsliste der Saison 2025/26; Größen sind ungefähr.', 'Strumento fatto dai fan, non affiliato a EA SPORTS. Club della stagione 2025/26; dimensioni approssimative.', 'Instrument făcut de fani, fără legătură cu EA SPORTS. Lista cluburilor din sezonul 2025/26; mărimile sunt aproximative.', '粉丝制作，与 EA SPORTS 无关。俱乐部列表基于 2025/26 赛季，规模为估计值。'],
