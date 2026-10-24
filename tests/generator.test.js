@@ -738,7 +738,8 @@ test('signing-rule chips and next steps reflect the challenge', () => {
 
 // [name, position, date of birth, nationality, loan?, also known as?]
 const goodRow = (p) => p.length === 4 || (p.length === 5 && ['in', 'out'].includes(p[4]))
-  || (p.length === 6 && ['', 'in', 'out'].includes(p[4]) && typeof p[5] === 'string' && p[5].trim() !== '' && p[5] !== p[0]);
+  || (p.length === 6 && ['', 'in', 'out'].includes(p[4]) && typeof p[5] === 'string' && p[5].trim() !== '' && p[5] !== p[0])
+  || (p.length === 7 && ['', 'in', 'out'].includes(p[4]) && typeof p[5] === 'string' && p[5] !== p[0] && Number.isInteger(p[6]) && p[6] >= 30 && p[6] <= 99);
 
 test('squad data is well-formed and realistic', () => {
   const S = globalThis.FC26.squads;
@@ -954,8 +955,10 @@ test("squads are the game's: in-game names, renamed clubs, and the right teams",
   // Loans: Rashford plays for Barcelona and is Manchester United's player out on loan.
   assert.ok(S.clubs['FC Barcelona'].some((p) => p[0] === 'Marcus Rashford' && p[4] === 'in'));
   assert.ok(S.clubs['Manchester United'].some((p) => p[0] === 'Marcus Rashford' && p[4] === 'out'));
-  // No ratings anywhere in the rows.
-  assert.ok(Object.values(S.clubs).every((rows) => rows.every((p) => p.every((v) => typeof v === 'string'))));
+  // Ratings from the game: Saliba is 87 at launch, and loading the squad fills them in.
+  assert.equal(S.clubs.Arsenal.find((p) => p[0] === 'William Saliba')[6], 87);
+  assert.equal(globalThis.FC26.trackerUI.realSquadPlayers('Arsenal', 1).find((p) => p.name === 'William Saliba').ovr, 87);
+  assert.equal(DB.recognise('Saliba').player.ovr, 87);
   const players = Object.values(globalThis.FC26.extraSquads.leagues).reduce((n, lg) => n + Object.values(lg.clubs).reduce((m, r) => m + r.length, 0), 0)
     + Object.values(S.clubs).reduce((n, r) => n + r.length, 0);
   assert.ok(players > 28000, `${players} players`);

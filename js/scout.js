@@ -1,7 +1,7 @@
 /*
  * Wonderkid scout: young players from every club's real squad (squads.js),
  * best prospects first. There are no ratings or potentials here (those are
- * EA's), so prospects are ranked by a few honest signals: a hand-picked list
+ * EA's own rating at launch helps too), so prospects are ranked by a few signals: a hand-picked list
  * of widely rated young talents, how young they are, and the level of the
  * club that has them in its first team.
  */
@@ -41,7 +41,7 @@
       extra.push([club, rows, { tier: lg.strength || 1, level: lg.level || 1, league: lg.name, leagueId: `x:${lg.name}` }]);
     }));
     Object.entries(clubs).map(([club, rows]) => [club, rows, meta.get(club) || {}]).concat(extra).forEach(([club, rows, m]) => {
-      rows.forEach(([name, pos, dob, nat, loan, alias]) => {
+      rows.forEach(([name, pos, dob, nat, loan, alias, ovr]) => {
         if (!dob) return; // no age, no way to call them young
         const k = DB.key(name);
         const id = `${k}|${dob}`;
@@ -50,7 +50,7 @@
         if (have && (loan === 'out' || have.loan !== 'out')) return;
         byKey.set(id, {
           key: k, name, pos, dob, nat: C ? C.normNat(nat) : nat, club, loan: loan || '',
-          tier: m.tier || 1, level: m.level || 1, league: m.league || '', leagueId: m.leagueId || '', known: known.has(k) || Boolean(alias && known.has(DB.key(alias))),
+          ovr: Number(ovr) || 0, tier: m.tier || 1, level: m.level || 1, league: m.league || '', leagueId: m.leagueId || '', known: known.has(k) || Boolean(alias && known.has(DB.key(alias))),
         });
       });
     });
@@ -77,9 +77,9 @@
       if (o.leagueId && p.leagueId !== o.leagueId) return;
       if (o.exclude.has(p.key)) return;
       if (q && !DB.key(`${p.name} ${p.club} ${p.nat} ${p.league}`).includes(q)) return;
-      // Hand-picked talents first, then youth, then the level of the club that has him.
-      const score = (p.known ? 100 : 0) + (22 - age) * 3 + p.tier * 8 + (p.level === 1 ? 6 : 0) + (p.loan === 'out' ? -2 : 0);
-      out.push({ name: p.name, pos: p.pos, age, nat: p.nat, club: p.club, league: p.league, leagueId: p.leagueId, known: p.known, loan: p.loan, score });
+      // Hand-picked talents first, then his rating, youth and the level of the club that has him.
+      const score = (p.known ? 100 : 0) + (p.ovr ? (p.ovr - 60) * 1.5 : 0) + (22 - age) * 3 + p.tier * 8 + (p.level === 1 ? 6 : 0) + (p.loan === 'out' ? -2 : 0);
+      out.push({ name: p.name, pos: p.pos, ovr: p.ovr, age, nat: p.nat, club: p.club, league: p.league, leagueId: p.leagueId, known: p.known, loan: p.loan, score });
     });
     return out.sort((a, b) => b.score - a.score || a.age - b.age || a.name.localeCompare(b.name));
   }

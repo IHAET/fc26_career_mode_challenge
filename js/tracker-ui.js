@@ -95,13 +95,13 @@
     return scoutState[id] || (scoutState[id] = { group: '', maxAge: 21, leagueId: '', query: '', fits: true, shown: 15 });
   }
 
-  const scoutData = (p) => esc(JSON.stringify({ name: p.name, pos: p.pos, age: p.age, nat: p.nat, club: p.club }));
+  const scoutData = (p) => esc(JSON.stringify({ name: p.name, pos: p.pos, age: p.age, nat: p.nat, club: p.club, ovr: p.ovr || '' }));
 
   function scoutRow(p, fit, shortlisted) {
     return `
       <div class="scout-row${p.known ? ' is-known' : ''}">
         <span class="sr-main">
-          <strong>${p.known ? '<span class="sr-star" title="Widely rated young talent">⭐</span> ' : ''}${esc(p.name)}</strong>
+          <strong>${p.ovr ? `<span class="sr-ovr ${ovrBand(p.ovr)}" title="Overall rating in FC 26">${esc(p.ovr)}</span> ` : ''}${p.known ? '<span class="sr-star" title="Widely rated young talent">⭐</span> ' : ''}${esc(p.name)}</strong>
           <small>${[p.pos, p.age ? `${p.age} yrs` : '', p.nat, p.club ? `${p.club}${p.loan === 'in' ? ' (on loan)' : ''}` : ''].filter(Boolean).map(esc).join(' · ')}</small>
         </span>
         ${fit ? `<span class="sr-fit ${fit.ok ? 'ok' : 'bad'}" title="${esc(fit.ok ? 'Signing him breaks none of the rules this tracker can check' : fit.breaks.map((b) => b.text).join(' · '))}">${fit.ok ? '✅ Fits your rules' : `❌ ${esc(fit.breaks[0].text)}`}</span>` : '<span></span>'}
@@ -140,7 +140,7 @@
     const leagues = (G.CLUBS || []).reduce((m, c) => (m.some(([id]) => id === c.leagueId) ? m : m.concat([[c.leagueId, c.league]])), []);
     return `
       <div class="scout">
-        <p class="scout-intro"><strong>🔭 Wonderkid scout.</strong> <span class="muted">Young players from every club's FC 26 squad, best prospects first (⭐ = widely rated talent), each checked against this challenge's rules. Ratings and potential aren't included, so confirm them with your scouts in the game.</span></p>
+        <p class="scout-intro"><strong>🔭 Wonderkid scout.</strong> <span class="muted">Young players from every club's FC 26 squad, best prospects first (⭐ = widely rated talent), each checked against this challenge's rules. The number is each player's FC 26 rating at launch; potential isn't included, so ask your scouts in the game.</span></p>
         ${short.length ? `<div class="shortlist"><h4>🎯 Your shortlist</h4>${short.map((p) => scoutRow(p, A.precheck(entry.challenge, t, { dir: 'in', type: 'permanent', name: p.name, nat: p.nat, pos: p.pos, age: p.age, fee: '', season: t.season, window: t.window, club: p.club }), true)).join('')}</div>` : ''}
         <form class="scout-filters" data-scout-form autocomplete="off">
           <select name="group" aria-label="Position">${opts([['', 'Any position'], ['GK', 'Goalkeepers'], ['DEF', 'Defenders'], ['MID', 'Midfielders'], ['ATT', 'Attackers']], s.group)}</select>
@@ -225,33 +225,93 @@
     return picked;
   }
 
+  // Lines of the squad list, in pitch order.
+  const SQUAD_LINES = [
+    ['gk', '🧤 Goalkeepers', ['GK']],
+    ['def', '🛡️ Defenders', ['CB', 'LB', 'RB', 'LWB', 'RWB']],
+    ['mid', '🎯 Midfielders', ['CDM', 'CM', 'CAM', 'LM', 'RM']],
+    ['att', '⚡ Attackers', ['LW', 'RW', 'ST', 'CF']],
+  ];
+  const squadLine = (pos) => (SQUAD_LINES.find(([, , list]) => list.includes(pos)) || ['other'])[0];
+  const POS_ORDER = ['GK', 'RB', 'RWB', 'CB', 'LB', 'LWB', 'CDM', 'CM', 'CAM', 'RM', 'LM', 'RW', 'LW', 'CF', 'ST'];
+  const squadSort = {}; // saved entry id → 'pos' | 'ovr' | 'age' | 'name'
+  const SORTS = {
+    pos: (a, b) => POS_ORDER.indexOf(a.pos) - POS_ORDER.indexOf(b.pos) || (n(b.ovr) || 0) - (n(a.ovr) || 0),
+    ovr: (a, b) => (n(b.ovr) || 0) - (n(a.ovr) || 0),
+    age: (a, b) => (n(a.age) || 99) - (n(b.age) || 99),
+    name: (a, b) => String(a.name).localeCompare(String(b.name)),
+  };
+  // OVR colour bands, as in the game's cards.
+  const ovrBand = (v) => (v == null || v === '' ? '' : v >= 85 ? 'ovr-elite' : v >= 78 ? 'ovr-gold' : v >= 70 ? 'ovr-silver' : 'ovr-bronze');
+
+  function playerRow(p) {
+    return `
+        <div class="prow line-${squadLine(p.pos)}${p.loanedOut ? ' is-out' : ''}${p.starter ? ' is-starter' : ''}" data-pid="${esc(p.id)}">
+          <select class="p-pos" data-pfield="pos" aria-label="Position"><option value="">–</option>${opts(POSITIONS.map((x) => [x, x]), p.pos)}</select>
+          <input class="p-name" type="text" data-pfield="name" value="${esc(p.name)}" placeholder="Player name" maxlength="40" aria-label="Name">
+          <input class="p-ovr ${ovrBand(n(p.ovr))}" type="number" min="1" max="99" data-pfield="ovr" value="${esc(p.ovr)}" placeholder="OVR" aria-label="Overall rating">
+          <label class="p-mini"><span>Age</span><input class="p-age" type="number" min="14" max="50" data-pfield="age" value="${esc(p.age)}" placeholder="–" aria-label="Age"></label>
+          <label class="p-mini p-mini-wide"><span>Nation</span><input class="p-nat" type="text" list="nat-list" data-pfield="nat" value="${esc(p.nat)}" placeholder="–" maxlength="30" aria-label="Nationality"></label>
+          <label class="p-mini"><span>€K/w</span><input class="p-wage" type="number" min="0" step="0.1" data-pfield="wage" value="${esc(p.wage)}" placeholder="–" aria-label="Wage in thousands of euros per week"></label>
+          <span class="p-flags">
+            <label title="In your starting XI"><input type="checkbox" data-pfield="starter" ${p.starter ? 'checked' : ''} aria-label="Starting XI">⭐</label>
+            <label title="Academy graduate"><input type="checkbox" data-pfield="academy" ${p.academy ? 'checked' : ''} aria-label="Academy graduate">🎓</label>
+            <label title="On loan at your club"><input type="checkbox" data-pfield="loanIn" ${p.loanIn ? 'checked' : ''} aria-label="On loan at your club">🔁</label>
+            <label title="Loaned out to another club"><input type="checkbox" data-pfield="loanedOut" ${p.loanedOut ? 'checked' : ''} aria-label="Loaned out">✈️</label>
+            <label title="Regen: a player the game generated"><input type="checkbox" data-pfield="regen" ${p.regen ? 'checked' : ''} aria-label="Regen">🧬</label>
+          </span>
+          <button type="button" class="icon-btn p-del" data-action="squad-del" title="Remove from the squad" aria-label="Remove ${esc(p.name)}">✕</button>
+        </div>`;
+  }
+
+  /** The summary along the top of the squad: players, XI, ages, ratings, nations, wages. */
+  function squadCards(t) {
+    const squad = t.players.filter((p) => !p.loanedOut);
+    const avg = (list) => (list.length ? list.reduce((a, b) => a + b, 0) / list.length : null);
+    const ages = squad.map((p) => n(p.age)).filter((a) => a);
+    const ovrs = squad.map((p) => n(p.ovr)).filter((a) => a);
+    const wages = squad.reduce((sum, p) => sum + (n(p.wage) || 0), 0);
+    const nations = new Set(squad.map((p) => p.nat).filter(Boolean)).size;
+    const card = (value, label, extra) => `<div class="sq-card${extra || ''}"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`;
+    return `
+      <div class="sq-cards">
+        ${card(squad.length, t.players.length > squad.length ? `players · ${t.players.length - squad.length} on loan` : 'players')}
+        ${card(`${squad.filter((p) => p.starter).length}/11`, 'starting XI', squad.filter((p) => p.starter).length === 11 ? ' is-good' : '')}
+        ${card(ages.length ? avg(ages).toFixed(1) : '–', 'average age')}
+        ${card(ovrs.length ? avg(ovrs).toFixed(1) : '–', ovrs.length && ovrs.length < squad.length ? `avg OVR (${ovrs.length} rated)` : 'average OVR')}
+        ${card(nations || '–', 'nationalities')}
+        ${card(wages ? `€${wages >= 1000 ? `${(wages / 1000).toFixed(2)}M` : `${Math.round(wages)}K`}` : '–', 'wages a week')}
+      </div>`;
+  }
+
   function renderSquad(entry, t) {
     const real = realSquad(entry.challenge.club.name);
-    const rows = t.players.map((p) => `
-        <div class="prow ${p.loanedOut ? 'is-out' : ''}" data-pid="${esc(p.id)}">
-          <input class="p-name" type="text" data-pfield="name" value="${esc(p.name)}" placeholder="Player name" maxlength="40" aria-label="Name">
-          <select class="p-pos" data-pfield="pos" aria-label="Position"><option value=""></option>${opts(POSITIONS.map((x) => [x, x]), p.pos)}</select>
-          <input class="p-age" type="number" min="14" max="50" data-pfield="age" value="${esc(p.age)}" placeholder="Age" aria-label="Age">
-          <input class="p-nat" type="text" list="nat-list" data-pfield="nat" value="${esc(p.nat)}" placeholder="Nationality" maxlength="30" aria-label="Nationality">
-          <input class="p-ovr" type="number" min="1" max="99" data-pfield="ovr" value="${esc(p.ovr)}" placeholder="OVR" aria-label="Overall rating">
-          <input class="p-wage" type="number" min="0" step="0.1" data-pfield="wage" value="${esc(p.wage)}" placeholder="€K/w" aria-label="Wage in thousands of euros per week">
-          <span class="p-flags">
-            <label title="In your starting XI"><input type="checkbox" data-pfield="starter" ${p.starter ? 'checked' : ''}>⭐</label>
-            <label title="Academy graduate"><input type="checkbox" data-pfield="academy" ${p.academy ? 'checked' : ''}>🎓</label>
-            <label title="On loan at your club"><input type="checkbox" data-pfield="loanIn" ${p.loanIn ? 'checked' : ''}>🔁</label>
-            <label title="Loaned out to another club"><input type="checkbox" data-pfield="loanedOut" ${p.loanedOut ? 'checked' : ''}>✈️</label>
-            <label title="Regen: a player the game generated"><input type="checkbox" data-pfield="regen" ${p.regen ? 'checked' : ''}>🧬</label>
-          </span>
-          <button type="button" class="icon-btn" data-action="squad-del" title="Remove from the squad" aria-label="Remove ${esc(p.name)}">✕</button>
-        </div>`).join('');
+    const sort = squadSort[entry.id] || 'pos';
+    const by = SORTS[sort];
+    const active = t.players.filter((p) => !p.loanedOut);
+    const groups = SQUAD_LINES.map(([id, label, list]) => [id, label, active.filter((p) => list.includes(p.pos))])
+      .concat([['other', '❔ No position yet', active.filter((p) => squadLine(p.pos) === 'other')]])
+      .filter(([, , list]) => list.length);
+    const out = t.players.filter((p) => p.loanedOut);
+    const list = groups.map(([id, label, players]) => `
+        <section class="pgroup pgroup-${id}">
+          <h4 class="pgroup-head">${label} <span class="count">${players.length}</span></h4>
+          ${players.slice().sort(by).map(playerRow).join('')}
+        </section>`).join('')
+      + (out.length ? `
+        <details class="pgroup pgroup-out">
+          <summary class="pgroup-head">✈️ Out on loan <span class="count">${out.length}</span></summary>
+          ${out.slice().sort(by).map(playerRow).join('')}
+        </details>` : '');
     return `
       <div class="squad">
         <div class="tools">
           <button type="button" class="btn btn-small" data-action="squad-add">+ Add player</button>
           <button type="button" class="btn btn-small" data-action="squad-paste">📋 Paste squad</button>
           ${real ? `<button type="button" class="btn btn-small${t.players.length ? '' : ' btn-primary'}" data-action="squad-load" title="${esc(SQUAD_SOURCE)}">⬇️ Load real squad (${esc(squadSize(real))})</button>` : ''}
-          <span class="muted squad-stats">${esc(squadStats(t))}</span>
+          <span class="muted squad-stats" hidden>${esc(squadStats(t))}</span>
         </div>
+        ${t.players.length ? squadCards(t) : ''}
         <div class="pitch-wrap" data-pitch>${renderPitch(t)}</div>
         <div class="paste-box" hidden>
           <p class="muted">One player per line: <code>Name, Position, Age, Nationality, OVR, Wage</code>. Only the name is required, and the other values can come in any order. Copying a table from a ratings site works too.</p>
@@ -262,9 +322,10 @@
             <button type="button" class="btn btn-small" data-action="paste-cancel">Cancel</button>
           </div>
         </div>
-        ${t.players.length ? `<div class="phead" aria-hidden="true"><span>Name</span><span>Pos</span><span>Age</span><span>Nationality</span><span>OVR</span><span>€K/week</span><span>⭐ 🎓 🔁 ✈️ 🧬</span><span></span></div>` : ''}
-        <div class="plist">${rows || `<p class="muted empty-note">${real
-    ? `No players yet. Press <strong>⬇️ Load real squad</strong> to start from ${esc(entry.challenge.club.name)}'s squad as FC 26 launched, loans included (names, positions, ages and nationalities). Later squad updates may have changed a few players, so check it against your save and add OVRs as you go. Or paste your own list.`
+        ${t.players.length ? `<div class="squad-bar"><h3>👥 Squad</h3>
+          <label class="squad-sort">Sort <select data-squad-sort aria-label="Sort the squad">${opts([['pos', 'Position'], ['ovr', 'OVR'], ['age', 'Age'], ['name', 'Name']], sort)}</select></label></div>` : ''}
+        <div class="plist">${list || `<p class="muted empty-note">${real
+    ? `No players yet. Press <strong>⬇️ Load real squad</strong> to start from ${esc(entry.challenge.club.name)}'s squad as it is in FC 26 (names, positions, ages, nationalities and loans), ratings included. Or paste your own list.`
     : 'No players yet. Add them one by one, or paste your whole squad.'}</p>`}</div>
         <p class="muted legend">⭐ starting XI · 🎓 academy graduate · 🔁 on loan at your club · ✈️ loaned out · 🧬 regen (generated player)</p>
       </div>`;
@@ -494,7 +555,7 @@
 
   // Details that follow the player's name. Each box remembers which name its value
   // was entered or filled in for (data-for), and data-auto marks values we filled.
-  const FOLLOW = ['nat', 'pos', 'age', 'club'];
+  const FOLLOW = ['nat', 'pos', 'age', 'club', 'ovr'];
 
   /**
    * The name now points at a known player (facts) or at nobody we know (null).
@@ -548,10 +609,10 @@
     if (hit && hit.player) {
       const p = hit.player;
       const age = DB.ageOn(p.dob, seasonDay(v.season));
-      const bits = [p.nat, p.pos, age ? `${age} at the start of season ${v.season}` : '', p.club ? `plays for ${p.club}` : ''].filter(Boolean);
+      const bits = [p.nat, p.pos, p.ovr ? `${p.ovr} OVR` : '', age ? `${age} at the start of season ${v.season}` : '', p.club ? `plays for ${p.club}` : ''].filter(Boolean);
       note.innerHTML = `👤 Recognised: <strong>${esc(p.name)}</strong>${bits.length ? ` · ${bits.map(esc).join(' · ')}` : ''}${p.custom ? ' <span class="muted">(you confirmed this one)</span>' : ''}`;
       setRegen(false);
-      if (autofill) fillFor(form, v.name, { nat: p.nat, pos: p.pos, age, club: p.club });
+      if (autofill) fillFor(form, v.name, { nat: p.nat, pos: p.pos, age, club: p.club, ovr: p.ovr || '' });
     } else if (hit && hit.candidates) {
       note.innerHTML = `Did you mean ${hit.candidates.map((p) => `<button type="button" class="link-btn" data-action="pick-player" data-name="${esc(p.name)}">${esc(p.name)}</button>`).join(', ')}?`;
       setRegen(false);
@@ -742,7 +803,7 @@
       if (tabBtn) tabBtn.click();
       const old = item.querySelector('[data-tform]');
       if (!old) return true;
-      old.outerHTML = transferForm(entry, t, 'in', { name: p.name, pos: p.pos, age: p.age, nat: p.nat, club: p.club, type: 'permanent' });
+      old.outerHTML = transferForm(entry, t, 'in', { name: p.name, pos: p.pos, age: p.age, nat: p.nat, club: p.club, ovr: p.ovr, type: 'permanent' });
       const form = item.querySelector('[data-tform]');
       updateRecognition(form, item, true);
       updatePrecheck(form, item);
@@ -768,7 +829,7 @@
       const t0 = trackerOf(deps.findEntry(id));
       if (t0.players.length && !root.confirm('Replace your current squad list with the real squad?')) return true;
       change(item, (t) => { t.players = realSquadPlayers(item.dataset.club, t.season); }, ['squad']);
-      deps.toast(`Loaded ${squadSize(real)}. Add their OVRs as you go.`);
+      deps.toast(`Loaded ${squadSize(real)} with their FC 26 ratings.`);
       return true;
     }
     if (action === 'tr-dir') {
@@ -900,6 +961,12 @@
       }, ['transfers', 'moves']);
       return true;
     }
+    if (el.matches('[data-squad-sort]')) {
+      squadSort[item.dataset.id] = el.value;
+      const entry = deps.findEntry(item.dataset.id);
+      if (entry) rerenderPanel(item, entry, 'squad');
+      return true;
+    }
     if (el.dataset.pfield) {
       const pid = el.closest('[data-pid]').dataset.pid;
       const field = el.dataset.pfield;
@@ -913,7 +980,11 @@
         const p = t.players.find((x) => x.id === pid);
         if (p) p[field] = value;
       }, []);
-      if (field === 'loanedOut') el.closest('.prow').classList.toggle('is-out', el.checked);
+      const row = el.closest('.prow');
+      if (field === 'loanedOut') row.classList.toggle('is-out', el.checked);
+      if (field === 'starter') row.classList.toggle('is-starter', el.checked);
+      if (field === 'ovr') el.className = `p-ovr ${ovrBand(value)}`;
+      if (field === 'pos') row.className = row.className.replace(/line-\w+/, `line-${squadLine(value)}`);
       return true;
     }
     return false;
@@ -940,7 +1011,7 @@
   }
 
   /** A club's real squad as tracker players, aged for the given season ([] if unknown). */
-  const SQUAD_SOURCE = "The squad as it is in FC 26 at launch: players, positions, nationalities and ages from EA's own FC 26 database, loans from the clubs' squad lists. No OVRs.";
+  const SQUAD_SOURCE = "The squad as it is in FC 26 at launch: players, positions, ratings, nationalities and ages from EA's own FC 26 database, loans from the clubs' squad lists.";
   const loanedOut = (row) => row[4] === 'out';
 
   /** "28 players + 6 out on loan", with a warning for lists too short to be a full squad. */
@@ -957,13 +1028,13 @@
     const day = seasonDay(season);
     const xi = new Set(((FC26.squads && FC26.squads.xi) || {})[club] || []);
     const fromGame = !((FC26.squads && FC26.squads.notInGame) || []).includes(club);
-    return real.map(([name, pos, dob, nat, loan], i) => {
+    return real.map(([name, pos, dob, nat, loan, , ovr], i) => {
       // The game's positions are the ones to use. A Wikipedia list often says just "forward";
       // the hand-written list knows Vinícius is a LW (same name and nationality, so the same player).
       const known = !fromGame && DB.lookup(name);
       const sure = known && known.curated && known.pos && known.nat === C.normNat(nat);
       return {
-        id: uid(), name, pos: sure ? known.pos : pos, age: DB.ageOn(dob, day), nat: C.normNat(nat),
+        id: uid(), name, pos: sure ? known.pos : pos, age: DB.ageOn(dob, day), nat: C.normNat(nat), ovr: Number(ovr) || '',
         loanIn: loan === 'in', loanedOut: loan === 'out', starter: xi.has(i),
       };
     });

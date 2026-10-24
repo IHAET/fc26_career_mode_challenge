@@ -494,6 +494,7 @@
     : ch.archetype.desc ? `<p class="desc">${esc(ch.archetype.desc)}</p>` : ''}
 
       ${mode !== 'saved' && !player ? xiPreview(ch.club.name) : ''}
+      ${window.FC26.youtube ? window.FC26.youtube.section(ch, esc) : ''}
 
       <section class="block">
         <h3>📜 Rules</h3>
@@ -1146,7 +1147,7 @@
     showView('saved', id);
     const item = $(`.saved-item[data-id="${CSS.escape(id)}"]`);
     if (item) item.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    toast(loaded ? `Tracking this challenge 📒 Loaded ${loaded} real players: add their OVRs as you go.` : 'Tracking this challenge 📒');
+    toast(loaded ? `Tracking this challenge 📒 Loaded ${loaded} real players with their FC 26 ratings.` : 'Tracking this challenge 📒');
   }
 
   // ---------- Transfers section ----------
@@ -1483,6 +1484,8 @@
 
   function init() {
     EMPTY_RESULT = $('#result').innerHTML;
+    // 📺 Watch sections on challenge cards (Builder, Daily, saved challenges).
+    document.addEventListener('click', (e) => { if (window.FC26.youtube) window.FC26.youtube.onClick(e); });
     populateOptions();
     syncMode();
     syncClubFilters();

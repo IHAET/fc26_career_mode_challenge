@@ -962,9 +962,9 @@ Aleksei Miranchuk|Russian|CAM
     const inGame = (club) => (clubs === squadClubs ? !notInGame.has(club) : extraInGame.has(club));
     [(row) => row[4] !== 'out', (row) => row[4] === 'out'].forEach((pass) => {
       Object.keys(clubs).forEach((club) => {
-        clubs[club].filter(pass).forEach(([name, pos, dob, nat, , alias]) => {
+        clubs[club].filter(pass).forEach(([name, pos, dob, nat, , alias, ovr]) => {
           if (byKey.has(key(name))) return; // same name at two clubs: keep the first
-          const p = { name, nat: normNat(nat), pos, dob, club, aliases: alias ? [alias] : [], inGame: inGame(club) };
+          const p = { name, nat: normNat(nat), pos, dob, club, aliases: alias ? [alias] : [], inGame: inGame(club), ovr: Number(ovr) || 0 };
           players.push(p);
           index(p);
         });

@@ -20,7 +20,7 @@
  *      lists, since the database lists a loanee at the club he plays for:
  *      he's flagged "in" there and listed "out" at his parent club.
  *   4. The likely starting XI is the best-rated 4-3-3 in the game's squad.
- * Ratings are only used to pick that XI: they're EA's, so they aren't stored.
+ * Each player's overall rating (OVR) is kept too; the detailed attributes aren't.
  * Clubs the game doesn't have keep their Wikipedia squad.
  */
 'use strict';
@@ -285,8 +285,9 @@ function clubRows(db, club, squad, wikiRows, loanedFrom) {
   const rows = list.map(({ e, loan, wiki }) => {
     const alias = wiki ? (key(wiki) !== key(e.name) ? wiki : '') : key(e.full) !== key(e.name) ? e.full : '';
     const row = [e.name, e.pos, e.dob, e.nat];
-    if (loan || alias) row.push(loan);
-    if (alias) row.push(alias);
+    if (loan || alias || e.ovr) row.push(loan);
+    if (alias || e.ovr) row.push(alias);
+    if (e.ovr) row.push(e.ovr);
     return row;
   });
   const xi = bestXI(list.map(({ e, loan }, i) => ({ i, pos: e.pos, alt: e.alt, ovr: e.ovr, loan })));
@@ -422,10 +423,10 @@ function write(r) {
  * Every club's squad as it is in EA SPORTS FC 26 at launch: the players and their in-game
  * names, positions, nationalities and dates of birth, from EA's own FC 26 database (the one
  * behind ea.com's ratings pages). Loans come from each club's Wikipedia squad list (${WIKI.asOf}).
- * Each player: [name, position, date of birth, nationality, loan?, also known as?] where loan
+ * Each player: [name, position, date of birth, nationality, loan?, also known as?, OVR?] where loan
  * is "in" (on loan at this club) or "out" (this club's player, loaned elsewhere), and the last
- * entry is the name people know when the game uses a shorter one ("Alejandro Balde" for "Balde").
- * Ratings aren't included: they're EA's.
+ * name is the one people know when the game uses a shorter one ("Alejandro Balde" for "Balde"),
+ * and OVR is the player's overall rating in the game at launch (from EA's ratings).
  */
 (function (root) {
   'use strict';
@@ -454,7 +455,7 @@ function write(r) {
  * Squads for leagues outside the challenge club list, used to recognise real players and
  * for the wonderkid scout (these clubs aren't playable). Clubs that are in FC 26 have the
  * game's squad (see js/squads.js); the rest have their Wikipedia squad list (${WIKI_EXTRA.asOf}).
- * Each player: [name, position, date of birth, nationality, loan?, also known as?] as in squads.js.
+ * Each player: [name, position, date of birth, nationality, loan?, also known as?, OVR?] as in squads.js.
  */
 (function (root) {
   'use strict';
