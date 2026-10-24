@@ -9,6 +9,7 @@
   const KNOWN_KEY = 'fc26-known-v1'; // players the user confirmed are real (not regens)
   const DELETED_KEY = 'fc26-deleted-v1'; // id → when a saved challenge was deleted, for syncing
   const TC_KEY = 'fc26-transfers-challenge-v1'; // challenge picked in the Transfers section
+  const FREE_SAVES = 5; // saved challenges without Pro (only once Pro is on sale)
 
   const $ = (sel, el = document) => el.querySelector(sel);
   const $$ = (sel, el = document) => Array.from(el.querySelectorAll(sel));
@@ -205,8 +206,9 @@
       club: f.club.value,
       league: f.league.value,
       tier: f.tier.value,
-      seasons: f.seasons.value,
-      ruleCount: f.ruleCount.value,
+      // Choosing the length and the number of rules is Pro.
+      seasons: Subs.locked() ? 'auto' : f.seasons.value,
+      ruleCount: Subs.locked() ? 'auto' : f.ruleCount.value,
       events: f.events.checked,
       ccName: f.ccName.value,
       ccCountry: f.ccCountry.value,
@@ -1074,6 +1076,10 @@
       if (!quiet) toast('Already in My Challenges');
       return existing.id;
     }
+    if (Subs.locked() && list.length >= FREE_SAVES) {
+      proOnly(`Keeping more than ${FREE_SAVES} challenges`);
+      return null;
+    }
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
     list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, log: {}, breaks: 0, tracker: Compliance.emptyTracker() });
     if (writeSaved(list)) {
@@ -1083,6 +1089,23 @@
     }
     toast("Couldn't save — browser storage is unavailable");
     return null;
+  }
+
+  /** Explain a Pro-only feature and open the Pro section. */
+  function proOnly(what) {
+    toast(`${what} is a ⭐ Pro feature`);
+    Subs.open();
+  }
+
+  /** Show or lift the Pro locks on the Builder's options. */
+  function syncProLocks() {
+    const lockedNow = Subs.locked();
+    $$('[data-pro-lock]').forEach((el) => { el.hidden = !lockedNow; });
+    ['#opt-seasons', '#opt-rules', '#opt-seed'].forEach((sel) => {
+      const el = $(sel);
+      el.disabled = lockedNow;
+      if (lockedNow) el.value = el.tagName === 'SELECT' ? 'auto' : '';
+    });
   }
 
   // Save (if needed) and open the challenge's tracker on its Squad / Career moves tab.
@@ -1449,6 +1472,7 @@
     $('#opt-club').addEventListener('change', syncClubFilters);
     $$('input[name="mode"]').forEach((el) => el.addEventListener('change', syncMode));
     $('#write-own').addEventListener('click', () => {
+      if (Subs.locked()) { proOnly('Writing your own challenges'); return; }
       const opts = readOptions();
       if (customClubMissing(opts)) return;
       startEdit(blankChallenge());
@@ -1486,7 +1510,7 @@
     Compliance.NATIONALITIES.forEach((nat) => natList.appendChild(new Option(nat)));
     $('#options').addEventListener('submit', (e) => {
       e.preventDefault();
-      const seed = $('#opt-seed').value.trim();
+      const seed = Subs.locked() ? '' : $('#opt-seed').value.trim();
       drawWithReel(seed || null);
       if (window.location.hash) history.replaceState(null, '', window.location.pathname + window.location.search);
     });
@@ -1523,6 +1547,8 @@
       dailySeen: (key) => loadCheckins().includes(key),
       shareHash: async (ch) => (await shareUrl(ch)).split('#')[1] || '',
     });
+    Subs.onProChange(syncProLocks);
+    syncProLocks();
     initAccount();
     initSoundtrack();
     Tutorial.init({ showView });

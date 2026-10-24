@@ -1084,3 +1084,8 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
 :root[data-theme="light"][data-accent="purple"] { --accent: #6d3fd6; --accent-ink: #ffffff; --accent-soft: rgba(109, 63, 214, 0.1); --accent-hi: #8257e8; --glow: rgba(109, 63, 214, 0.28); }
 :root[data-theme="light"][data-accent="red"] { --accent: #c9283a; --accent-ink: #ffffff; --accent-soft: rgba(201, 40, 58, 0.1); --accent-hi: #e03a4c; --glow: rgba(201, 40, 58, 0.28); }
 .subs-sec > .btn { align-self: flex-start; }
+.pro-lock { font-size: 0.66rem; font-weight: 800; padding: 1px 6px; border-radius: 6px; background: linear-gradient(135deg, #ffd76e, #f5a524); color: #2a1e00; vertical-align: middle; margin-left: 4px; }
+select:disabled, input:disabled { opacity: 0.55; cursor: not-allowed; }
+.coupon-ok { color: var(--accent); font-size: 0.9rem; }
+.btn.btn-danger-soft { background: transparent; border-color: var(--line); }
+.btn.btn-danger-soft:hover { border-color: var(--danger); background: rgba(255, 92, 108, 0.1); }

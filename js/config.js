@@ -27,6 +27,14 @@
     // with Stripe" extension. Off until a Stripe price id is filled in, e.g.
     // { price: 'price_123', label: '€2.99 a month', region: 'europe-west2' }
     // (region: where the extension's functions run). See "Pro plan" in the README.
-    pro: { price: '', label: '', region: 'us-central1' },
+    pro: {
+      price: '', label: '', region: 'us-central1',
+      // Coupon codes people can type in the app → the Stripe promotion code id (promo_…)
+      // you create for each in Stripe (Product catalogue → Coupons). Empty: not active yet.
+      coupons: {
+        MARSEILLE: { promo: '', says: '50% off your first month' },
+        LIVERPOOL4EVR: { promo: '', says: 'Your first month free' },
+      },
+    },
   }, FC26.config);
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -27,7 +27,7 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **🎧 Spotify soundtracks (optional)**: make a playlist for a save from your favourite genres plus ones that fit the club, the challenge and your squad.
 - **👤 Accounts (optional)**: sign in with email and password or Google, and your saved challenges, trackers, diaries and confirmed players sync across your devices. Without an account (or before accounts are set up) everything stays on the device as before. See "Accounts and Spotify" below.
 - **🎓 Tour**: a short walkthrough of the app on your first visit (Skip, Back, Next, arrow keys, Esc). ❓ in the top bar shows it again.
-- **🔔 Subscriptions** (🔔 in the top bar): the daily challenge as a calendar you subscribe to (Google Calendar, Apple Calendar, Outlook) or an RSS feed; reminder notifications for the daily challenge and for friends' new challenges; **following** friends by username to see the challenges they share and open them; and **⭐ Pro**, an optional paid plan (a Pro badge, five colour themes, 75 and 100-track soundtracks). See "Subscriptions, following and Pro" below.
+- **🔔 Subscriptions** (🔔 in the top bar): the daily challenge as a calendar you subscribe to (Google Calendar, Apple Calendar, Outlook) or an RSS feed; reminder notifications for the daily challenge and for friends' new challenges; **following** friends by username to see the challenges they share and open them; and **⭐ Pro**, a paid monthly plan with coupon codes (unlimited saves, choosing seasons, rules and seed, writing your own challenges, a Pro badge, five colour themes, 75 and 100-track soundtracks). See "Subscriptions, following and Pro" below.
 - **Quick start**: one-click cards on the Builder (Surprise me, Club Heritage, Road to Glory, Player Career, Legendary, today's daily), and a short club reel while a challenge is drawn.
 - **Light and dark themes** (☀️/🌙 in the top bar; follows your system until you pick), and a bottom tab bar on phones.
 - **🔭 Wonderkid scout**: a Scout tab on every tracked Manager Career challenge (and in the Transfers section) suggests young players from all 432 squads, best prospects first. A hand-picked list of widely rated talents (⭐, e.g. Lamine Yamal, Franco Mastantuono, Estêvão) comes first, then youth and the level of the club. Every suggestion is checked against the challenge's rules (✅ fits / ❌ which rule it breaks); filter by position, age, league or name, keep a 🎯 shortlist on the save, and **Sign** fills in the transfer form. Ratings and potential aren't included (they're EA's), so confirm them with your scouts in the game.
@@ -105,8 +105,11 @@ It only uses what Spotify still opens to apps in development mode after its Febr
 2. In Firebase, upgrade the project to the **Blaze** (pay as you go) plan, which extensions need; small projects stay within the free allowance.
 3. Install the **Run Payments with Stripe** extension (`invertase/firestore-stripe-payments`) with the default collection names (`customers`, `products`), give it your Stripe secret key, and add the webhook it shows in Stripe (**Developers → Webhooks**) with the events it lists. Turn on Stripe's customer portal (**Settings → Billing → Customer portal**) so people can cancel.
 4. Fill in `pro` in `js/config.js`: `{ price: 'price_…', label: '€2.99 a month', region: '<the extension's region>' }`, publish the latest `firestore.rules`, rebuild and push.
+5. Coupons: in Stripe (**Product catalogue → Coupons**) create a coupon of 50% off for 1 month with a promotion code `MARSEILLE`, and one of 100% off for 1 month with the code `LIVERPOOL4EVR`. Paste each promotion code's id (`promo_…`) into `pro.coupons` in `js/config.js`. People type the code in the Pro section (or on Stripe's checkout page), and Stripe applies the discount.
 
-The app has no server of its own, so Pro is checked in the browser: it unlocks looks and bigger playlists, not anything that needs protecting.
+Once Pro is on sale, free users are limited: they keep up to 5 saved challenges, and choosing the number of seasons or extra rules, typing a seed, and writing your own challenge are Pro. Until then nothing is locked, since nobody could buy Pro.
+
+Payment is real (Stripe takes it), but the app has no server of its own, so the Pro limits are checked in the browser; someone determined could get around them.
 
 ## Squad data
 

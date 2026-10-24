@@ -41,6 +41,17 @@
   const proConfig = () => (FC26.config && FC26.config.pro) || {};
   const proOn = () => Boolean(proConfig().price);
   const isPro = () => st.pro;
+  /** Pro-only features are locked: Pro is on sale and this person hasn't got it. */
+  const locked = () => proOn() && !st.pro;
+  const proListeners = [];
+  const proChanged = () => proListeners.forEach((fn) => fn(st.pro));
+  // A coupon typed in the Pro section, checked against the configured codes.
+  let coupon = null; // { code, promo, says }
+  function findCoupon(raw) {
+    const code = String(raw || '').trim().toUpperCase();
+    const hit = (proConfig().coupons || {})[code];
+    return hit ? { code, promo: hit.promo || '', says: hit.says || '' } : null;
+  }
 
   // ---------- Daily challenge feed ----------
 
@@ -225,6 +236,7 @@
   // ---------- Pro ----------
 
   function applyAccent() {
+    proChanged();
     const accent = st.pro ? deps.storageGet(ACCENT_KEY, '') : '';
     if (accent) document.documentElement.dataset.accent = accent;
     else delete document.documentElement.dataset.accent;
@@ -249,9 +261,11 @@
   async function checkout() {
     const d = data();
     const here = `${root.location.origin}${root.location.pathname}`;
-    const id = await d.add(`customers/${uid}/checkout_sessions`, {
-      price: proConfig().price, mode: 'subscription', allow_promotion_codes: true, success_url: `${here}#pro=welcome`, cancel_url: here,
-    });
+    // A coupon from the app is applied up front; otherwise Stripe's page has a box for one.
+    const session = { price: proConfig().price, mode: 'subscription', success_url: `${here}#pro=welcome`, cancel_url: here };
+    if (coupon && coupon.promo) session.promotion_code = coupon.promo;
+    else session.allow_promotion_codes = true;
+    const id = await d.add(`customers/${uid}/checkout_sessions`, session);
     await new Promise((resolve, reject) => {
       const timer = setTimeout(() => { stop(); reject(new Error("Checkout didn't start. If you run this copy of the app, check the Stripe extension in Firebase.")); }, 25000);
       const stop = d.watch(`customers/${uid}/checkout_sessions/${id}`, (s) => {
@@ -362,8 +376,16 @@
         <div class="accents" role="radiogroup" aria-label="Colour theme">${ACCENTS.map(([id, label]) => `
           <button type="button" class="accent-chip${accent === id ? ' is-on' : ''}" data-subs="accent" data-accent="${id}" role="radio" aria-checked="${accent === id}">${esc(label)}</button>`).join('')}</div>
         <button type="button" class="btn btn-small" data-subs="portal">Manage or cancel</button>`;
-    } else body = `<button type="button" class="btn btn-small btn-pro" data-subs="checkout">⭐ Go Pro${proConfig().label ? ` · ${esc(proConfig().label)}` : ''}</button>
-      <p class="muted small">Paid securely through Stripe. Cancel any time.</p>`;
+    } else {
+      body = `
+        <form class="subs-form subs-inline" data-subs-form="coupon">
+          <input type="text" name="code" maxlength="30" placeholder="Coupon code" aria-label="Coupon code" value="${esc(coupon ? coupon.code : '')}" autocomplete="off">
+          <button type="submit" class="btn btn-small">Apply</button>
+        </form>
+        ${coupon ? `<p class="coupon-ok">🎟️ <strong>${esc(coupon.code)}</strong>: ${esc(coupon.says)}</p>` : ''}
+        <button type="button" class="btn btn-small btn-pro" data-subs="checkout">⭐ Go Pro${proConfig().label ? ` · ${esc(proConfig().label)}` : ''}${coupon ? ` (${esc(coupon.says)})` : ''}</button>
+        <p class="muted small">Paid monthly through Stripe. Cancel any time.</p>`;
+    }
     return `
       <section class="subs-sec subs-pro">
         <h3>⭐ Pro</h3>
@@ -479,6 +501,15 @@
         st.editing = false;
         deps.toast(`You're @${st.profile.handle} 👋`);
       });
+    } else if (kind === 'coupon') {
+      const hit = findCoupon(f.code.value);
+      if (!f.code.value.trim()) { coupon = null; render(); return; }
+      if (!hit) { st.error = `"${f.code.value.trim()}" isn't a valid code.`; coupon = null; render(); return; }
+      if (!hit.promo) { st.error = `${hit.code} isn't active yet.`; coupon = null; render(); return; }
+      st.error = '';
+      coupon = hit;
+      deps.toast(`🎟️ ${hit.code}: ${hit.says}`);
+      render();
     } else if (kind === 'follow') {
       act('Looking them up…', async () => {
         const handle = await follow(f.handle.value);
@@ -552,5 +583,9 @@
     setInterval(() => { if (uid && st.following.length) refreshFeed(true).catch(() => {}); }, 600000);
   }
 
-  FC26.subscriptions = { init, onAccount, savesChanged, isPro, feedUrls, open, ACCENTS, HANDLE_RE };
+  FC26.subscriptions = {
+    init, onAccount, savesChanged, isPro, locked, feedUrls, open, findCoupon, ACCENTS, HANDLE_RE,
+    /** Call fn(isPro) whenever Pro starts or stops. */
+    onProChange: (fn) => proListeners.push(fn),
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

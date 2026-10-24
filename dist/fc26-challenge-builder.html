@@ -1096,6 +1096,11 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
 :root[data-theme="light"][data-accent="purple"] { --accent: #6d3fd6; --accent-ink: #ffffff; --accent-soft: rgba(109, 63, 214, 0.1); --accent-hi: #8257e8; --glow: rgba(109, 63, 214, 0.28); }
 :root[data-theme="light"][data-accent="red"] { --accent: #c9283a; --accent-ink: #ffffff; --accent-soft: rgba(201, 40, 58, 0.1); --accent-hi: #e03a4c; --glow: rgba(201, 40, 58, 0.28); }
 .subs-sec > .btn { align-self: flex-start; }
+.pro-lock { font-size: 0.66rem; font-weight: 800; padding: 1px 6px; border-radius: 6px; background: linear-gradient(135deg, #ffd76e, #f5a524); color: #2a1e00; vertical-align: middle; margin-left: 4px; }
+select:disabled, input:disabled { opacity: 0.55; cursor: not-allowed; }
+.coupon-ok { color: var(--accent); font-size: 0.9rem; }
+.btn.btn-danger-soft { background: transparent; border-color: var(--line); }
+.btn.btn-danger-soft:hover { border-color: var(--danger); background: rgba(255, 92, 108, 0.1); }
 </style>
   <script>
     // Theme before first paint: the saved choice, else the system's.
@@ -1230,11 +1235,11 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
 
         <div class="field-row">
           <label class="field">
-            <span>Seasons</span>
+            <span>Seasons <span class="pro-lock" data-pro-lock hidden>⭐ Pro</span></span>
             <select name="seasons" id="opt-seasons"><option value="auto">Auto</option></select>
           </label>
           <label class="field">
-            <span>Extra rules</span>
+            <span>Extra rules <span class="pro-lock" data-pro-lock hidden>⭐ Pro</span></span>
             <select name="ruleCount" id="opt-rules"><option value="auto">Auto</option></select>
           </label>
         </div>
@@ -1245,13 +1250,13 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
         </label>
 
         <label class="field">
-          <span>Seed <small>(same seed + options = same challenge)</small></span>
+          <span>Seed <small>(same seed + options = same challenge)</small> <span class="pro-lock" data-pro-lock hidden>⭐ Pro</span></span>
           <input type="text" name="seed" id="opt-seed" placeholder="Leave blank for random" maxlength="32" spellcheck="false">
         </label>
         </details>
 
         <button type="submit" class="btn btn-primary btn-big">⚽ Generate challenge</button>
-        <button type="button" class="btn" id="write-own">✍️ Write your own</button>
+        <button type="button" class="btn" id="write-own">✍️ Write your own <span class="pro-lock" data-pro-lock hidden>⭐ Pro</span></button>
         <p class="hint">Lock 🔒 the parts you like, then hit <strong>Reroll</strong> to change the rest.</p>
       </form>
 
@@ -1367,7 +1372,15 @@ svg.tab-icon { width: 18px; height: 18px; flex: none; }
     // with Stripe" extension. Off until a Stripe price id is filled in, e.g.
     // { price: 'price_123', label: '€2.99 a month', region: 'europe-west2' }
     // (region: where the extension's functions run). See "Pro plan" in the README.
-    pro: { price: '', label: '', region: 'us-central1' },
+    pro: {
+      price: '', label: '', region: 'us-central1',
+      // Coupon codes people can type in the app → the Stripe promotion code id (promo_…)
+      // you create for each in Stripe (Product catalogue → Coupons). Empty: not active yet.
+      coupons: {
+        MARSEILLE: { promo: '', says: '50% off your first month' },
+        LIVERPOOL4EVR: { promo: '', says: 'Your first month free' },
+      },
+    },
   }, FC26.config);
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
@@ -7249,6 +7262,7 @@ Aleksei Miranchuk|Russian|CAM
             ${isPlayer(entry) ? '' : `<select data-tracker="window" aria-label="Current transfer window">${opts([['summer', 'Summer window'], ['winter', 'January window']], t.window)}</select>`}
           </span>
           <button type="button" class="btn btn-small btn-spotify-soft" data-action="open-soundtrack" title="Make a Spotify playlist for this save">🎧 Soundtrack</button>
+          <button type="button" class="btn btn-small btn-danger-soft" data-action="delete" title="Delete this save" aria-label="Delete this save">🗑️</button>
           <div class="tracker-tabs" role="tablist">
             ${tabBtn('challenge', '📋 Challenge')}
             ${isPlayer(entry)
@@ -9402,6 +9416,17 @@ Aleksei Miranchuk|Russian|CAM
   const proConfig = () => (FC26.config && FC26.config.pro) || {};
   const proOn = () => Boolean(proConfig().price);
   const isPro = () => st.pro;
+  /** Pro-only features are locked: Pro is on sale and this person hasn't got it. */
+  const locked = () => proOn() && !st.pro;
+  const proListeners = [];
+  const proChanged = () => proListeners.forEach((fn) => fn(st.pro));
+  // A coupon typed in the Pro section, checked against the configured codes.
+  let coupon = null; // { code, promo, says }
+  function findCoupon(raw) {
+    const code = String(raw || '').trim().toUpperCase();
+    const hit = (proConfig().coupons || {})[code];
+    return hit ? { code, promo: hit.promo || '', says: hit.says || '' } : null;
+  }
 
   // ---------- Daily challenge feed ----------
 
@@ -9586,6 +9611,7 @@ Aleksei Miranchuk|Russian|CAM
   // ---------- Pro ----------
 
   function applyAccent() {
+    proChanged();
     const accent = st.pro ? deps.storageGet(ACCENT_KEY, '') : '';
     if (accent) document.documentElement.dataset.accent = accent;
     else delete document.documentElement.dataset.accent;
@@ -9610,9 +9636,11 @@ Aleksei Miranchuk|Russian|CAM
   async function checkout() {
     const d = data();
     const here = `${root.location.origin}${root.location.pathname}`;
-    const id = await d.add(`customers/${uid}/checkout_sessions`, {
-      price: proConfig().price, mode: 'subscription', allow_promotion_codes: true, success_url: `${here}#pro=welcome`, cancel_url: here,
-    });
+    // A coupon from the app is applied up front; otherwise Stripe's page has a box for one.
+    const session = { price: proConfig().price, mode: 'subscription', success_url: `${here}#pro=welcome`, cancel_url: here };
+    if (coupon && coupon.promo) session.promotion_code = coupon.promo;
+    else session.allow_promotion_codes = true;
+    const id = await d.add(`customers/${uid}/checkout_sessions`, session);
     await new Promise((resolve, reject) => {
       const timer = setTimeout(() => { stop(); reject(new Error("Checkout didn't start. If you run this copy of the app, check the Stripe extension in Firebase.")); }, 25000);
       const stop = d.watch(`customers/${uid}/checkout_sessions/${id}`, (s) => {
@@ -9723,8 +9751,16 @@ Aleksei Miranchuk|Russian|CAM
         <div class="accents" role="radiogroup" aria-label="Colour theme">${ACCENTS.map(([id, label]) => `
           <button type="button" class="accent-chip${accent === id ? ' is-on' : ''}" data-subs="accent" data-accent="${id}" role="radio" aria-checked="${accent === id}">${esc(label)}</button>`).join('')}</div>
         <button type="button" class="btn btn-small" data-subs="portal">Manage or cancel</button>`;
-    } else body = `<button type="button" class="btn btn-small btn-pro" data-subs="checkout">⭐ Go Pro${proConfig().label ? ` · ${esc(proConfig().label)}` : ''}</button>
-      <p class="muted small">Paid securely through Stripe. Cancel any time.</p>`;
+    } else {
+      body = `
+        <form class="subs-form subs-inline" data-subs-form="coupon">
+          <input type="text" name="code" maxlength="30" placeholder="Coupon code" aria-label="Coupon code" value="${esc(coupon ? coupon.code : '')}" autocomplete="off">
+          <button type="submit" class="btn btn-small">Apply</button>
+        </form>
+        ${coupon ? `<p class="coupon-ok">🎟️ <strong>${esc(coupon.code)}</strong>: ${esc(coupon.says)}</p>` : ''}
+        <button type="button" class="btn btn-small btn-pro" data-subs="checkout">⭐ Go Pro${proConfig().label ? ` · ${esc(proConfig().label)}` : ''}${coupon ? ` (${esc(coupon.says)})` : ''}</button>
+        <p class="muted small">Paid monthly through Stripe. Cancel any time.</p>`;
+    }
     return `
       <section class="subs-sec subs-pro">
         <h3>⭐ Pro</h3>
@@ -9840,6 +9876,15 @@ Aleksei Miranchuk|Russian|CAM
         st.editing = false;
         deps.toast(`You're @${st.profile.handle} 👋`);
       });
+    } else if (kind === 'coupon') {
+      const hit = findCoupon(f.code.value);
+      if (!f.code.value.trim()) { coupon = null; render(); return; }
+      if (!hit) { st.error = `"${f.code.value.trim()}" isn't a valid code.`; coupon = null; render(); return; }
+      if (!hit.promo) { st.error = `${hit.code} isn't active yet.`; coupon = null; render(); return; }
+      st.error = '';
+      coupon = hit;
+      deps.toast(`🎟️ ${hit.code}: ${hit.says}`);
+      render();
     } else if (kind === 'follow') {
       act('Looking them up…', async () => {
         const handle = await follow(f.handle.value);
@@ -9913,7 +9958,11 @@ Aleksei Miranchuk|Russian|CAM
     setInterval(() => { if (uid && st.following.length) refreshFeed(true).catch(() => {}); }, 600000);
   }
 
-  FC26.subscriptions = { init, onAccount, savesChanged, isPro, feedUrls, open, ACCENTS, HANDLE_RE };
+  FC26.subscriptions = {
+    init, onAccount, savesChanged, isPro, locked, feedUrls, open, findCoupon, ACCENTS, HANDLE_RE,
+    /** Call fn(isPro) whenever Pro starts or stops. */
+    onProChange: (fn) => proListeners.push(fn),
+  };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/tutorial.js */
@@ -10119,6 +10168,7 @@ Aleksei Miranchuk|Russian|CAM
   const KNOWN_KEY = 'fc26-known-v1'; // players the user confirmed are real (not regens)
   const DELETED_KEY = 'fc26-deleted-v1'; // id → when a saved challenge was deleted, for syncing
   const TC_KEY = 'fc26-transfers-challenge-v1'; // challenge picked in the Transfers section
+  const FREE_SAVES = 5; // saved challenges without Pro (only once Pro is on sale)
 
   const $ = (sel, el = document) => el.querySelector(sel);
   const $$ = (sel, el = document) => Array.from(el.querySelectorAll(sel));
@@ -10315,8 +10365,9 @@ Aleksei Miranchuk|Russian|CAM
       club: f.club.value,
       league: f.league.value,
       tier: f.tier.value,
-      seasons: f.seasons.value,
-      ruleCount: f.ruleCount.value,
+      // Choosing the length and the number of rules is Pro.
+      seasons: Subs.locked() ? 'auto' : f.seasons.value,
+      ruleCount: Subs.locked() ? 'auto' : f.ruleCount.value,
       events: f.events.checked,
       ccName: f.ccName.value,
       ccCountry: f.ccCountry.value,
@@ -11184,6 +11235,10 @@ Aleksei Miranchuk|Russian|CAM
       if (!quiet) toast('Already in My Challenges');
       return existing.id;
     }
+    if (Subs.locked() && list.length >= FREE_SAVES) {
+      proOnly(`Keeping more than ${FREE_SAVES} challenges`);
+      return null;
+    }
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
     list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, log: {}, breaks: 0, tracker: Compliance.emptyTracker() });
     if (writeSaved(list)) {
@@ -11193,6 +11248,23 @@ Aleksei Miranchuk|Russian|CAM
     }
     toast("Couldn't save — browser storage is unavailable");
     return null;
+  }
+
+  /** Explain a Pro-only feature and open the Pro section. */
+  function proOnly(what) {
+    toast(`${what} is a ⭐ Pro feature`);
+    Subs.open();
+  }
+
+  /** Show or lift the Pro locks on the Builder's options. */
+  function syncProLocks() {
+    const lockedNow = Subs.locked();
+    $$('[data-pro-lock]').forEach((el) => { el.hidden = !lockedNow; });
+    ['#opt-seasons', '#opt-rules', '#opt-seed'].forEach((sel) => {
+      const el = $(sel);
+      el.disabled = lockedNow;
+      if (lockedNow) el.value = el.tagName === 'SELECT' ? 'auto' : '';
+    });
   }
 
   // Save (if needed) and open the challenge's tracker on its Squad / Career moves tab.
@@ -11559,6 +11631,7 @@ Aleksei Miranchuk|Russian|CAM
     $('#opt-club').addEventListener('change', syncClubFilters);
     $$('input[name="mode"]').forEach((el) => el.addEventListener('change', syncMode));
     $('#write-own').addEventListener('click', () => {
+      if (Subs.locked()) { proOnly('Writing your own challenges'); return; }
       const opts = readOptions();
       if (customClubMissing(opts)) return;
       startEdit(blankChallenge());
@@ -11596,7 +11669,7 @@ Aleksei Miranchuk|Russian|CAM
     Compliance.NATIONALITIES.forEach((nat) => natList.appendChild(new Option(nat)));
     $('#options').addEventListener('submit', (e) => {
       e.preventDefault();
-      const seed = $('#opt-seed').value.trim();
+      const seed = Subs.locked() ? '' : $('#opt-seed').value.trim();
       drawWithReel(seed || null);
       if (window.location.hash) history.replaceState(null, '', window.location.pathname + window.location.search);
     });
@@ -11633,6 +11706,8 @@ Aleksei Miranchuk|Russian|CAM
       dailySeen: (key) => loadCheckins().includes(key),
       shareHash: async (ch) => (await shareUrl(ch)).split('#')[1] || '',
     });
+    Subs.onProChange(syncProLocks);
+    syncProLocks();
     initAccount();
     initSoundtrack();
     Tutorial.init({ showView });
