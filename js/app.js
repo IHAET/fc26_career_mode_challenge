@@ -1713,6 +1713,7 @@
     });
     window.FC26.community.init({ esc, toast, showView, storageGet, storageSet });
     syncProLocks();
+    window.FC26.intro.init({ esc });
     initAccount();
     initSoundtrack();
     Tutorial.init({ showView });

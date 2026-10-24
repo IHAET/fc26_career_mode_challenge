@@ -1358,6 +1358,52 @@ body.has-dock .yt-float { bottom: 150px; }
   .h2h-vs { grid-template-columns: 1fr; }
   .h2h-x { justify-self: center; }
 }
+
+/* ---------- Intro page (first visit) ---------- */
+
+.intro { display: none; }
+html.intro-on .intro {
+  display: flex; flex-direction: column; gap: 22px; position: fixed; inset: 0; z-index: 48; overflow-y: auto;
+  padding: 18px max(16px, calc((100vw - 1120px) / 2)) 28px;
+  background:
+    radial-gradient(900px 520px at 85% -10%, var(--accent-soft), transparent 70%),
+    radial-gradient(700px 480px at -10% 110%, color-mix(in srgb, var(--d1) 10%, transparent), transparent 70%),
+    var(--bg);
+}
+html.intro-on body { overflow: hidden; }
+.intro-top { display: flex; align-items: center; gap: 12px; }
+.intro-name { font-family: var(--font-display, inherit); font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; font-size: 1.2rem; flex: 1; min-width: 0; }
+.intro-grid {
+  display: grid; gap: 22px 40px; align-items: start;
+  grid-template-columns: minmax(0, 1fr) min(420px, 100%);
+  grid-template-areas: "hero auth" "more auth";
+}
+.intro-hero { grid-area: hero; display: flex; flex-direction: column; gap: 12px; padding-top: 18px; }
+.intro-hero h1 { margin: 0; font-family: var(--font-display, inherit); font-weight: 800; text-transform: uppercase; line-height: 0.95; font-size: clamp(2.3rem, 5.4vw, 4rem); letter-spacing: 0.01em; }
+.intro-lead { margin: 0; font-size: 1.08rem; color: var(--muted); max-width: 46ch; }
+.intro-auth { grid-area: auth; position: sticky; top: 0; width: 100%; }
+.intro-auth.is-busy { opacity: 0.7; pointer-events: none; }
+.intro-guest { width: 100%; }
+.intro-skip { align-self: flex-start; display: none; }
+@media (max-width: 860px) { .intro-skip { display: inline; } }
+.intro-more { grid-area: more; display: flex; flex-direction: column; gap: 18px; }
+.intro-teaser { padding: 16px 18px; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
+.intro-teaser-title { font-size: 1.15rem; }
+.intro-teaser ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 0.92rem; display: flex; flex-direction: column; gap: 3px; }
+.intro-feats { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.intro-feats li { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; padding: 12px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); }
+.intro-feats li span { grid-row: span 2; font-size: 1.4rem; line-height: 1.2; }
+.intro-feats small { color: var(--muted); font-size: 0.84rem; }
+.intro-foot { margin: 0; text-align: center; }
+@media (max-width: 860px) {
+  .intro-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "hero" "auth" "more"; }
+  .intro-auth { position: static; justify-self: center; }
+  .intro-hero { padding-top: 4px; }
+}
+@media (max-width: 480px) {
+  .intro-feats { grid-template-columns: minmax(0, 1fr); }
+  .intro-auth { padding: 20px; }
+}
 </style>
   <script>
     // Theme before first paint: the saved choice, else the system's.
@@ -1367,9 +1413,44 @@ body.has-dock .yt-float { bottom: 150px; }
       if (t !== 'light' && t !== 'dark') t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
       document.documentElement.dataset.theme = t;
     })();
+    // First visit (never signed in, never chose to look around): start on the intro page.
+    (function () {
+      var seen = false;
+      var set = function (k) { var v = localStorage.getItem(k); return v != null && v !== 'false' && v !== 'null'; };
+      try { seen = set('fc26-guest-v1') || set('fc26-signed-in-before-v1'); } catch (e) { seen = true; }
+      if (!seen) document.documentElement.classList.add('intro-on');
+    })();
   </script>
 </head>
 <body>
+  <div class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+    <div class="intro-top">
+      <span class="brand-mark">FC26</span>
+      <span class="intro-name">Career Challenge Builder</span>
+      <label class="theme-btn lang-btn" title="Language"><span aria-hidden="true">🌐</span><select data-lang-select aria-label="Language" data-no-i18n></select></label>
+    </div>
+    <div class="intro-grid">
+      <div class="intro-hero">
+        <span class="eyebrow-plain">EA SPORTS FC 26 · Career Mode</span>
+        <h1 id="intro-title">Your next career save, with rules to live by</h1>
+        <p class="intro-lead">Draw a random challenge with a real club and its real FC 26 squad, track every transfer, prove your objectives and take on your friends.</p>
+        <button type="button" class="link-btn intro-skip" data-intro-skip>No account needed: look around first →</button>
+      </div>
+      <div class="intro-auth login-card panel"></div>
+      <div class="intro-more">
+        <div class="intro-teaser" data-intro-teaser></div>
+        <ul class="intro-feats">
+          <li><span>🎲</span><strong>Random challenges</strong><small>Real clubs, house rules, season objectives and mid-season drama</small></li>
+          <li><span>👥</span><strong>Real FC 26 squads</strong><small>Every player and rating, with automatic rule checks</small></li>
+          <li><span>📅</span><strong>Daily and weekly</strong><small>Same challenge for everyone, a 🔥 streak and a 👑 weekly champion</small></li>
+          <li><span>⚔️</span><strong>Head-to-head</strong><small>Send a save to a friend and race them side by side</small></li>
+          <li><span>💬</span><strong>Community</strong><small>Forum, player tips, leaderboards and creator videos</small></li>
+          <li><span>📸</span><strong>Season cards</strong><small>Post your results on TikTok and Instagram</small></li>
+        </ul>
+      </div>
+    </div>
+    <p class="intro-foot muted small">Fan-made tool, not affiliated with EA SPORTS. Free to use; your challenges can stay on your device without an account.</p>
+  </div>
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark">FC26</span>
@@ -9556,9 +9637,10 @@ Aleksei Miranchuk|Russian|CAM
 </script>
   <script>/* js/login.js */
 /*
- * The sign-in screen and the account button in the top bar. Opens by itself
- * on a first visit when accounts are switched on; "Continue without an
- * account" keeps everything on the device, as before.
+ * The sign-in card and the account button in the top bar. The card is drawn
+ * in two places: the intro page a first visit starts on (intro.js), and the
+ * account dialog behind the top-bar button. "Continue without an account"
+ * keeps everything on the device, as before.
  */
 (function (root) {
   'use strict';
@@ -9569,14 +9651,17 @@ Aleksei Miranchuk|Russian|CAM
   const GOOGLE_G = '<svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
 
   function init(deps) {
-    const { esc, toast, storageGet, storageSet } = deps;
+    const { esc, toast, storageSet } = deps;
     const Account = FC26.account;
     const $ = (sel, el) => (el || document).querySelector(sel);
     const modal = $('#login');
     const btn = $('#account-btn');
-    let mode = 'signin'; // signin | signup
+    const intro = $('#intro');
+    const introCard = intro && $('.intro-auth', intro);
+    const Intro = FC26.intro;
+    let mode = 'signin'; // signin | signup (the intro starts on signup)
+    let introMode = 'signup';
     let busy = false;
-    let promptedOnce = false;
 
     const initials = (u) => ((u.name || u.email || '?').trim().split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('') || '?').toUpperCase();
     const ago = (t) => {
@@ -9618,14 +9703,23 @@ Aleksei Miranchuk|Russian|CAM
           <p class="muted small">Your saved challenges, trackers, diaries and the players you've marked as real follow you to any device you sign in on.</p>`;
         return;
       }
+      card.innerHTML = formHTML(st, mode, false);
+    }
+
+    /** The sign-in / create-account form, for the dialog or the intro page. */
+    function formHTML(st, mode, onIntro) {
       const off = st.status === 'off';
       const loading = st.status === 'loading';
-      card.innerHTML = `
-        <button type="button" class="icon-btn login-close" data-login="close" aria-label="Close">✕</button>
+      const head = onIntro
+        ? `<h2>${mode === 'signup' ? 'Create your free account' : 'Welcome back, gaffer'}</h2>
+        <p class="muted">${mode === 'signup' ? 'Save your challenges to the cloud, play on any device, join the community and get on the leaderboards.' : 'Sign in to pick up your saves where you left off.'}</p>`
+        : `<button type="button" class="icon-btn login-close" data-login="close" aria-label="Close">✕</button>
         <div class="brand-mark">FC26</div>
         <h2 id="login-title">${mode === 'signup' ? 'Create your account' : 'Welcome back, gaffer'}</h2>
-        <p class="muted">Sign in to keep your challenges, trackers and diaries in sync across your devices.</p>
-        ${off ? `<p class="login-note">Accounts aren't switched on for this copy of the app yet: whoever hosts it needs to add a Firebase project (see "Accounts and Spotify" in the README). ${esc(st.syncError || '')} Until then, everything is saved on this device.</p>` : ''}
+        <p class="muted">Sign in to keep your challenges, trackers and diaries in sync across your devices.</p>`;
+      return `
+        ${head}
+        ${off ? `<p class="login-note">Accounts aren't switched on for this copy of the app yet${onIntro ? '' : ': whoever hosts it needs to add a Firebase project (see "Accounts and Spotify" in the README)'}. ${esc(st.syncError || '')} Until then, everything is saved on this device.</p>` : ''}
         <button type="button" class="btn btn-google" data-login="google" ${off || loading ? 'disabled' : ''}>${GOOGLE_G}<span>Continue with Google</span></button>
         <div class="login-or"><span>or use your email</span></div>
         <form class="login-form" novalidate>
@@ -9641,11 +9735,29 @@ Aleksei Miranchuk|Russian|CAM
           <button type="submit" class="btn btn-primary btn-big" ${off || loading ? 'disabled' : ''}>${loading ? 'Connecting…' : mode === 'signup' ? 'Create account' : 'Sign in'}</button>
           ${mode === 'signin' ? `<button type="button" class="login-link" data-login="reset" ${off ? 'disabled' : ''}>Forgot your password?</button>` : ''}
         </form>
-        <button type="button" class="login-link login-guest" data-login="guest">Continue without an account →</button>`;
+        ${onIntro
+    ? `<button type="button" class="btn ${off ? 'btn-primary btn-big' : ''} intro-guest" data-login="guest">${off ? '⚽ Get started' : '👀 Look around first'}</button>
+        <small class="muted">${off ? '' : 'No account needed: your challenges stay on this device, and you can sign in any time.'}</small>`
+    : '<button type="button" class="login-link login-guest" data-login="guest">Continue without an account →</button>'}`;
     }
 
+    /** Redraw the intro's card (keeping anything typed into it). */
+    function renderIntro() {
+      if (!introCard || !Intro || !Intro.isOn()) return;
+      const st = Account.state();
+      if (st.status === 'signed-in') return;
+      const form = $('.login-form', introCard);
+      const typed = form ? { email: form.elements.email.value, password: form.elements.password.value } : null;
+      introCard.innerHTML = formHTML(st, introMode, true);
+      const next = $('.login-form', introCard);
+      if (typed && next) { next.elements.email.value = typed.email; next.elements.password.value = typed.password; }
+    }
+
+    // The card being used: the intro's while it's showing, else the dialog's.
+    const active = () => (Intro && Intro.isOn() && introCard ? introCard : modal);
+
     function showError(text, good) {
-      const el = $('.login-error', modal);
+      const el = $('.login-error', active());
       if (!el) return;
       el.hidden = !text;
       el.textContent = text || '';
@@ -9669,26 +9781,34 @@ Aleksei Miranchuk|Russian|CAM
     async function act(fn, done) {
       if (busy) return;
       busy = true;
-      modal.classList.add('is-busy');
+      const where = active();
+      where.classList.add('is-busy');
       const res = await fn();
       busy = false;
-      modal.classList.remove('is-busy');
+      where.classList.remove('is-busy');
       if (res.error) showError(res.error);
       else if (done) done();
     }
 
+    /** Out of the intro and into the app. */
+    function leaveIntro() {
+      if (Intro && Intro.isOn()) Intro.hide();
+    }
+
     btn.addEventListener('click', open);
-    modal.addEventListener('click', (e) => {
+    function onClick(e) {
+      const where = e.currentTarget;
       if (e.target === modal) return close();
       const el = e.target.closest('[data-login]');
       if (!el || el.disabled) return undefined;
-      const form = $('.login-form', modal);
+      const form = $('.login-form', where);
       const email = form ? form.elements.email.value.trim() : '';
       switch (el.dataset.login) {
         case 'close': return close();
         case 'guest':
           storageSet(GUEST_KEY, true);
-          close();
+          if (where === modal) close();
+          leaveIntro();
           return toast('No problem: your challenges stay on this device');
         case 'google': return act(() => FC26.account.google());
         case 'toggle-pw': {
@@ -9704,8 +9824,9 @@ Aleksei Miranchuk|Russian|CAM
         case 'signout': return act(() => FC26.account.signOut(), () => { close(); toast('Signed out. Your challenges stay on this device.'); });
         default: return undefined;
       }
-    });
-    modal.addEventListener('change', (e) => {
+    }
+    function onChange(e) {
+      const where = e.currentTarget;
       if (e.target.name === 'autosync') {
         FC26.account.setAutoSync(e.target.checked);
         render();
@@ -9713,21 +9834,28 @@ Aleksei Miranchuk|Russian|CAM
         return;
       }
       if (e.target.name !== 'mode') return;
-      const form = $('.login-form', modal);
+      const form = $('.login-form', where);
       const keep = { email: form.elements.email.value };
-      mode = e.target.value;
-      render();
-      $('.login-form', modal).elements.email.value = keep.email;
-    });
-    modal.addEventListener('submit', (e) => {
+      if (where === modal) { mode = e.target.value; render(); } else { introMode = e.target.value; introCard.innerHTML = formHTML(Account.state(), introMode, true); }
+      $('.login-form', where).elements.email.value = keep.email;
+    }
+    function onSubmit(e) {
+      const where = e.currentTarget;
+      const m = where === modal ? mode : introMode;
       e.preventDefault();
       const form = e.target;
       const email = form.elements.email.value.trim();
       const pw = form.elements.password.value;
       if (!/^\S+@\S+\.\S+$/.test(email)) return showError('That email address doesn’t look right.');
-      if (pw.length < 6) return showError(mode === 'signup' ? 'Pick a password of at least 6 characters.' : 'Type your password.');
-      return act(() => (mode === 'signup' ? FC26.account.signUp(email, pw) : FC26.account.signIn(email, pw)));
+      if (pw.length < 6) return showError(m === 'signup' ? 'Pick a password of at least 6 characters.' : 'Type your password.');
+      return act(() => (m === 'signup' ? FC26.account.signUp(email, pw) : FC26.account.signIn(email, pw)));
+    }
+    [modal, introCard].filter(Boolean).forEach((where) => {
+      where.addEventListener('click', onClick);
+      where.addEventListener('change', onChange);
+      where.addEventListener('submit', onSubmit);
     });
+    renderIntro();
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) close(); });
 
     // Called by the app whenever the account state changes.
@@ -9739,17 +9867,88 @@ Aleksei Miranchuk|Russian|CAM
         render();
         if (welcome) toast(`Signed in as ${st.user.email || st.user.name} ☁️`);
       }
-      // Remember that this device has signed in: never pop the sign-in offer up for a returning user.
-      if (st.status === 'signed-in') storageSet(SIGNED_KEY, true);
-      // First visit with accounts switched on: offer to sign in once.
-      if (st.status === 'signed-out' && !promptedOnce && !storageGet(GUEST_KEY, false) && !storageGet(SIGNED_KEY, false)) {
-        promptedOnce = true;
-        open();
+      // Remember that this device has signed in: a returning user goes straight to the app.
+      if (st.status === 'signed-in') {
+        storageSet(SIGNED_KEY, true);
+        if (Intro && Intro.isOn()) {
+          leaveIntro();
+          toast(`Welcome, ${st.user.name || st.user.email} ☁️`);
+        }
       }
+      renderIntro();
     };
   }
 
   FC26.login = { init };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/intro.js */
+/*
+ * The intro page: what someone sees on their first visit, before the app.
+ * It explains the app, shows today's daily challenge as a taste, and holds the
+ * sign-in / create-account card (drawn by login.js). Signing in or choosing to
+ * look around without an account opens the app.
+ *
+ * Whether it shows is decided before the page paints (a script in index.html
+ * adds `intro-on` to <html> unless this device has signed in or looked around
+ * before), so the app never flashes up first.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const html = () => document.documentElement;
+
+  let deps = null; // { esc }
+  const listeners = [];
+
+  const isOn = () => html().classList.contains('intro-on');
+
+  function teaser() {
+    const box = document.querySelector('[data-intro-teaser]');
+    if (!box || !FC26.daily) return;
+    const ch = FC26.daily.challenge(FC26.daily.dateKey());
+    const rules = ch.coreRules.concat(ch.rules).slice(0, 3);
+    box.innerHTML = `
+      <span class="eyebrow-plain">📅 Today's daily challenge #${ch.daily.number}</span>
+      <strong class="intro-teaser-title">${deps.esc(ch.archetype.icon)} ${deps.esc(ch.title)}</strong>
+      <small class="muted">${deps.esc(ch.club.name)} · ${deps.esc(ch.difficultyName)} · ${ch.seasons} season${ch.seasons === 1 ? '' : 's'}</small>
+      <ul>${rules.map((r) => `<li>${deps.esc(r.text)}</li>`).join('')}</ul>`;
+  }
+
+  /** Close the intro and open the app. */
+  function hide() {
+    if (!isOn()) return;
+    html().classList.remove('intro-on');
+    root.scrollTo(0, 0);
+    listeners.forEach((fn) => fn());
+  }
+
+  /** Show the intro again (e.g. from the account menu). */
+  function show() {
+    teaser();
+    html().classList.add('intro-on');
+    const el = document.getElementById('intro');
+    if (el) el.scrollTop = 0;
+  }
+
+  function init(d) {
+    deps = d;
+    if (isOn()) teaser();
+    // The shortcut at the top does what the card's "look around" button does.
+    const skip = document.querySelector('[data-intro-skip]');
+    if (skip) {
+      skip.addEventListener('click', () => {
+        const guest = document.querySelector('#intro [data-login=guest]');
+        if (guest) guest.click(); else hide();
+      });
+    }
+  }
+
+  FC26.intro = {
+    init, isOn, hide, show,
+    /** Call fn when the intro closes. */
+    onHide: (fn) => listeners.push(fn),
+  };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/spotify.js */
@@ -12686,10 +12885,10 @@ Aleksei Miranchuk|Russian|CAM
     const btn = document.getElementById('help-btn');
     if (btn) btn.addEventListener('click', start);
     const shared = /^#[cx]=/.test(root.location.hash);
-    // Wait for any open dialog (the sign-in offer on a first visit) to close first.
+    // Wait for the intro page and any open dialog to close first.
     const later = () => {
       if (store.get(DONE_KEY)) return;
-      if (document.querySelector('.modal:not([hidden])')) setTimeout(later, 600);
+      if (document.querySelector('.modal:not([hidden])') || document.documentElement.classList.contains('intro-on')) setTimeout(later, 600);
       else start();
     };
     if (!store.get(DONE_KEY) && !shared) setTimeout(later, 700);
@@ -12964,6 +13163,22 @@ Aleksei Miranchuk|Russian|CAM
     ['Tell me about replies, upvotes and head-to-head challenges', 'Avísame de respuestas, votos y retos cara a cara', 'Avise-me sobre respostas, votos e desafios mano a mano', 'Préviens-moi des réponses, votes et défis face-à-face', 'Sag mir Bescheid bei Antworten, Upvotes und Duellen', 'Avvisami di risposte, voti e sfide testa a testa', 'Anunță-mă despre răspunsuri, voturi și provocări față în față', '有回复、点赞和对决挑战时通知我'],
     ['Loading…', 'Cargando…', 'Carregando…', 'Chargement…', 'Lädt …', 'Caricamento…', 'Se încarcă…', '加载中…'],
 
+    // Intro page
+    ['EA SPORTS FC 26 · Career Mode', 'EA SPORTS FC 26 · Modo carrera', 'EA SPORTS FC 26 · Modo carreira', 'EA SPORTS FC 26 · Mode carrière', 'EA SPORTS FC 26 · Karrieremodus', 'EA SPORTS FC 26 · Modalità carriera', 'EA SPORTS FC 26 · Mod carieră', 'EA SPORTS FC 26 · 生涯模式'],
+    ['Your next career save, with rules to live by', 'Tu próxima carrera, con reglas que cumplir', 'Seu próximo save, com regras a seguir', 'Ta prochaine carrière, avec des règles à respecter', 'Dein nächster Spielstand, mit Regeln, an die du dich hältst', 'La tua prossima carriera, con regole da rispettare', 'Următoarea ta carieră, cu reguli de respectat', '你的下一个生涯存档，带着要遵守的规则'],
+    ['Draw a random challenge with a real club and its real FC 26 squad, track every transfer, prove your objectives and take on your friends.', 'Saca un reto aleatorio con un club real y su plantilla real de FC 26, registra cada fichaje, demuestra tus objetivos y reta a tus amigos.', 'Sorteie um desafio com um clube real e seu elenco real do FC 26, registre cada transferência, prove seus objetivos e desafie seus amigos.', 'Tire un défi au hasard avec un vrai club et son vrai effectif FC 26, note chaque transfert, prouve tes objectifs et défie tes amis.', 'Zieh eine zufällige Challenge mit einem echten Verein und seinem echten FC-26-Kader, erfasse jeden Transfer, beweise deine Ziele und fordere Freunde heraus.', 'Estrai una sfida casuale con un club vero e la sua vera rosa di FC 26, registra ogni trasferimento, dimostra i tuoi obiettivi e sfida i tuoi amici.', 'Trage o provocare aleatorie cu un club real și lotul său real din FC 26, înregistrează fiecare transfer, dovedește-ți obiectivele și provoacă-ți prietenii.', '抽取一个使用真实俱乐部和真实 FC 26 阵容的随机挑战，记录每笔转会，证明你的目标，并挑战好友。'],
+    ['No account needed: look around first', 'Sin cuenta: echa un vistazo primero', 'Sem conta: dê uma olhada primeiro', 'Sans compte : jette d’abord un œil', 'Ohne Konto: erst mal umsehen', 'Senza account: dai prima un’occhiata', 'Fără cont: aruncă mai întâi o privire', '无需账户：先随便看看'],
+    ['Look around first', 'Echar un vistazo', 'Dar uma olhada', 'Jeter un œil', 'Erst mal umsehen', 'Dai un’occhiata', 'Aruncă o privire', '先看看'],
+    ['Get started', 'Empezar', 'Começar', 'Commencer', 'Los geht’s', 'Inizia', 'Începe', '开始'],
+    ['Create your free account', 'Crea tu cuenta gratis', 'Crie sua conta grátis', 'Crée ton compte gratuit', 'Erstelle dein kostenloses Konto', 'Crea il tuo account gratuito', 'Creează-ți contul gratuit', '创建免费账户'],
+    ['Save your challenges to the cloud, play on any device, join the community and get on the leaderboards.', 'Guarda tus retos en la nube, juega en cualquier dispositivo, únete a la comunidad y entra en las clasificaciones.', 'Salve seus desafios na nuvem, jogue em qualquer dispositivo, entre na comunidade e nas classificações.', 'Sauvegarde tes défis dans le cloud, joue sur n’importe quel appareil, rejoins la communauté et les classements.', 'Speichere deine Challenges in der Cloud, spiel auf jedem Gerät, tritt der Community bei und komm in die Bestenlisten.', 'Salva le tue sfide nel cloud, gioca su qualsiasi dispositivo, unisciti alla community ed entra nelle classifiche.', 'Salvează-ți provocările în cloud, joacă pe orice dispozitiv, intră în comunitate și în clasamente.', '把挑战保存到云端，在任何设备上玩，加入社区并登上排行榜。'],
+    ['Sign in to pick up your saves where you left off.', 'Inicia sesión para seguir tus partidas donde las dejaste.', 'Entre para continuar seus saves de onde parou.', 'Connecte-toi pour reprendre tes carrières là où tu les as laissées.', 'Melde dich an, um deine Spielstände dort fortzusetzen, wo du aufgehört hast.', 'Accedi per riprendere le tue carriere da dove le avevi lasciate.', 'Conectează-te ca să continui carierele de unde ai rămas.', '登录以继续你的存档。'],
+    ['No account needed: your challenges stay on this device, and you can sign in any time.', 'No hace falta cuenta: tus retos se quedan en este dispositivo y puedes iniciar sesión cuando quieras.', 'Não precisa de conta: seus desafios ficam neste dispositivo e você pode entrar quando quiser.', 'Pas besoin de compte : tes défis restent sur cet appareil et tu peux te connecter quand tu veux.', 'Kein Konto nötig: Deine Challenges bleiben auf diesem Gerät, und du kannst dich jederzeit anmelden.', 'Non serve un account: le tue sfide restano su questo dispositivo e puoi accedere quando vuoi.', 'Nu ai nevoie de cont: provocările rămân pe acest dispozitiv și te poți conecta oricând.', '无需账户：挑战保存在此设备上，你随时可以登录。'],
+    ['Random challenges', 'Retos aleatorios', 'Desafios aleatórios', 'Défis aléatoires', 'Zufällige Challenges', 'Sfide casuali', 'Provocări aleatorii', '随机挑战'],
+    ['Real FC 26 squads', 'Plantillas reales de FC 26', 'Elencos reais do FC 26', 'Vrais effectifs FC 26', 'Echte FC-26-Kader', 'Rose vere di FC 26', 'Loturi reale din FC 26', '真实 FC 26 阵容'],
+    ['Daily and weekly', 'Diarios y semanales', 'Diários e semanais', 'Quotidiens et hebdos', 'Täglich und wöchentlich', 'Giornaliere e settimanali', 'Zilnice și săptămânale', '每日与每周'],
+    ['Season cards', 'Tarjetas de temporada', 'Cards da temporada', 'Cartes de saison', 'Saisonkarten', 'Card stagionali', 'Carduri de sezon', '赛季卡片'],
+
     // Footer and search
     ['Fan-made tool, not affiliated with EA SPORTS. Club list based on the 2025/26 season; club sizes are approximate.', 'Herramienta hecha por fans, sin relación con EA SPORTS. Lista de clubes de la temporada 2025/26; los tamaños son aproximados.', 'Ferramenta feita por fãs, sem ligação com a EA SPORTS. Lista de clubes da temporada 2025/26; tamanhos aproximados.', 'Outil créé par des fans, sans lien avec EA SPORTS. Clubs de la saison 2025/26 ; tailles approximatives.', 'Von Fans gemacht, nicht mit EA SPORTS verbunden. Vereinsliste der Saison 2025/26; Größen sind ungefähr.', 'Strumento fatto dai fan, non affiliato a EA SPORTS. Club della stagione 2025/26; dimensioni approssimative.', 'Instrument făcut de fani, fără legătură cu EA SPORTS. Lista cluburilor din sezonul 2025/26; mărimile sunt aproximative.', '粉丝制作，与 EA SPORTS 无关。俱乐部列表基于 2025/26 赛季，规模为估计值。'],
     ['Download the app as a single HTML file', 'Descarga la app como un único archivo HTML', 'Baixe o app como um único arquivo HTML', 'Télécharger l’appli en un seul fichier HTML', 'App als einzelne HTML-Datei herunterladen', 'Scarica l’app come singolo file HTML', 'Descarcă aplicația ca un singur fișier HTML', '下载单文件 HTML 版'],
@@ -13087,6 +13302,9 @@ Aleksei Miranchuk|Russian|CAM
     }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
   }
 
+  // The 🌐 menus: the top bar's and the intro page's.
+  const pickers = () => Array.from(document.querySelectorAll('#lang-select, [data-lang-select]'));
+
   function pickDefault() {
     const saved = storageGet();
     if (saved && LANGS.some((l) => l[0] === saved)) return saved;
@@ -13100,18 +13318,16 @@ Aleksei Miranchuk|Russian|CAM
     lang = code;
     storageSet(code);
     document.documentElement.lang = code === 'zh' ? 'zh-Hans' : code;
-    const sel = document.getElementById('lang-select');
-    if (sel) sel.value = code;
+    pickers().forEach((sel) => { sel.value = code; });
     busy = true;
     try { walk(document.body); } finally { busy = false; }
   }
 
   function init() {
-    const sel = document.getElementById('lang-select');
-    if (sel) {
+    pickers().forEach((sel) => {
       sel.innerHTML = LANGS.map(([code, name]) => `<option value="${code}">${name}</option>`).join('');
       sel.addEventListener('change', () => set(sel.value));
-    }
+    });
     set(pickDefault());
     observe();
   }
@@ -14836,6 +15052,7 @@ Aleksei Miranchuk|Russian|CAM
     });
     window.FC26.community.init({ esc, toast, showView, storageGet, storageSet });
     syncProLocks();
+    window.FC26.intro.init({ esc });
     initAccount();
     initSoundtrack();
     Tutorial.init({ showView });

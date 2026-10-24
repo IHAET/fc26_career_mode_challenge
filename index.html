@@ -27,9 +27,44 @@
       if (t !== 'light' && t !== 'dark') t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
       document.documentElement.dataset.theme = t;
     })();
+    // First visit (never signed in, never chose to look around): start on the intro page.
+    (function () {
+      var seen = false;
+      var set = function (k) { var v = localStorage.getItem(k); return v != null && v !== 'false' && v !== 'null'; };
+      try { seen = set('fc26-guest-v1') || set('fc26-signed-in-before-v1'); } catch (e) { seen = true; }
+      if (!seen) document.documentElement.classList.add('intro-on');
+    })();
   </script>
 </head>
 <body>
+  <div class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+    <div class="intro-top">
+      <span class="brand-mark">FC26</span>
+      <span class="intro-name">Career Challenge Builder</span>
+      <label class="theme-btn lang-btn" title="Language"><span aria-hidden="true">🌐</span><select data-lang-select aria-label="Language" data-no-i18n></select></label>
+    </div>
+    <div class="intro-grid">
+      <div class="intro-hero">
+        <span class="eyebrow-plain">EA SPORTS FC 26 · Career Mode</span>
+        <h1 id="intro-title">Your next career save, with rules to live by</h1>
+        <p class="intro-lead">Draw a random challenge with a real club and its real FC 26 squad, track every transfer, prove your objectives and take on your friends.</p>
+        <button type="button" class="link-btn intro-skip" data-intro-skip>No account needed: look around first →</button>
+      </div>
+      <div class="intro-auth login-card panel"></div>
+      <div class="intro-more">
+        <div class="intro-teaser" data-intro-teaser></div>
+        <ul class="intro-feats">
+          <li><span>🎲</span><strong>Random challenges</strong><small>Real clubs, house rules, season objectives and mid-season drama</small></li>
+          <li><span>👥</span><strong>Real FC 26 squads</strong><small>Every player and rating, with automatic rule checks</small></li>
+          <li><span>📅</span><strong>Daily and weekly</strong><small>Same challenge for everyone, a 🔥 streak and a 👑 weekly champion</small></li>
+          <li><span>⚔️</span><strong>Head-to-head</strong><small>Send a save to a friend and race them side by side</small></li>
+          <li><span>💬</span><strong>Community</strong><small>Forum, player tips, leaderboards and creator videos</small></li>
+          <li><span>📸</span><strong>Season cards</strong><small>Post your results on TikTok and Instagram</small></li>
+        </ul>
+      </div>
+    </div>
+    <p class="intro-foot muted small">Fan-made tool, not affiliated with EA SPORTS. Free to use; your challenges can stay on your device without an account.</p>
+  </div>
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark">FC26</span>
@@ -295,6 +330,7 @@
   <script src="js/share-image.js"></script>
   <script src="js/account.js"></script>
   <script src="js/login.js"></script>
+  <script src="js/intro.js"></script>
   <script src="js/spotify.js"></script>
   <script src="js/sp-player.js"></script>
   <script src="js/videos.js"></script>

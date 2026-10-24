@@ -110,6 +110,9 @@
     }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
   }
 
+  // The 🌐 menus: the top bar's and the intro page's.
+  const pickers = () => Array.from(document.querySelectorAll('#lang-select, [data-lang-select]'));
+
   function pickDefault() {
     const saved = storageGet();
     if (saved && LANGS.some((l) => l[0] === saved)) return saved;
@@ -123,18 +126,16 @@
     lang = code;
     storageSet(code);
     document.documentElement.lang = code === 'zh' ? 'zh-Hans' : code;
-    const sel = document.getElementById('lang-select');
-    if (sel) sel.value = code;
+    pickers().forEach((sel) => { sel.value = code; });
     busy = true;
     try { walk(document.body); } finally { busy = false; }
   }
 
   function init() {
-    const sel = document.getElementById('lang-select');
-    if (sel) {
+    pickers().forEach((sel) => {
       sel.innerHTML = LANGS.map(([code, name]) => `<option value="${code}">${name}</option>`).join('');
       sel.addEventListener('change', () => set(sel.value));
-    }
+    });
     set(pickDefault());
     observe();
   }

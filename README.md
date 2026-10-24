@@ -37,7 +37,8 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **📲 Install as an app**: "Add to Home Screen" on phones, or install from Chrome/Edge on a computer (📲 Install the app in the footer or 🔔 Subscriptions). It gets its own icon, opens full screen and works offline: `sw.js` keeps the site's files and fetches fresh ones whenever there's a connection.
 - **🔔 Community notifications**: new replies to your threads, upvotes on your picks and head-to-head challenges show as a dot on the Community tab and a list at the top of it. Turn on **Tell me about replies, upvotes and head-to-head challenges** in 🔔 Subscriptions → Reminders for notifications too. They're checked every few minutes while the site is open (in a tab or as the installed app); there's no push server, so nothing arrives while it's closed.
 - **📸 Proof and 🏆 leaderboards**: add a screenshot to any objective (or the final goal) on a saved challenge to prove it. Photos are shrunk and kept on your device, and shared (about 100 KB each) when you're signed in with a username. Proven objectives score points (main 10, side 5, final goal 30, ×1.25 Pro, ×1.5 World Class, ×2 Legendary), and **🏆 Leaderboard** in My Challenges ranks players and countries; tap 📸 next to a player to see their proofs. Points are worked out on each player's device, so the photos are what keep it honest.
-- **🎓 Tour**: a short walkthrough of the app on your first visit (Skip, Back, Next, arrow keys, Esc). ❓ in the top bar shows it again.
+- **👋 Intro page**: a first visit starts on a welcome page instead of the app: what it does, today's daily challenge as a taste, and the sign-in / create-account card (Google or email). **Look around first** opens the app without an account. Devices that have signed in or looked around before go straight to the app.
+- **🎓 Tour**: a short walkthrough of the app once you're past the intro page (Skip, Back, Next, arrow keys, Esc). ❓ in the top bar shows it again.
 - **🔔 Subscriptions** (🔔 in the top bar): the daily challenge as a calendar you subscribe to (Google Calendar, Apple Calendar, Outlook) or an RSS feed; reminder notifications for the daily challenge and for friends' new challenges; **following** friends by username to see the challenges they share and open them; and **⭐ Pro**, a paid monthly plan with coupon codes (unlimited saves, choosing seasons, rules and seed, writing your own challenges, a Pro badge, five colour themes, 75 and 100-track soundtracks). See "Subscriptions, following and Pro" below.
 - **Quick start**: one-click cards on the Builder (Surprise me, Club Heritage, Road to Glory, Player Career, Legendary, today's daily), and a short club reel while a challenge is drawn.
 - **🌐 Languages**: English, Español, Português, Français, Deutsch, Italiano, Română and 中文 from the 🌐 button in the top bar. The app starts in your browser's language when it's one of these and remembers your choice. Tabs, buttons, headings, labels and tooltips are translated; challenge rules, objectives and players' posts stay in English for now.
@@ -186,7 +187,8 @@ npm test         # node --test (Node 18+)
 | `js/app.js` | UI: options form, challenge card, locks, saving, sharing |
 | `js/config.js` | Keys for the optional online features (Firebase accounts, Spotify) |
 | `js/account.js` | Accounts: sign-in through a swappable backend (Firebase by default) and merging saves between devices |
-| `js/login.js` | The sign-in screen and the account button |
+| `js/login.js` | The sign-in card (on the intro page and in the account dialog) and the account button |
+| `js/intro.js` | 👋 The intro page a first visit starts on |
 | `js/achievements.js` | Achievements worked out from your saves |
 | `js/scout.js` | Wonderkid scout: young players from the squad data, ranked, with the hand-picked talent list |
 | `js/spotify.js` | Spotify soundtracks: PKCE sign-in, genres for a save, playlist building and the panel on saved challenges |

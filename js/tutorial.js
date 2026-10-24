@@ -177,10 +177,10 @@
     const btn = document.getElementById('help-btn');
     if (btn) btn.addEventListener('click', start);
     const shared = /^#[cx]=/.test(root.location.hash);
-    // Wait for any open dialog (the sign-in offer on a first visit) to close first.
+    // Wait for the intro page and any open dialog to close first.
     const later = () => {
       if (store.get(DONE_KEY)) return;
-      if (document.querySelector('.modal:not([hidden])')) setTimeout(later, 600);
+      if (document.querySelector('.modal:not([hidden])') || document.documentElement.classList.contains('intro-on')) setTimeout(later, 600);
       else start();
     };
     if (!store.get(DONE_KEY) && !shared) setTimeout(later, 700);
