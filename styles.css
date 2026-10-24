@@ -1095,3 +1095,24 @@ select:disabled, input:disabled { opacity: 0.55; cursor: not-allowed; }
 .rule-info { display: block; margin-top: 4px; padding: 6px 9px; border-radius: 8px; background: var(--accent-soft); color: var(--text); font-size: 0.82rem; line-height: 1.4; }
 .record-edit { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-weight: 600; }
 .record-edit input { width: 110px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-2); color: var(--text); font: inherit; }
+
+/* ---------- Soundtrack player ---------- */
+
+.sp-dock {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: 12px; z-index: 40; width: min(560px, calc(100% - 24px));
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 8px 10px 10px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
+}
+.sp-dock[hidden] { display: none; }
+.sp-dock-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 0.85rem; }
+.sp-dock-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sp-dock-auto { display: flex; align-items: center; gap: 5px; color: var(--muted); font-weight: 600; cursor: pointer; white-space: nowrap; }
+.sp-dock-auto input { accent-color: #1ed760; }
+.sp-dock-frame iframe { display: block; border: 0; border-radius: 12px; width: 100%; }
+body.has-dock { padding-bottom: 140px; }
+body.has-dock .toast { bottom: 150px; }
+@media (max-width: 560px) {
+  .sp-dock { bottom: calc(70px + env(safe-area-inset-bottom)); }
+  body.has-dock { padding-bottom: calc(210px + env(safe-area-inset-bottom)); }
+  body.has-dock .toast { bottom: calc(220px + env(safe-area-inset-bottom)); }
+}
+.sp-ready { margin-bottom: 8px; }

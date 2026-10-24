@@ -279,6 +279,13 @@
   const picked = {}; // entry id → Set of chosen genres (kept while the page is open)
 
   function panelHTML(entry, esc, view) {
+    // A playlist already made plays here whatever the connection's state.
+    const ready = entry.soundtrack && entry.soundtrack.url
+      ? `<div class="sp-ready"><button type="button" class="btn btn-spotify" data-sp="play">▶ Play “${esc(entry.soundtrack.name)}” here</button></div>` : '';
+    return ready + panelBody(entry, esc, view);
+  }
+
+  function panelBody(entry, esc, view) {
     const why = unavailableReason();
     if (why === 'setup') {
       return `<p class="muted">🎧 Make a Spotify playlist for this save from your favourite genres and ones that fit the club. Spotify isn't set up on this copy of the app yet: whoever hosts it needs to add a Spotify Client ID (see "Accounts and Spotify" in the README).</p>`;
@@ -313,7 +320,7 @@
       ${v.error ? `<p class="neg">${esc(v.error)}</p>` : ''}
       <div class="sp-actions">
         <button type="button" class="btn btn-spotify" data-sp="build" ${chosen.size ? '' : 'disabled'}>${v.building ? 'Making your playlist…' : `🎧 Make the playlist (${chosen.size} genre${chosen.size === 1 ? '' : 's'})`}</button>
-        ${last && last.url ? `<a class="btn" href="${esc(last.url)}" target="_blank" rel="noopener">▶ Open “${esc(last.name)}”</a>` : ''}
+        ${last && last.url ? `<a class="btn" href="${esc(last.url)}" target="_blank" rel="noopener">Open “${esc(last.name)}” in Spotify</a>` : ''}
         <button type="button" class="link-btn sp-disconnect" data-sp="disconnect">Disconnect Spotify</button>
       </div>`;
   }
@@ -353,6 +360,9 @@
         else if (set.size >= 6) deps.toast('Six genres at most: untick one first');
         else set.add(el.dataset.genre);
         render(item);
+      } else if (action === 'play') {
+        const entry = deps.findEntry(id);
+        if (entry && entry.soundtrack && FC26.spPlayer) FC26.spPlayer.play(entry.soundtrack.url, entry.soundtrack.name, true);
       } else if (action === 'disconnect') {
         disconnect();
         Object.keys(views).forEach((k) => delete views[k]);
@@ -367,6 +377,7 @@
           const made = await buildPlaylist(entry, Array.from(picked[id] || []), size);
           deps.mutateEntry(id, (en) => { en.soundtrack = { url: made.url, name: made.name, at: Date.now() }; });
           deps.toast(`🎧 Made "${made.name}" with ${made.count} tracks`);
+          if (FC26.spPlayer) FC26.spPlayer.play(made.url, made.name, true);
         } catch (err) {
           v.error = err.message;
         }

@@ -1107,6 +1107,27 @@ select:disabled, input:disabled { opacity: 0.55; cursor: not-allowed; }
 .rule-info { display: block; margin-top: 4px; padding: 6px 9px; border-radius: 8px; background: var(--accent-soft); color: var(--text); font-size: 0.82rem; line-height: 1.4; }
 .record-edit { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-weight: 600; }
 .record-edit input { width: 110px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-2); color: var(--text); font: inherit; }
+
+/* ---------- Soundtrack player ---------- */
+
+.sp-dock {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: 12px; z-index: 40; width: min(560px, calc(100% - 24px));
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 8px 10px 10px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
+}
+.sp-dock[hidden] { display: none; }
+.sp-dock-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 0.85rem; }
+.sp-dock-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sp-dock-auto { display: flex; align-items: center; gap: 5px; color: var(--muted); font-weight: 600; cursor: pointer; white-space: nowrap; }
+.sp-dock-auto input { accent-color: #1ed760; }
+.sp-dock-frame iframe { display: block; border: 0; border-radius: 12px; width: 100%; }
+body.has-dock { padding-bottom: 140px; }
+body.has-dock .toast { bottom: 150px; }
+@media (max-width: 560px) {
+  .sp-dock { bottom: calc(70px + env(safe-area-inset-bottom)); }
+  body.has-dock { padding-bottom: calc(210px + env(safe-area-inset-bottom)); }
+  body.has-dock .toast { bottom: calc(220px + env(safe-area-inset-bottom)); }
+}
+.sp-ready { margin-bottom: 8px; }
 </style>
   <script>
     // Theme before first paint: the saved choice, else the system's.
@@ -9287,6 +9308,13 @@ Aleksei Miranchuk|Russian|CAM
   const picked = {}; // entry id → Set of chosen genres (kept while the page is open)
 
   function panelHTML(entry, esc, view) {
+    // A playlist already made plays here whatever the connection's state.
+    const ready = entry.soundtrack && entry.soundtrack.url
+      ? `<div class="sp-ready"><button type="button" class="btn btn-spotify" data-sp="play">▶ Play “${esc(entry.soundtrack.name)}” here</button></div>` : '';
+    return ready + panelBody(entry, esc, view);
+  }
+
+  function panelBody(entry, esc, view) {
     const why = unavailableReason();
     if (why === 'setup') {
       return `<p class="muted">🎧 Make a Spotify playlist for this save from your favourite genres and ones that fit the club. Spotify isn't set up on this copy of the app yet: whoever hosts it needs to add a Spotify Client ID (see "Accounts and Spotify" in the README).</p>`;
@@ -9321,7 +9349,7 @@ Aleksei Miranchuk|Russian|CAM
       ${v.error ? `<p class="neg">${esc(v.error)}</p>` : ''}
       <div class="sp-actions">
         <button type="button" class="btn btn-spotify" data-sp="build" ${chosen.size ? '' : 'disabled'}>${v.building ? 'Making your playlist…' : `🎧 Make the playlist (${chosen.size} genre${chosen.size === 1 ? '' : 's'})`}</button>
-        ${last && last.url ? `<a class="btn" href="${esc(last.url)}" target="_blank" rel="noopener">▶ Open “${esc(last.name)}”</a>` : ''}
+        ${last && last.url ? `<a class="btn" href="${esc(last.url)}" target="_blank" rel="noopener">Open “${esc(last.name)}” in Spotify</a>` : ''}
         <button type="button" class="link-btn sp-disconnect" data-sp="disconnect">Disconnect Spotify</button>
       </div>`;
   }
@@ -9361,6 +9389,9 @@ Aleksei Miranchuk|Russian|CAM
         else if (set.size >= 6) deps.toast('Six genres at most: untick one first');
         else set.add(el.dataset.genre);
         render(item);
+      } else if (action === 'play') {
+        const entry = deps.findEntry(id);
+        if (entry && entry.soundtrack && FC26.spPlayer) FC26.spPlayer.play(entry.soundtrack.url, entry.soundtrack.name, true);
       } else if (action === 'disconnect') {
         disconnect();
         Object.keys(views).forEach((k) => delete views[k]);
@@ -9375,6 +9406,7 @@ Aleksei Miranchuk|Russian|CAM
           const made = await buildPlaylist(entry, Array.from(picked[id] || []), size);
           deps.mutateEntry(id, (en) => { en.soundtrack = { url: made.url, name: made.name, at: Date.now() }; });
           deps.toast(`🎧 Made "${made.name}" with ${made.count} tracks`);
+          if (FC26.spPlayer) FC26.spPlayer.play(made.url, made.name, true);
         } catch (err) {
           v.error = err.message;
         }
@@ -9402,6 +9434,123 @@ Aleksei Miranchuk|Russian|CAM
   }
 
   FC26.spotify = { saveGenres, redirectUri, unavailableReason, connected, connect, handleRedirect, topGenres, buildPlaylist, disconnect, createPanel, STARTER_GENRES };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/sp-player.js */
+/*
+ * The soundtrack player: a save's Spotify playlist playing inside the app, in a
+ * bar along the bottom that stays put while you move between tabs. It uses
+ * Spotify's own embed player (no sign-in needed here; people signed in to
+ * Spotify in this browser hear full tracks, others 30-second previews).
+ *
+ * With auto-play on, opening a save that has a soundtrack starts it. Browsers
+ * only let sound start after a click, so it starts from the click that opens
+ * the save; if the browser still holds it back, one press of ▶ does it.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const AUTO_KEY = 'fc26-sp-autoplay-v1';
+  const API = 'https://open.spotify.com/embed/iframe-api/v1';
+
+  let bar = null;
+  let controller = null;
+  let current = ''; // playlist id in the bar
+  let apiReady = null; // Promise of Spotify's IFrame API (null until first use)
+
+  const autoPlay = () => { try { return root.localStorage.getItem(AUTO_KEY) !== 'off'; } catch (e) { return true; } };
+  const setAutoPlay = (on) => { try { root.localStorage.setItem(AUTO_KEY, on ? 'on' : 'off'); } catch (e) { /* stays on */ } };
+
+  /** The playlist id in a Spotify address ("https://open.spotify.com/playlist/ID?si=…"), or ''. */
+  function playlistId(url) {
+    const m = String(url || '').match(/playlist[/:]([A-Za-z0-9]{10,40})/);
+    return m ? m[1] : '';
+  }
+
+  function loadApi() {
+    if (apiReady) return apiReady;
+    apiReady = new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('timeout')), 8000);
+      root.onSpotifyIframeApiReady = (IFrameAPI) => { clearTimeout(timer); resolve(IFrameAPI); };
+      const s = document.createElement('script');
+      s.src = API;
+      s.async = true;
+      s.onerror = () => { clearTimeout(timer); reject(new Error('blocked')); };
+      document.head.appendChild(s);
+    });
+    apiReady.catch(() => { apiReady = null; });
+    return apiReady;
+  }
+
+  function ensureBar() {
+    if (bar) return bar;
+    bar = document.createElement('div');
+    bar.className = 'sp-dock';
+    bar.setAttribute('role', 'region');
+    bar.setAttribute('aria-label', 'Soundtrack player');
+    bar.innerHTML = `
+      <div class="sp-dock-head">
+        <span class="sp-dock-title">🎧 <strong></strong></span>
+        <label class="sp-dock-auto" title="Start a save's soundtrack when you open it"><input type="checkbox" data-dock="auto"> Auto-play</label>
+        <button type="button" class="icon-btn" data-dock="close" aria-label="Close the player">✕</button>
+      </div>
+      <div class="sp-dock-frame"><div></div></div>`;
+    bar.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-dock="close"]');
+      if (b) close();
+    });
+    bar.addEventListener('change', (e) => {
+      if (e.target.dataset.dock === 'auto') setAutoPlay(e.target.checked);
+    });
+    document.body.appendChild(bar);
+    return bar;
+  }
+
+  /** Play a playlist in the bar. `start`: begin playing (from a click). */
+  async function play(url, name, start) {
+    const id = playlistId(url);
+    if (!id) return false;
+    ensureBar();
+    bar.hidden = false;
+    document.body.classList.add('has-dock');
+    bar.querySelector('.sp-dock-title strong').textContent = name || 'Soundtrack';
+    bar.querySelector('[data-dock="auto"]').checked = autoPlay();
+    if (current === id && controller) {
+      if (start) controller.resume ? controller.resume() : controller.play();
+      return true;
+    }
+    current = id;
+    const frame = bar.querySelector('.sp-dock-frame');
+    try {
+      const IFrameAPI = await loadApi();
+      if (controller) { controller.loadUri(`spotify:playlist:${id}`); if (start) controller.play(); return true; }
+      frame.innerHTML = '<div></div>';
+      IFrameAPI.createController(frame.firstChild, { uri: `spotify:playlist:${id}`, width: '100%', height: 80 }, (c) => {
+        controller = c;
+        if (start) c.addListener('ready', () => c.play());
+      });
+    } catch (e) {
+      // No IFrame API (blocked, offline): the plain embed still plays with one press.
+      controller = null;
+      frame.innerHTML = `<iframe title="Spotify player" src="https://open.spotify.com/embed/playlist/${id}?utm_source=generator" width="100%" height="80" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+    }
+    return true;
+  }
+
+  function close() {
+    if (controller && controller.pause) controller.pause();
+    if (bar) bar.hidden = true;
+    document.body.classList.remove('has-dock');
+  }
+
+  /** A save was opened: play its soundtrack if auto-play is on (and it isn't already playing). */
+  function saveOpened(entry) {
+    if (!autoPlay() || !entry || !entry.soundtrack || !entry.soundtrack.url) return false;
+    if (playlistId(entry.soundtrack.url) === current && bar && !bar.hidden) return false;
+    return play(entry.soundtrack.url, entry.soundtrack.name, true);
+  }
+
+  FC26.spPlayer = { play, close, saveOpened, autoPlay, setAutoPlay, playlistId };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/achievements.js */
@@ -11787,6 +11936,9 @@ Aleksei Miranchuk|Russian|CAM
     });
     $('#result').addEventListener('click', onBuilderClick);
     $('#saved-list').addEventListener('click', (e) => {
+      // Opening a save with a soundtrack plays it (auto-play), from this click so the browser allows sound.
+      const summary = e.target.closest('.saved-item > summary');
+      if (summary && !summary.parentElement.open && window.FC26.spPlayer) window.FC26.spPlayer.saveOpened(findEntry(summary.parentElement.dataset.id));
       if (e.target.closest('[data-clear-filters]')) {
         $('#saved-search').value = '';
         $('#saved-filter').value = 'all';

@@ -1533,6 +1533,9 @@
     });
     $('#result').addEventListener('click', onBuilderClick);
     $('#saved-list').addEventListener('click', (e) => {
+      // Opening a save with a soundtrack plays it (auto-play), from this click so the browser allows sound.
+      const summary = e.target.closest('.saved-item > summary');
+      if (summary && !summary.parentElement.open && window.FC26.spPlayer) window.FC26.spPlayer.saveOpened(findEntry(summary.parentElement.dataset.id));
       if (e.target.closest('[data-clear-filters]')) {
         $('#saved-search').value = '';
         $('#saved-filter').value = 'all';
