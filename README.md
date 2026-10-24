@@ -30,6 +30,12 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **📺 Watch creators play it**: every challenge has videos of YouTubers playing career modes like it (League Two rebuilds for Road to Glory, academy-only saves for Youth Revolution, goalkeeper careers for Last Line…), played in a small floating window you can drag, enlarge or close, which stays on screen while you carry on using the app, plus a YouTube search for more. `scripts/fetch-videos.js` picks them from a YouTube search per challenge type.
 - **💬 Community** (its own tab): a **forum** (General, Challenge talk, Transfers, Tactics, Ideas & bugs) with threads and replies; **⭐ player picks**, where players recommend real FC 26 players to sign (the rating, position and club fill in by themselves) with a tag (Wonderkid, Bargain, Hidden gem…), and others upvote them; and **📺 videos** of creators by challenge type. Reading needs a signed-in account and posting a username. Swear words are hidden, you can delete your own posts and 🚩 report others' (reports go to the `reports` collection in Firebase).
 - **📷 Read a transfer screenshot**: in the transfer assistant, upload a screenshot of a transfer from the game and it reads the player, rating, fee, wage, age, position and club into the form (text recognition runs in your browser with Tesseract.js, downloaded the first time, about 7 MB; the picture never leaves your device). Check what it read before logging it.
+- **🏆 Challenge of the week** (Community → 🏆 Weekly): everyone gets the same challenge from Monday to Sunday night. Prove objectives with 📸 screenshots; the standings rank proven points, and the winner gets the 👑 weekly champion badge when the week ends.
+- **⚔️ Head-to-head** (Community → ⚔️ Head-to-head, or **⚔️ Challenge a friend** on a save): send a save to a friend by username. Once they accept, you both play the same challenge and see each other's proven points, objectives, trophies and season side by side, with 👑 on whoever's ahead.
+- **📸 Season card**: a 1080×1920 picture of a save's results (objectives, trophies, score, season by season, rules) sized for TikTok and Instagram stories, with the site's address on it. On phones it opens the share sheet.
+- **🎖️ Badges**: next to usernames in the forum, player picks, standings and head-to-heads: leaderboard rank (🥇🥈🥉 or #N), 👑 weekly wins, ⭐ Pro and your latest achievements (hover for the full list).
+- **📲 Install as an app**: "Add to Home Screen" on phones, or install from Chrome/Edge on a computer (📲 Install the app in the footer or 🔔 Subscriptions). It gets its own icon, opens full screen and works offline: `sw.js` keeps the site's files and fetches fresh ones whenever there's a connection.
+- **🔔 Community notifications**: new replies to your threads, upvotes on your picks and head-to-head challenges show as a dot on the Community tab and a list at the top of it. Turn on **Tell me about replies, upvotes and head-to-head challenges** in 🔔 Subscriptions → Reminders for notifications too. They're checked every few minutes while the site is open (in a tab or as the installed app); there's no push server, so nothing arrives while it's closed.
 - **📸 Proof and 🏆 leaderboards**: add a screenshot to any objective (or the final goal) on a saved challenge to prove it. Photos are shrunk and kept on your device, and shared (about 100 KB each) when you're signed in with a username. Proven objectives score points (main 10, side 5, final goal 30, ×1.25 Pro, ×1.5 World Class, ×2 Legendary), and **🏆 Leaderboard** in My Challenges ranks players and countries; tap 📸 next to a player to see their proofs. Points are worked out on each player's device, so the photos are what keep it honest.
 - **🎓 Tour**: a short walkthrough of the app on your first visit (Skip, Back, Next, arrow keys, Esc). ❓ in the top bar shows it again.
 - **🔔 Subscriptions** (🔔 in the top bar): the daily challenge as a calendar you subscribe to (Google Calendar, Apple Calendar, Outlook) or an RSS feed; reminder notifications for the daily challenge and for friends' new challenges; **following** friends by username to see the challenges they share and open them; and **⭐ Pro**, a paid monthly plan with coupon codes (unlimited saves, choosing seasons, rules and seed, writing your own challenges, a Pro badge, five colour themes, 75 and 100-track soundtracks). See "Subscriptions, following and Pro" below.
@@ -62,6 +68,16 @@ It also works on GitHub Pages as-is.
 3. Re-run the latest "Test and deploy" workflow from the Actions tab, or push any commit.
 
 The site appears at `https://<your-username>.github.io/fc26_career_mode_challenge/`, and the daily challenge at `…/#daily`.
+
+### App stores
+
+The site is already an installable app (a PWA), which is free and needs no store. To be listed in stores as well:
+
+- **Google Play**: package the site with [PWABuilder](https://www.pwabuilder.com) (enter the site's address, choose Android) into a Trusted Web Activity. You need a Google Play developer account (a one-off US$25, and the account holder must be 18 or older, so a parent's account), plus a `.well-known/assetlinks.json` file at the root of the domain. GitHub Pages project sites can't serve that root file, so use a custom domain or a `<username>.github.io` repo for it.
+- **Microsoft Store**: PWABuilder also makes a Windows package; individual developer accounts are free.
+- **Apple App Store**: needs the Apple Developer Program (US$99 a year, 18+) and a Mac with Xcode to upload the PWABuilder iOS package. Apple often rejects apps that are mainly a website (guideline 4.2), so expect to add something native, like notifications.
+- **Payments**: in store apps, Apple and Google require their own in-app purchases for digital subscriptions instead of Stripe, and take 15–30%. A simple route is to sell Pro only on the website and leave the purchase button out of the store versions.
+- **Names**: "EA SPORTS FC" is EA's trademark. Stores can reject or remove an app whose name or icon suggests it's official, so list it under a name of your own (e.g. "Career Challenge Builder") and say it's fan-made.
 
 ### Single-file version
 
@@ -104,7 +120,7 @@ It only uses what Spotify still opens to apps in development mode after its Febr
 
 **Reminders** are browser notifications shown while the site is open in a tab (it can be in the background). `sw.js` is only there so phones can show them; it caches nothing. On an iPhone, notifications need the site added to the Home Screen.
 
-**Following** uses the Firebase account. After updating, paste the latest `firestore.rules` into **Firestore Database → Rules** and press **Publish**: it adds `profiles` (readable by signed-in users, written only by their owner), `handles` (unique usernames), `follows` (private), `leaderboard` (each player's totals), `proofs` (shared proof photos), and `forum`, `picks` and `reports` for the Community tab. Sharing your challenges with followers is off until you tick it.
+**Following** uses the Firebase account. After updating, paste the latest `firestore.rules` into **Firestore Database → Rules** and press **Publish**: it adds `profiles` (readable by signed-in users, written only by their owner), `handles` (unique usernames), `follows` (private), `leaderboard` (each player's totals), `proofs` (shared proof photos), `forum`, `picks` and `reports` for the Community tab, `weekly` (the challenge of the week's standings) and `duels` (head-to-heads, readable only by their two players). Sharing your challenges with followers is off until you tick it.
 
 **⭐ Pro** is off until you set it up, and it involves real money, so it needs an adult's Stripe account:
 
@@ -180,7 +196,11 @@ npm test         # node --test (Node 18+)
 | `js/videos.js`, `js/youtube.js` | Generated list of creators' videos per challenge type (`scripts/fetch-videos.js`), and the 📺 Watch section |
 | `js/proofs.js`, `js/leaderboard.js` | 📸 Proof photos (shrinking, on-device storage, shared copies, viewer, points) and the 🏆 leaderboard |
 | `js/ocr.js` | 📷 Screenshot reader: in-browser text recognition and picking a transfer out of the text |
-| `js/community.js` | 💬 Community: forum, player picks with upvotes, and the video library |
+| `js/community.js` | 💬 Community: forum, player picks with upvotes, the video library, and 🔔 activity (replies, upvotes, challenges) |
+| `js/weekly.js` | 🏆 Challenge of the week: the weekly seed, standings and champion badge |
+| `js/duels.js` | ⚔️ Head-to-head challenges between friends |
+| `js/badges.js` | 🎖️ Badges next to usernames (rank, weekly wins, Pro, achievements) |
+| `manifest.webmanifest`, `icons/`, `sw.js` | 📲 Installing as an app, offline use and notifications |
 | `js/i18n.js`, `js/i18n-strings.js` | 🌐 Languages: the translator and the table of interface text in each language |
 | `js/tutorial.js` | The first-visit tour and the ❓ button |
 | `js/subscriptions.js` | 🔔 Subscriptions: feed links, reminders, following, Pro |

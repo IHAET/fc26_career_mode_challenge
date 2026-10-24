@@ -1300,3 +1300,48 @@ body.has-dock .yt-float { bottom: 150px; }
 @media (max-width: 560px) { .cm-row2 { grid-template-columns: 1fr; } .cm-reply { margin-left: 8px; } .cm-pick { flex-wrap: wrap; } }
 /* Phones: the FC26 mark is the title, so the top-bar buttons fit. */
 @media (max-width: 430px) { .brand h1 { display: none; } }
+
+/* ---------- Community: activity, weekly challenge, head-to-head, badges ---------- */
+
+.cm-activity { padding: 12px 16px; border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: var(--accent-soft); }
+.cm-activity-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cm-activity ul { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.cm-act { width: 100%; text-align: left; border: 0; background: transparent; color: var(--text); padding: 6px 4px; border-radius: 8px; cursor: pointer; font: inherit; }
+.cm-act:hover { background: var(--panel); }
+.cm-tabs .count { font-size: 0.72rem; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 0 6px; margin-left: 2px; }
+@media (max-width: 640px) {
+  .cm-tabs { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
+  .cm-tabs button { white-space: nowrap; }
+}
+
+.wk-head { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+.wk-head h3 { margin: 4px 0; font-size: 1.25rem; }
+.wk-head p { margin: 0; }
+.wk-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.wk-me, .wk-champ { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); }
+.wk-champ { border-color: color-mix(in srgb, var(--warn) 50%, var(--line)); }
+
+.bdg-slot { display: inline; }
+.bdgs { display: inline-flex; gap: 3px; vertical-align: middle; margin-left: 2px; }
+.bdg { display: inline-flex; align-items: center; gap: 1px; font-size: 0.72rem; font-weight: 800; line-height: 1; padding: 2px 5px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); cursor: default; }
+.bdg small { font-size: 0.65rem; color: var(--muted); margin-left: 2px; }
+.bdg-rank { color: var(--accent); }
+.bdg-win { border-color: color-mix(in srgb, var(--warn) 60%, var(--line)); }
+
+.h2h-form { flex-direction: row; flex-wrap: wrap; align-items: center; }
+.h2h-form select, .h2h-form input { flex: 1 1 200px; min-width: 0; }
+.h2h-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.h2h { padding: 14px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+.h2h-title { overflow-wrap: anywhere; }
+.h2h-vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: stretch; }
+.h2h-x { align-self: center; font-weight: 900; color: var(--muted); font-size: 0.9rem; }
+.h2h-side { padding: 10px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.h2h-side.is-lead { border-color: var(--accent); background: var(--accent-soft); }
+.h2h-who { overflow-wrap: anywhere; }
+.h2h-pts { font-size: 1.6rem; font-weight: 900; line-height: 1; }
+.h2h-pts small { font-size: 0.8rem; color: var(--muted); font-weight: 700; }
+.h2h-foot { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+@media (max-width: 480px) {
+  .h2h-vs { grid-template-columns: 1fr; }
+  .h2h-x { justify-self: center; }
+}

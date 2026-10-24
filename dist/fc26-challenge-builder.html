@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FC 26 Career Challenge Builder</title>
+  <meta name="theme-color" content="#0b0f14">
   <meta name="description" content="Generate random EA SPORTS FC 26 Career Mode challenges: clubs, rules, season objectives and random events.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1312,6 +1313,51 @@ body.has-dock .yt-float { bottom: 150px; }
 @media (max-width: 560px) { .cm-row2 { grid-template-columns: 1fr; } .cm-reply { margin-left: 8px; } .cm-pick { flex-wrap: wrap; } }
 /* Phones: the FC26 mark is the title, so the top-bar buttons fit. */
 @media (max-width: 430px) { .brand h1 { display: none; } }
+
+/* ---------- Community: activity, weekly challenge, head-to-head, badges ---------- */
+
+.cm-activity { padding: 12px 16px; border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: var(--accent-soft); }
+.cm-activity-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cm-activity ul { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.cm-act { width: 100%; text-align: left; border: 0; background: transparent; color: var(--text); padding: 6px 4px; border-radius: 8px; cursor: pointer; font: inherit; }
+.cm-act:hover { background: var(--panel); }
+.cm-tabs .count { font-size: 0.72rem; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 0 6px; margin-left: 2px; }
+@media (max-width: 640px) {
+  .cm-tabs { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
+  .cm-tabs button { white-space: nowrap; }
+}
+
+.wk-head { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+.wk-head h3 { margin: 4px 0; font-size: 1.25rem; }
+.wk-head p { margin: 0; }
+.wk-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.wk-me, .wk-champ { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); }
+.wk-champ { border-color: color-mix(in srgb, var(--warn) 50%, var(--line)); }
+
+.bdg-slot { display: inline; }
+.bdgs { display: inline-flex; gap: 3px; vertical-align: middle; margin-left: 2px; }
+.bdg { display: inline-flex; align-items: center; gap: 1px; font-size: 0.72rem; font-weight: 800; line-height: 1; padding: 2px 5px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); cursor: default; }
+.bdg small { font-size: 0.65rem; color: var(--muted); margin-left: 2px; }
+.bdg-rank { color: var(--accent); }
+.bdg-win { border-color: color-mix(in srgb, var(--warn) 60%, var(--line)); }
+
+.h2h-form { flex-direction: row; flex-wrap: wrap; align-items: center; }
+.h2h-form select, .h2h-form input { flex: 1 1 200px; min-width: 0; }
+.h2h-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.h2h { padding: 14px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+.h2h-title { overflow-wrap: anywhere; }
+.h2h-vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: stretch; }
+.h2h-x { align-self: center; font-weight: 900; color: var(--muted); font-size: 0.9rem; }
+.h2h-side { padding: 10px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.h2h-side.is-lead { border-color: var(--accent); background: var(--accent-soft); }
+.h2h-who { overflow-wrap: anywhere; }
+.h2h-pts { font-size: 1.6rem; font-weight: 900; line-height: 1; }
+.h2h-pts small { font-size: 0.8rem; color: var(--muted); font-weight: 700; }
+.h2h-foot { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+@media (max-width: 480px) {
+  .h2h-vs { grid-template-columns: 1fr; }
+  .h2h-x { justify-self: center; }
+}
 </style>
   <script>
     // Theme before first paint: the saved choice, else the system's.
@@ -1337,7 +1383,7 @@ body.has-dock .yt-float { bottom: 150px; }
       <button class="tab" role="tab" data-view="daily" aria-selected="false"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M9.5 15l1.8 1.8 3.4-3.6"/></svg><span class="tab-label">Daily</span> <span class="dot" id="daily-dot" title="Today's challenge is waiting" hidden></span></button>
       <button class="tab" role="tab" data-view="transfers" aria-selected="false"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3.5-3.5M20 16H7l3.5 3.5"/></svg><span class="tab-label">Transfers</span></button>
       <button class="tab" role="tab" data-view="saved" aria-selected="false"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4-6.5 4v-16a1 1 0 0 1 1-1z"/></svg><span class="tab-label"><span class="tab-long">My Challenges</span><span class="tab-short">Challenges</span></span> <span class="count" id="saved-count">0</span></button>
-      <button class="tab" role="tab" data-view="community" aria-selected="false"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1v3l-4-3h-3"/></svg><span class="tab-label">Community</span></button>
+      <button class="tab" role="tab" data-view="community" aria-selected="false"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1v3l-4-3h-3"/></svg><span class="tab-label">Community</span> <span class="dot" id="cm-dot" title="New replies, upvotes or challenges" hidden></span></button>
     </nav>
     <label class="theme-btn lang-btn" title="Language"><span aria-hidden="true">🌐</span><select id="lang-select" aria-label="Language" data-no-i18n></select></label>
     <button type="button" class="theme-btn" id="theme-btn" aria-label="Switch to light theme" title="Switch to light theme">☀️</button>
@@ -8770,7 +8816,7 @@ Aleksei Miranchuk|Russian|CAM
   <script>/* js/share-image.js */
 /*
  * Draws a challenge as a tall PNG card for posting on Reddit, Discord,
- * Instagram and so on. Browser only (uses <canvas>), no dependencies.
+ * Instagram and so on, and a save's results as a story-sized season card. Browser only (uses <canvas>), no dependencies.
  *
  * Layout is done in one pass that records drawing steps and measures the
  * height, then the canvas is sized and the steps are replayed.
@@ -9032,16 +9078,197 @@ Aleksei Miranchuk|Russian|CAM
    * Render the challenge and hand it to the user: the share sheet on phones
    * that support sharing files, otherwise a download.
    */
-  async function exportImage(ch, siteLabel) {
-    const canvas = render(ch, siteLabel);
+  function exportImage(ch, siteLabel) {
+    return deliver(render(ch, siteLabel), `fc26-${slug(ch.title)}.png`, ch.title);
+  }
+
+  // ---------- Season card: your results, story-sized for TikTok / Instagram ----------
+
+  /** One line of text cut to fit, with an ellipsis. */
+  function fit(ctx, str, maxWidth) {
+    let t = String(str || '');
+    if (ctx.measureText(t).width <= maxWidth) return t;
+    while (t && ctx.measureText(`${t}…`).width > maxWidth) t = t.slice(0, -1);
+    return `${t}…`;
+  }
+
+  /**
+   * Draw a save's results on a 1080×1920 card.
+   * d: { title, club, league, icon, difficulty, difficultyName, seasonLabel, handle, site,
+   *      stats: { done, total, score, proven, trophies, transfers },
+   *      seasons: [{ season, finish, trophies, done, total }], objectives: [{ text, done }], rules: [text] }
+   */
+  function renderSeason(d) {
+    const H = 1920;
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    const diff = C.diff[(Number(d.difficulty) || 2) - 1] || C.accent;
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#0e1a14');
+    bg.addColorStop(0.45, C.bg);
+    bg.addColorStop(1, '#0a0d12');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+    const glow = ctx.createRadialGradient(W * 0.8, 120, 0, W * 0.8, 120, 900);
+    glow.addColorStop(0, 'rgba(25, 230, 140, 0.22)');
+    glow.addColorStop(1, 'rgba(25, 230, 140, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+    ctx.textBaseline = 'alphabetic';
+
+    // Brand
+    let y = 120;
+    roundRect(ctx, PAD, y - 62, 150, 80, 22);
+    ctx.fillStyle = C.accent;
+    ctx.fill();
+    ctx.fillStyle = C.ink;
+    ctx.font = font(900, 46, 'italic');
+    ctx.fillText('FC26', PAD + 18, y - 6);
+    ctx.fillStyle = C.muted;
+    ctx.font = font(700, 30);
+    ctx.fillText('CAREER CHALLENGE', PAD + 180, y - 30);
+    ctx.fillStyle = C.text;
+    ctx.font = font(600, 30);
+    ctx.fillText(fit(ctx, d.handle ? `@${d.handle}` : 'My save', INNER - 180), PAD + 180, y + 8);
+
+    // Club and challenge
+    y += 150;
+    ctx.fillStyle = diff;
+    ctx.font = font(800, 30);
+    ctx.fillText(`${d.icon || '⚽'}  ${String(d.difficultyName || '').toUpperCase()}`, PAD, y);
+    y += 100;
+    ctx.fillStyle = C.text;
+    let size = 96;
+    ctx.font = font(900, size);
+    while (size > 54 && ctx.measureText(d.club).width > INNER) { size -= 4; ctx.font = font(900, size); }
+    ctx.fillText(fit(ctx, String(d.club || '').toUpperCase(), INNER), PAD, y);
+    y += 62;
+    ctx.fillStyle = C.muted;
+    ctx.font = font(600, 36);
+    ctx.fillText(fit(ctx, d.title, INNER), PAD, y);
+    y += 50;
+    ctx.font = font(500, 30);
+    ctx.fillText(fit(ctx, [d.league, d.seasonLabel].filter(Boolean).join('  ·  '), INNER), PAD, y);
+
+    // Big numbers
+    y += 60;
+    const s = d.stats || {};
+    const tiles = [
+      ['✅', `${s.done || 0}/${s.total || 0}`, 'objectives'],
+      ['🏆', s.trophies || 0, 'trophies'],
+      ['⭐', s.score || 0, 'score'],
+      ['📸', s.proven || 0, 'proven pts'],
+      ['🔁', s.transfers || 0, 'transfers'],
+      ['📅', (d.seasons || []).filter((x) => x.finish).length, 'seasons logged'],
+    ];
+    const tw = (INNER - 2 * 24) / 3;
+    const th = 200;
+    tiles.forEach(([icon, value, label], i) => {
+      const x = PAD + (i % 3) * (tw + 24);
+      const ty = y + Math.floor(i / 3) * (th + 24);
+      roundRect(ctx, x, ty, tw, th, 28);
+      ctx.fillStyle = C.panel;
+      ctx.fill();
+      ctx.strokeStyle = C.line;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.font = font(400, 40);
+      ctx.fillText(icon, x + 28, ty + 62);
+      ctx.fillStyle = C.text;
+      ctx.font = font(900, 64);
+      ctx.fillText(fit(ctx, String(value), tw - 56), x + 28, ty + 140);
+      ctx.fillStyle = C.muted;
+      ctx.font = font(600, 26);
+      ctx.fillText(label, x + 28, ty + 178);
+    });
+    y += th * 2 + 24 + 70;
+
+    // Season by season
+    const rows = (d.seasons || []).slice(0, 6);
+    if (rows.length) {
+      ctx.fillStyle = C.accent;
+      ctx.font = font(800, 30);
+      ctx.fillText('SEASON BY SEASON', PAD, y);
+      y += 24;
+      rows.forEach((r) => {
+        roundRect(ctx, PAD, y, INNER, 74, 18);
+        ctx.fillStyle = C.panel2;
+        ctx.fill();
+        ctx.fillStyle = C.muted;
+        ctx.font = font(700, 28);
+        ctx.fillText(`S${r.season}`, PAD + 26, y + 48);
+        ctx.fillStyle = C.text;
+        ctx.font = font(700, 32);
+        ctx.fillText(fit(ctx, r.finish || '–', 420), PAD + 110, y + 49);
+        ctx.font = font(600, 30);
+        const right = `${r.trophies ? `${'🏆'.repeat(Math.min(r.trophies, 4))}${r.trophies > 4 ? `×${r.trophies}` : ''}  ` : ''}${r.done}/${r.total} ✅`;
+        ctx.fillText(right, PAD + INNER - 26 - ctx.measureText(right).width, y + 49);
+        y += 88;
+      });
+      y += 30;
+    }
+
+    // This season's objectives
+    const objs = (d.objectives || []).slice(0, 5);
+    if (objs.length && y < H - 420) {
+      ctx.fillStyle = C.accent;
+      ctx.font = font(800, 30);
+      ctx.fillText('OBJECTIVES', PAD, y);
+      y += 52;
+      objs.forEach((o) => {
+        if (y > H - 330) return;
+        ctx.font = font(500, 32);
+        ctx.fillStyle = o.done ? C.accent : C.muted;
+        ctx.fillText(o.done ? '✓' : '○', PAD, y);
+        ctx.fillStyle = o.done ? C.text : C.muted;
+        ctx.fillText(fit(ctx, o.text, INNER - 56), PAD + 56, y);
+        y += 52;
+      });
+    }
+
+    // The rules, in whatever room is left
+    const rules = d.rules || [];
+    if (rules.length && y < H - 480) {
+      y += 30;
+      ctx.fillStyle = C.accent;
+      ctx.font = font(800, 30);
+      ctx.fillText('HOUSE RULES', PAD, y);
+      y += 52;
+      rules.forEach((r) => {
+        if (y > H - 330) return;
+        ctx.font = font(500, 30);
+        ctx.fillStyle = C.warn;
+        ctx.fillText('•', PAD + 4, y);
+        ctx.fillStyle = C.text;
+        ctx.fillText(fit(ctx, r, INNER - 56), PAD + 56, y);
+        y += 50;
+      });
+    }
+
+    // Call to action: the site
+    const by = H - 230;
+    roundRect(ctx, PAD, by, INNER, 150, 34);
+    ctx.fillStyle = C.accent;
+    ctx.fill();
+    ctx.fillStyle = C.ink;
+    ctx.font = font(900, 40);
+    ctx.fillText('Get your own challenge 👇', PAD + 40, by + 62);
+    ctx.font = font(700, 32);
+    ctx.fillText(fit(ctx, d.site || '', INNER - 80), PAD + 40, by + 112);
+    return canvas;
+  }
+
+  /** Hand a canvas to the user: share sheet on phones that can share files, else a download. */
+  async function deliver(canvas, name, title) {
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
     if (!blob) throw new Error('Could not create the image');
-    const name = `fc26-${slug(ch.title)}.png`;
     const file = typeof File === 'function' ? new File([blob], name, { type: 'image/png' }) : null;
     const coarse = root.matchMedia && root.matchMedia('(pointer: coarse)').matches;
     if (file && coarse && navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], title: ch.title });
+        await navigator.share({ files: [file], title });
         return 'shared';
       } catch (e) {
         if (e && e.name === 'AbortError') return 'cancelled';
@@ -9058,7 +9285,12 @@ Aleksei Miranchuk|Russian|CAM
     return 'downloaded';
   }
 
-  FC26.shareImage = { render, exportImage };
+  /** The season card, shared or downloaded. */
+  function exportSeason(d) {
+    return deliver(renderSeason(d), `fc26-season-${slug(d.club)}.png`, `${d.club}: ${d.title}`);
+  }
+
+  FC26.shareImage = { render, exportImage, renderSeason, exportSeason };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/account.js */
@@ -9073,6 +9305,7 @@ Aleksei Miranchuk|Russian|CAM
  * and, for profiles, following and Pro (js/subscriptions.js), an optional
  *   data: { get(path), set(path, value, merge?), remove(path), add(collection, value) → id,
  *           list(collection) → [docs], top(collection, field, n) → [docs, highest first],
+ *           where(collection, field, op, value, n) → [docs],
  *           watch(path, cb) → stop, watchAll(collection, cb) → stop, call(name, payload) }
  *
  * Each user has one document: { v, updated, challenges, deleted, known },
@@ -9173,6 +9406,8 @@ Aleksei Miranchuk|Russian|CAM
         add: async (collection, value) => (await F.addDoc(F.collection(db, collection), value)).id,
         list: async (collection) => (await F.getDocs(F.collection(db, collection))).docs.map((d) => Object.assign({ id: d.id }, d.data())),
         top: async (collection, field, n) => (await F.getDocs(F.query(F.collection(db, collection), F.orderBy(field, 'desc'), F.limit(n)))).docs.map((d) => Object.assign({ id: d.id }, d.data())),
+        // Documents where field op value ('==' or 'array-contains'), up to n.
+        where: async (collection, field, op, value, n) => (await F.getDocs(F.query(F.collection(db, collection), F.where(field, op, value), F.limit(n || 100)))).docs.map((d) => Object.assign({ id: d.id }, d.data())),
         watch: (path, cb) => F.onSnapshot(F.doc(db, path), (snap) => cb(snap.exists() ? snap.data() : null), () => cb(null)),
         watchAll: (collection, cb) => F.onSnapshot(F.collection(db, collection), (q) => cb(q.docs.map((d) => Object.assign({ id: d.id }, d.data()))), () => cb([])),
         // A callable Cloud Function (the Stripe extension's customer portal link), without the Functions SDK.
@@ -10240,8 +10475,8 @@ Aleksei Miranchuk|Russian|CAM
 </script>
   <script>/* js/subscriptions.js */
 /*
- * 🔔 Subscriptions: the daily challenge in your calendar or feed reader,
- * reminders, following friends, and ⭐ Pro.
+ * 🔔 Subscriptions: installing the app, the daily challenge in your calendar
+ * or feed reader, reminders, following friends, and ⭐ Pro.
  *
  * - The feeds are static files CI rebuilds every day (scripts/build-feeds.js).
  * - Reminders are browser notifications, shown while the site is open in a tab
@@ -10267,13 +10502,14 @@ Aleksei Miranchuk|Russian|CAM
   const ACCENTS = [['', '🟢 Pitch green'], ['gold', '🟡 Gold'], ['blue', '🔵 Ocean'], ['purple', '🟣 Royal'], ['red', '🔴 Derby red']];
   const PERKS = ['⭐ A Pro badge on your profile', '🎨 Five colour themes for the app', '🎧 Spotify soundtracks of 75 or 100 tracks', '❤️ Keeps the app going'];
 
-  let deps = null; // { esc, toast, storageGet, storageSet, entries(), dailySeen(key), shareHash(ch) }
+  let deps = null; // { esc, toast, storageGet, storageSet, entries(), dailySeen(key), shareHash(ch), badgeIds() }
   let account = { status: 'off', user: null };
   let uid = null;
   const st = { profile: null, following: [], feed: [], pro: false, busy: '', error: '', newCount: 0, editing: false };
   let stopPro = null;
   let reminderTimer = null;
   let publishTimer = null;
+  let badgeTimer = null;
   let modal = null;
   let worker = null; // service worker registration, for notifications on phones
 
@@ -10307,7 +10543,7 @@ Aleksei Miranchuk|Russian|CAM
 
   // ---------- Reminders ----------
 
-  const reminders = () => Object.assign({ daily: false, time: '09:00', friends: false, last: '' }, deps.storageGet(REMIND_KEY, {}));
+  const reminders = () => Object.assign({ daily: false, time: '09:00', friends: false, community: false, last: '' }, deps.storageGet(REMIND_KEY, {}));
   const setReminders = (change) => deps.storageSet(REMIND_KEY, Object.assign(reminders(), change));
   const canNotify = () => 'Notification' in root;
 
@@ -10362,6 +10598,37 @@ Aleksei Miranchuk|Russian|CAM
       try { await Notification.requestPermission(); } catch (e) { /* old Safari: callback form only */ }
     }
     return Notification.permission;
+  }
+
+  // ---------- Install as an app ----------
+
+  let installPrompt = null; // Chrome / Edge / Android: the browser's own install dialog
+  const standalone = () => (root.matchMedia && root.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  async function install() {
+    if (!installPrompt) return false;
+    installPrompt.prompt();
+    const choice = await installPrompt.userChoice.catch(() => null);
+    installPrompt = null;
+    if (choice && choice.outcome === 'accepted') deps.toast('Installed 📲 Find FC26 Challenges on your home screen.');
+    render();
+    return true;
+  }
+
+  function installSection() {
+    let body;
+    if (standalone()) body = '<p class="muted">✅ You’re using the installed app.</p>';
+    else if (!/^https?:$/.test(root.location.protocol)) body = '<p class="muted small">Open the hosted site to install the app.</p>';
+    else if (installPrompt) body = '<button type="button" class="btn btn-small btn-primary" data-subs="install">📲 Install the app</button>';
+    else if (isIOS()) body = '<p class="muted">On iPhone or iPad: tap <strong>Share</strong> <span aria-hidden="true">⬆️</span> in Safari, then <strong>Add to Home Screen</strong>.</p>';
+    else body = '<p class="muted">In Chrome or Edge, use the install icon in the address bar, or the menu → <strong>Install app</strong> / <strong>Add to Home screen</strong>.</p>';
+    return `
+      <section class="subs-sec" id="subs-install">
+        <h3>📲 Get the app</h3>
+        <p class="muted small">Add FC26 Challenges to your home screen: its own icon, full screen, and it works offline.</p>
+        ${body}
+      </section>`;
   }
 
   // ---------- Following ----------
@@ -10557,6 +10824,8 @@ Aleksei Miranchuk|Russian|CAM
           Remind me about the daily challenge at <input type="time" class="subs-time" data-subs-field="time" value="${esc(r.time)}" aria-label="Reminder time"></label>
         <label class="toggle"><input type="checkbox" data-subs-field="friends" ${r.friends ? 'checked' : ''} ${perm === 'unsupported' ? 'disabled' : ''}>
           Tell me when someone I follow saves a challenge</label>
+        <label class="toggle"><input type="checkbox" data-subs-field="community" ${r.community ? 'checked' : ''} ${perm === 'unsupported' ? 'disabled' : ''}>
+          Tell me about replies, upvotes and head-to-head challenges</label>
         <p class="muted small">${esc(note)}</p>
         ${perm === 'granted' ? '<button type="button" class="btn btn-small" data-subs="test">Send a test</button>' : ''}
       </section>`;
@@ -10643,7 +10912,7 @@ Aleksei Miranchuk|Russian|CAM
       <h2 id="subs-title">🔔 Subscriptions</h2>
       ${st.error ? `<p class="login-error">${esc(st.error)}</p>` : ''}
       ${st.busy ? `<p class="muted small">${esc(st.busy)}</p>` : ''}
-      ${feedSection()}${remindSection()}${followSection()}${proSection()}`;
+      ${installSection()}${feedSection()}${remindSection()}${followSection()}${proSection()}`;
   }
 
   async function act(label, fn) {
@@ -10697,6 +10966,7 @@ Aleksei Miranchuk|Russian|CAM
         deps.storageSet(ACCENT_KEY, b.dataset.accent);
         applyAccent();
         return render();
+      case 'install': return install();
       case 'checkout': return act('Opening Stripe checkout…', checkout);
       case 'portal': return act('Opening your subscription…', portal);
       default: return undefined;
@@ -10706,7 +10976,7 @@ Aleksei Miranchuk|Russian|CAM
   async function onChange(e) {
     const field = e.target.dataset.subsField;
     if (!field) return;
-    if (field === 'daily' || field === 'friends') {
+    if (field === 'daily' || field === 'friends' || field === 'community') {
       const on = e.target.checked;
       if (on && (await askPermission()) !== 'granted') {
         e.target.checked = false;
@@ -10717,7 +10987,8 @@ Aleksei Miranchuk|Russian|CAM
       setReminders({ [field]: on });
       if (on) registerWorker();
       scheduleReminder();
-      deps.toast(on ? (field === 'daily' ? `I'll remind you at ${reminders().time} 🔔` : "I'll tell you when friends save a challenge 👥") : 'Reminder off');
+      const says = { daily: `I'll remind you at ${reminders().time} 🔔`, friends: "I'll tell you when friends save a challenge 👥", community: "I'll tell you about replies, upvotes and challenges 💬" };
+      deps.toast(on ? says[field] : 'Notifications off');
       render();
     } else if (field === 'time') {
       setReminders({ time: e.target.value || '09:00' });
@@ -10788,14 +11059,42 @@ Aleksei Miranchuk|Russian|CAM
         syncDot();
       } else {
         watchPro();
-        loadMine().then(() => refreshFeed(false)).then(render).catch(() => {});
+        loadMine().then(() => { if (deps.badgeIds) setBadges(deps.badgeIds()); return refreshFeed(false); }).then(render).catch(() => {});
       }
     }
     render();
   }
 
+  /** Add a 👑 weekly champion win (the week's Monday) to your profile. */
+  async function addWin(week) {
+    const d = data();
+    if (!d || !uid) return;
+    if (!st.profile) await loadMine();
+    if (!st.profile || !st.profile.handle) return;
+    const wins = Array.isArray(st.profile.wins) ? st.profile.wins : [];
+    if (wins.includes(week)) return;
+    st.profile = Object.assign({}, st.profile, { wins: wins.concat(week).slice(-60), updated: Date.now() });
+    await d.set(`profiles/${uid}`, st.profile);
+    if (FC26.badges) FC26.badges.remember(uid, st.profile);
+    deps.toast('👑 You won last week’s challenge! The badge is on your profile.');
+  }
+
+  /** Keep the achievements on your profile (shown next to your name) up to date. */
+  async function setBadges(ids) {
+    const d = data();
+    if (!d || !uid || !st.profile || !st.profile.handle) return;
+    const next = (ids || []).slice(0, 30);
+    const old = Array.isArray(st.profile.badges) ? st.profile.badges : [];
+    if (old.length === next.length && old.every((x, i) => x === next[i])) return;
+    st.profile = Object.assign({}, st.profile, { badges: next, updated: Date.now() });
+    await d.set(`profiles/${uid}`, st.profile).catch(() => {});
+    if (FC26.badges) FC26.badges.remember(uid, st.profile);
+  }
+
   /** The app calls this after every save: shared challenges follow along. */
   function savesChanged() {
+    clearTimeout(badgeTimer);
+    badgeTimer = setTimeout(() => { if (deps.badgeIds && st.profile) setBadges(deps.badgeIds()); }, 3000);
     if (!st.profile || !st.profile.shared) return;
     clearTimeout(publishTimer);
     publishTimer = setTimeout(() => publish().catch(() => {}), 3000);
@@ -10815,18 +11114,33 @@ Aleksei Miranchuk|Russian|CAM
     st.pro = proOn() && deps.storageGet(PRO_KEY, false) === true;
     applyAccent();
     scheduleReminder();
-    if (reminders().daily || reminders().friends) registerWorker();
+    registerWorker(); // also makes the app work offline (sw.js)
     // Back from Stripe Checkout.
     if (root.location.hash === '#pro=welcome') {
       root.history.replaceState(null, '', root.location.pathname + root.location.search);
       deps.toast('Welcome to Pro ⭐ It can take a few seconds to show.');
+    }
+    root.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installPrompt = e; render(); });
+    root.addEventListener('appinstalled', () => { installPrompt = null; render(); });
+    const link = document.getElementById('install-link');
+    if (link) {
+      link.addEventListener('click', async () => {
+        if (await install()) return;
+        open();
+        const sec = document.getElementById('subs-install');
+        if (sec) sec.scrollIntoView({ block: 'start' });
+      });
     }
     // New challenges from people you follow, every 10 minutes while the site is open.
     setInterval(() => { if (uid && st.following.length) refreshFeed(true).catch(() => {}); }, 600000);
   }
 
   FC26.subscriptions = {
-    init, onAccount, savesChanged, isPro, locked, feedUrls, open, findCoupon, ACCENTS, HANDLE_RE,
+    init, onAccount, savesChanged, isPro, locked, feedUrls, open, findCoupon, ACCENTS, HANDLE_RE, addWin, setBadges, notify,
+    /** Whether a kind of notification ('daily', 'friends', 'community') is turned on and allowed. */
+    wants: (kind) => Boolean(reminders()[kind]) && canNotify() && Notification.permission === 'granted',
+    /** The service worker, once registered. */
+    worker: () => registerWorker(),
     /** Your profile (username, name), once loaded, or null. */
     profile: () => st.profile,
     /** Call fn(isPro) whenever Pro starts or stops. */
@@ -11139,7 +11453,7 @@ Aleksei Miranchuk|Russian|CAM
     const meUid = account().user.uid;
     return `${mine}${tabs}${rows.length ? `<ol class="lb-list">${rows.map((r, i) => `
       <li class="lb-row${r.id === meUid ? ' is-me' : ''}"><span class="lb-rank">${medal(i)}</span>
-        <span class="lb-name"><strong>@${esc(r.handle)}${r.pro ? ' <span class="pro-badge">⭐ PRO</span>' : ''}</strong><small class="muted">${esc([r.country, `${r.proofs || 0} proof${r.proofs === 1 ? '' : 's'}`, `${r.challenges || 0} challenge${r.challenges === 1 ? '' : 's'}`].filter(Boolean).join(' · '))}</small></span>
+        <span class="lb-name"><strong>@${esc(r.handle)}${r.pro ? ' <span class="pro-badge">⭐ PRO</span>' : ''} ${FC26.badges ? FC26.badges.chips(r.id) : ''}</strong><small class="muted">${esc([r.country, `${r.proofs || 0} proof${r.proofs === 1 ? '' : 's'}`, `${r.challenges || 0} challenge${r.challenges === 1 ? '' : 's'}`].filter(Boolean).join(' · '))}</small></span>
         <span class="lb-pts">${Number(r.points) || 0}</span>
         <button type="button" class="btn btn-small" data-lb="view" data-uid="${esc(r.id)}">📸</button></li>`).join('')}</ol>`
       : '<p class="muted">Nobody has proven an objective yet. Add a 📸 screenshot to one of yours to be first!</p>'}`;
@@ -11213,10 +11527,523 @@ Aleksei Miranchuk|Russian|CAM
   FC26.leaderboard = { init, open, publish, totals, countries };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
+  <script>/* js/weekly.js */
+/*
+ * 🏆 Challenge of the week: everyone gets the same challenge from Monday to
+ * Sunday (seeded from the week), and the best proven result wins the 👑
+ * weekly champion badge.
+ *
+ * Results are points from objectives proven with a 📸 screenshot (the same
+ * points as the leaderboard), kept in weekly/{week}/entries/{uid}. When the
+ * week is over, its winner's app adds the week to their profile's `wins`.
+ *
+ * Weeks are keyed by the date of their Monday ("YYYY-MM-DD", local time).
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const DAY_MS = 86400000;
+  const EPOCH = Date.UTC(2026, 9, 19); // Monday of week #1
+  const OPTIONS = Object.freeze({
+    difficulty: 'random', archetype: 'any', club: 'any', league: 'any', tier: 'any',
+    seasons: 'auto', ruleCount: 'auto', events: true,
+  });
+  const TOP = 100;
+
+  const pad = (n) => String(n).padStart(2, '0');
+  const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const utc = (key) => { const [y, m, d] = key.split('-').map(Number); return Date.UTC(y, m - 1, d); };
+
+  /** The week a date falls in: its Monday's key. */
+  function weekKey(date) {
+    const d = new Date(date || new Date());
+    d.setHours(12, 0, 0, 0);
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return keyOf(d);
+  }
+  const shiftWeek = (key, n) => {
+    const d = new Date(utc(key) + n * 7 * DAY_MS);
+    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+  };
+  const number = (key) => Math.round((utc(key) - EPOCH) / (7 * DAY_MS)) + 1;
+  const isKey = (k) => typeof k === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(k);
+
+  function challenge(key) {
+    const ch = FC26.generator.generateChallenge(OPTIONS, `weekly-${key}`);
+    ch.weekly = { week: key, number: number(key) };
+    return ch;
+  }
+
+  /** Milliseconds until next Monday, local midnight. */
+  function msLeft(now) {
+    const d = new Date(now || new Date());
+    const next = new Date(d.getFullYear(), d.getMonth(), d.getDate() + (7 - ((d.getDay() + 6) % 7)));
+    return next - d;
+  }
+
+  /** Your best result this week from your saves: { entry, points, proofs, done, total } or null. */
+  function myResult(entries, key) {
+    const P = FC26.proofs;
+    const mine = (entries || []).filter((e) => e && e.challenge && e.challenge.weekly && e.challenge.weekly.week === key);
+    if (!mine.length) return null;
+    const rows = mine.map((e) => ({
+      entry: e,
+      points: P.points(e),
+      proofs: P.proofCount(e),
+      done: Object.values(e.progress || {}).filter(Boolean).length,
+      total: e.challenge.roadmap.reduce((n, s) => n + s.objectives.length, 0) + 1,
+    }));
+    return rows.sort((a, b) => b.points - a.points || b.done - a.done)[0];
+  }
+
+  // ---------- The Community section ----------
+
+  let deps = null; // { esc, toast, entries(), trackChallenge(ch), openChallenge(ch), render() }
+  const st = { week: null, rows: null, champion: undefined, error: '', loadedAt: 0 };
+  const data = () => (FC26.account && FC26.account.data && FC26.account.data()) || null;
+  const account = () => (FC26.account && FC26.account.state()) || { status: 'off' };
+  const profile = () => (FC26.subscriptions && FC26.subscriptions.profile && FC26.subscriptions.profile()) || null;
+  const esc = (v) => deps.esc(v == null ? '' : v);
+
+  function countdown(ms) {
+    const h = Math.floor(ms / 3600000);
+    return h >= 24 ? `${Math.floor(h / 24)}d ${h % 24}h` : `${h}h ${Math.max(1, Math.round((ms % 3600000) / 60000))}m`;
+  }
+
+  /** Put your result for this week on the board. */
+  async function publishNow() {
+    const d = data();
+    const p = profile();
+    const s = account();
+    if (!d || !p || !p.handle || !s.user) return;
+    const key = weekKey();
+    const r = myResult(deps.entries(), key);
+    if (!r) return;
+    try {
+      await d.set(`weekly/${key}/entries/${s.user.uid}`, { handle: p.handle, pro: Boolean(p.pro), points: r.points, proofs: r.proofs, done: r.done, total: r.total, updated: Date.now() });
+    } catch (e) { /* rules not published yet: the section says so */ }
+  }
+
+  let timer = null;
+  /** The same, soon after a change. */
+  function publish() {
+    clearTimeout(timer);
+    timer = setTimeout(publishNow, 1500);
+  }
+
+  async function load() {
+    const d = data();
+    const key = weekKey();
+    if (!d || account().status !== 'signed-in') return;
+    st.week = key;
+    st.error = '';
+    try {
+      const [rows, last] = await Promise.all([
+        d.top(`weekly/${key}/entries`, 'points', TOP),
+        d.top(`weekly/${shiftWeek(key, -1)}/entries`, 'points', 1),
+      ]);
+      st.rows = rows;
+      st.champion = last[0] && Number(last[0].points) > 0 ? last[0] : null;
+      st.loadedAt = Date.now();
+      // Last week's winner collects the badge.
+      const me = account().user.uid;
+      if (st.champion && st.champion.id === me && FC26.subscriptions.addWin) FC26.subscriptions.addWin(shiftWeek(key, -1)).catch(() => {});
+    } catch (e) {
+      const refused = /permission/i.test(String(e.code || e.message));
+      if (refused) console.warn('Weekly: the database refused. Publish the latest firestore.rules in Firebase.');
+      st.error = refused ? '🏆 The weekly standings aren’t open yet. Check back soon!' : 'Couldn’t load the standings. Check your connection and try again.';
+      st.rows = [];
+    }
+    deps.render();
+  }
+
+  const medal = (i) => ['🥇', '🥈', '🥉'][i] || `${i + 1}`;
+
+  function view() {
+    const key = weekKey();
+    const ch = challenge(key);
+    const r = myResult(deps.entries(), key);
+    const s = account();
+    const badge = FC26.badges ? FC26.badges.chips : () => '';
+    let board;
+    if (s.status === 'off') board = '<p class="muted small">The standings need accounts, which aren’t switched on for this copy of the app.</p>';
+    else if (s.status !== 'signed-in') board = '<p class="muted small">Sign in to get on the standings.</p><button type="button" class="btn btn-small btn-primary" data-cm="signin">👤 Sign in</button>';
+    else if (st.error) board = `<p class="login-error">${esc(st.error)}</p>`;
+    else if (st.rows == null || st.week !== key) board = '<p class="muted">Loading…</p>';
+    else {
+      const rows = st.rows.filter((x) => Number(x.points) > 0 || Number(x.done) > 0);
+      const me = s.user.uid;
+      board = rows.length ? `<ol class="lb-list">${rows.map((x, i) => `
+        <li class="lb-row${x.id === me ? ' is-me' : ''}"><span class="lb-rank">${medal(i)}</span>
+          <span class="lb-name"><strong>@${esc(x.handle)} ${badge(x.id)}</strong><small class="muted">${Number(x.proofs) || 0} 📸 · ${Number(x.done) || 0}/${Number(x.total) || 0} ✅</small></span>
+          <span class="lb-pts">${Number(x.points) || 0}</span></li>`).join('')}</ol>`
+        : '<p class="muted">Nobody has proven an objective this week yet. Be first!</p>';
+    }
+    const p = profile();
+    return `
+      <div class="wk-head">
+        <div>
+          <span class="eyebrow-plain">🏆 Challenge of the week #${number(key)}</span>
+          <h3>${esc(ch.archetype.icon)} ${esc(ch.title)}</h3>
+          <p class="muted small">${esc(ch.club.name)} · ${esc(ch.difficultyName)} · ${ch.seasons} season${ch.seasons === 1 ? '' : 's'} · ends in <strong>${countdown(msLeft())}</strong></p>
+        </div>
+        <div class="wk-actions">
+          <button type="button" class="btn btn-small btn-primary" data-cm="wk-track">📒 Take it on</button>
+          <button type="button" class="btn btn-small" data-cm="wk-open">👀 See the rules</button>
+        </div>
+      </div>
+      <p class="muted small">Everyone plays the same challenge until Sunday night. Prove objectives with a 📸 screenshot on your save: the most points wins the 👑 weekly champion badge, shown next to your name in the forum.</p>
+      ${r ? `<p class="wk-me">Your result: <strong>${r.points} points</strong> · ${r.proofs} 📸 · ${r.done}/${r.total} ✅${p && p.handle ? '' : ' <span class="muted small">(pick a username in 🔔 Subscriptions → Following to appear on the standings)</span>'}</p>` : ''}
+      ${st.champion ? `<p class="wk-champ">👑 Last week's champion: <strong>@${esc(st.champion.handle)}</strong> with ${Number(st.champion.points) || 0} points</p>` : ''}
+      <h4 class="cm-sub">Standings</h4>
+      ${board}`;
+  }
+
+  /** The section was opened. */
+  function show() {
+    if (account().status === 'signed-in' && (st.rows == null || st.week !== weekKey() || Date.now() - st.loadedAt > 60000)) {
+      clearTimeout(timer);
+      publishNow().then(load);
+    }
+  }
+
+  function onClick(what) {
+    const ch = challenge(weekKey());
+    if (what === 'wk-track') { deps.trackChallenge(ch); return true; }
+    if (what === 'wk-open') { deps.openChallenge(ch); return true; }
+    return false;
+  }
+
+  function init(d) { deps = d; }
+  function onAccount() { st.rows = null; st.champion = undefined; }
+
+  FC26.weekly = { weekKey, shiftWeek, number, isKey, challenge, msLeft, myResult, init, view, show, onClick, publish, onAccount };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/badges.js */
+/*
+ * 🎖️ Badges next to usernames (forum, player picks, standings): leaderboard
+ * rank, 👑 weekly champion wins, ⭐ Pro and a few unlocked achievements.
+ *
+ * Achievements and wins live on each profile (profiles/{uid}: badges, wins),
+ * written by its owner's app; ranks come from the leaderboard. Both are
+ * fetched once and cached, and chips() slots fill in when they arrive.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const SHOW = 3; // achievement icons shown before "+N"
+  const STALE = 5 * 60000;
+
+  const profiles = new Map(); // uid → profile | null (none) | 'loading'
+  let ranks = null; // uid → rank (1-based)
+  let ranksAt = 0;
+  let ranksLoading = false;
+  let redrawTimer = null;
+
+  const data = () => (FC26.account && FC26.account.data && FC26.account.data()) || null;
+  const signedIn = () => FC26.account && FC26.account.state().status === 'signed-in';
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const defs = () => new Map(((FC26.achievements && FC26.achievements.DEFS) || []).map((d) => [d.id, d]));
+
+  function soon() {
+    clearTimeout(redrawTimer);
+    // Fill in every badge slot on the page, leaving the rest (forms being typed in) alone.
+    redrawTimer = setTimeout(() => {
+      if (typeof document === 'undefined') return;
+      document.querySelectorAll('[data-bdg-uid]').forEach((slot) => { slot.innerHTML = inner(slot.dataset.bdgUid); });
+    }, 50);
+  }
+
+  function fetchProfile(uid) {
+    const d = data();
+    if (!d || !uid || profiles.has(uid)) return;
+    profiles.set(uid, 'loading');
+    d.get(`profiles/${uid}`).then((p) => { profiles.set(uid, p || null); soon(); }, () => profiles.set(uid, null));
+  }
+
+  function fetchRanks() {
+    const d = data();
+    if (!d || ranksLoading || (ranks && Date.now() - ranksAt < STALE)) return;
+    ranksLoading = true;
+    d.top('leaderboard', 'points', 200).then((rows) => {
+      ranks = new Map(rows.filter((r) => Number(r.points) > 0).map((r, i) => [r.id, i + 1]));
+      ranksAt = Date.now();
+      ranksLoading = false;
+      soon();
+    }, () => { ranks = new Map(); ranksAt = Date.now(); ranksLoading = false; });
+  }
+
+  /** The badges as data: { rank, wins, pro, achievements: [{icon, name}] }. */
+  function of(profile, rank) {
+    const all = defs();
+    const p = profile || {};
+    return {
+      rank: rank || 0,
+      wins: Array.isArray(p.wins) ? p.wins.length : 0,
+      pro: Boolean(p.pro),
+      achievements: (Array.isArray(p.badges) ? p.badges : []).map((id) => all.get(id)).filter(Boolean).map((d) => ({ icon: d.icon, name: d.name })),
+    };
+  }
+
+  /** Small badge chips as HTML. */
+  function html(b) {
+    const out = [];
+    if (b.rank) out.push(`<span class="bdg bdg-rank" title="Leaderboard rank #${b.rank}">${['🥇', '🥈', '🥉'][b.rank - 1] || `#${b.rank}`}</span>`);
+    if (b.wins) out.push(`<span class="bdg bdg-win" title="Weekly champion ${b.wins} time${b.wins === 1 ? '' : 's'}">👑${b.wins > 1 ? `×${b.wins}` : ''}</span>`);
+    if (b.pro) out.push('<span class="bdg bdg-pro" title="Pro">⭐</span>');
+    if (b.achievements.length) {
+      const names = b.achievements.map((a) => a.name).join(', ');
+      const icons = b.achievements.slice(-SHOW).map((a) => a.icon).join('');
+      const more = b.achievements.length > SHOW ? `<small>+${b.achievements.length - SHOW}</small>` : '';
+      out.push(`<span class="bdg bdg-ach" title="${esc(`${b.achievements.length} achievement${b.achievements.length === 1 ? '' : 's'}: ${names}`)}">${icons}${more}</span>`);
+    }
+    return out.length ? `<span class="bdgs">${out.join('')}</span>` : '';
+  }
+
+  function inner(uid) {
+    fetchRanks();
+    const p = profiles.get(uid);
+    if (p === undefined) fetchProfile(uid);
+    return html(of(p && p !== 'loading' ? p : null, ranks && ranks.get(uid)));
+  }
+
+  /** Badge chips for a user id, in a slot that fills in when what's missing arrives. */
+  function chips(uid) {
+    if (!uid || !signedIn()) return '';
+    return `<span class="bdg-slot" data-bdg-uid="${esc(uid)}">${inner(uid)}</span>`;
+  }
+
+  /** Your own profile changed (badges, wins): show it without a refetch. */
+  function remember(uid, profile) { if (uid) { profiles.set(uid, profile || null); soon(); } }
+
+  function reset() { profiles.clear(); ranks = null; ranksAt = 0; }
+
+  FC26.badges = { chips, of, html, remember, reset };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/duels.js */
+/*
+ * ⚔️ Head-to-head: challenge a friend to the same challenge (same seed) and
+ * follow both saves side by side.
+ *
+ * Firestore duels/{id}: { players: [uidA, uidB], a: side, b: side, link,
+ * title, icon, club, status: 'pending' | 'on' | 'declined', created }, where
+ * a side is { uid, handle, done, total, points, trophies, season, updated }.
+ * Each player's app keeps their own side up to date from the linked save
+ * (entry.duel = id). Only the two players can read or change a duel.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  const HANDLE_RE = /^[a-z0-9_]{3,20}$/;
+
+  let deps = null; // { esc, toast, entries(), stats(entry), shareHash(ch), acceptLink(link) → entry id, mutateEntry, openSave(id), render() }
+  const st = { list: null, error: '', pick: '', loadedAt: 0 };
+  const data = () => (FC26.account && FC26.account.data && FC26.account.data()) || null;
+  const account = () => (FC26.account && FC26.account.state()) || { status: 'off' };
+  const me = () => (account().user || {}).uid;
+  const profile = () => (FC26.subscriptions && FC26.subscriptions.profile && FC26.subscriptions.profile()) || null;
+  const esc = (v) => deps.esc(v == null ? '' : v);
+  const fail = (e) => {
+    const refused = /permission/i.test(String((e && (e.code || e.message)) || ''));
+    if (refused) console.warn('Head-to-head: the database refused. Publish the latest firestore.rules in Firebase.');
+    return refused ? '⚔️ Head-to-head isn’t open yet. Check back soon!' : (e && e.message) || 'Couldn’t reach the server. Check your connection and try again.';
+  };
+  const mySide = (d) => (d.a && d.a.uid === me() ? 'a' : 'b');
+  const theirSide = (d) => (mySide(d) === 'a' ? 'b' : 'a');
+
+  /** A side's figures from a save. */
+  function side(entry) {
+    const s = deps.stats(entry);
+    const p = profile();
+    return { uid: me(), handle: (p && p.handle) || '', done: s.done, total: s.total, points: s.points, trophies: s.trophies, season: s.season, updated: Date.now() };
+  }
+
+  /** Who's ahead: proven points, then objectives ticked, then trophies. */
+  function leader(a, b) {
+    const k = (x) => [Number(x.points) || 0, Number(x.done) || 0, Number(x.trophies) || 0];
+    const [ka, kb] = [k(a || {}), k(b || {})];
+    for (let i = 0; i < 3; i++) { if (ka[i] !== kb[i]) return ka[i] > kb[i] ? 'a' : 'b'; }
+    return '';
+  }
+
+  async function load() {
+    const d = data();
+    if (!d || account().status !== 'signed-in') return;
+    try {
+      const rows = await d.where('duels', 'players', 'array-contains', me(), 50);
+      st.list = rows.filter((x) => x.status !== 'declined').sort((x, y) => (y.created || 0) - (x.created || 0));
+      st.error = '';
+      st.loadedAt = Date.now();
+    } catch (e) { st.error = fail(e); st.list = []; }
+    deps.render();
+  }
+
+  /** Incoming challenges waiting for an answer. */
+  const pending = () => (st.list || []).filter((x) => x.status === 'pending' && x.b && x.b.uid === me());
+
+  async function create(entryId, raw) {
+    const d = data();
+    const p = profile();
+    if (!p || !p.handle) throw new Error('Pick a username first (🔔 Subscriptions → Following).');
+    const entry = deps.entries().find((e) => e.id === entryId);
+    if (!entry) throw new Error('Pick one of your saves.');
+    if (entry.duel) throw new Error('That save is already in a head-to-head.');
+    const handle = String(raw || '').trim().toLowerCase().replace(/^@/, '');
+    if (!HANDLE_RE.test(handle)) throw new Error('Type their username, e.g. @gaffer99.');
+    const hit = await d.get(`handles/${handle}`);
+    if (!hit || !hit.uid) throw new Error(`Nobody is called @${handle}.`);
+    if (hit.uid === me()) throw new Error('You can’t challenge yourself!');
+    const link = await deps.shareHash(entry.challenge);
+    if (!link || link.length > 20000) throw new Error('This challenge is too big to send. Try a generated one.');
+    const ch = entry.challenge;
+    const id = await d.add('duels', {
+      players: [me(), hit.uid], a: side(entry), b: { uid: hit.uid, handle, done: 0, total: side(entry).total, points: 0, trophies: 0, season: '', updated: 0 },
+      link, title: String(ch.title).slice(0, 120), icon: String(ch.archetype.icon || '⚔️'), club: String(ch.club.name).slice(0, 60), status: 'pending', created: Date.now(),
+    });
+    deps.mutateEntry(entryId, (e) => { e.duel = id; });
+    deps.toast(`⚔️ Challenge sent to @${handle}`);
+    await load();
+  }
+
+  async function accept(id) {
+    const duel = (st.list || []).find((x) => x.id === id);
+    if (!duel) return;
+    const entryId = await deps.acceptLink(duel.link);
+    if (!entryId) throw new Error('That challenge couldn’t be opened.');
+    deps.mutateEntry(entryId, (e) => { e.duel = id; });
+    const entry = deps.entries().find((e) => e.id === entryId);
+    await data().set(`duels/${id}`, { status: 'on', b: side(entry) }, true);
+    deps.toast(`⚔️ Game on against @${duel.a.handle}!`);
+    await load();
+  }
+
+  async function decline(id) {
+    await data().set(`duels/${id}`, { status: 'declined' }, true);
+    deps.toast('Challenge declined');
+    await load();
+  }
+
+  async function leave(id) {
+    if (!root.confirm('End this head-to-head for both of you?')) return;
+    await data().remove(`duels/${id}`);
+    deps.entries().filter((e) => e.duel === id).forEach((e) => deps.mutateEntry(e.id, (x) => { delete x.duel; }));
+    await load();
+  }
+
+  let timer = null;
+  /** After any save change: update your side of every head-to-head. */
+  function sync() {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const d = data();
+      if (!d || account().status !== 'signed-in') return;
+      deps.entries().filter((e) => e.duel).forEach((e) => {
+        const duel = (st.list || []).find((x) => x.id === e.duel);
+        const key = duel ? mySide(duel) : null;
+        if (!key || (duel.status !== 'on' && key === 'b')) return;
+        const next = side(e);
+        const old = duel[key] || {};
+        if (['done', 'points', 'trophies', 'season', 'handle'].every((f) => old[f] === next[f])) return;
+        duel[key] = next;
+        d.set(`duels/${e.duel}`, { [key]: next }, true).catch(() => {});
+      });
+    }, 2000);
+  }
+
+  // ---------- Drawing ----------
+
+  function column(s, lead, label) {
+    const pct = s.total ? Math.round(((Number(s.done) || 0) / s.total) * 100) : 0;
+    return `
+      <div class="h2h-side${lead ? ' is-lead' : ''}">
+        <div class="h2h-who">${lead ? '👑 ' : ''}<strong>@${esc(s.handle || '?')}</strong>${label ? ` <small class="muted">${label}</small>` : ''} ${FC26.badges ? FC26.badges.chips(s.uid) : ''}</div>
+        <div class="h2h-pts">${Number(s.points) || 0}<small> pts</small></div>
+        <span class="progress-bar"><span style="width:${pct}%"></span></span>
+        <small class="muted">${Number(s.done) || 0}/${Number(s.total) || 0} ✅ · ${Number(s.trophies) || 0} 🏆${s.season ? ` · ${esc(s.season)}` : ''}</small>
+      </div>`;
+  }
+
+  function card(x) {
+    const mine = mySide(x);
+    const theirs = theirSide(x);
+    const lead = x.status === 'on' ? leader(x.a, x.b) : '';
+    const entry = deps.entries().find((e) => e.duel === x.id);
+    let foot;
+    if (x.status === 'pending' && mine === 'b') {
+      foot = `<button type="button" class="btn btn-small btn-primary" data-cm="h2h-accept" data-id="${esc(x.id)}">⚔️ Accept</button>
+        <button type="button" class="btn btn-small" data-cm="h2h-decline" data-id="${esc(x.id)}">Decline</button>`;
+    } else if (x.status === 'pending') {
+      foot = `<span class="muted small">Waiting for @${esc(x.b.handle)} to accept…</span>
+        <button type="button" class="login-link" data-cm="h2h-leave" data-id="${esc(x.id)}">Cancel</button>`;
+    } else {
+      foot = `${entry ? `<button type="button" class="btn btn-small" data-cm="h2h-open" data-entry="${esc(entry.id)}">📂 Open my save</button>` : '<span class="muted small">Your save isn’t on this device.</span>'}
+        <button type="button" class="login-link" data-cm="h2h-leave" data-id="${esc(x.id)}">End</button>`;
+    }
+    return `
+      <li class="h2h">
+        <div class="h2h-title">${esc(x.icon)} <strong>${esc(x.title)}</strong> <small class="muted">${esc(x.club)}</small></div>
+        ${x.status === 'pending' && mine === 'b' ? `<p class="small">@${esc(x.a.handle)} challenges you to this save!</p>` : ''}
+        <div class="h2h-vs">${column(x[mine], lead === mine, 'you')}<span class="h2h-x">VS</span>${column(x[theirs], lead === theirs, '')}</div>
+        <div class="h2h-foot">${foot}</div>
+      </li>`;
+  }
+
+  function view() {
+    const s = account();
+    if (s.status === 'off') return '<p class="muted">Head-to-head needs accounts, which aren’t switched on for this copy of the app.</p>';
+    if (s.status !== 'signed-in') return '<p class="muted">Sign in to challenge friends.</p><button type="button" class="btn btn-small btn-primary" data-cm="signin">👤 Sign in</button>';
+    const saves = deps.entries().filter((e) => !e.duel);
+    const p = profile();
+    const form = !p || !p.handle
+      ? '<p class="cm-note">✍️ To challenge friends, pick a username first: <button type="button" class="login-link" data-cm="username">🔔 Subscriptions → Following</button></p>'
+      : saves.length ? `
+        <form class="cm-form h2h-form" data-cm-form="h2h" autocomplete="off">
+          <select name="entry" aria-label="Which save">${saves.map((e) => `<option value="${esc(e.id)}" ${st.pick === e.id ? 'selected' : ''}>${esc(e.challenge.archetype.icon)} ${esc(e.challenge.title)}</option>`).join('')}</select>
+          <input type="text" name="handle" maxlength="21" placeholder="Friend’s username: @gaffer99" aria-label="Friend’s username" required>
+          <button type="submit" class="btn btn-small btn-primary">⚔️ Send challenge</button>
+        </form>`
+        : `<p class="muted small">${deps.entries().length ? 'All your saves are already in a head-to-head. Save another challenge to send one.' : 'Save a challenge first, then send it to a friend.'}</p>`;
+    const list = st.list;
+    return `
+      <p class="muted">Challenge a friend to the same save. You both play it and see each other's progress side by side: proven 📸 points first, then objectives and trophies.</p>
+      ${form}
+      ${st.error ? `<p class="login-error">${esc(st.error)}</p>` : ''}
+      ${list == null ? '<p class="muted">Loading…</p>' : list.length ? `<ul class="h2h-list">${list.map(card).join('')}</ul>` : '<p class="muted small">No head-to-heads yet.</p>'}`;
+  }
+
+  function show() { if (account().status === 'signed-in' && (st.list == null || Date.now() - st.loadedAt > 30000)) load(); }
+
+  async function onClick(what, b) {
+    if (what === 'h2h-accept') { await accept(b.dataset.id); return true; }
+    if (what === 'h2h-decline') { await decline(b.dataset.id); return true; }
+    if (what === 'h2h-leave') { await leave(b.dataset.id); return true; }
+    if (what === 'h2h-open') { deps.openSave(b.dataset.entry); return true; }
+    return false;
+  }
+
+  async function onSubmit(f) {
+    try { await create(f.entry.value, f.handle.value); } catch (e) { st.error = e && e.message && !/permission/i.test(e.code || '') ? e.message : fail(e); deps.render(); }
+  }
+
+  /** Preselect a save in the form (from the ⚔️ button on a save). */
+  function preselect(entryId) { st.pick = entryId; }
+
+  function init(d) { deps = d; }
+  function onAccount() { st.list = null; if (account().status === 'signed-in') load(); }
+
+  FC26.duels = { init, view, show, onClick, onSubmit, sync, load, pending, preselect, onAccount, leader, list: () => st.list || [] };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
   <script>/* js/community.js */
 /*
  * 💬 Community: a players' forum, ⭐ player picks (players recommending real
- * players to sign, with upvotes) and 📺 every creator video by challenge type.
+ * players to sign, with upvotes), 🏆 the challenge of the week (weekly.js),
+ * ⚔️ head-to-heads with friends (duels.js) and 📺 every creator video by
+ * challenge type. 🔔 Replies to your threads, upvotes on your picks and new
+ * head-to-head challenges show as a dot on the tab, a list at the top, and
+ * (if you turned it on in 🔔 Subscriptions) a notification.
  *
  * Firestore: forum/{id} (threads) with forum/{id}/replies/{id}, picks/{id}
  * with picks/{id}/votes/{uid}, and reports/{id}. Reading needs a signed-in
@@ -11232,11 +12059,14 @@ Aleksei Miranchuk|Russian|CAM
   const LIMITS = { title: 100, body: 2000, reply: 1000, note: 300 };
   // Words hidden from posts (people can read the forum at any age).
   const BLOCK = /\b(fuck\w*|shit\w*|cunt\w*|bitch\w*|bastard\w*|wank\w*|twat\w*|dick(head)?s?|pussy|slut\w*|whore\w*|nigg\w*|fag\w*|retard\w*)\b/gi;
+  const SEEN_KEY = 'fc26-cm-seen-v1'; // what you've already seen: { threads: {id: replies}, picks: {id: votes}, duels: [ids] }
+  const CHECK_EVERY = 5 * 60000;
+  const SECTIONS = [['forum', '💬 Forum'], ['picks', '⭐ Player picks'], ['weekly', '🏆 Weekly'], ['h2h', '⚔️ Head-to-head'], ['videos', '📺 Videos']];
   const clean = (s, max) => String(s || '').replace(/\s+\n/g, '\n').trim().slice(0, max).replace(BLOCK, (w) => '★'.repeat(w.length));
 
-  let deps = null; // { esc, toast, showView }
+  let deps = null; // { esc, toast, showView, storageGet, storageSet }
   let el = null;
-  const st = { section: 'forum', cat: 'all', threads: null, thread: null, replies: null, picks: null, pickSort: 'top', pickTag: '', myVotes: new Set(), error: '', busy: false, videoType: '' };
+  const st = { section: 'forum', cat: 'all', threads: null, thread: null, replies: null, picks: null, pickSort: 'top', pickTag: '', myVotes: new Set(), error: '', busy: false, videoType: '', activity: [] };
 
   const esc = (v) => deps.esc(v == null ? '' : v);
   const data = () => (FC26.account && FC26.account.data && FC26.account.data()) || null;
@@ -11256,6 +12086,7 @@ Aleksei Miranchuk|Russian|CAM
     return refused(e) ? 'The community isn’t open yet. Check back soon!' : 'Couldn’t reach the community. Check your connection and try again.';
   };
   const para = (s) => esc(s).replace(/\n/g, '<br>');
+  const badge = (uid) => (FC26.badges ? FC26.badges.chips(uid) : '');
 
   // ---------- Loading ----------
 
@@ -11304,14 +12135,14 @@ Aleksei Miranchuk|Russian|CAM
       return `
         <button type="button" class="btn btn-small" data-cm="back">← All threads</button>
         <article class="cm-thread">
-          <div class="cm-meta"><span class="cm-cat">${esc((CATS.find(([c]) => c === t.cat) || ['', '💬'])[1])}</span> @${esc(t.handle)} · ${ago(t.at)}</div>
+          <div class="cm-meta"><span class="cm-cat">${esc((CATS.find(([c]) => c === t.cat) || ['', '💬'])[1])}</span> @${esc(t.handle)} ${badge(t.uid)} · ${ago(t.at)}</div>
           <h3>${esc(t.title)}</h3>
           <p>${para(t.body)}</p>
           ${postTools('thread', t)}
         </article>
         <h4 class="cm-sub">${st.replies ? `${st.replies.length} repl${st.replies.length === 1 ? 'y' : 'ies'}` : 'Replies'}</h4>
         ${st.replies == null ? '<p class="muted">Loading…</p>' : st.replies.map((r) => `
-          <div class="cm-reply"><div class="cm-meta">@${esc(r.handle)} · ${ago(r.at)}</div><p>${para(r.body)}</p>${postTools('reply', r)}</div>`).join('')}
+          <div class="cm-reply"><div class="cm-meta">@${esc(r.handle)} ${badge(r.uid)} · ${ago(r.at)}</div><p>${para(r.body)}</p>${postTools('reply', r)}</div>`).join('')}
         ${handle() ? `<form class="cm-form" data-cm-form="reply"><textarea name="body" maxlength="${LIMITS.reply}" rows="3" placeholder="Write a reply" required></textarea><button type="submit" class="btn btn-small btn-primary">Reply</button></form>` : needHandle()}`;
     }
     const list = (st.threads || []).filter((t) => st.cat === 'all' || t.cat === st.cat);
@@ -11326,7 +12157,7 @@ Aleksei Miranchuk|Russian|CAM
         </form></details>` : needHandle()}
       ${st.threads == null ? '<p class="muted">Loading…</p>' : list.length ? `<ul class="cm-list">${list.map((t) => `
         <li><button type="button" class="cm-row" data-cm="open" data-id="${esc(t.id)}">
-          <span class="cm-main"><strong>${esc(t.title)}</strong><small class="muted">${esc((CATS.find(([c]) => c === t.cat) || ['', ''])[1])} · @${esc(t.handle)} · ${ago(t.lastAt || t.at)}</small></span>
+          <span class="cm-main"><strong>${esc(t.title)}</strong><small class="muted">${esc((CATS.find(([c]) => c === t.cat) || ['', ''])[1])} · @${esc(t.handle)} ${badge(t.uid)} · ${ago(t.lastAt || t.at)}</small></span>
           <span class="cm-count" title="Replies">💬 ${Number(t.replies) || 0}</span></button></li>`).join('')}</ul>`
     : '<p class="muted">No threads here yet. Start one!</p>'}`;
   }
@@ -11365,7 +12196,7 @@ Aleksei Miranchuk|Russian|CAM
               <span class="cm-tag">${esc((TAGS.find(([t]) => t === p.tag) || ['', ''])[1])}</span></span>
             <small class="muted">${esc([p.pos, p.age ? `${p.age} yrs` : '', p.nat, p.club, p.price ? `paid €${p.price}M` : ''].filter(Boolean).join(' · '))}</small>
             <span class="cm-note-text">“${esc(p.note)}”</span>
-            <small class="muted">@${esc(p.handle)} · ${ago(p.at)}</small>
+            <small class="muted">@${esc(p.handle)} ${badge(p.uid)} · ${ago(p.at)}</small>
           </span>
           ${postTools('pick', p)}
         </li>`).join('')}</ul>` : '<p class="muted">No picks yet. Share the first one!</p>'}`;
@@ -11388,23 +12219,121 @@ Aleksei Miranchuk|Russian|CAM
 
   function render() {
     if (!el) return;
-    const tabs = `<div class="seg cm-tabs" role="tablist">${[['forum', '💬 Forum'], ['picks', '⭐ Player picks'], ['videos', '📺 Videos']].map(([s, label]) => `<button type="button" role="tab" aria-selected="${st.section === s}" class="${st.section === s ? 'is-on' : ''}" data-cm="section" data-section="${s}">${label}</button>`).join('')}</div>`;
-    const blocked = st.section !== 'videos' && gate();
-    const body = blocked || (st.error ? `<p class="login-error">${esc(st.error)}</p>` : '')
-      + (blocked ? '' : st.section === 'forum' ? forumView() : st.section === 'picks' ? picksView() : '')
-      + (st.section === 'videos' ? videosView() : '');
+    const count = (s) => st.activity.filter((a) => a.section === s).length;
+    const tabs = `<div class="seg cm-tabs" role="tablist">${SECTIONS.map(([s, label]) => `<button type="button" role="tab" aria-selected="${st.section === s}" class="${st.section === s ? 'is-on' : ''}" data-cm="section" data-section="${s}">${label}${count(s) ? ` <span class="count">${count(s)}</span>` : ''}</button>`).join('')}</div>`;
+    // The weekly challenge and head-to-head explain signing in themselves.
+    const blocked = (st.section === 'forum' || st.section === 'picks') && gate();
+    let body = blocked || (st.error ? `<p class="login-error">${esc(st.error)}</p>` : '');
+    if (!blocked) {
+      if (st.section === 'forum') body += forumView();
+      else if (st.section === 'picks') body += picksView();
+      else if (st.section === 'weekly') body += FC26.weekly.view();
+      else if (st.section === 'h2h') body += FC26.duels.view();
+      else body += videosView();
+    }
     el.innerHTML = `
       <div class="cm-head"><h2>💬 Community</h2><p class="muted">Talk career mode with other players, swap player tips and watch creators.</p></div>
+      ${activityView()}
       ${tabs}
       <div class="cm-body panel">${body}</div>`;
+    syncDot();
   }
 
   /** The tab was opened (or the account changed): load what's needed. */
   function show() {
+    if (st.section === 'picks' || st.section === 'h2h') markSeen(st.section);
     render();
     if (account().status !== 'signed-in' || !data()) return;
     if (st.section === 'forum' && st.threads == null) loadThreads();
     if (st.section === 'picks' && st.picks == null) loadPicks();
+    if (st.section === 'weekly') FC26.weekly.show();
+    if (st.section === 'h2h') FC26.duels.show();
+  }
+
+  // ---------- 🔔 Activity: replies, upvotes, head-to-head challenges ----------
+
+  const seenGet = () => Object.assign({ threads: {}, picks: {}, duels: [] }, deps.storageGet(SEEN_KEY, {}));
+  const seenSet = (v) => deps.storageSet(SEEN_KEY, v);
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  let checking = false;
+
+  /** Look for new replies, upvotes and challenges; announce=true notifies about new ones. */
+  async function checkActivity(announce) {
+    const d = data();
+    const uid = me();
+    if (!d || !uid || !d.where || checking) return;
+    checking = true;
+    try {
+      const seen = seenGet();
+      const first = !seen.init;
+      const [threads, picks] = await Promise.all([d.where('forum', 'uid', '==', uid, 50), d.where('picks', 'uid', '==', uid, 100)]);
+      if (FC26.duels) await FC26.duels.load();
+      const items = [];
+      threads.forEach((t) => {
+        const n = Number(t.replies) || 0;
+        const was = seen.threads[t.id];
+        if (was == null || first) seen.threads[t.id] = n;
+        else if (n > was) items.push({ key: `t:${t.id}:${n}`, icon: '💬', text: `${plural(n - was, 'new reply', 'new replies')} on “${t.title}”`, section: 'forum', id: t.id });
+      });
+      picks.forEach((p) => {
+        const n = Number(p.votes) || 0;
+        const was = seen.picks[p.id];
+        if (was == null || first) seen.picks[p.id] = n;
+        else if (n > was) items.push({ key: `p:${p.id}:${n}`, icon: '▲', text: `${plural(n - was, 'new upvote', 'new upvotes')} on your ${p.player} pick`, section: 'picks', id: p.id });
+      });
+      (FC26.duels ? FC26.duels.pending() : []).forEach((x) => {
+        if (!seen.duels.includes(x.id)) items.push({ key: `d:${x.id}`, icon: '⚔️', text: `@${x.a.handle} challenged you: ${x.title}`, section: 'h2h', id: x.id });
+      });
+      seen.init = true;
+      seenSet(seen);
+      const before = new Set(st.activity.map((a) => a.key));
+      const fresh = items.filter((a) => !before.has(a.key));
+      st.activity = items;
+      if (announce && fresh.length && FC26.subscriptions && FC26.subscriptions.wants('community')) {
+        const a = fresh[0];
+        FC26.subscriptions.notify(`${a.icon} FC 26 Community`, `${a.text}${fresh.length > 1 ? ` (+${fresh.length - 1} more)` : ''}`, 'fc26-community', '#community');
+      }
+      if (el && !el.hidden) renderKeepingForms(); else syncDot();
+    } catch (e) { /* rules not published yet, or offline: try again later */ }
+    checking = false;
+  }
+
+  /** Mark what's in a section (or one thread) as seen. */
+  function markSeen(section, id) {
+    if (!st.activity.length) return;
+    const seen = seenGet();
+    const done = st.activity.filter((a) => (!section || a.section === section) && (!id || a.id === id));
+    if (!done.length) return;
+    done.forEach((a) => {
+      const n = Number(a.key.split(':')[2]);
+      if (a.section === 'forum') seen.threads[a.id] = n;
+      if (a.section === 'picks') seen.picks[a.id] = n;
+      if (a.section === 'h2h') seen.duels = seen.duels.concat(a.id).slice(-200);
+    });
+    seenSet(seen);
+    st.activity = st.activity.filter((a) => !done.includes(a));
+    syncDot();
+  }
+
+  function activityView() {
+    if (!st.activity.length) return '';
+    return `
+      <div class="cm-activity panel">
+        <div class="cm-activity-head"><strong>🔔 ${plural(st.activity.length, 'new thing', 'new things')} for you</strong>
+          <button type="button" class="login-link" data-cm="seen-all">Mark all read</button></div>
+        <ul>${st.activity.map((a) => `<li><button type="button" class="cm-act" data-cm="act" data-section="${a.section}" data-id="${esc(a.id)}"><span>${esc(a.icon)}</span> ${esc(a.text)}</button></li>`).join('')}</ul>
+      </div>`;
+  }
+
+  function syncDot() {
+    const dot = document.getElementById('cm-dot');
+    if (dot) dot.hidden = !st.activity.length;
+  }
+
+  /** Redraw unless someone is typing in a form here. */
+  function renderKeepingForms() {
+    const typing = el && el.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+    if (typing) syncDot(); else render();
   }
 
   // ---------- Posting ----------
@@ -11419,7 +12348,8 @@ Aleksei Miranchuk|Russian|CAM
       const title = clean(f.title.value, LIMITS.title);
       const body = clean(f.body.value, LIMITS.body);
       if (!title || !body) return;
-      await d.add('forum', { title, body, cat: f.cat.value, uid, handle: h, at: now, lastAt: now, replies: 0 });
+      const id = await d.add('forum', { title, body, cat: f.cat.value, uid, handle: h, at: now, lastAt: now, replies: 0 });
+      const seen = seenGet(); seen.threads[id] = 0; seenSet(seen);
       st.cat = f.cat.value;
       deps.toast('Posted 💬');
       await loadThreads();
@@ -11429,6 +12359,8 @@ Aleksei Miranchuk|Russian|CAM
       await d.add(`forum/${st.thread.id}/replies`, { body, uid, handle: h, at: now });
       await d.set(`forum/${st.thread.id}`, { replies: (Number(st.thread.replies) || 0) + 1, lastAt: now }, true);
       st.thread.replies = (Number(st.thread.replies) || 0) + 1;
+      // Your own reply on your own thread isn't news.
+      if (st.thread.uid === uid) { const seen = seenGet(); seen.threads[st.thread.id] = st.thread.replies; seenSet(seen); }
       await openThread(st.thread.id);
     } else if (kind === 'pick') {
       const name = clean(f.player.value, 40);
@@ -11440,7 +12372,7 @@ Aleksei Miranchuk|Russian|CAM
       await d.add('picks', {
         player: p ? p.name : name, pos: (p && p.pos) || '', ovr: (p && p.ovr) || 0, age: age || 0, nat: (p && p.nat) || '', club: (p && p.club) || '',
         tag: f.tag.value, price: Math.max(0, Number(f.price.value) || 0), note, uid, handle: h, at: now, votes: 0,
-      });
+      }).then((id) => { const seen = seenGet(); seen.picks[id] = 0; seenSet(seen); });
       deps.toast(`Shared ${p ? p.name : name} ⭐`);
       st.pickSort = 'new';
       await loadPicks();
@@ -11487,11 +12419,19 @@ Aleksei Miranchuk|Russian|CAM
     if (!b) return;
     const what = b.dataset.cm;
     try {
+      if (FC26.weekly.onClick(what)) return;
+      if (await FC26.duels.onClick(what, b)) { render(); return; }
       if (what === 'section') { st.section = b.dataset.section; st.error = ''; show(); }
+      else if (what === 'seen-all') { markSeen(); render(); }
+      else if (what === 'act') {
+        st.section = b.dataset.section;
+        st.error = '';
+        if (st.section === 'forum') { markSeen('forum', b.dataset.id); if (st.threads == null) await loadThreads(); await openThread(b.dataset.id); } else show();
+      }
       else if (what === 'signin') document.getElementById('account-btn').click();
       else if (what === 'username') { if (FC26.subscriptions) FC26.subscriptions.open(); }
       else if (what === 'cat') { st.cat = b.dataset.cat; render(); }
-      else if (what === 'open') await openThread(b.dataset.id);
+      else if (what === 'open') { markSeen('forum', b.dataset.id); await openThread(b.dataset.id); }
       else if (what === 'back') { st.thread = null; st.replies = null; await loadThreads(); }
       else if (what === 'tag') { st.pickTag = b.dataset.tag; render(); }
       else if (what === 'vote') await vote(b.dataset.id);
@@ -11507,7 +12447,8 @@ Aleksei Miranchuk|Russian|CAM
     e.preventDefault();
     if (st.busy) return;
     st.busy = true;
-    try { await post(f.dataset.cmForm, f.elements); } catch (err) { st.error = fail(err); render(); }
+    if (f.dataset.cmForm === 'h2h') await FC26.duels.onSubmit(f.elements);
+    else try { await post(f.dataset.cmForm, f.elements); } catch (err) { st.error = fail(err); render(); }
     st.busy = false;
   }
 
@@ -11528,17 +12469,41 @@ Aleksei Miranchuk|Russian|CAM
     el.addEventListener('submit', onSubmit);
     el.addEventListener('input', onInput);
     el.addEventListener('change', (e) => { if (e.target.matches('[data-cm-sort]')) { st.pickSort = e.target.value; st.picks = null; show(); } });
+    // While the site is open, look for replies, upvotes and challenges every few minutes.
+    setInterval(() => { if (account().status === 'signed-in') checkActivity(true); }, CHECK_EVERY);
   }
 
   /** The account changed: forget what was loaded for the old one. */
+  let lastUser;
   function onAccount() {
+    // Only when who's signed in changes (not on every sync).
+    const who = `${account().status}:${me() || ''}`;
+    if (who === lastUser) return;
+    lastUser = who;
     st.threads = null;
     st.picks = null;
     st.thread = null;
+    st.activity = [];
+    if (FC26.badges) FC26.badges.reset();
+    if (FC26.weekly) FC26.weekly.onAccount();
+    if (FC26.duels) FC26.duels.onAccount();
+    syncDot();
+    if (account().status === 'signed-in') checkActivity(false);
     if (el && !el.hidden) show();
   }
 
-  FC26.community = { init, show, onAccount, clean, CATS, TAGS };
+  /** Open a section (e.g. ⚔️ head-to-head from a save). */
+  function open(section) {
+    st.section = section;
+    st.error = '';
+    deps.showView('community');
+  }
+
+  FC26.community = {
+    init, show, onAccount, open, render, clean,
+    /** Redraw if the tab is showing (and nobody's typing in it). */
+    refresh: () => { if (el && !el.hidden) renderKeepingForms(); },
+    checkActivity, CATS, TAGS, SECTIONS };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/tutorial.js */
@@ -11977,6 +12942,27 @@ Aleksei Miranchuk|Russian|CAM
     ['Sign out', 'Cerrar sesión', 'Sair', 'Se déconnecter', 'Abmelden', 'Esci', 'Deconectare', '退出登录'],
     ['Settings', 'Ajustes', 'Configurações', 'Réglages', 'Einstellungen', 'Impostazioni', 'Setări', '设置'],
     ['Auto sync', 'Sincronización automática', 'Sincronização automática', 'Synchro auto', 'Automatisch synchronisieren', 'Sincronizzazione automatica', 'Sincronizare automată', '自动同步'],
+
+    // Weekly challenge, head-to-head, season card, app install
+    ['Weekly', 'Semanal', 'Semanal', 'Hebdo', 'Wöchentlich', 'Settimanale', 'Săptămânal', '每周'],
+    ['Head-to-head', 'Cara a cara', 'Mano a mano', 'Face-à-face', 'Duell', 'Testa a testa', 'Față în față', '对决'],
+    ['Standings', 'Clasificación', 'Classificação', 'Classement', 'Tabelle', 'Classifica', 'Clasament', '排名'],
+    ['See the rules', 'Ver las reglas', 'Ver as regras', 'Voir les règles', 'Regeln ansehen', 'Vedi le regole', 'Vezi regulile', '查看规则'],
+    ['Accept', 'Aceptar', 'Aceitar', 'Accepter', 'Annehmen', 'Accetta', 'Acceptă', '接受'],
+    ['Decline', 'Rechazar', 'Recusar', 'Refuser', 'Ablehnen', 'Rifiuta', 'Refuză', '拒绝'],
+    ['Send challenge', 'Enviar reto', 'Enviar desafio', 'Envoyer le défi', 'Challenge senden', 'Invia sfida', 'Trimite provocarea', '发送挑战'],
+    ['Open my save', 'Abrir mi partida', 'Abrir meu save', 'Ouvrir ma carrière', 'Meinen Spielstand öffnen', 'Apri la mia carriera', 'Deschide cariera mea', '打开我的存档'],
+    ['End', 'Terminar', 'Encerrar', 'Terminer', 'Beenden', 'Termina', 'Încheie', '结束'],
+    ['you', 'tú', 'você', 'toi', 'du', 'tu', 'tu', '你'],
+    ['Season card', 'Tarjeta de temporada', 'Card da temporada', 'Carte de saison', 'Saisonkarte', 'Card stagionale', 'Card de sezon', '赛季卡片'],
+    ['Challenge a friend', 'Retar a un amigo', 'Desafiar um amigo', 'Défier un ami', 'Freund herausfordern', 'Sfida un amico', 'Provoacă un prieten', '挑战好友'],
+    ['Get the app', 'Consigue la app', 'Baixe o app', 'Installer l’appli', 'Hol dir die App', 'Scarica l’app', 'Ia aplicația', '获取应用'],
+    ['Install the app', 'Instalar la app', 'Instalar o app', 'Installer l’appli', 'App installieren', 'Installa l’app', 'Instalează aplicația', '安装应用'],
+    ['Mark all read', 'Marcar todo como leído', 'Marcar tudo como lido', 'Tout marquer comme lu', 'Alle als gelesen markieren', 'Segna tutto come letto', 'Marchează tot ca citit', '全部标为已读'],
+    ['Last week\'s champion:', 'Campeón de la semana pasada:', 'Campeão da semana passada:', 'Champion de la semaine dernière :', 'Champion der letzten Woche:', 'Campione della settimana scorsa:', 'Campionul săptămânii trecute:', '上周冠军：'],
+    ['Your result:', 'Tu resultado:', 'Seu resultado:', 'Ton résultat :', 'Dein Ergebnis:', 'Il tuo risultato:', 'Rezultatul tău:', '你的成绩：'],
+    ['Tell me about replies, upvotes and head-to-head challenges', 'Avísame de respuestas, votos y retos cara a cara', 'Avise-me sobre respostas, votos e desafios mano a mano', 'Préviens-moi des réponses, votes et défis face-à-face', 'Sag mir Bescheid bei Antworten, Upvotes und Duellen', 'Avvisami di risposte, voti e sfide testa a testa', 'Anunță-mă despre răspunsuri, voturi și provocări față în față', '有回复、点赞和对决挑战时通知我'],
+    ['Loading…', 'Cargando…', 'Carregando…', 'Chargement…', 'Lädt …', 'Caricamento…', 'Se încarcă…', '加载中…'],
 
     // Footer and search
     ['Fan-made tool, not affiliated with EA SPORTS. Club list based on the 2025/26 season; club sizes are approximate.', 'Herramienta hecha por fans, sin relación con EA SPORTS. Lista de clubes de la temporada 2025/26; los tamaños son aproximados.', 'Ferramenta feita por fãs, sem ligação com a EA SPORTS. Lista de clubes da temporada 2025/26; tamanhos aproximados.', 'Outil créé par des fans, sans lien avec EA SPORTS. Clubs de la saison 2025/26 ; tailles approximatives.', 'Von Fans gemacht, nicht mit EA SPORTS verbunden. Vereinsliste der Saison 2025/26; Größen sind ungefähr.', 'Strumento fatto dai fan, non affiliato a EA SPORTS. Club della stagione 2025/26; dimensioni approssimative.', 'Instrument făcut de fani, fără legătură cu EA SPORTS. Lista cluburilor din sezonul 2025/26; mărimile sunt aproximative.', '粉丝制作，与 EA SPORTS 无关。俱乐部列表基于 2025/26 赛季，规模为估计值。'],
@@ -12686,6 +13672,8 @@ Aleksei Miranchuk|Russian|CAM
         <button type="button" class="btn" data-action="image" title="Save the challenge as a picture to post">🖼️ Image</button>
         ${mode === 'saved' ? '<button type="button" class="btn" data-action="open-transfers" title="Log transfers for this challenge in the Transfers section">🔁 Transfers</button>' : ''}
         ${mode === 'saved' ? '<button type="button" class="btn" data-action="soundtrack" title="Make a Spotify playlist for this save">🎧 Soundtrack</button>' : ''}
+        ${mode === 'saved' ? '<button type="button" class="btn" data-action="season-card" title="A picture of your results to post on TikTok or Instagram">📸 Season card</button>' : ''}
+        ${mode === 'saved' && !(entry && entry.duel) ? '<button type="button" class="btn" data-action="h2h" title="Challenge a friend to the same save">⚔️ Challenge a friend</button>' : ''}
         ${mode === 'saved' ? '<button type="button" class="btn btn-danger" data-action="delete">🗑️ Delete</button>' : ''}
       </footer>
       ${mode === 'saved' ? '<section class="soundtrack" data-soundtrack hidden aria-label="Spotify soundtrack"></section>' : ''}
@@ -12976,6 +13964,49 @@ Aleksei Miranchuk|Russian|CAM
     }
   }
 
+  /** A save's figures, for the season card, head-to-heads and the weekly standings. */
+  function statsOf(entry) {
+    const { done, total } = progressOf(entry);
+    return {
+      done, total, trophies: trophiesOf(entry), season: currentSeason(entry), score: scoreFor(entry.challenge, entry),
+      points: window.FC26.proofs.points(entry), transfers: ((entry.tracker && entry.tracker.transfers) || []).length,
+    };
+  }
+
+  /** 📸 A story-sized picture of a save's results, to post on TikTok or Instagram. */
+  async function exportSeasonCard(entry) {
+    const ch = entry.challenge;
+    const s = statsOf(entry);
+    const p = Subs.profile();
+    const site = siteLabel() || String((window.FC26.config && window.FC26.config.siteUrl) || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const seasons = ch.roadmap.map((r) => {
+      const l = (entry.log || {})[r.season] || {};
+      const keys = r.objectives.map((o, i) => `s${r.season}-${i}`);
+      return { season: r.season, finish: l.finish || '', trophies: Number(l.trophies) || 0, done: keys.filter((k) => (entry.progress || {})[k]).length, total: keys.length };
+    }).filter((r) => r.finish || r.trophies || r.done);
+    const now = ch.roadmap.find((r) => `Season ${r.season} of ${ch.seasons}` === s.season) || ch.roadmap[ch.roadmap.length - 1];
+    const objectives = now ? now.objectives.map((o, i) => ({ text: o.text, done: Boolean((entry.progress || {})[`s${now.season}-${i}`]) })) : [];
+    try {
+      const result = await shareImage.exportSeason({
+        title: ch.title, club: ch.club.name, league: ch.club.league || '', icon: ch.archetype.icon, difficulty: ch.difficulty, difficultyName: ch.difficultyName,
+        seasonLabel: s.season, handle: p && p.handle, site,
+        stats: { done: s.done, total: s.total, score: s.score, proven: s.points, trophies: s.trophies, transfers: s.transfers },
+        seasons, objectives, rules: ch.coreRules.concat(ch.rules).map((r) => r.text),
+      });
+      if (result === 'downloaded') toast('Season card saved 📸 Post it on TikTok or Instagram!');
+    } catch (e) {
+      toast("Couldn't create the image in this browser");
+    }
+  }
+
+  /** Achievements you've unlocked, for the badges next to your name. */
+  function badgeIds() {
+    return window.FC26.achievements.evaluate(loadSaved(), {
+      broken: (e) => Compliance.tally(Compliance.checkChallenge(e.challenge, e.tracker)).broken,
+      dailyBest: Daily.streak(loadCheckins(), Daily.dateKey()).best,
+    }).filter((a) => a.unlocked).map((a) => a.id);
+  }
+
   // ---------- Saved challenges ----------
 
   // Older saves kept one trophy counter for the whole challenge; it now lives in season 1 of the diary.
@@ -13004,6 +14035,8 @@ Aleksei Miranchuk|Russian|CAM
       Account.changed();
       Subs.savesChanged();
       window.FC26.leaderboard.publish();
+      window.FC26.weekly.publish();
+      window.FC26.duels.sync();
     }
     return ok;
   }
@@ -13162,6 +14195,8 @@ Aleksei Miranchuk|Russian|CAM
     const tags = [
       broken ? `<span class="neg">❌ ${broken} rule${broken === 1 ? '' : 's'} broken</span>` : '',
       ch.daily ? `📅 Daily #${Number(ch.daily.number) || ''}` : '',
+      ch.weekly ? `🏆 Week #${Number(ch.weekly.number) || ''}` : '',
+      entry.duel ? '⚔️ Head-to-head' : '',
       ch.mode === 'player' ? '⚽ Player' : '',
       ch.custom ? '✍️ Custom' : '',
       esc(ch.difficultyName),
@@ -13632,6 +14667,11 @@ Aleksei Miranchuk|Russian|CAM
       });
     } else if (action === 'image') {
       exportImage(entry.challenge);
+    } else if (action === 'season-card') {
+      exportSeasonCard(entry);
+    } else if (action === 'h2h') {
+      window.FC26.duels.preselect(id);
+      window.FC26.community.open('h2h');
     } else if (action === 'open-transfers') {
       storageSet(TC_KEY, id);
       showView('transfers');
@@ -13663,16 +14703,20 @@ Aleksei Miranchuk|Russian|CAM
     }
   }
 
-  async function loadFromHash() {
-    const m = window.location.hash.match(/^#([cx])=([A-Za-z0-9_-]+)$/);
-    if (!m) return false;
-    let ch = null;
+  /** The challenge in a share link's hash ("c=…" or "x=…"), or null. */
+  async function challengeFromHash(hash) {
+    const m = String(hash || '').replace(/^#/, '').match(/^([cx])=([A-Za-z0-9_-]+)$/);
+    if (!m) return null;
     if (m[1] === 'c') {
       const key = decodeKey(m[2]);
-      ch = key && G.fromShareKey(key);
-    } else {
-      ch = await unpackCustom(m[2]);
+      return (key && G.fromShareKey(key)) || null;
     }
+    return unpackCustom(m[2]);
+  }
+
+  async function loadFromHash() {
+    if (!/^#[cx]=/.test(window.location.hash)) return false;
+    const ch = await challengeFromHash(window.location.hash);
     if (!ch) {
       toast("That share link couldn't be read");
       return false;
@@ -13764,6 +14808,7 @@ Aleksei Miranchuk|Russian|CAM
     $$('.tab').forEach((t) => t.addEventListener('click', () => showView(t.dataset.view)));
     window.addEventListener('hashchange', () => {
       if (window.location.hash === '#daily') showView('daily');
+      else if (window.location.hash === '#community') { history.replaceState(null, '', window.location.pathname + window.location.search); showView('community'); }
       else loadFromHash();
     });
     $('#saved-count').textContent = loadSaved().length;
@@ -13773,10 +14818,23 @@ Aleksei Miranchuk|Russian|CAM
       esc, toast, storageGet, storageSet, entries: loadSaved,
       dailySeen: (key) => loadCheckins().includes(key),
       shareHash: async (ch) => (await shareUrl(ch)).split('#')[1] || '',
+      badgeIds,
     });
     Subs.onProChange(syncProLocks);
     window.FC26.leaderboard.init({ esc, toast, entries: loadSaved, storageGet, storageSet });
-    window.FC26.community.init({ esc, toast, showView });
+    window.FC26.weekly.init({
+      esc, toast, entries: loadSaved, trackChallenge,
+      openChallenge: (ch) => { state.challenge = ch; state.draft = null; resetLocks(); showView('builder'); renderBuilder(true); },
+      render: () => window.FC26.community.refresh(),
+    });
+    window.FC26.duels.init({
+      esc, toast, entries: loadSaved, stats: statsOf, mutateEntry,
+      shareHash: async (ch) => (await shareUrl(ch)).split('#')[1] || '',
+      acceptLink: async (link) => { const ch = await challengeFromHash(link); return ch ? saveChallenge(ch, true) : null; },
+      openSave: (id) => showView('saved', id),
+      render: () => window.FC26.community.refresh(),
+    });
+    window.FC26.community.init({ esc, toast, showView, storageGet, storageSet });
     syncProLocks();
     initAccount();
     initSoundtrack();
@@ -13784,6 +14842,7 @@ Aleksei Miranchuk|Russian|CAM
     syncDailyDot();
     setInterval(tickDaily, 30000);
     if (window.location.hash === '#daily') showView('daily');
+    else if (window.location.hash === '#community') showView('community');
     else loadFromHash();
   }
 

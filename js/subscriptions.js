@@ -1,6 +1,6 @@
 /*
- * 🔔 Subscriptions: the daily challenge in your calendar or feed reader,
- * reminders, following friends, and ⭐ Pro.
+ * 🔔 Subscriptions: installing the app, the daily challenge in your calendar
+ * or feed reader, reminders, following friends, and ⭐ Pro.
  *
  * - The feeds are static files CI rebuilds every day (scripts/build-feeds.js).
  * - Reminders are browser notifications, shown while the site is open in a tab
@@ -26,13 +26,14 @@
   const ACCENTS = [['', '🟢 Pitch green'], ['gold', '🟡 Gold'], ['blue', '🔵 Ocean'], ['purple', '🟣 Royal'], ['red', '🔴 Derby red']];
   const PERKS = ['⭐ A Pro badge on your profile', '🎨 Five colour themes for the app', '🎧 Spotify soundtracks of 75 or 100 tracks', '❤️ Keeps the app going'];
 
-  let deps = null; // { esc, toast, storageGet, storageSet, entries(), dailySeen(key), shareHash(ch) }
+  let deps = null; // { esc, toast, storageGet, storageSet, entries(), dailySeen(key), shareHash(ch), badgeIds() }
   let account = { status: 'off', user: null };
   let uid = null;
   const st = { profile: null, following: [], feed: [], pro: false, busy: '', error: '', newCount: 0, editing: false };
   let stopPro = null;
   let reminderTimer = null;
   let publishTimer = null;
+  let badgeTimer = null;
   let modal = null;
   let worker = null; // service worker registration, for notifications on phones
 
@@ -66,7 +67,7 @@
 
   // ---------- Reminders ----------
 
-  const reminders = () => Object.assign({ daily: false, time: '09:00', friends: false, last: '' }, deps.storageGet(REMIND_KEY, {}));
+  const reminders = () => Object.assign({ daily: false, time: '09:00', friends: false, community: false, last: '' }, deps.storageGet(REMIND_KEY, {}));
   const setReminders = (change) => deps.storageSet(REMIND_KEY, Object.assign(reminders(), change));
   const canNotify = () => 'Notification' in root;
 
@@ -121,6 +122,37 @@
       try { await Notification.requestPermission(); } catch (e) { /* old Safari: callback form only */ }
     }
     return Notification.permission;
+  }
+
+  // ---------- Install as an app ----------
+
+  let installPrompt = null; // Chrome / Edge / Android: the browser's own install dialog
+  const standalone = () => (root.matchMedia && root.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  async function install() {
+    if (!installPrompt) return false;
+    installPrompt.prompt();
+    const choice = await installPrompt.userChoice.catch(() => null);
+    installPrompt = null;
+    if (choice && choice.outcome === 'accepted') deps.toast('Installed 📲 Find FC26 Challenges on your home screen.');
+    render();
+    return true;
+  }
+
+  function installSection() {
+    let body;
+    if (standalone()) body = '<p class="muted">✅ You’re using the installed app.</p>';
+    else if (!/^https?:$/.test(root.location.protocol)) body = '<p class="muted small">Open the hosted site to install the app.</p>';
+    else if (installPrompt) body = '<button type="button" class="btn btn-small btn-primary" data-subs="install">📲 Install the app</button>';
+    else if (isIOS()) body = '<p class="muted">On iPhone or iPad: tap <strong>Share</strong> <span aria-hidden="true">⬆️</span> in Safari, then <strong>Add to Home Screen</strong>.</p>';
+    else body = '<p class="muted">In Chrome or Edge, use the install icon in the address bar, or the menu → <strong>Install app</strong> / <strong>Add to Home screen</strong>.</p>';
+    return `
+      <section class="subs-sec" id="subs-install">
+        <h3>📲 Get the app</h3>
+        <p class="muted small">Add FC26 Challenges to your home screen: its own icon, full screen, and it works offline.</p>
+        ${body}
+      </section>`;
   }
 
   // ---------- Following ----------
@@ -316,6 +348,8 @@
           Remind me about the daily challenge at <input type="time" class="subs-time" data-subs-field="time" value="${esc(r.time)}" aria-label="Reminder time"></label>
         <label class="toggle"><input type="checkbox" data-subs-field="friends" ${r.friends ? 'checked' : ''} ${perm === 'unsupported' ? 'disabled' : ''}>
           Tell me when someone I follow saves a challenge</label>
+        <label class="toggle"><input type="checkbox" data-subs-field="community" ${r.community ? 'checked' : ''} ${perm === 'unsupported' ? 'disabled' : ''}>
+          Tell me about replies, upvotes and head-to-head challenges</label>
         <p class="muted small">${esc(note)}</p>
         ${perm === 'granted' ? '<button type="button" class="btn btn-small" data-subs="test">Send a test</button>' : ''}
       </section>`;
@@ -402,7 +436,7 @@
       <h2 id="subs-title">🔔 Subscriptions</h2>
       ${st.error ? `<p class="login-error">${esc(st.error)}</p>` : ''}
       ${st.busy ? `<p class="muted small">${esc(st.busy)}</p>` : ''}
-      ${feedSection()}${remindSection()}${followSection()}${proSection()}`;
+      ${installSection()}${feedSection()}${remindSection()}${followSection()}${proSection()}`;
   }
 
   async function act(label, fn) {
@@ -456,6 +490,7 @@
         deps.storageSet(ACCENT_KEY, b.dataset.accent);
         applyAccent();
         return render();
+      case 'install': return install();
       case 'checkout': return act('Opening Stripe checkout…', checkout);
       case 'portal': return act('Opening your subscription…', portal);
       default: return undefined;
@@ -465,7 +500,7 @@
   async function onChange(e) {
     const field = e.target.dataset.subsField;
     if (!field) return;
-    if (field === 'daily' || field === 'friends') {
+    if (field === 'daily' || field === 'friends' || field === 'community') {
       const on = e.target.checked;
       if (on && (await askPermission()) !== 'granted') {
         e.target.checked = false;
@@ -476,7 +511,8 @@
       setReminders({ [field]: on });
       if (on) registerWorker();
       scheduleReminder();
-      deps.toast(on ? (field === 'daily' ? `I'll remind you at ${reminders().time} 🔔` : "I'll tell you when friends save a challenge 👥") : 'Reminder off');
+      const says = { daily: `I'll remind you at ${reminders().time} 🔔`, friends: "I'll tell you when friends save a challenge 👥", community: "I'll tell you about replies, upvotes and challenges 💬" };
+      deps.toast(on ? says[field] : 'Notifications off');
       render();
     } else if (field === 'time') {
       setReminders({ time: e.target.value || '09:00' });
@@ -547,14 +583,42 @@
         syncDot();
       } else {
         watchPro();
-        loadMine().then(() => refreshFeed(false)).then(render).catch(() => {});
+        loadMine().then(() => { if (deps.badgeIds) setBadges(deps.badgeIds()); return refreshFeed(false); }).then(render).catch(() => {});
       }
     }
     render();
   }
 
+  /** Add a 👑 weekly champion win (the week's Monday) to your profile. */
+  async function addWin(week) {
+    const d = data();
+    if (!d || !uid) return;
+    if (!st.profile) await loadMine();
+    if (!st.profile || !st.profile.handle) return;
+    const wins = Array.isArray(st.profile.wins) ? st.profile.wins : [];
+    if (wins.includes(week)) return;
+    st.profile = Object.assign({}, st.profile, { wins: wins.concat(week).slice(-60), updated: Date.now() });
+    await d.set(`profiles/${uid}`, st.profile);
+    if (FC26.badges) FC26.badges.remember(uid, st.profile);
+    deps.toast('👑 You won last week’s challenge! The badge is on your profile.');
+  }
+
+  /** Keep the achievements on your profile (shown next to your name) up to date. */
+  async function setBadges(ids) {
+    const d = data();
+    if (!d || !uid || !st.profile || !st.profile.handle) return;
+    const next = (ids || []).slice(0, 30);
+    const old = Array.isArray(st.profile.badges) ? st.profile.badges : [];
+    if (old.length === next.length && old.every((x, i) => x === next[i])) return;
+    st.profile = Object.assign({}, st.profile, { badges: next, updated: Date.now() });
+    await d.set(`profiles/${uid}`, st.profile).catch(() => {});
+    if (FC26.badges) FC26.badges.remember(uid, st.profile);
+  }
+
   /** The app calls this after every save: shared challenges follow along. */
   function savesChanged() {
+    clearTimeout(badgeTimer);
+    badgeTimer = setTimeout(() => { if (deps.badgeIds && st.profile) setBadges(deps.badgeIds()); }, 3000);
     if (!st.profile || !st.profile.shared) return;
     clearTimeout(publishTimer);
     publishTimer = setTimeout(() => publish().catch(() => {}), 3000);
@@ -574,18 +638,33 @@
     st.pro = proOn() && deps.storageGet(PRO_KEY, false) === true;
     applyAccent();
     scheduleReminder();
-    if (reminders().daily || reminders().friends) registerWorker();
+    registerWorker(); // also makes the app work offline (sw.js)
     // Back from Stripe Checkout.
     if (root.location.hash === '#pro=welcome') {
       root.history.replaceState(null, '', root.location.pathname + root.location.search);
       deps.toast('Welcome to Pro ⭐ It can take a few seconds to show.');
+    }
+    root.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installPrompt = e; render(); });
+    root.addEventListener('appinstalled', () => { installPrompt = null; render(); });
+    const link = document.getElementById('install-link');
+    if (link) {
+      link.addEventListener('click', async () => {
+        if (await install()) return;
+        open();
+        const sec = document.getElementById('subs-install');
+        if (sec) sec.scrollIntoView({ block: 'start' });
+      });
     }
     // New challenges from people you follow, every 10 minutes while the site is open.
     setInterval(() => { if (uid && st.following.length) refreshFeed(true).catch(() => {}); }, 600000);
   }
 
   FC26.subscriptions = {
-    init, onAccount, savesChanged, isPro, locked, feedUrls, open, findCoupon, ACCENTS, HANDLE_RE,
+    init, onAccount, savesChanged, isPro, locked, feedUrls, open, findCoupon, ACCENTS, HANDLE_RE, addWin, setBadges, notify,
+    /** Whether a kind of notification ('daily', 'friends', 'community') is turned on and allowed. */
+    wants: (kind) => Boolean(reminders()[kind]) && canNotify() && Notification.permission === 'granted',
+    /** The service worker, once registered. */
+    worker: () => registerWorker(),
     /** Your profile (username, name), once loaded, or null. */
     profile: () => st.profile,
     /** Call fn(isPro) whenever Pro starts or stops. */

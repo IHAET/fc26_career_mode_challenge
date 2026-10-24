@@ -1,6 +1,10 @@
 /*
  * 💬 Community: a players' forum, ⭐ player picks (players recommending real
- * players to sign, with upvotes) and 📺 every creator video by challenge type.
+ * players to sign, with upvotes), 🏆 the challenge of the week (weekly.js),
+ * ⚔️ head-to-heads with friends (duels.js) and 📺 every creator video by
+ * challenge type. 🔔 Replies to your threads, upvotes on your picks and new
+ * head-to-head challenges show as a dot on the tab, a list at the top, and
+ * (if you turned it on in 🔔 Subscriptions) a notification.
  *
  * Firestore: forum/{id} (threads) with forum/{id}/replies/{id}, picks/{id}
  * with picks/{id}/votes/{uid}, and reports/{id}. Reading needs a signed-in
@@ -16,11 +20,14 @@
   const LIMITS = { title: 100, body: 2000, reply: 1000, note: 300 };
   // Words hidden from posts (people can read the forum at any age).
   const BLOCK = /\b(fuck\w*|shit\w*|cunt\w*|bitch\w*|bastard\w*|wank\w*|twat\w*|dick(head)?s?|pussy|slut\w*|whore\w*|nigg\w*|fag\w*|retard\w*)\b/gi;
+  const SEEN_KEY = 'fc26-cm-seen-v1'; // what you've already seen: { threads: {id: replies}, picks: {id: votes}, duels: [ids] }
+  const CHECK_EVERY = 5 * 60000;
+  const SECTIONS = [['forum', '💬 Forum'], ['picks', '⭐ Player picks'], ['weekly', '🏆 Weekly'], ['h2h', '⚔️ Head-to-head'], ['videos', '📺 Videos']];
   const clean = (s, max) => String(s || '').replace(/\s+\n/g, '\n').trim().slice(0, max).replace(BLOCK, (w) => '★'.repeat(w.length));
 
-  let deps = null; // { esc, toast, showView }
+  let deps = null; // { esc, toast, showView, storageGet, storageSet }
   let el = null;
-  const st = { section: 'forum', cat: 'all', threads: null, thread: null, replies: null, picks: null, pickSort: 'top', pickTag: '', myVotes: new Set(), error: '', busy: false, videoType: '' };
+  const st = { section: 'forum', cat: 'all', threads: null, thread: null, replies: null, picks: null, pickSort: 'top', pickTag: '', myVotes: new Set(), error: '', busy: false, videoType: '', activity: [] };
 
   const esc = (v) => deps.esc(v == null ? '' : v);
   const data = () => (FC26.account && FC26.account.data && FC26.account.data()) || null;
@@ -40,6 +47,7 @@
     return refused(e) ? 'The community isn’t open yet. Check back soon!' : 'Couldn’t reach the community. Check your connection and try again.';
   };
   const para = (s) => esc(s).replace(/\n/g, '<br>');
+  const badge = (uid) => (FC26.badges ? FC26.badges.chips(uid) : '');
 
   // ---------- Loading ----------
 
@@ -88,14 +96,14 @@
       return `
         <button type="button" class="btn btn-small" data-cm="back">← All threads</button>
         <article class="cm-thread">
-          <div class="cm-meta"><span class="cm-cat">${esc((CATS.find(([c]) => c === t.cat) || ['', '💬'])[1])}</span> @${esc(t.handle)} · ${ago(t.at)}</div>
+          <div class="cm-meta"><span class="cm-cat">${esc((CATS.find(([c]) => c === t.cat) || ['', '💬'])[1])}</span> @${esc(t.handle)} ${badge(t.uid)} · ${ago(t.at)}</div>
           <h3>${esc(t.title)}</h3>
           <p>${para(t.body)}</p>
           ${postTools('thread', t)}
         </article>
         <h4 class="cm-sub">${st.replies ? `${st.replies.length} repl${st.replies.length === 1 ? 'y' : 'ies'}` : 'Replies'}</h4>
         ${st.replies == null ? '<p class="muted">Loading…</p>' : st.replies.map((r) => `
-          <div class="cm-reply"><div class="cm-meta">@${esc(r.handle)} · ${ago(r.at)}</div><p>${para(r.body)}</p>${postTools('reply', r)}</div>`).join('')}
+          <div class="cm-reply"><div class="cm-meta">@${esc(r.handle)} ${badge(r.uid)} · ${ago(r.at)}</div><p>${para(r.body)}</p>${postTools('reply', r)}</div>`).join('')}
         ${handle() ? `<form class="cm-form" data-cm-form="reply"><textarea name="body" maxlength="${LIMITS.reply}" rows="3" placeholder="Write a reply" required></textarea><button type="submit" class="btn btn-small btn-primary">Reply</button></form>` : needHandle()}`;
     }
     const list = (st.threads || []).filter((t) => st.cat === 'all' || t.cat === st.cat);
@@ -110,7 +118,7 @@
         </form></details>` : needHandle()}
       ${st.threads == null ? '<p class="muted">Loading…</p>' : list.length ? `<ul class="cm-list">${list.map((t) => `
         <li><button type="button" class="cm-row" data-cm="open" data-id="${esc(t.id)}">
-          <span class="cm-main"><strong>${esc(t.title)}</strong><small class="muted">${esc((CATS.find(([c]) => c === t.cat) || ['', ''])[1])} · @${esc(t.handle)} · ${ago(t.lastAt || t.at)}</small></span>
+          <span class="cm-main"><strong>${esc(t.title)}</strong><small class="muted">${esc((CATS.find(([c]) => c === t.cat) || ['', ''])[1])} · @${esc(t.handle)} ${badge(t.uid)} · ${ago(t.lastAt || t.at)}</small></span>
           <span class="cm-count" title="Replies">💬 ${Number(t.replies) || 0}</span></button></li>`).join('')}</ul>`
     : '<p class="muted">No threads here yet. Start one!</p>'}`;
   }
@@ -149,7 +157,7 @@
               <span class="cm-tag">${esc((TAGS.find(([t]) => t === p.tag) || ['', ''])[1])}</span></span>
             <small class="muted">${esc([p.pos, p.age ? `${p.age} yrs` : '', p.nat, p.club, p.price ? `paid €${p.price}M` : ''].filter(Boolean).join(' · '))}</small>
             <span class="cm-note-text">“${esc(p.note)}”</span>
-            <small class="muted">@${esc(p.handle)} · ${ago(p.at)}</small>
+            <small class="muted">@${esc(p.handle)} ${badge(p.uid)} · ${ago(p.at)}</small>
           </span>
           ${postTools('pick', p)}
         </li>`).join('')}</ul>` : '<p class="muted">No picks yet. Share the first one!</p>'}`;
@@ -172,23 +180,121 @@
 
   function render() {
     if (!el) return;
-    const tabs = `<div class="seg cm-tabs" role="tablist">${[['forum', '💬 Forum'], ['picks', '⭐ Player picks'], ['videos', '📺 Videos']].map(([s, label]) => `<button type="button" role="tab" aria-selected="${st.section === s}" class="${st.section === s ? 'is-on' : ''}" data-cm="section" data-section="${s}">${label}</button>`).join('')}</div>`;
-    const blocked = st.section !== 'videos' && gate();
-    const body = blocked || (st.error ? `<p class="login-error">${esc(st.error)}</p>` : '')
-      + (blocked ? '' : st.section === 'forum' ? forumView() : st.section === 'picks' ? picksView() : '')
-      + (st.section === 'videos' ? videosView() : '');
+    const count = (s) => st.activity.filter((a) => a.section === s).length;
+    const tabs = `<div class="seg cm-tabs" role="tablist">${SECTIONS.map(([s, label]) => `<button type="button" role="tab" aria-selected="${st.section === s}" class="${st.section === s ? 'is-on' : ''}" data-cm="section" data-section="${s}">${label}${count(s) ? ` <span class="count">${count(s)}</span>` : ''}</button>`).join('')}</div>`;
+    // The weekly challenge and head-to-head explain signing in themselves.
+    const blocked = (st.section === 'forum' || st.section === 'picks') && gate();
+    let body = blocked || (st.error ? `<p class="login-error">${esc(st.error)}</p>` : '');
+    if (!blocked) {
+      if (st.section === 'forum') body += forumView();
+      else if (st.section === 'picks') body += picksView();
+      else if (st.section === 'weekly') body += FC26.weekly.view();
+      else if (st.section === 'h2h') body += FC26.duels.view();
+      else body += videosView();
+    }
     el.innerHTML = `
       <div class="cm-head"><h2>💬 Community</h2><p class="muted">Talk career mode with other players, swap player tips and watch creators.</p></div>
+      ${activityView()}
       ${tabs}
       <div class="cm-body panel">${body}</div>`;
+    syncDot();
   }
 
   /** The tab was opened (or the account changed): load what's needed. */
   function show() {
+    if (st.section === 'picks' || st.section === 'h2h') markSeen(st.section);
     render();
     if (account().status !== 'signed-in' || !data()) return;
     if (st.section === 'forum' && st.threads == null) loadThreads();
     if (st.section === 'picks' && st.picks == null) loadPicks();
+    if (st.section === 'weekly') FC26.weekly.show();
+    if (st.section === 'h2h') FC26.duels.show();
+  }
+
+  // ---------- 🔔 Activity: replies, upvotes, head-to-head challenges ----------
+
+  const seenGet = () => Object.assign({ threads: {}, picks: {}, duels: [] }, deps.storageGet(SEEN_KEY, {}));
+  const seenSet = (v) => deps.storageSet(SEEN_KEY, v);
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  let checking = false;
+
+  /** Look for new replies, upvotes and challenges; announce=true notifies about new ones. */
+  async function checkActivity(announce) {
+    const d = data();
+    const uid = me();
+    if (!d || !uid || !d.where || checking) return;
+    checking = true;
+    try {
+      const seen = seenGet();
+      const first = !seen.init;
+      const [threads, picks] = await Promise.all([d.where('forum', 'uid', '==', uid, 50), d.where('picks', 'uid', '==', uid, 100)]);
+      if (FC26.duels) await FC26.duels.load();
+      const items = [];
+      threads.forEach((t) => {
+        const n = Number(t.replies) || 0;
+        const was = seen.threads[t.id];
+        if (was == null || first) seen.threads[t.id] = n;
+        else if (n > was) items.push({ key: `t:${t.id}:${n}`, icon: '💬', text: `${plural(n - was, 'new reply', 'new replies')} on “${t.title}”`, section: 'forum', id: t.id });
+      });
+      picks.forEach((p) => {
+        const n = Number(p.votes) || 0;
+        const was = seen.picks[p.id];
+        if (was == null || first) seen.picks[p.id] = n;
+        else if (n > was) items.push({ key: `p:${p.id}:${n}`, icon: '▲', text: `${plural(n - was, 'new upvote', 'new upvotes')} on your ${p.player} pick`, section: 'picks', id: p.id });
+      });
+      (FC26.duels ? FC26.duels.pending() : []).forEach((x) => {
+        if (!seen.duels.includes(x.id)) items.push({ key: `d:${x.id}`, icon: '⚔️', text: `@${x.a.handle} challenged you: ${x.title}`, section: 'h2h', id: x.id });
+      });
+      seen.init = true;
+      seenSet(seen);
+      const before = new Set(st.activity.map((a) => a.key));
+      const fresh = items.filter((a) => !before.has(a.key));
+      st.activity = items;
+      if (announce && fresh.length && FC26.subscriptions && FC26.subscriptions.wants('community')) {
+        const a = fresh[0];
+        FC26.subscriptions.notify(`${a.icon} FC 26 Community`, `${a.text}${fresh.length > 1 ? ` (+${fresh.length - 1} more)` : ''}`, 'fc26-community', '#community');
+      }
+      if (el && !el.hidden) renderKeepingForms(); else syncDot();
+    } catch (e) { /* rules not published yet, or offline: try again later */ }
+    checking = false;
+  }
+
+  /** Mark what's in a section (or one thread) as seen. */
+  function markSeen(section, id) {
+    if (!st.activity.length) return;
+    const seen = seenGet();
+    const done = st.activity.filter((a) => (!section || a.section === section) && (!id || a.id === id));
+    if (!done.length) return;
+    done.forEach((a) => {
+      const n = Number(a.key.split(':')[2]);
+      if (a.section === 'forum') seen.threads[a.id] = n;
+      if (a.section === 'picks') seen.picks[a.id] = n;
+      if (a.section === 'h2h') seen.duels = seen.duels.concat(a.id).slice(-200);
+    });
+    seenSet(seen);
+    st.activity = st.activity.filter((a) => !done.includes(a));
+    syncDot();
+  }
+
+  function activityView() {
+    if (!st.activity.length) return '';
+    return `
+      <div class="cm-activity panel">
+        <div class="cm-activity-head"><strong>🔔 ${plural(st.activity.length, 'new thing', 'new things')} for you</strong>
+          <button type="button" class="login-link" data-cm="seen-all">Mark all read</button></div>
+        <ul>${st.activity.map((a) => `<li><button type="button" class="cm-act" data-cm="act" data-section="${a.section}" data-id="${esc(a.id)}"><span>${esc(a.icon)}</span> ${esc(a.text)}</button></li>`).join('')}</ul>
+      </div>`;
+  }
+
+  function syncDot() {
+    const dot = document.getElementById('cm-dot');
+    if (dot) dot.hidden = !st.activity.length;
+  }
+
+  /** Redraw unless someone is typing in a form here. */
+  function renderKeepingForms() {
+    const typing = el && el.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+    if (typing) syncDot(); else render();
   }
 
   // ---------- Posting ----------
@@ -203,7 +309,8 @@
       const title = clean(f.title.value, LIMITS.title);
       const body = clean(f.body.value, LIMITS.body);
       if (!title || !body) return;
-      await d.add('forum', { title, body, cat: f.cat.value, uid, handle: h, at: now, lastAt: now, replies: 0 });
+      const id = await d.add('forum', { title, body, cat: f.cat.value, uid, handle: h, at: now, lastAt: now, replies: 0 });
+      const seen = seenGet(); seen.threads[id] = 0; seenSet(seen);
       st.cat = f.cat.value;
       deps.toast('Posted 💬');
       await loadThreads();
@@ -213,6 +320,8 @@
       await d.add(`forum/${st.thread.id}/replies`, { body, uid, handle: h, at: now });
       await d.set(`forum/${st.thread.id}`, { replies: (Number(st.thread.replies) || 0) + 1, lastAt: now }, true);
       st.thread.replies = (Number(st.thread.replies) || 0) + 1;
+      // Your own reply on your own thread isn't news.
+      if (st.thread.uid === uid) { const seen = seenGet(); seen.threads[st.thread.id] = st.thread.replies; seenSet(seen); }
       await openThread(st.thread.id);
     } else if (kind === 'pick') {
       const name = clean(f.player.value, 40);
@@ -224,7 +333,7 @@
       await d.add('picks', {
         player: p ? p.name : name, pos: (p && p.pos) || '', ovr: (p && p.ovr) || 0, age: age || 0, nat: (p && p.nat) || '', club: (p && p.club) || '',
         tag: f.tag.value, price: Math.max(0, Number(f.price.value) || 0), note, uid, handle: h, at: now, votes: 0,
-      });
+      }).then((id) => { const seen = seenGet(); seen.picks[id] = 0; seenSet(seen); });
       deps.toast(`Shared ${p ? p.name : name} ⭐`);
       st.pickSort = 'new';
       await loadPicks();
@@ -271,11 +380,19 @@
     if (!b) return;
     const what = b.dataset.cm;
     try {
+      if (FC26.weekly.onClick(what)) return;
+      if (await FC26.duels.onClick(what, b)) { render(); return; }
       if (what === 'section') { st.section = b.dataset.section; st.error = ''; show(); }
+      else if (what === 'seen-all') { markSeen(); render(); }
+      else if (what === 'act') {
+        st.section = b.dataset.section;
+        st.error = '';
+        if (st.section === 'forum') { markSeen('forum', b.dataset.id); if (st.threads == null) await loadThreads(); await openThread(b.dataset.id); } else show();
+      }
       else if (what === 'signin') document.getElementById('account-btn').click();
       else if (what === 'username') { if (FC26.subscriptions) FC26.subscriptions.open(); }
       else if (what === 'cat') { st.cat = b.dataset.cat; render(); }
-      else if (what === 'open') await openThread(b.dataset.id);
+      else if (what === 'open') { markSeen('forum', b.dataset.id); await openThread(b.dataset.id); }
       else if (what === 'back') { st.thread = null; st.replies = null; await loadThreads(); }
       else if (what === 'tag') { st.pickTag = b.dataset.tag; render(); }
       else if (what === 'vote') await vote(b.dataset.id);
@@ -291,7 +408,8 @@
     e.preventDefault();
     if (st.busy) return;
     st.busy = true;
-    try { await post(f.dataset.cmForm, f.elements); } catch (err) { st.error = fail(err); render(); }
+    if (f.dataset.cmForm === 'h2h') await FC26.duels.onSubmit(f.elements);
+    else try { await post(f.dataset.cmForm, f.elements); } catch (err) { st.error = fail(err); render(); }
     st.busy = false;
   }
 
@@ -312,15 +430,39 @@
     el.addEventListener('submit', onSubmit);
     el.addEventListener('input', onInput);
     el.addEventListener('change', (e) => { if (e.target.matches('[data-cm-sort]')) { st.pickSort = e.target.value; st.picks = null; show(); } });
+    // While the site is open, look for replies, upvotes and challenges every few minutes.
+    setInterval(() => { if (account().status === 'signed-in') checkActivity(true); }, CHECK_EVERY);
   }
 
   /** The account changed: forget what was loaded for the old one. */
+  let lastUser;
   function onAccount() {
+    // Only when who's signed in changes (not on every sync).
+    const who = `${account().status}:${me() || ''}`;
+    if (who === lastUser) return;
+    lastUser = who;
     st.threads = null;
     st.picks = null;
     st.thread = null;
+    st.activity = [];
+    if (FC26.badges) FC26.badges.reset();
+    if (FC26.weekly) FC26.weekly.onAccount();
+    if (FC26.duels) FC26.duels.onAccount();
+    syncDot();
+    if (account().status === 'signed-in') checkActivity(false);
     if (el && !el.hidden) show();
   }
 
-  FC26.community = { init, show, onAccount, clean, CATS, TAGS };
+  /** Open a section (e.g. ⚔️ head-to-head from a save). */
+  function open(section) {
+    st.section = section;
+    st.error = '';
+    deps.showView('community');
+  }
+
+  FC26.community = {
+    init, show, onAccount, open, render, clean,
+    /** Redraw if the tab is showing (and nobody's typing in it). */
+    refresh: () => { if (el && !el.hidden) renderKeepingForms(); },
+    checkActivity, CATS, TAGS, SECTIONS };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -9,6 +9,7 @@
  * and, for profiles, following and Pro (js/subscriptions.js), an optional
  *   data: { get(path), set(path, value, merge?), remove(path), add(collection, value) → id,
  *           list(collection) → [docs], top(collection, field, n) → [docs, highest first],
+ *           where(collection, field, op, value, n) → [docs],
  *           watch(path, cb) → stop, watchAll(collection, cb) → stop, call(name, payload) }
  *
  * Each user has one document: { v, updated, challenges, deleted, known },
@@ -109,6 +110,8 @@
         add: async (collection, value) => (await F.addDoc(F.collection(db, collection), value)).id,
         list: async (collection) => (await F.getDocs(F.collection(db, collection))).docs.map((d) => Object.assign({ id: d.id }, d.data())),
         top: async (collection, field, n) => (await F.getDocs(F.query(F.collection(db, collection), F.orderBy(field, 'desc'), F.limit(n)))).docs.map((d) => Object.assign({ id: d.id }, d.data())),
+        // Documents where field op value ('==' or 'array-contains'), up to n.
+        where: async (collection, field, op, value, n) => (await F.getDocs(F.query(F.collection(db, collection), F.where(field, op, value), F.limit(n || 100)))).docs.map((d) => Object.assign({ id: d.id }, d.data())),
         watch: (path, cb) => F.onSnapshot(F.doc(db, path), (snap) => cb(snap.exists() ? snap.data() : null), () => cb(null)),
         watchAll: (collection, cb) => F.onSnapshot(F.collection(db, collection), (q) => cb(q.docs.map((d) => Object.assign({ id: d.id }, d.data()))), () => cb([])),
         // A callable Cloud Function (the Stripe extension's customer portal link), without the Functions SDK.

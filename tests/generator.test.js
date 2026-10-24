@@ -1132,3 +1132,41 @@ test('the interface translates whole labels and keeps the emoji and numbers arou
   assert.equal(I.translate('Win the league with Wrexham', 'es'), 'Win the league with Wrexham');
   assert.equal(I.translate('📒 Track it', 'en'), '📒 Track it');
 });
+
+test('the challenge of the week is the same all week and changes on Monday', () => {
+  const W = globalThis.FC26.weekly;
+  assert.equal(W.weekKey(new Date(2026, 9, 19, 9)), '2026-10-19'); // Monday
+  assert.equal(W.weekKey(new Date(2026, 9, 25, 23)), '2026-10-19'); // Sunday night
+  assert.equal(W.weekKey(new Date(2026, 9, 26, 0, 5)), '2026-10-26');
+  assert.equal(W.number('2026-10-19'), 1);
+  assert.equal(W.number(W.shiftWeek('2026-10-19', 3)), 4);
+  const a = W.challenge('2026-10-19');
+  assert.equal(a.title, W.challenge('2026-10-19').title);
+  assert.deepEqual(a.weekly, { week: '2026-10-19', number: 1 });
+  assert.notEqual(JSON.stringify(globalThis.FC26.generator.toShareKey(a)), JSON.stringify(globalThis.FC26.generator.toShareKey(W.challenge('2026-10-26'))));
+  // Your result: proven points on this week's save only.
+  const proof = [{ id: 'p', at: 1 }];
+  const entries = [
+    { id: '1', challenge: a, progress: { 's1-0': true }, proofs: { 's1-0': proof } },
+    { id: '2', challenge: W.challenge('2026-10-26'), progress: {}, proofs: { final: proof } },
+  ];
+  const r = W.myResult(entries, '2026-10-19');
+  assert.equal(r.entry.id, '1');
+  assert.ok(r.points > 0);
+  assert.equal(r.proofs, 1);
+  assert.equal(r.done, 1);
+  assert.equal(W.myResult(entries, '2026-11-02'), null);
+});
+
+test('head-to-head leader and profile badges', () => {
+  const { duels: D, badges: B } = globalThis.FC26;
+  assert.equal(D.leader({ points: 20, done: 1 }, { points: 10, done: 9 }), 'a');
+  assert.equal(D.leader({ points: 10, done: 1 }, { points: 10, done: 3 }), 'b');
+  assert.equal(D.leader({ points: 0, done: 0, trophies: 0 }, {}), '');
+  const b = B.of({ pro: true, wins: ['2026-10-19', '2026-10-26'], badges: ['first-save', 'treble', 'nope'] }, 2);
+  assert.deepEqual([b.rank, b.wins, b.pro, b.achievements.map((x) => x.icon)], [2, 2, true, ['💾', '👑']]);
+  const html = B.html(b);
+  assert.match(html, /🥈/);
+  assert.match(html, /👑×2/);
+  assert.equal(B.html(B.of(null, 0)), '');
+});

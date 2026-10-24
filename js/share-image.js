@@ -1,6 +1,6 @@
 /*
  * Draws a challenge as a tall PNG card for posting on Reddit, Discord,
- * Instagram and so on. Browser only (uses <canvas>), no dependencies.
+ * Instagram and so on, and a save's results as a story-sized season card. Browser only (uses <canvas>), no dependencies.
  *
  * Layout is done in one pass that records drawing steps and measures the
  * height, then the canvas is sized and the steps are replayed.
@@ -262,16 +262,197 @@
    * Render the challenge and hand it to the user: the share sheet on phones
    * that support sharing files, otherwise a download.
    */
-  async function exportImage(ch, siteLabel) {
-    const canvas = render(ch, siteLabel);
+  function exportImage(ch, siteLabel) {
+    return deliver(render(ch, siteLabel), `fc26-${slug(ch.title)}.png`, ch.title);
+  }
+
+  // ---------- Season card: your results, story-sized for TikTok / Instagram ----------
+
+  /** One line of text cut to fit, with an ellipsis. */
+  function fit(ctx, str, maxWidth) {
+    let t = String(str || '');
+    if (ctx.measureText(t).width <= maxWidth) return t;
+    while (t && ctx.measureText(`${t}…`).width > maxWidth) t = t.slice(0, -1);
+    return `${t}…`;
+  }
+
+  /**
+   * Draw a save's results on a 1080×1920 card.
+   * d: { title, club, league, icon, difficulty, difficultyName, seasonLabel, handle, site,
+   *      stats: { done, total, score, proven, trophies, transfers },
+   *      seasons: [{ season, finish, trophies, done, total }], objectives: [{ text, done }], rules: [text] }
+   */
+  function renderSeason(d) {
+    const H = 1920;
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    const diff = C.diff[(Number(d.difficulty) || 2) - 1] || C.accent;
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#0e1a14');
+    bg.addColorStop(0.45, C.bg);
+    bg.addColorStop(1, '#0a0d12');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+    const glow = ctx.createRadialGradient(W * 0.8, 120, 0, W * 0.8, 120, 900);
+    glow.addColorStop(0, 'rgba(25, 230, 140, 0.22)');
+    glow.addColorStop(1, 'rgba(25, 230, 140, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+    ctx.textBaseline = 'alphabetic';
+
+    // Brand
+    let y = 120;
+    roundRect(ctx, PAD, y - 62, 150, 80, 22);
+    ctx.fillStyle = C.accent;
+    ctx.fill();
+    ctx.fillStyle = C.ink;
+    ctx.font = font(900, 46, 'italic');
+    ctx.fillText('FC26', PAD + 18, y - 6);
+    ctx.fillStyle = C.muted;
+    ctx.font = font(700, 30);
+    ctx.fillText('CAREER CHALLENGE', PAD + 180, y - 30);
+    ctx.fillStyle = C.text;
+    ctx.font = font(600, 30);
+    ctx.fillText(fit(ctx, d.handle ? `@${d.handle}` : 'My save', INNER - 180), PAD + 180, y + 8);
+
+    // Club and challenge
+    y += 150;
+    ctx.fillStyle = diff;
+    ctx.font = font(800, 30);
+    ctx.fillText(`${d.icon || '⚽'}  ${String(d.difficultyName || '').toUpperCase()}`, PAD, y);
+    y += 100;
+    ctx.fillStyle = C.text;
+    let size = 96;
+    ctx.font = font(900, size);
+    while (size > 54 && ctx.measureText(d.club).width > INNER) { size -= 4; ctx.font = font(900, size); }
+    ctx.fillText(fit(ctx, String(d.club || '').toUpperCase(), INNER), PAD, y);
+    y += 62;
+    ctx.fillStyle = C.muted;
+    ctx.font = font(600, 36);
+    ctx.fillText(fit(ctx, d.title, INNER), PAD, y);
+    y += 50;
+    ctx.font = font(500, 30);
+    ctx.fillText(fit(ctx, [d.league, d.seasonLabel].filter(Boolean).join('  ·  '), INNER), PAD, y);
+
+    // Big numbers
+    y += 60;
+    const s = d.stats || {};
+    const tiles = [
+      ['✅', `${s.done || 0}/${s.total || 0}`, 'objectives'],
+      ['🏆', s.trophies || 0, 'trophies'],
+      ['⭐', s.score || 0, 'score'],
+      ['📸', s.proven || 0, 'proven pts'],
+      ['🔁', s.transfers || 0, 'transfers'],
+      ['📅', (d.seasons || []).filter((x) => x.finish).length, 'seasons logged'],
+    ];
+    const tw = (INNER - 2 * 24) / 3;
+    const th = 200;
+    tiles.forEach(([icon, value, label], i) => {
+      const x = PAD + (i % 3) * (tw + 24);
+      const ty = y + Math.floor(i / 3) * (th + 24);
+      roundRect(ctx, x, ty, tw, th, 28);
+      ctx.fillStyle = C.panel;
+      ctx.fill();
+      ctx.strokeStyle = C.line;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.font = font(400, 40);
+      ctx.fillText(icon, x + 28, ty + 62);
+      ctx.fillStyle = C.text;
+      ctx.font = font(900, 64);
+      ctx.fillText(fit(ctx, String(value), tw - 56), x + 28, ty + 140);
+      ctx.fillStyle = C.muted;
+      ctx.font = font(600, 26);
+      ctx.fillText(label, x + 28, ty + 178);
+    });
+    y += th * 2 + 24 + 70;
+
+    // Season by season
+    const rows = (d.seasons || []).slice(0, 6);
+    if (rows.length) {
+      ctx.fillStyle = C.accent;
+      ctx.font = font(800, 30);
+      ctx.fillText('SEASON BY SEASON', PAD, y);
+      y += 24;
+      rows.forEach((r) => {
+        roundRect(ctx, PAD, y, INNER, 74, 18);
+        ctx.fillStyle = C.panel2;
+        ctx.fill();
+        ctx.fillStyle = C.muted;
+        ctx.font = font(700, 28);
+        ctx.fillText(`S${r.season}`, PAD + 26, y + 48);
+        ctx.fillStyle = C.text;
+        ctx.font = font(700, 32);
+        ctx.fillText(fit(ctx, r.finish || '–', 420), PAD + 110, y + 49);
+        ctx.font = font(600, 30);
+        const right = `${r.trophies ? `${'🏆'.repeat(Math.min(r.trophies, 4))}${r.trophies > 4 ? `×${r.trophies}` : ''}  ` : ''}${r.done}/${r.total} ✅`;
+        ctx.fillText(right, PAD + INNER - 26 - ctx.measureText(right).width, y + 49);
+        y += 88;
+      });
+      y += 30;
+    }
+
+    // This season's objectives
+    const objs = (d.objectives || []).slice(0, 5);
+    if (objs.length && y < H - 420) {
+      ctx.fillStyle = C.accent;
+      ctx.font = font(800, 30);
+      ctx.fillText('OBJECTIVES', PAD, y);
+      y += 52;
+      objs.forEach((o) => {
+        if (y > H - 330) return;
+        ctx.font = font(500, 32);
+        ctx.fillStyle = o.done ? C.accent : C.muted;
+        ctx.fillText(o.done ? '✓' : '○', PAD, y);
+        ctx.fillStyle = o.done ? C.text : C.muted;
+        ctx.fillText(fit(ctx, o.text, INNER - 56), PAD + 56, y);
+        y += 52;
+      });
+    }
+
+    // The rules, in whatever room is left
+    const rules = d.rules || [];
+    if (rules.length && y < H - 480) {
+      y += 30;
+      ctx.fillStyle = C.accent;
+      ctx.font = font(800, 30);
+      ctx.fillText('HOUSE RULES', PAD, y);
+      y += 52;
+      rules.forEach((r) => {
+        if (y > H - 330) return;
+        ctx.font = font(500, 30);
+        ctx.fillStyle = C.warn;
+        ctx.fillText('•', PAD + 4, y);
+        ctx.fillStyle = C.text;
+        ctx.fillText(fit(ctx, r, INNER - 56), PAD + 56, y);
+        y += 50;
+      });
+    }
+
+    // Call to action: the site
+    const by = H - 230;
+    roundRect(ctx, PAD, by, INNER, 150, 34);
+    ctx.fillStyle = C.accent;
+    ctx.fill();
+    ctx.fillStyle = C.ink;
+    ctx.font = font(900, 40);
+    ctx.fillText('Get your own challenge 👇', PAD + 40, by + 62);
+    ctx.font = font(700, 32);
+    ctx.fillText(fit(ctx, d.site || '', INNER - 80), PAD + 40, by + 112);
+    return canvas;
+  }
+
+  /** Hand a canvas to the user: share sheet on phones that can share files, else a download. */
+  async function deliver(canvas, name, title) {
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
     if (!blob) throw new Error('Could not create the image');
-    const name = `fc26-${slug(ch.title)}.png`;
     const file = typeof File === 'function' ? new File([blob], name, { type: 'image/png' }) : null;
     const coarse = root.matchMedia && root.matchMedia('(pointer: coarse)').matches;
     if (file && coarse && navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], title: ch.title });
+        await navigator.share({ files: [file], title });
         return 'shared';
       } catch (e) {
         if (e && e.name === 'AbortError') return 'cancelled';
@@ -288,5 +469,10 @@
     return 'downloaded';
   }
 
-  FC26.shareImage = { render, exportImage };
+  /** The season card, shared or downloaded. */
+  function exportSeason(d) {
+    return deliver(renderSeason(d), `fc26-season-${slug(d.club)}.png`, `${d.club}: ${d.title}`);
+  }
+
+  FC26.shareImage = { render, exportImage, renderSeason, exportSeason };
 })(typeof window !== 'undefined' ? window : globalThis);

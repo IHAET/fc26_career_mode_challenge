@@ -26,7 +26,7 @@ jobs:
       - name: Assemble the site
         run: |
           mkdir -p _site/dist
-          cp -r index.html styles.css sw.js js _site/
+          cp -r index.html styles.css sw.js manifest.webmanifest icons js _site/
           cp dist/fc26-challenge-builder.html _site/dist/
           node scripts/build-feeds.js _site/feeds
       - uses: actions/upload-pages-artifact@v3

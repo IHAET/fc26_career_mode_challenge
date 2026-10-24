@@ -549,6 +549,8 @@
         <button type="button" class="btn" data-action="image" title="Save the challenge as a picture to post">🖼️ Image</button>
         ${mode === 'saved' ? '<button type="button" class="btn" data-action="open-transfers" title="Log transfers for this challenge in the Transfers section">🔁 Transfers</button>' : ''}
         ${mode === 'saved' ? '<button type="button" class="btn" data-action="soundtrack" title="Make a Spotify playlist for this save">🎧 Soundtrack</button>' : ''}
+        ${mode === 'saved' ? '<button type="button" class="btn" data-action="season-card" title="A picture of your results to post on TikTok or Instagram">📸 Season card</button>' : ''}
+        ${mode === 'saved' && !(entry && entry.duel) ? '<button type="button" class="btn" data-action="h2h" title="Challenge a friend to the same save">⚔️ Challenge a friend</button>' : ''}
         ${mode === 'saved' ? '<button type="button" class="btn btn-danger" data-action="delete">🗑️ Delete</button>' : ''}
       </footer>
       ${mode === 'saved' ? '<section class="soundtrack" data-soundtrack hidden aria-label="Spotify soundtrack"></section>' : ''}
@@ -839,6 +841,49 @@
     }
   }
 
+  /** A save's figures, for the season card, head-to-heads and the weekly standings. */
+  function statsOf(entry) {
+    const { done, total } = progressOf(entry);
+    return {
+      done, total, trophies: trophiesOf(entry), season: currentSeason(entry), score: scoreFor(entry.challenge, entry),
+      points: window.FC26.proofs.points(entry), transfers: ((entry.tracker && entry.tracker.transfers) || []).length,
+    };
+  }
+
+  /** 📸 A story-sized picture of a save's results, to post on TikTok or Instagram. */
+  async function exportSeasonCard(entry) {
+    const ch = entry.challenge;
+    const s = statsOf(entry);
+    const p = Subs.profile();
+    const site = siteLabel() || String((window.FC26.config && window.FC26.config.siteUrl) || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const seasons = ch.roadmap.map((r) => {
+      const l = (entry.log || {})[r.season] || {};
+      const keys = r.objectives.map((o, i) => `s${r.season}-${i}`);
+      return { season: r.season, finish: l.finish || '', trophies: Number(l.trophies) || 0, done: keys.filter((k) => (entry.progress || {})[k]).length, total: keys.length };
+    }).filter((r) => r.finish || r.trophies || r.done);
+    const now = ch.roadmap.find((r) => `Season ${r.season} of ${ch.seasons}` === s.season) || ch.roadmap[ch.roadmap.length - 1];
+    const objectives = now ? now.objectives.map((o, i) => ({ text: o.text, done: Boolean((entry.progress || {})[`s${now.season}-${i}`]) })) : [];
+    try {
+      const result = await shareImage.exportSeason({
+        title: ch.title, club: ch.club.name, league: ch.club.league || '', icon: ch.archetype.icon, difficulty: ch.difficulty, difficultyName: ch.difficultyName,
+        seasonLabel: s.season, handle: p && p.handle, site,
+        stats: { done: s.done, total: s.total, score: s.score, proven: s.points, trophies: s.trophies, transfers: s.transfers },
+        seasons, objectives, rules: ch.coreRules.concat(ch.rules).map((r) => r.text),
+      });
+      if (result === 'downloaded') toast('Season card saved 📸 Post it on TikTok or Instagram!');
+    } catch (e) {
+      toast("Couldn't create the image in this browser");
+    }
+  }
+
+  /** Achievements you've unlocked, for the badges next to your name. */
+  function badgeIds() {
+    return window.FC26.achievements.evaluate(loadSaved(), {
+      broken: (e) => Compliance.tally(Compliance.checkChallenge(e.challenge, e.tracker)).broken,
+      dailyBest: Daily.streak(loadCheckins(), Daily.dateKey()).best,
+    }).filter((a) => a.unlocked).map((a) => a.id);
+  }
+
   // ---------- Saved challenges ----------
 
   // Older saves kept one trophy counter for the whole challenge; it now lives in season 1 of the diary.
@@ -867,6 +912,8 @@
       Account.changed();
       Subs.savesChanged();
       window.FC26.leaderboard.publish();
+      window.FC26.weekly.publish();
+      window.FC26.duels.sync();
     }
     return ok;
   }
@@ -1025,6 +1072,8 @@
     const tags = [
       broken ? `<span class="neg">❌ ${broken} rule${broken === 1 ? '' : 's'} broken</span>` : '',
       ch.daily ? `📅 Daily #${Number(ch.daily.number) || ''}` : '',
+      ch.weekly ? `🏆 Week #${Number(ch.weekly.number) || ''}` : '',
+      entry.duel ? '⚔️ Head-to-head' : '',
       ch.mode === 'player' ? '⚽ Player' : '',
       ch.custom ? '✍️ Custom' : '',
       esc(ch.difficultyName),
@@ -1495,6 +1544,11 @@
       });
     } else if (action === 'image') {
       exportImage(entry.challenge);
+    } else if (action === 'season-card') {
+      exportSeasonCard(entry);
+    } else if (action === 'h2h') {
+      window.FC26.duels.preselect(id);
+      window.FC26.community.open('h2h');
     } else if (action === 'open-transfers') {
       storageSet(TC_KEY, id);
       showView('transfers');
@@ -1526,16 +1580,20 @@
     }
   }
 
-  async function loadFromHash() {
-    const m = window.location.hash.match(/^#([cx])=([A-Za-z0-9_-]+)$/);
-    if (!m) return false;
-    let ch = null;
+  /** The challenge in a share link's hash ("c=…" or "x=…"), or null. */
+  async function challengeFromHash(hash) {
+    const m = String(hash || '').replace(/^#/, '').match(/^([cx])=([A-Za-z0-9_-]+)$/);
+    if (!m) return null;
     if (m[1] === 'c') {
       const key = decodeKey(m[2]);
-      ch = key && G.fromShareKey(key);
-    } else {
-      ch = await unpackCustom(m[2]);
+      return (key && G.fromShareKey(key)) || null;
     }
+    return unpackCustom(m[2]);
+  }
+
+  async function loadFromHash() {
+    if (!/^#[cx]=/.test(window.location.hash)) return false;
+    const ch = await challengeFromHash(window.location.hash);
     if (!ch) {
       toast("That share link couldn't be read");
       return false;
@@ -1627,6 +1685,7 @@
     $$('.tab').forEach((t) => t.addEventListener('click', () => showView(t.dataset.view)));
     window.addEventListener('hashchange', () => {
       if (window.location.hash === '#daily') showView('daily');
+      else if (window.location.hash === '#community') { history.replaceState(null, '', window.location.pathname + window.location.search); showView('community'); }
       else loadFromHash();
     });
     $('#saved-count').textContent = loadSaved().length;
@@ -1636,10 +1695,23 @@
       esc, toast, storageGet, storageSet, entries: loadSaved,
       dailySeen: (key) => loadCheckins().includes(key),
       shareHash: async (ch) => (await shareUrl(ch)).split('#')[1] || '',
+      badgeIds,
     });
     Subs.onProChange(syncProLocks);
     window.FC26.leaderboard.init({ esc, toast, entries: loadSaved, storageGet, storageSet });
-    window.FC26.community.init({ esc, toast, showView });
+    window.FC26.weekly.init({
+      esc, toast, entries: loadSaved, trackChallenge,
+      openChallenge: (ch) => { state.challenge = ch; state.draft = null; resetLocks(); showView('builder'); renderBuilder(true); },
+      render: () => window.FC26.community.refresh(),
+    });
+    window.FC26.duels.init({
+      esc, toast, entries: loadSaved, stats: statsOf, mutateEntry,
+      shareHash: async (ch) => (await shareUrl(ch)).split('#')[1] || '',
+      acceptLink: async (link) => { const ch = await challengeFromHash(link); return ch ? saveChallenge(ch, true) : null; },
+      openSave: (id) => showView('saved', id),
+      render: () => window.FC26.community.refresh(),
+    });
+    window.FC26.community.init({ esc, toast, showView, storageGet, storageSet });
     syncProLocks();
     initAccount();
     initSoundtrack();
@@ -1647,6 +1719,7 @@
     syncDailyDot();
     setInterval(tickDaily, 30000);
     if (window.location.hash === '#daily') showView('daily');
+    else if (window.location.hash === '#community') showView('community');
     else loadFromHash();
   }
 

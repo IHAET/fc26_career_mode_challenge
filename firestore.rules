@@ -15,7 +15,9 @@ service cloud.firestore {
     match /profiles/{uid} {
       allow read: if signedIn();
       allow write: if isUser(uid)
-        && request.resource.data.keys().hasOnly(['handle', 'name', 'shared', 'challenges', 'pro', 'updated'])
+        && request.resource.data.keys().hasOnly(['handle', 'name', 'shared', 'challenges', 'pro', 'updated', 'badges', 'wins'])
+        && (!('badges' in request.resource.data) || (request.resource.data.badges is list && request.resource.data.badges.size() <= 30))
+        && (!('wins' in request.resource.data) || (request.resource.data.wins is list && request.resource.data.wins.size() <= 60))
         && request.resource.data.handle is string && request.resource.data.handle.matches('^[a-z0-9_]{3,20}$')
         && request.resource.data.challenges is list && request.resource.data.challenges.size() <= 30;
       allow delete: if isUser(uid);
@@ -43,6 +45,26 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['handle', 'name', 'country', 'pro', 'points', 'proofs', 'challenges', 'updated'])
         && request.resource.data.points is number && request.resource.data.points >= 0 && request.resource.data.points <= 1000000
         && request.resource.data.handle is string && request.resource.data.handle.matches('^[a-z0-9_]{3,20}$');
+    }
+
+    // 🏆 Challenge of the week: everyone signed in reads the standings; you write only your own row.
+    match /weekly/{week}/entries/{uid} {
+      allow read: if signedIn();
+      allow delete: if isUser(uid);
+      allow create, update: if isUser(uid)
+        && request.resource.data.keys().hasOnly(['handle', 'pro', 'points', 'proofs', 'done', 'total', 'updated'])
+        && request.resource.data.points is number && request.resource.data.points >= 0 && request.resource.data.points <= 100000
+        && request.resource.data.handle is string && request.resource.data.handle.matches('^[a-z0-9_]{3,20}$');
+    }
+
+    // ⚔️ Head-to-head: only its two players can see or change it, and the players never change.
+    match /duels/{id} {
+      allow read, delete: if signedIn() && request.auth.uid in resource.data.players;
+      allow create: if signedIn() && request.resource.data.players is list && request.resource.data.players.size() == 2
+        && request.resource.data.players[0] == request.auth.uid && request.resource.data.a.uid == request.auth.uid
+        && request.resource.data.status == 'pending' && request.resource.data.link is string && request.resource.data.link.size() < 20000;
+      allow update: if signedIn() && request.auth.uid in resource.data.players
+        && request.resource.data.players == resource.data.players && request.resource.data.link == resource.data.link;
     }
 
     // 📸 Proof photos: anyone signed in can look; you add and remove your own (each under ~700 KB).

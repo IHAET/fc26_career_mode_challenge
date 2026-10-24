@@ -116,7 +116,7 @@
     const meUid = account().user.uid;
     return `${mine}${tabs}${rows.length ? `<ol class="lb-list">${rows.map((r, i) => `
       <li class="lb-row${r.id === meUid ? ' is-me' : ''}"><span class="lb-rank">${medal(i)}</span>
-        <span class="lb-name"><strong>@${esc(r.handle)}${r.pro ? ' <span class="pro-badge">⭐ PRO</span>' : ''}</strong><small class="muted">${esc([r.country, `${r.proofs || 0} proof${r.proofs === 1 ? '' : 's'}`, `${r.challenges || 0} challenge${r.challenges === 1 ? '' : 's'}`].filter(Boolean).join(' · '))}</small></span>
+        <span class="lb-name"><strong>@${esc(r.handle)}${r.pro ? ' <span class="pro-badge">⭐ PRO</span>' : ''} ${FC26.badges ? FC26.badges.chips(r.id) : ''}</strong><small class="muted">${esc([r.country, `${r.proofs || 0} proof${r.proofs === 1 ? '' : 's'}`, `${r.challenges || 0} challenge${r.challenges === 1 ? '' : 's'}`].filter(Boolean).join(' · '))}</small></span>
         <span class="lb-pts">${Number(r.points) || 0}</span>
         <button type="button" class="btn btn-small" data-lb="view" data-uid="${esc(r.id)}">📸</button></li>`).join('')}</ol>`
       : '<p class="muted">Nobody has proven an objective yet. Add a 📸 screenshot to one of yours to be first!</p>'}`;

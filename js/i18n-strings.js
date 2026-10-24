@@ -242,6 +242,27 @@
     ['Settings', 'Ajustes', 'Configurações', 'Réglages', 'Einstellungen', 'Impostazioni', 'Setări', '设置'],
     ['Auto sync', 'Sincronización automática', 'Sincronização automática', 'Synchro auto', 'Automatisch synchronisieren', 'Sincronizzazione automatica', 'Sincronizare automată', '自动同步'],
 
+    // Weekly challenge, head-to-head, season card, app install
+    ['Weekly', 'Semanal', 'Semanal', 'Hebdo', 'Wöchentlich', 'Settimanale', 'Săptămânal', '每周'],
+    ['Head-to-head', 'Cara a cara', 'Mano a mano', 'Face-à-face', 'Duell', 'Testa a testa', 'Față în față', '对决'],
+    ['Standings', 'Clasificación', 'Classificação', 'Classement', 'Tabelle', 'Classifica', 'Clasament', '排名'],
+    ['See the rules', 'Ver las reglas', 'Ver as regras', 'Voir les règles', 'Regeln ansehen', 'Vedi le regole', 'Vezi regulile', '查看规则'],
+    ['Accept', 'Aceptar', 'Aceitar', 'Accepter', 'Annehmen', 'Accetta', 'Acceptă', '接受'],
+    ['Decline', 'Rechazar', 'Recusar', 'Refuser', 'Ablehnen', 'Rifiuta', 'Refuză', '拒绝'],
+    ['Send challenge', 'Enviar reto', 'Enviar desafio', 'Envoyer le défi', 'Challenge senden', 'Invia sfida', 'Trimite provocarea', '发送挑战'],
+    ['Open my save', 'Abrir mi partida', 'Abrir meu save', 'Ouvrir ma carrière', 'Meinen Spielstand öffnen', 'Apri la mia carriera', 'Deschide cariera mea', '打开我的存档'],
+    ['End', 'Terminar', 'Encerrar', 'Terminer', 'Beenden', 'Termina', 'Încheie', '结束'],
+    ['you', 'tú', 'você', 'toi', 'du', 'tu', 'tu', '你'],
+    ['Season card', 'Tarjeta de temporada', 'Card da temporada', 'Carte de saison', 'Saisonkarte', 'Card stagionale', 'Card de sezon', '赛季卡片'],
+    ['Challenge a friend', 'Retar a un amigo', 'Desafiar um amigo', 'Défier un ami', 'Freund herausfordern', 'Sfida un amico', 'Provoacă un prieten', '挑战好友'],
+    ['Get the app', 'Consigue la app', 'Baixe o app', 'Installer l’appli', 'Hol dir die App', 'Scarica l’app', 'Ia aplicația', '获取应用'],
+    ['Install the app', 'Instalar la app', 'Instalar o app', 'Installer l’appli', 'App installieren', 'Installa l’app', 'Instalează aplicația', '安装应用'],
+    ['Mark all read', 'Marcar todo como leído', 'Marcar tudo como lido', 'Tout marquer comme lu', 'Alle als gelesen markieren', 'Segna tutto come letto', 'Marchează tot ca citit', '全部标为已读'],
+    ['Last week\'s champion:', 'Campeón de la semana pasada:', 'Campeão da semana passada:', 'Champion de la semaine dernière :', 'Champion der letzten Woche:', 'Campione della settimana scorsa:', 'Campionul săptămânii trecute:', '上周冠军：'],
+    ['Your result:', 'Tu resultado:', 'Seu resultado:', 'Ton résultat :', 'Dein Ergebnis:', 'Il tuo risultato:', 'Rezultatul tău:', '你的成绩：'],
+    ['Tell me about replies, upvotes and head-to-head challenges', 'Avísame de respuestas, votos y retos cara a cara', 'Avise-me sobre respostas, votos e desafios mano a mano', 'Préviens-moi des réponses, votes et défis face-à-face', 'Sag mir Bescheid bei Antworten, Upvotes und Duellen', 'Avvisami di risposte, voti e sfide testa a testa', 'Anunță-mă despre răspunsuri, voturi și provocări față în față', '有回复、点赞和对决挑战时通知我'],
+    ['Loading…', 'Cargando…', 'Carregando…', 'Chargement…', 'Lädt …', 'Caricamento…', 'Se încarcă…', '加载中…'],
+
     // Footer and search
     ['Fan-made tool, not affiliated with EA SPORTS. Club list based on the 2025/26 season; club sizes are approximate.', 'Herramienta hecha por fans, sin relación con EA SPORTS. Lista de clubes de la temporada 2025/26; los tamaños son aproximados.', 'Ferramenta feita por fãs, sem ligação com a EA SPORTS. Lista de clubes da temporada 2025/26; tamanhos aproximados.', 'Outil créé par des fans, sans lien avec EA SPORTS. Clubs de la saison 2025/26 ; tailles approximatives.', 'Von Fans gemacht, nicht mit EA SPORTS verbunden. Vereinsliste der Saison 2025/26; Größen sind ungefähr.', 'Strumento fatto dai fan, non affiliato a EA SPORTS. Club della stagione 2025/26; dimensioni approssimative.', 'Instrument făcut de fani, fără legătură cu EA SPORTS. Lista cluburilor din sezonul 2025/26; mărimile sunt aproximative.', '粉丝制作，与 EA SPORTS 无关。俱乐部列表基于 2025/26 赛季，规模为估计值。'],
     ['Download the app as a single HTML file', 'Descarga la app como un único archivo HTML', 'Baixe o app como um único arquivo HTML', 'Télécharger l’appli en un seul fichier HTML', 'App als einzelne HTML-Datei herunterladen', 'Scarica l’app come singolo file HTML', 'Descarcă aplicația ca un singur fișier HTML', '下载单文件 HTML 版'],
