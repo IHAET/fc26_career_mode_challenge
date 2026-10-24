@@ -9,6 +9,7 @@
   const KNOWN_KEY = 'fc26-known-v1'; // players the user confirmed are real (not regens)
   const DELETED_KEY = 'fc26-deleted-v1'; // id → when a saved challenge was deleted, for syncing
   const TC_KEY = 'fc26-transfers-challenge-v1'; // challenge picked in the Transfers section
+  const EASY_KEY = 'fc26-easy-v1'; // the Builder's Tracking choice: Easy (true) or Full
   const FREE_SAVES = 5; // saved challenges without Pro (only once Pro is on sale)
 
   const $ = (sel, el = document) => el.querySelector(sel);
@@ -397,7 +398,7 @@
     const log = (entry && entry.log) || {};
     const L = state.locks;
     // Saved challenges: check each rule against the tracked squad and transfers.
-    const checks = mode === 'saved' ? Compliance.checkChallenge(ch, entry.tracker) : null;
+    const checks = mode === 'saved' && !entry.easy ? Compliance.checkChallenge(ch, entry.tracker) : null;
     const ruleCheck = (i) => {
       const r = checks && checks[i];
       if (!r) return '';
@@ -547,7 +548,7 @@
         <button type="button" class="btn" data-action="copy">📋 Copy text</button>
         <button type="button" class="btn" data-action="share">🔗 Share link</button>
         <button type="button" class="btn" data-action="image" title="Save the challenge as a picture to post">🖼️ Image</button>
-        ${mode === 'saved' ? '<button type="button" class="btn" data-action="open-transfers" title="Log transfers for this challenge in the Transfers section">🔁 Transfers</button>' : ''}
+        ${mode === 'saved' && !entry.easy ? '<button type="button" class="btn" data-action="open-transfers" title="Log transfers for this challenge in the Transfers section">🔁 Transfers</button>' : ''}
         ${mode === 'saved' ? '<button type="button" class="btn" data-action="soundtrack" title="Make a Spotify playlist for this save">🎧 Soundtrack</button>' : ''}
         ${mode === 'saved' ? '<button type="button" class="btn" data-action="season-card" title="A picture of your results to post on TikTok or Instagram">📸 Season card</button>' : ''}
         ${mode === 'saved' && !(entry && entry.duel) ? '<button type="button" class="btn" data-action="h2h" title="Challenge a friend to the same save">⚔️ Challenge a friend</button>' : ''}
@@ -592,6 +593,7 @@
       if (bits.length) lines.push(`Season ${s.season}: ${bits.join(' · ')}`);
     });
     lines.push(`Score: ${scoreFor(entry.challenge, entry)} points (${currentSeason(entry)})`);
+    if (entry.easy) return lines.join('\n');
     const t = Compliance.tally(Compliance.checkChallenge(entry.challenge, entry.tracker));
     lines.push(`Rule check: ✅ ${t.ok} kept · ❌ ${t.broken} broken · ⚠️ ${t.warn} to watch · ✋ ${t.manual} self-checked`);
     return lines.join('\n');
@@ -879,7 +881,7 @@
   /** Achievements you've unlocked, for the badges next to your name. */
   function badgeIds() {
     return window.FC26.achievements.evaluate(loadSaved(), {
-      broken: (e) => Compliance.tally(Compliance.checkChallenge(e.challenge, e.tracker)).broken,
+      broken: (e) => (e.easy ? 0 : Compliance.tally(Compliance.checkChallenge(e.challenge, e.tracker)).broken),
       dailyBest: Daily.streak(loadCheckins(), Daily.dateKey()).best,
     }).filter((a) => a.unlocked).map((a) => a.id);
   }
@@ -967,7 +969,7 @@
     }
     const box = $('#achievements');
     const all = window.FC26.achievements.evaluate(list, {
-      broken: (e) => Compliance.tally(Compliance.checkChallenge(e.challenge, e.tracker)).broken,
+      broken: (e) => (e.easy ? 0 : Compliance.tally(Compliance.checkChallenge(e.challenge, e.tracker)).broken),
       dailyBest: Daily.streak(loadCheckins(), Daily.dateKey()).best,
     });
     const won = all.filter((a) => a.unlocked).length;
@@ -1068,12 +1070,13 @@
     const ch = entry.challenge;
     const { done, total } = progressOf(entry);
     const pct = Math.round((done / total) * 100);
-    const broken = Compliance.tally(Compliance.checkChallenge(ch, entry.tracker)).broken;
+    const broken = entry.easy ? 0 : Compliance.tally(Compliance.checkChallenge(ch, entry.tracker)).broken;
     const tags = [
       broken ? `<span class="neg">❌ ${broken} rule${broken === 1 ? '' : 's'} broken</span>` : '',
       ch.daily ? `📅 Daily #${Number(ch.daily.number) || ''}` : '',
       ch.weekly ? `🏆 Week #${Number(ch.weekly.number) || ''}` : '',
       entry.duel ? '⚔️ Head-to-head' : '',
+      entry.easy ? '😌 Easy' : '',
       ch.mode === 'player' ? '⚽ Player' : '',
       ch.custom ? '✍️ Custom' : '',
       esc(ch.difficultyName),
@@ -1118,6 +1121,15 @@
 
   // Diary text fields save without re-rendering, so typing isn't interrupted.
   function onSavedChange(e) {
+    if (e.target.matches('[data-easy]')) {
+      const item = e.target.closest('.saved-item');
+      const easy = e.target.checked;
+      mutateEntry(item.dataset.id, (en) => { en.easy = easy; });
+      if (easy) Tracker.setTab(item.dataset.id, 'challenge');
+      renderSaved(item.dataset.id);
+      toast(easy ? '😌 Easy mode: no squad page or rule checks' : '📒 Full tracking: squad, transfers and rule checks are back');
+      return;
+    }
     if (e.target.matches('[data-proof]')) {
       addProof(e.target);
       return;
@@ -1205,7 +1217,7 @@
       return null;
     }
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-    list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, log: {}, breaks: 0, tracker: Compliance.emptyTracker() });
+    list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, log: {}, breaks: 0, tracker: Compliance.emptyTracker(), easy: storageGet(EASY_KEY, false) === true });
     if (writeSaved(list)) {
       $('#saved-count').textContent = list.length;
       if (!quiet) toast('Saved to My Challenges 💾');
@@ -1236,6 +1248,15 @@
   function trackChallenge(ch) {
     const id = saveChallenge(ch, true);
     if (!id) return;
+    // Easy mode: no squad or transfers, just the challenge to tick off.
+    if ((findEntry(id) || {}).easy) {
+      Tracker.setTab(id, 'challenge');
+      showView('saved', id);
+      const it = $(`.saved-item[data-id="${CSS.escape(id)}"]`);
+      if (it) it.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      toast('Saved in 😌 Easy mode: tick off objectives as you go');
+      return;
+    }
     // Start from the club's real squad if we have it and nothing's been entered yet.
     let loaded = 0;
     if (ch.mode !== 'player') {
@@ -1259,9 +1280,19 @@
   // ---------- Transfers section ----------
 
   function renderTransfersView() {
-    const list = loadSaved();
+    const all = loadSaved();
+    const list = all.filter((e) => !e.easy);
     const picker = $('#tc-challenge');
     const body = $('#tc-body');
+    if (!list.length && all.length) {
+      picker.innerHTML = '';
+      picker.disabled = true;
+      body.removeAttribute('data-id');
+      body.innerHTML = `<div class="empty"><div class="empty-ball">😌</div><h2>Your saves are in Easy mode</h2><p>Easy mode doesn't track transfers. Switch a save to 📒 Full tracking (the switch at the top of the save) to log them here.</p>
+        <button type="button" class="btn btn-primary" data-goto="saved">Go to My Challenges</button></div>`;
+      $('#tc-status').innerHTML = '';
+      return;
+    }
     if (!list.length) {
       picker.innerHTML = '';
       picker.disabled = true;
@@ -1616,6 +1647,15 @@
     syncClubFilters();
     $('#opt-club').addEventListener('change', syncClubFilters);
     $$('input[name="mode"]').forEach((el) => el.addEventListener('change', syncMode));
+    // Tracking: Full (squad, transfers, rule checks) or Easy (just the challenge).
+    const syncTracking = () => {
+      const easy = storageGet(EASY_KEY, false) === true;
+      $$('input[name="tracking"]').forEach((el) => { el.checked = (el.value === 'easy') === easy; });
+      const hint = $('[data-tracking-hint]');
+      if (hint) hint.textContent = easy ? 'Just the challenge: tick off objectives, no squad page and no rule checks.' : 'Squad, transfers and automatic rule checks.';
+    };
+    $$('input[name="tracking"]').forEach((el) => el.addEventListener('change', () => { storageSet(EASY_KEY, el.value === 'easy' && el.checked); syncTracking(); }));
+    syncTracking();
     $('#write-own').addEventListener('click', () => {
       if (Subs.locked()) { proOnly('Writing your own challenges'); return; }
       const opts = readOptions();

@@ -46,7 +46,9 @@
 
   function renderTracker(entry, challengeHtml) {
     const t = trackerOf(entry);
-    const tab = tabs[entry.id] || 'challenge';
+    const easy = Boolean(entry.easy);
+    // Easy mode has just the challenge (and the optional match log).
+    const tab = easy && !['challenge', 'matches'].includes(tabs[entry.id]) ? 'challenge' : (tabs[entry.id] || 'challenge');
     const seasons = Math.max(entry.challenge.seasons, t.season);
     const tabBtn = (id, label, count) => `<button type="button" class="ttab ${tab === id ? 'is-active' : ''}" data-action="ttab" data-tab="${id}" role="tab" aria-selected="${tab === id}">${label}${count != null ? ` <span class="count">${count}</span>` : ''}</button>`;
     return `
@@ -54,21 +56,22 @@
         <div class="tracker-bar">
           <span class="tracker-now">📅 Now:
             <select data-tracker="season" aria-label="Current season">${opts(Array.from({ length: seasons }, (_, i) => [i + 1, `Season ${i + 1}`]), t.season)}</select>
-            ${isPlayer(entry) ? '' : `<select data-tracker="window" aria-label="Current transfer window">${opts([['summer', 'Summer window'], ['winter', 'January window']], t.window)}</select>`}
+            ${isPlayer(entry) || easy ? '' : `<select data-tracker="window" aria-label="Current transfer window">${opts([['summer', 'Summer window'], ['winter', 'January window']], t.window)}</select>`}
           </span>
+          <label class="easy-switch" title="Easy mode: just the challenge, no squad page or rule checks"><input type="checkbox" data-easy ${easy ? 'checked' : ''}> 😌 Easy</label>
           <button type="button" class="btn btn-small btn-spotify-soft" data-action="open-soundtrack" title="Make a Spotify playlist for this save">🎧 Soundtrack</button>
           <button type="button" class="btn btn-small btn-yt-soft" data-action="open-videos" title="Videos of creators playing career modes like this">📺 Videos</button>
           <button type="button" class="btn btn-small btn-danger-soft" data-action="delete" title="Delete this save" aria-label="Delete this save">🗑️</button>
           <div class="tracker-tabs" role="tablist">
             ${tabBtn('challenge', '📋 Challenge')}
-            ${isPlayer(entry)
+            ${easy ? '' : isPlayer(entry)
     ? tabBtn('moves', '🧳 Career moves', t.moves.length)
     : `${tabBtn('squad', '👥 Squad', t.players.filter((p) => !p.loanedOut).length)}${tabBtn('transfers', '🔁 Transfers', t.transfers.length)}${tabBtn('scout', '🔭 Scout', (entry.shortlist || []).length || null)}`}
             ${FC26.matches ? tabBtn('matches', '📰 Matches', (entry.matches || []).length) : ''}
           </div>
         </div>
         <div class="tpanel" data-panel="challenge" ${tab === 'challenge' ? '' : 'hidden'}>${challengeHtml}</div>
-        ${isPlayer(entry)
+        ${easy ? '' : isPlayer(entry)
     ? `<div class="tpanel" data-panel="moves" ${tab === 'moves' ? '' : 'hidden'}>${renderMoves(entry, t)}</div>`
     : `<div class="tpanel" data-panel="squad" ${tab === 'squad' ? '' : 'hidden'}>${renderSquad(entry, t)}</div>
         <div class="tpanel" data-panel="transfers" ${tab === 'transfers' ? '' : 'hidden'}>${renderTransfers(entry, t)}</div>

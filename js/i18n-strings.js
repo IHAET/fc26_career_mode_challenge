@@ -291,6 +291,13 @@
     ['Corners', 'Córners', 'Escanteios', 'Corners', 'Ecken', 'Calci d’angolo', 'Cornere', '角球'],
     ['Leave empty', 'Dejar vacío', 'Deixar vazio', 'Laisser vide', 'Leer lassen', 'Lascia vuoto', 'Lasă gol', '留空'],
 
+    // Easy mode
+    ['Tracking', 'Seguimiento', 'Acompanhamento', 'Suivi', 'Verfolgung', 'Monitoraggio', 'Urmărire', '记录方式'],
+    ['Full', 'Completo', 'Completo', 'Complet', 'Voll', 'Completo', 'Complet', '完整'],
+    ['Easy', 'Fácil', 'Fácil', 'Facile', 'Einfach', 'Facile', 'Ușor', '简单'],
+    ['Squad, transfers and automatic rule checks.', 'Plantilla, fichajes y comprobación automática de reglas.', 'Elenco, transferências e verificação automática de regras.', 'Effectif, transferts et vérification automatique des règles.', 'Kader, Transfers und automatische Regelprüfung.', 'Rosa, trasferimenti e controllo automatico delle regole.', 'Lot, transferuri și verificare automată a regulilor.', '阵容、转会和自动规则检查。'],
+    ['Just the challenge: tick off objectives, no squad page and no rule checks.', 'Solo el reto: marca objetivos, sin plantilla ni comprobación de reglas.', 'Só o desafio: marque objetivos, sem elenco nem verificação de regras.', 'Juste le défi : coche les objectifs, sans effectif ni vérification des règles.', 'Nur die Challenge: Ziele abhaken, ohne Kader und Regelprüfung.', 'Solo la sfida: spunta gli obiettivi, senza rosa né controllo delle regole.', 'Doar provocarea: bifează obiectivele, fără lot și fără verificarea regulilor.', '只有挑战：勾选目标，没有阵容页面和规则检查。'],
+
     // Footer and search
     ['Fan-made tool, not affiliated with EA SPORTS. Club list based on the 2025/26 season; club sizes are approximate.', 'Herramienta hecha por fans, sin relación con EA SPORTS. Lista de clubes de la temporada 2025/26; los tamaños son aproximados.', 'Ferramenta feita por fãs, sem ligação com a EA SPORTS. Lista de clubes da temporada 2025/26; tamanhos aproximados.', 'Outil créé par des fans, sans lien avec EA SPORTS. Clubs de la saison 2025/26 ; tailles approximatives.', 'Von Fans gemacht, nicht mit EA SPORTS verbunden. Vereinsliste der Saison 2025/26; Größen sind ungefähr.', 'Strumento fatto dai fan, non affiliato a EA SPORTS. Club della stagione 2025/26; dimensioni approssimative.', 'Instrument făcut de fani, fără legătură cu EA SPORTS. Lista cluburilor din sezonul 2025/26; mărimile sunt aproximative.', '粉丝制作，与 EA SPORTS 无关。俱乐部列表基于 2025/26 赛季，规模为估计值。'],
     ['Download the app as a single HTML file', 'Descarga la app como un único archivo HTML', 'Baixe o app como um único arquivo HTML', 'Télécharger l’appli en un seul fichier HTML', 'App als einzelne HTML-Datei herunterladen', 'Scarica l’app come singolo file HTML', 'Descarcă aplicația ca un singur fișier HTML', '下载单文件 HTML 版'],

@@ -1539,3 +1539,8 @@ html.intro-on body { overflow: hidden; }
   .lu-tools { margin-left: 0; width: 100%; }
   .lu-ratings span { min-width: 40px; padding: 3px 7px; }
 }
+
+/* ---------- 😌 Easy mode ---------- */
+.easy-switch { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); cursor: pointer; white-space: nowrap; }
+.easy-switch:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.field-hint { display: block; margin-top: 6px; font-size: 0.8rem; }

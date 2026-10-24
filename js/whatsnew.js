@@ -14,6 +14,14 @@
   // Newest first. go: a tab the "Try it" button opens.
   const UPDATES = [
     {
+      id: '2026-10-25b', date: '25 October 2026', title: '😌 Easy mode',
+      items: [
+        'Choose Tracking → 😌 Easy in the Builder for saves that are just the challenge: tick off objectives, no squad page and no rule checks.',
+        'Switch any save between Easy and Full with the 😌 Easy switch at the top of it.',
+      ],
+      go: 'builder',
+    },
+    {
       id: '2026-10-25', date: '25 October 2026', title: '⚽ Formations, starting XI and bench',
       items: [
         'Pick from 18 formations in the Squad tab, then click any position on the pitch to choose who plays there, just like the game.',

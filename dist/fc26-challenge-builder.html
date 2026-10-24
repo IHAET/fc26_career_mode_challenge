@@ -1552,6 +1552,11 @@ html.intro-on body { overflow: hidden; }
   .lu-tools { margin-left: 0; width: 100%; }
   .lu-ratings span { min-width: 40px; padding: 3px 7px; }
 }
+
+/* ---------- 😌 Easy mode ---------- */
+.easy-switch { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); cursor: pointer; white-space: nowrap; }
+.easy-switch:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.field-hint { display: block; margin-top: 6px; font-size: 0.8rem; }
 </style>
   <script>
     // Theme before first paint: the saved choice, else the system's.
@@ -1632,6 +1637,15 @@ html.intro-on body { overflow: hidden; }
             <label><input type="radio" name="mode" value="manager" checked><span>🧑‍💼 Manager Career</span></label>
             <label><input type="radio" name="mode" value="player"><span>⚽ Player Career</span></label>
           </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Tracking</legend>
+          <div class="segmented">
+            <label><input type="radio" name="tracking" value="full" checked><span>📒 Full</span></label>
+            <label><input type="radio" name="tracking" value="easy"><span>😌 Easy</span></label>
+          </div>
+          <small class="muted field-hint" data-tracking-hint>Squad, transfers and automatic rule checks.</small>
         </fieldset>
 
         <fieldset>
@@ -8950,7 +8964,9 @@ Aleksei Miranchuk|Russian|CAM
 
   function renderTracker(entry, challengeHtml) {
     const t = trackerOf(entry);
-    const tab = tabs[entry.id] || 'challenge';
+    const easy = Boolean(entry.easy);
+    // Easy mode has just the challenge (and the optional match log).
+    const tab = easy && !['challenge', 'matches'].includes(tabs[entry.id]) ? 'challenge' : (tabs[entry.id] || 'challenge');
     const seasons = Math.max(entry.challenge.seasons, t.season);
     const tabBtn = (id, label, count) => `<button type="button" class="ttab ${tab === id ? 'is-active' : ''}" data-action="ttab" data-tab="${id}" role="tab" aria-selected="${tab === id}">${label}${count != null ? ` <span class="count">${count}</span>` : ''}</button>`;
     return `
@@ -8958,21 +8974,22 @@ Aleksei Miranchuk|Russian|CAM
         <div class="tracker-bar">
           <span class="tracker-now">📅 Now:
             <select data-tracker="season" aria-label="Current season">${opts(Array.from({ length: seasons }, (_, i) => [i + 1, `Season ${i + 1}`]), t.season)}</select>
-            ${isPlayer(entry) ? '' : `<select data-tracker="window" aria-label="Current transfer window">${opts([['summer', 'Summer window'], ['winter', 'January window']], t.window)}</select>`}
+            ${isPlayer(entry) || easy ? '' : `<select data-tracker="window" aria-label="Current transfer window">${opts([['summer', 'Summer window'], ['winter', 'January window']], t.window)}</select>`}
           </span>
+          <label class="easy-switch" title="Easy mode: just the challenge, no squad page or rule checks"><input type="checkbox" data-easy ${easy ? 'checked' : ''}> 😌 Easy</label>
           <button type="button" class="btn btn-small btn-spotify-soft" data-action="open-soundtrack" title="Make a Spotify playlist for this save">🎧 Soundtrack</button>
           <button type="button" class="btn btn-small btn-yt-soft" data-action="open-videos" title="Videos of creators playing career modes like this">📺 Videos</button>
           <button type="button" class="btn btn-small btn-danger-soft" data-action="delete" title="Delete this save" aria-label="Delete this save">🗑️</button>
           <div class="tracker-tabs" role="tablist">
             ${tabBtn('challenge', '📋 Challenge')}
-            ${isPlayer(entry)
+            ${easy ? '' : isPlayer(entry)
     ? tabBtn('moves', '🧳 Career moves', t.moves.length)
     : `${tabBtn('squad', '👥 Squad', t.players.filter((p) => !p.loanedOut).length)}${tabBtn('transfers', '🔁 Transfers', t.transfers.length)}${tabBtn('scout', '🔭 Scout', (entry.shortlist || []).length || null)}`}
             ${FC26.matches ? tabBtn('matches', '📰 Matches', (entry.matches || []).length) : ''}
           </div>
         </div>
         <div class="tpanel" data-panel="challenge" ${tab === 'challenge' ? '' : 'hidden'}>${challengeHtml}</div>
-        ${isPlayer(entry)
+        ${easy ? '' : isPlayer(entry)
     ? `<div class="tpanel" data-panel="moves" ${tab === 'moves' ? '' : 'hidden'}>${renderMoves(entry, t)}</div>`
     : `<div class="tpanel" data-panel="squad" ${tab === 'squad' ? '' : 'hidden'}>${renderSquad(entry, t)}</div>
         <div class="tpanel" data-panel="transfers" ${tab === 'transfers' ? '' : 'hidden'}>${renderTransfers(entry, t)}</div>
@@ -13904,6 +13921,14 @@ Aleksei Miranchuk|Russian|CAM
   // Newest first. go: a tab the "Try it" button opens.
   const UPDATES = [
     {
+      id: '2026-10-25b', date: '25 October 2026', title: '😌 Easy mode',
+      items: [
+        'Choose Tracking → 😌 Easy in the Builder for saves that are just the challenge: tick off objectives, no squad page and no rule checks.',
+        'Switch any save between Easy and Full with the 😌 Easy switch at the top of it.',
+      ],
+      go: 'builder',
+    },
+    {
       id: '2026-10-25', date: '25 October 2026', title: '⚽ Formations, starting XI and bench',
       items: [
         'Pick from 18 formations in the Squad tab, then click any position on the pitch to choose who plays there, just like the game.',
@@ -14517,6 +14542,13 @@ Aleksei Miranchuk|Russian|CAM
     ['Corners', 'Córners', 'Escanteios', 'Corners', 'Ecken', 'Calci d’angolo', 'Cornere', '角球'],
     ['Leave empty', 'Dejar vacío', 'Deixar vazio', 'Laisser vide', 'Leer lassen', 'Lascia vuoto', 'Lasă gol', '留空'],
 
+    // Easy mode
+    ['Tracking', 'Seguimiento', 'Acompanhamento', 'Suivi', 'Verfolgung', 'Monitoraggio', 'Urmărire', '记录方式'],
+    ['Full', 'Completo', 'Completo', 'Complet', 'Voll', 'Completo', 'Complet', '完整'],
+    ['Easy', 'Fácil', 'Fácil', 'Facile', 'Einfach', 'Facile', 'Ușor', '简单'],
+    ['Squad, transfers and automatic rule checks.', 'Plantilla, fichajes y comprobación automática de reglas.', 'Elenco, transferências e verificação automática de regras.', 'Effectif, transferts et vérification automatique des règles.', 'Kader, Transfers und automatische Regelprüfung.', 'Rosa, trasferimenti e controllo automatico delle regole.', 'Lot, transferuri și verificare automată a regulilor.', '阵容、转会和自动规则检查。'],
+    ['Just the challenge: tick off objectives, no squad page and no rule checks.', 'Solo el reto: marca objetivos, sin plantilla ni comprobación de reglas.', 'Só o desafio: marque objetivos, sem elenco nem verificação de regras.', 'Juste le défi : coche les objectifs, sans effectif ni vérification des règles.', 'Nur die Challenge: Ziele abhaken, ohne Kader und Regelprüfung.', 'Solo la sfida: spunta gli obiettivi, senza rosa né controllo delle regole.', 'Doar provocarea: bifează obiectivele, fără lot și fără verificarea regulilor.', '只有挑战：勾选目标，没有阵容页面和规则检查。'],
+
     // Footer and search
     ['Fan-made tool, not affiliated with EA SPORTS. Club list based on the 2025/26 season; club sizes are approximate.', 'Herramienta hecha por fans, sin relación con EA SPORTS. Lista de clubes de la temporada 2025/26; los tamaños son aproximados.', 'Ferramenta feita por fãs, sem ligação com a EA SPORTS. Lista de clubes da temporada 2025/26; tamanhos aproximados.', 'Outil créé par des fans, sans lien avec EA SPORTS. Clubs de la saison 2025/26 ; tailles approximatives.', 'Von Fans gemacht, nicht mit EA SPORTS verbunden. Vereinsliste der Saison 2025/26; Größen sind ungefähr.', 'Strumento fatto dai fan, non affiliato a EA SPORTS. Club della stagione 2025/26; dimensioni approssimative.', 'Instrument făcut de fani, fără legătură cu EA SPORTS. Lista cluburilor din sezonul 2025/26; mărimile sunt aproximative.', '粉丝制作，与 EA SPORTS 无关。俱乐部列表基于 2025/26 赛季，规模为估计值。'],
     ['Download the app as a single HTML file', 'Descarga la app como un único archivo HTML', 'Baixe o app como um único arquivo HTML', 'Télécharger l’appli en un seul fichier HTML', 'App als einzelne HTML-Datei herunterladen', 'Scarica l’app come singolo file HTML', 'Descarcă aplicația ca un singur fișier HTML', '下载单文件 HTML 版'],
@@ -14686,6 +14718,7 @@ Aleksei Miranchuk|Russian|CAM
   const KNOWN_KEY = 'fc26-known-v1'; // players the user confirmed are real (not regens)
   const DELETED_KEY = 'fc26-deleted-v1'; // id → when a saved challenge was deleted, for syncing
   const TC_KEY = 'fc26-transfers-challenge-v1'; // challenge picked in the Transfers section
+  const EASY_KEY = 'fc26-easy-v1'; // the Builder's Tracking choice: Easy (true) or Full
   const FREE_SAVES = 5; // saved challenges without Pro (only once Pro is on sale)
 
   const $ = (sel, el = document) => el.querySelector(sel);
@@ -15074,7 +15107,7 @@ Aleksei Miranchuk|Russian|CAM
     const log = (entry && entry.log) || {};
     const L = state.locks;
     // Saved challenges: check each rule against the tracked squad and transfers.
-    const checks = mode === 'saved' ? Compliance.checkChallenge(ch, entry.tracker) : null;
+    const checks = mode === 'saved' && !entry.easy ? Compliance.checkChallenge(ch, entry.tracker) : null;
     const ruleCheck = (i) => {
       const r = checks && checks[i];
       if (!r) return '';
@@ -15224,7 +15257,7 @@ Aleksei Miranchuk|Russian|CAM
         <button type="button" class="btn" data-action="copy">📋 Copy text</button>
         <button type="button" class="btn" data-action="share">🔗 Share link</button>
         <button type="button" class="btn" data-action="image" title="Save the challenge as a picture to post">🖼️ Image</button>
-        ${mode === 'saved' ? '<button type="button" class="btn" data-action="open-transfers" title="Log transfers for this challenge in the Transfers section">🔁 Transfers</button>' : ''}
+        ${mode === 'saved' && !entry.easy ? '<button type="button" class="btn" data-action="open-transfers" title="Log transfers for this challenge in the Transfers section">🔁 Transfers</button>' : ''}
         ${mode === 'saved' ? '<button type="button" class="btn" data-action="soundtrack" title="Make a Spotify playlist for this save">🎧 Soundtrack</button>' : ''}
         ${mode === 'saved' ? '<button type="button" class="btn" data-action="season-card" title="A picture of your results to post on TikTok or Instagram">📸 Season card</button>' : ''}
         ${mode === 'saved' && !(entry && entry.duel) ? '<button type="button" class="btn" data-action="h2h" title="Challenge a friend to the same save">⚔️ Challenge a friend</button>' : ''}
@@ -15269,6 +15302,7 @@ Aleksei Miranchuk|Russian|CAM
       if (bits.length) lines.push(`Season ${s.season}: ${bits.join(' · ')}`);
     });
     lines.push(`Score: ${scoreFor(entry.challenge, entry)} points (${currentSeason(entry)})`);
+    if (entry.easy) return lines.join('\n');
     const t = Compliance.tally(Compliance.checkChallenge(entry.challenge, entry.tracker));
     lines.push(`Rule check: ✅ ${t.ok} kept · ❌ ${t.broken} broken · ⚠️ ${t.warn} to watch · ✋ ${t.manual} self-checked`);
     return lines.join('\n');
@@ -15556,7 +15590,7 @@ Aleksei Miranchuk|Russian|CAM
   /** Achievements you've unlocked, for the badges next to your name. */
   function badgeIds() {
     return window.FC26.achievements.evaluate(loadSaved(), {
-      broken: (e) => Compliance.tally(Compliance.checkChallenge(e.challenge, e.tracker)).broken,
+      broken: (e) => (e.easy ? 0 : Compliance.tally(Compliance.checkChallenge(e.challenge, e.tracker)).broken),
       dailyBest: Daily.streak(loadCheckins(), Daily.dateKey()).best,
     }).filter((a) => a.unlocked).map((a) => a.id);
   }
@@ -15644,7 +15678,7 @@ Aleksei Miranchuk|Russian|CAM
     }
     const box = $('#achievements');
     const all = window.FC26.achievements.evaluate(list, {
-      broken: (e) => Compliance.tally(Compliance.checkChallenge(e.challenge, e.tracker)).broken,
+      broken: (e) => (e.easy ? 0 : Compliance.tally(Compliance.checkChallenge(e.challenge, e.tracker)).broken),
       dailyBest: Daily.streak(loadCheckins(), Daily.dateKey()).best,
     });
     const won = all.filter((a) => a.unlocked).length;
@@ -15745,12 +15779,13 @@ Aleksei Miranchuk|Russian|CAM
     const ch = entry.challenge;
     const { done, total } = progressOf(entry);
     const pct = Math.round((done / total) * 100);
-    const broken = Compliance.tally(Compliance.checkChallenge(ch, entry.tracker)).broken;
+    const broken = entry.easy ? 0 : Compliance.tally(Compliance.checkChallenge(ch, entry.tracker)).broken;
     const tags = [
       broken ? `<span class="neg">❌ ${broken} rule${broken === 1 ? '' : 's'} broken</span>` : '',
       ch.daily ? `📅 Daily #${Number(ch.daily.number) || ''}` : '',
       ch.weekly ? `🏆 Week #${Number(ch.weekly.number) || ''}` : '',
       entry.duel ? '⚔️ Head-to-head' : '',
+      entry.easy ? '😌 Easy' : '',
       ch.mode === 'player' ? '⚽ Player' : '',
       ch.custom ? '✍️ Custom' : '',
       esc(ch.difficultyName),
@@ -15795,6 +15830,15 @@ Aleksei Miranchuk|Russian|CAM
 
   // Diary text fields save without re-rendering, so typing isn't interrupted.
   function onSavedChange(e) {
+    if (e.target.matches('[data-easy]')) {
+      const item = e.target.closest('.saved-item');
+      const easy = e.target.checked;
+      mutateEntry(item.dataset.id, (en) => { en.easy = easy; });
+      if (easy) Tracker.setTab(item.dataset.id, 'challenge');
+      renderSaved(item.dataset.id);
+      toast(easy ? '😌 Easy mode: no squad page or rule checks' : '📒 Full tracking: squad, transfers and rule checks are back');
+      return;
+    }
     if (e.target.matches('[data-proof]')) {
       addProof(e.target);
       return;
@@ -15882,7 +15926,7 @@ Aleksei Miranchuk|Russian|CAM
       return null;
     }
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-    list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, log: {}, breaks: 0, tracker: Compliance.emptyTracker() });
+    list.unshift({ id, savedAt: Date.now(), challenge: ch, progress: {}, log: {}, breaks: 0, tracker: Compliance.emptyTracker(), easy: storageGet(EASY_KEY, false) === true });
     if (writeSaved(list)) {
       $('#saved-count').textContent = list.length;
       if (!quiet) toast('Saved to My Challenges 💾');
@@ -15913,6 +15957,15 @@ Aleksei Miranchuk|Russian|CAM
   function trackChallenge(ch) {
     const id = saveChallenge(ch, true);
     if (!id) return;
+    // Easy mode: no squad or transfers, just the challenge to tick off.
+    if ((findEntry(id) || {}).easy) {
+      Tracker.setTab(id, 'challenge');
+      showView('saved', id);
+      const it = $(`.saved-item[data-id="${CSS.escape(id)}"]`);
+      if (it) it.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      toast('Saved in 😌 Easy mode: tick off objectives as you go');
+      return;
+    }
     // Start from the club's real squad if we have it and nothing's been entered yet.
     let loaded = 0;
     if (ch.mode !== 'player') {
@@ -15936,9 +15989,19 @@ Aleksei Miranchuk|Russian|CAM
   // ---------- Transfers section ----------
 
   function renderTransfersView() {
-    const list = loadSaved();
+    const all = loadSaved();
+    const list = all.filter((e) => !e.easy);
     const picker = $('#tc-challenge');
     const body = $('#tc-body');
+    if (!list.length && all.length) {
+      picker.innerHTML = '';
+      picker.disabled = true;
+      body.removeAttribute('data-id');
+      body.innerHTML = `<div class="empty"><div class="empty-ball">😌</div><h2>Your saves are in Easy mode</h2><p>Easy mode doesn't track transfers. Switch a save to 📒 Full tracking (the switch at the top of the save) to log them here.</p>
+        <button type="button" class="btn btn-primary" data-goto="saved">Go to My Challenges</button></div>`;
+      $('#tc-status').innerHTML = '';
+      return;
+    }
     if (!list.length) {
       picker.innerHTML = '';
       picker.disabled = true;
@@ -16293,6 +16356,15 @@ Aleksei Miranchuk|Russian|CAM
     syncClubFilters();
     $('#opt-club').addEventListener('change', syncClubFilters);
     $$('input[name="mode"]').forEach((el) => el.addEventListener('change', syncMode));
+    // Tracking: Full (squad, transfers, rule checks) or Easy (just the challenge).
+    const syncTracking = () => {
+      const easy = storageGet(EASY_KEY, false) === true;
+      $$('input[name="tracking"]').forEach((el) => { el.checked = (el.value === 'easy') === easy; });
+      const hint = $('[data-tracking-hint]');
+      if (hint) hint.textContent = easy ? 'Just the challenge: tick off objectives, no squad page and no rule checks.' : 'Squad, transfers and automatic rule checks.';
+    };
+    $$('input[name="tracking"]').forEach((el) => el.addEventListener('change', () => { storageSet(EASY_KEY, el.value === 'easy' && el.checked); syncTracking(); }));
+    syncTracking();
     $('#write-own').addEventListener('click', () => {
       if (Subs.locked()) { proOnly('Writing your own challenges'); return; }
       const opts = readOptions();
