@@ -126,6 +126,7 @@
 
   // ---------- Install as an app ----------
 
+  const MAC_DMG = 'https://github.com/IHAET/fc26_career_mode_challenge/releases/download/desktop/FC26-Challenges.dmg';
   let installPrompt = null; // Chrome / Edge / Android: the browser's own install dialog
   const standalone = () => (root.matchMedia && root.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
   const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -152,6 +153,7 @@
         <h3>📲 Get the app</h3>
         <p class="muted small">Add FC26 Challenges to your home screen: its own icon, full screen, and it works offline.</p>
         ${body}
+        <p class="small">💻 On a Mac? <a href="${esc(MAC_DMG)}" rel="noopener">Download the Mac app (.dmg)</a>. Open it, drag FC26 Challenges to Applications, then the first time right-click the app and choose <strong>Open</strong>.</p>
       </section>`;
   }
 

@@ -72,6 +72,12 @@ It also works on GitHub Pages as-is.
 
 The site appears at `https://<your-username>.github.io/fc26_career_mode_challenge/`, and the daily challenge at `…/#daily`.
 
+### Mac app (.dmg)
+
+`desktop/` is a small Electron app that opens the hosted site in its own window (so accounts, sync and Spotify work), with the single-file copy bundled for when there's no connection. `.github/workflows/desktop.yml` builds `FC26-Challenges.dmg` on a GitHub Mac runner (Intel and Apple Silicon in one) whenever `desktop/` or `dist/` changes, and attaches it to the `desktop` release; the site links to it. It's ad-hoc signed, not signed with an Apple Developer ID, so the first time people open it they right-click the app and choose **Open** (or System Settings → Privacy & Security → **Open Anyway**). Signing and notarising it needs the Apple Developer Program (US$99 a year, 18+).
+
+To try it locally on a Mac: `cd desktop && npm install && npm start`.
+
 ### App stores
 
 The site is already an installable app (a PWA), which is free and needs no store. To be listed in stores as well:
@@ -206,6 +212,7 @@ npm test         # node --test (Node 18+)
 | `js/weekly.js` | 🏆 Challenge of the week: the weekly seed, standings and champion badge |
 | `js/duels.js` | ⚔️ Head-to-head challenges between friends |
 | `js/badges.js` | 🎖️ Badges next to usernames (rank, weekly wins, Pro, achievements) |
+| `desktop/` | 💻 The Mac app (Electron) that the .dmg is built from |
 | `manifest.webmanifest`, `icons/`, `sw.js` | 📲 Installing as an app, offline use and notifications |
 | `js/i18n.js`, `js/i18n-strings.js` | 🌐 Languages: the translator and the table of interface text in each language |
 | `js/tutorial.js` | The first-visit tour and the ❓ button |

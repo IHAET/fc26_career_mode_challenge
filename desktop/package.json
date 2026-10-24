@@ -1,0 +1,33 @@
+{
+  "name": "fc26-challenges",
+  "productName": "FC26 Challenges",
+  "version": "1.0.0",
+  "description": "Desktop app for the FC 26 Career Challenge Builder (fan-made, not affiliated with EA SPORTS).",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --mac dmg --universal --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.7.0",
+    "electron-builder": "26.17.0"
+  },
+  "build": {
+    "appId": "io.github.ihaet.fc26challenges",
+    "productName": "FC26 Challenges",
+    "copyright": "Fan-made tool, not affiliated with EA SPORTS",
+    "files": ["main.js", "offline/**"],
+    "directories": { "buildResources": "build", "output": "out" },
+    "mac": {
+      "category": "public.app-category.sports",
+      "icon": "build/icon.png",
+      "identity": "-",
+      "artifactName": "FC26-Challenges.${ext}"
+    },
+    "dmg": {
+      "title": "FC26 Challenges",
+      "artifactName": "FC26-Challenges.${ext}"
+    }
+  }
+}

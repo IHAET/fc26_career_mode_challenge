@@ -14,6 +14,10 @@
   // Newest first. go: a tab the "Try it" button opens.
   const UPDATES = [
     {
+      id: '2026-10-24c', date: '24 October 2026', title: '💻 A Mac app',
+      items: ['Download FC26 Challenges for Mac (.dmg) from the footer or 🔔 → Get the app. It has its own window and Dock icon, and opens a built-in copy when you\'re offline.'],
+    },
+    {
       id: '2026-10-24b', date: '24 October 2026', title: '📰 Match log and your own newspaper',
       items: [
         'Log the score of any match on a save (📰 Matches tab): opponent, home or away, competition, scorers and a quote. It\'s optional, log as many or as few as you like.',
