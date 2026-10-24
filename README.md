@@ -78,7 +78,7 @@ Both are optional and off until you add your own keys to `js/config.js`. The app
 4. **Firestore Database → Create database**, then paste `firestore.rules` from this repo into its **Rules** tab and publish, so each user can only read and write their own data.
 5. Rebuild the single file (`npm run build`) and push.
 
-Each user's saves are one Firestore document (`users/<uid>`). When a device signs in or changes something, the copies are merged per challenge: the most recently changed copy wins, and deleting a challenge removes it everywhere. Google sign-in only works on an authorised domain, so not from the downloaded single file (email sign-in does).
+**Auto sync** (on by default) can be switched off under ⚙️ Settings in the account panel; then nothing syncs until you press **Sync now**. Each user's saves are one Firestore document (`users/<uid>`). When a device signs in or changes something, the copies are merged per challenge: the most recently changed copy wins, and deleting a challenge removes it everywhere. Google sign-in only works on an authorised domain, so not from the downloaded single file (email sign-in does).
 
 ### Spotify soundtracks
 

@@ -1089,3 +1089,6 @@ select:disabled, input:disabled { opacity: 0.55; cursor: not-allowed; }
 .coupon-ok { color: var(--accent); font-size: 0.9rem; }
 .btn.btn-danger-soft { background: transparent; border-color: var(--line); }
 .btn.btn-danger-soft:hover { border-color: var(--danger); background: rgba(255, 92, 108, 0.1); }
+.login-settings { text-align: left; border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.login-settings h3 { margin: 0; font-size: 0.95rem; }
+.login-settings .toggle span { display: flex; flex-direction: column; gap: 2px; }

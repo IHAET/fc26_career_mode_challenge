@@ -7,6 +7,7 @@
   'use strict';
   const FC26 = (root.FC26 = root.FC26 || {});
   const GUEST_KEY = 'fc26-guest-v1';
+  const SIGNED_KEY = 'fc26-signed-in-before-v1';
 
   const GOOGLE_G = '<svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
 
@@ -47,10 +48,15 @@
           <div class="login-avatar">${u.photo ? `<img src="${esc(u.photo)}" alt="" referrerpolicy="no-referrer">` : esc(initials(u))}</div>
           <h2 id="login-title">${esc(u.name || 'Your account')}</h2>
           <p class="muted">${esc(u.email)}${u.google ? ' · Google' : ''}</p>
-          <p class="login-sync ${st.syncError ? 'neg' : ''}">${st.syncError ? `⚠️ ${esc(st.syncError)}` : `☁️ Challenges synced ${esc(ago(st.lastSync))}`}</p>
+          <p class="login-sync ${st.syncError ? 'neg' : ''}">${st.syncError ? `⚠️ ${esc(st.syncError)}` : st.lastSync ? `☁️ Challenges synced ${esc(ago(st.lastSync))}` : '☁️ Not synced yet'}</p>
           <div class="login-actions">
             <button type="button" class="btn" data-login="sync">🔄 Sync now</button>
             <button type="button" class="btn" data-login="signout">Sign out</button>
+          </div>
+          <div class="login-settings">
+            <h3>⚙️ Settings</h3>
+            <label class="toggle"><input type="checkbox" name="autosync" ${Account.autoSync() ? 'checked' : ''}>
+              <span>Auto sync <small class="muted">${Account.autoSync() ? 'keeps your challenges up to date on every device' : 'off: press Sync now when you want to sync'}</small></span></label>
           </div>
           <p class="muted small">Your saved challenges, trackers, diaries and the players you've marked as real follow you to any device you sign in on.</p>`;
         return;
@@ -143,6 +149,12 @@
       }
     });
     modal.addEventListener('change', (e) => {
+      if (e.target.name === 'autosync') {
+        FC26.account.setAutoSync(e.target.checked);
+        render();
+        toast(e.target.checked ? 'Auto sync on ☁️' : 'Auto sync off: use Sync now to sync');
+        return;
+      }
       if (e.target.name !== 'mode') return;
       const form = $('.login-form', modal);
       const keep = { email: form.elements.email.value };
@@ -170,8 +182,10 @@
         render();
         if (welcome) toast(`Signed in as ${st.user.email || st.user.name} ☁️`);
       }
+      // Remember that this device has signed in: never pop the sign-in offer up for a returning user.
+      if (st.status === 'signed-in') storageSet(SIGNED_KEY, true);
       // First visit with accounts switched on: offer to sign in once.
-      if (st.status === 'signed-out' && !promptedOnce && !storageGet(GUEST_KEY, false)) {
+      if (st.status === 'signed-out' && !promptedOnce && !storageGet(GUEST_KEY, false) && !storageGet(SIGNED_KEY, false)) {
         promptedOnce = true;
         open();
       }

@@ -22,6 +22,9 @@
   const MAX_DOC = 900000; // Firestore documents top out at 1 MiB
 
   const stamp = (e) => Number(e.updatedAt || e.savedAt) || 0;
+  // Auto sync (on unless switched off in the account panel): sync on sign-in and after every change.
+  const AUTO_KEY = 'fc26-autosync-v1';
+  const autoSync = () => { try { return root.localStorage.getItem(AUTO_KEY) !== 'off'; } catch (e) { return true; } };
 
   /**
    * Merge two copies of the saves: { entries, deleted: { id: time }, known }.
@@ -181,12 +184,13 @@
       if (unsubscribe) unsubscribe();
       adapter = next;
       user = null;
-      status = adapter ? 'signed-out' : 'off';
+      // "loading" until the backend says who's signed in, so a returning user isn't shown as signed out.
+      status = adapter ? 'loading' : 'off';
       unsubscribe = adapter ? adapter.onUser((u) => {
         user = u || null;
         status = user ? 'signed-in' : 'signed-out';
         emit();
-        if (user) sync();
+        if (user && autoSync()) sync();
       }) : null;
       emit();
     }
@@ -230,9 +234,15 @@
       google: () => run(() => adapter.google()),
       signOut: () => run(() => adapter.signOut()),
       sync,
-      /** Call after every local save: pushes to the cloud shortly after (debounced). */
+      autoSync,
+      setAutoSync(on) {
+        try { root.localStorage.setItem(AUTO_KEY, on ? 'on' : 'off'); } catch (e) { /* stays on */ }
+        if (on) sync();
+        emit();
+      },
+      /** Call after every local save: pushes to the cloud shortly after (debounced), when auto sync is on. */
       changed() {
-        if (!adapter || !user) return;
+        if (!adapter || !user || !autoSync()) return;
         clearTimeout(timer);
         timer = setTimeout(sync, 1500);
       },
