@@ -405,17 +405,26 @@
       return `<small class="rule-check s-${r.status}"><span>${CHECK_ICON[r.status]} ${esc(r.summary)}</span>${r.details.length ? `<span class="rule-details">${r.details.slice(0, 4).map(esc).join(' · ')}${more}</span>` : ''}</small>`;
     };
     const ruleClass = (i) => (checks && checks[i] ? ` s-${checks[i].status}` : '');
+    // ℹ️ Facts a rule needs: the club's record signing, its league rivals.
+    const info = (text) => {
+      const x = Compliance.ruleInfo(text, ch);
+      if (!x) return '';
+      // On a save, the starting record can be set by hand (a club without one here, or a different figure in the game).
+      const typed = mode === 'saved' && x.kind === 'transferRecord' ? `
+        <label class="record-edit">Record fee at the start (€M) <input type="number" min="0" step="0.1" data-record value="${esc(Number(entry.tracker && entry.tracker.record) > 0 ? entry.tracker.record : '')}" placeholder="${esc(x.eur || '')}"></label>` : '';
+      return `<small class="rule-info" ${x.source ? `title="${esc(x.source)}"` : ''}>ℹ️ ${esc(x.text)}${typed}</small>`;
+    };
 
     const check = (key) => (mode === 'saved'
       ? `<input type="checkbox" class="obj-check" data-action="toggle" data-key="${esc(key)}" ${progress[key] ? 'checked' : ''} aria-label="Mark done">`
       : '');
 
     const rulesHtml = ch.coreRules.map((r, i) => `
-        <li class="rule core${ruleClass(i)}"><span class="rule-tag">Core</span><span class="rule-text">${esc(r.text)}${ruleCheck(i)}</span></li>`).join('')
+        <li class="rule core${ruleClass(i)}"><span class="rule-tag">Core</span><span class="rule-text">${esc(r.text)}${info(r.text)}${ruleCheck(i)}</span></li>`).join('')
       + ch.rules.map((r, i) => `
         <li class="rule ${controls && L.rules.has(r.id) ? 'is-locked' : ''}${ruleClass(ch.coreRules.length + i)}">
           <span class="rule-tag cat-${esc(r.cat.toLowerCase())}">${esc(r.cat)}</span>
-          <span class="rule-text">${esc(r.text)}${ruleCheck(ch.coreRules.length + i)}</span>
+          <span class="rule-text">${esc(r.text)}${info(r.text)}${ruleCheck(ch.coreRules.length + i)}</span>
           ${controls ? `<span class="rule-actions">
             <button type="button" class="icon-btn" data-action="reroll-rule" data-index="${i}" title="Swap this rule">🔄</button>
             ${lockBtn('rule', L.rules.has(r.id), r.id)}
@@ -1052,6 +1061,14 @@
 
   // Diary text fields save without re-rendering, so typing isn't interrupted.
   function onSavedChange(e) {
+    if (e.target.matches('[data-record]')) {
+      const item = e.target.closest('.saved-item');
+      const value = Number(e.target.value);
+      const entry = mutateEntry(item.dataset.id, (en) => { en.tracker = Compliance.normalizeTracker(en.tracker); en.tracker.record = value > 0 ? Math.round(value * 10) / 10 : 0; });
+      if (entry) refreshSavedItem(item, entry);
+      toast(value > 0 ? `Record set to €${value}M` : 'Using the record from Wikipedia');
+      return;
+    }
     const tItem = e.target.closest('.saved-item');
     if (tItem && Tracker.onChange(e, tItem)) return;
     const input = e.target.closest('[data-log]');

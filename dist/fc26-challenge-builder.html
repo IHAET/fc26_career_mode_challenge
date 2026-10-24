@@ -1104,6 +1104,9 @@ select:disabled, input:disabled { opacity: 0.55; cursor: not-allowed; }
 .login-settings { text-align: left; border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; }
 .login-settings h3 { margin: 0; font-size: 0.95rem; }
 .login-settings .toggle span { display: flex; flex-direction: column; gap: 2px; }
+.rule-info { display: block; margin-top: 4px; padding: 6px 9px; border-radius: 8px; background: var(--accent-soft); color: var(--text); font-size: 0.82rem; line-height: 1.4; }
+.record-edit { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-weight: 600; }
+.record-edit input { width: 110px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-2); color: var(--text); font: inherit; }
 </style>
   <script>
     // Theme before first paint: the saved choice, else the system's.
@@ -5243,6 +5246,7 @@ select:disabled, input:disabled { opacity: 0.55; cursor: not-allowed; }
     [/only spending money is what you raise from player sales|only spend money raised from sales/i, () => ({ kind: 'spendFromSales' })],
     [/Finish every season with a positive net transfer spend/i, () => ({ kind: 'profitSeason' })],
     [/No signing players from clubs in your own league/i, () => ({ kind: 'noLeagueRivals' })],
+    [/Break your club's transfer record at least once every (\d+) season/i, (m) => ({ kind: 'transferRecord', every: Number(m[1]) || 1 })],
     [/No selling a player in the same season you signed them/i, () => ({ kind: 'noFlip' })],
     [/Never re-sign a player you sold/i, () => ({ kind: 'noResign' })],
     [/^Never sign a player from (.+?)\.$/i, (m) => ({ kind: 'noSignFrom', clubs: clubList(m[1]) })],
@@ -5403,6 +5407,31 @@ select:disabled, input:disabled { opacity: 0.55; cursor: not-allowed; }
       if (!details.length) return ok('Every season in profit so far');
       const onlyCurrent = details.length === 1 && details[0].includes('still going');
       return onlyCurrent ? warn('This season is in the red so far', details) : broken('A season finished in the red', details);
+    },
+    // Each signing for more than the record sets a new one; there must be one every `every` seasons.
+    transferRecord(c, t, ctx) {
+      // The record you typed on the save wins over the one from Wikipedia.
+      const start = Number(t.record) > 0 ? { eur: Number(t.record) } : ctx.record;
+      if (!start) return Object.assign(manual(), { summary: "Type the club's record fee above and I'll check this one" });
+      let record = start.eur;
+      let last = 0;
+      const missed = [];
+      const broke = [];
+      for (let s = 1; s <= ctx.season; s++) {
+        const beat = signings(t).filter((x) => x.season === s).sort((a, b) => (a.window === 'winter') - (b.window === 'winter'))
+          .filter((x) => { if (fee(x) > record) { record = fee(x); return true; } return false; });
+        if (beat.length) {
+          last = s;
+          beat.forEach((x) => broke.push(`Season ${s}: ${nameOf(x)} for ${money(fee(x))}`));
+        } else if (s - last >= c.every && s < ctx.season) {
+          missed.push(`Seasons ${last + 1}–${s}: record not broken`);
+          last = s;
+        }
+      }
+      const now = `Record now ${money(record)}`;
+      if (missed.length) return broken('Went too long without a record signing', missed.concat(now));
+      if (ctx.season - last >= c.every) return warn(`Break the record this season: sign someone for more than ${money(record)}`, broke.concat(now));
+      return ok(broke.length ? 'Record broken in time so far' : 'Not due yet', broke.concat(now));
     },
     noLeagueRivals(c, t, ctx) {
       const rivals = ctx.leagueClubs;
@@ -5643,6 +5672,8 @@ select:disabled, input:disabled { opacity: 0.55; cursor: not-allowed; }
       finalSeason: Number(ch.seasons) || 1,
       startClub: ch.club.name,
       startCountry: ch.club.country || '',
+      // The club's record signing as FC 26 launched (js/records.js), in millions of euros.
+      record: (FC26.records || {})[ch.club.name] || null,
       ageAt: (s) => (Number(ch.startAge) || 17) + s - 1,
     };
   }
@@ -5653,6 +5684,29 @@ select:disabled, input:disabled { opacity: 0.55; cursor: not-allowed; }
     if (!check || !EVAL[check.kind]) return manual();
     const t = normalizeTracker(tracker);
     return Object.assign({ kind: check.kind }, EVAL[check.kind](check, t, contextFor(ch, t)));
+  }
+
+  /**
+   * Facts a rule needs that the challenge card can show next to it ("Club record:
+   * £105m, Declan Rice from West Ham United, 2023"), or null.
+   */
+  function ruleInfo(text, ch) {
+    const check = interpret(text);
+    if (!check || !ch || !ch.club) return null;
+    if (check.kind === 'transferRecord') {
+      const r = (FC26.records || {})[ch.club.name];
+      if (!r) return { kind: check.kind, text: `${ch.club.name}'s record signing isn't known here: look it up before you start, then beat it in the game.` };
+      return {
+        kind: check.kind, eur: r.eur,
+        text: `${ch.club.name}'s record signing: ${r.fee}${r.fee.startsWith('€') ? '' : ` (about ${money(r.eur)})`}, ${r.player}${r.from ? ` from ${r.from}` : ''}${r.year ? ` in ${r.year}` : ''}. Sign someone for more to break it.`,
+        source: r.source ? `Wikipedia, as FC 26 launched: ${r.source}` : '',
+      };
+    }
+    if (check.kind === 'noLeagueRivals' || check.kind === 'noSellToLeague') {
+      const rivals = G.CLUBS.filter((c) => c.leagueId === ch.club.leagueId && c.name !== ch.club.name).map((c) => c.name).sort();
+      return rivals.length ? { text: `Your league rivals (${rivals.length}): ${rivals.join(', ')}.` } : null;
+    }
+    return null;
   }
 
   /** Results for every rule of a challenge, core rules first. */
@@ -5693,7 +5747,7 @@ select:disabled, input:disabled { opacity: 0.55; cursor: not-allowed; }
     return results.reduce((n, r) => Object.assign(n, { [r.status]: n[r.status] + 1 }), { ok: 0, broken: 0, warn: 0, manual: 0 });
   }
 
-  FC26.compliance = { interpret, evaluateRule, checkChallenge, applyTransfer, tally, normNat, normalizeTracker, emptyTracker, NATIONALITIES, REGIONS, money };
+  FC26.compliance = { interpret, evaluateRule, checkChallenge, ruleInfo, applyTransfer, tally, normNat, normalizeTracker, emptyTracker, NATIONALITIES, REGIONS, money };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/squads.js */
@@ -5745,6 +5799,20 @@ select:disabled, input:disabled { opacity: 0.55; cursor: not-allowed; }
     // Clubs whose squad is the game's.
     inGame: ["1. FC Saarbrücken","1. FC Schweinfurt","1860 Munich","AC Sparta Prague","AEK Athens","AIK Fotboll","APOEL FC","Adelaide United","Al Ain","Aldosivi","Alemannia Aachen","Alianza Lima","América de Cali","Argentinos Juniors","Arka Gdynia","Atlético Bucaramanga","Atlético Grau","Atlético Nacional","Atlético Tucumán","Auckland FC","BK Häcken","BSC Young Boys","Banfield","Barcelona SC","Barracas Central","Beijing Guoan","Belgrano","Bengaluru FC","Boca Juniors","Bohemians","Bolívar","Boston River","Brisbane Roar","Bruk-Bet Termalica Nieciecza","Carabobo FC","Caracas FC","Central Coast Mariners","Central Córdoba (SdE)","Cerro Largo","Cerro Porteño","Changchun Yatai","Chengdu Rongcheng","Chennaiyin FC","Cienciano","Colo-Colo","Cork City","Cracovia","Daegu","Daejeon Hana Citizen","Dalian Yingbo","Defensa y Justicia","Degerfors IF","Dep. Táchira","Deportes Iquique","Deportivo Riestra","Derry City","Dinamo Zagreb","Djurgårdens IF","Drogheda United","Dynamo Kyiv","East Bengal","Energie Cottbus","Erzgebirge Aue","Estudiantes (LP)","FBC Melgar","FC Anyang","FC Basel","FC Goa","FC Ingolstadt","FC Lausanne-Sport","FC Lugano","FC Luzern","FC Seoul","FC Sion","FC St. Gallen","FC Thun","FC Viktoria Plzeň","FC Winterthur","FC Zürich","Ferencváros","GAIS","GKS Katowice","GV San José","Galway United","Gangwon","Gimcheon Sangmu","Gimnasia y Esgrima (LP)","Godoy Cruz","Grasshopper Club Zurich","Guaraní","Gwangju","Górnik Zabrze","HJK Helsinki","Hajduk Split","Halmstads BK","Hammarby","Hansa Rostock","Henan","Hoffenheim II","Huracán","Hyderabad FC","IDV","IF Brommapojkarna","IF Elfsborg","IFK Göteborg","IFK Norrköping","IFK Värnamo","IK Sirius","Independiente","Independiente Rivadavia","Instituto","Jagiellonia Białystok","Jahn Regensburg","Jamshedpur FC","Jeju SK","Jeonbuk Hyundai Motors","Kerala Blasters","Korona Kielce","LDU Quito","Lanús","Lech Poznań","Lechia Gdańsk","Legia Warsaw","Libertad","MSV Duisburg","Macarthur FC","Malmö FF","Meizhou Hakka","Melbourne City","Melbourne Victory","Mjällby AIF","Mohun Bagan SG","Motor Lublin","Mumbai City FC","Mushuc Runa","Nacional","Nacional Potosí","Newcastle Jets","Newell's Old Boys","NorthEast United","Olimpia","Olympiacos","Once Caldas","PAOK","Palestino","Panathinaikos","Perth Glory","Peñarol","Piast Gliwice","Platense","Pogoń Szczecin","Pohang Steelers","Puerto Cabello","Punjab FC","Qarabağ FK","Qingdao Hainiu","Qingdao West Coast","Racing","Racing","Radomiak Radom","Raków Częstochowa","River Plate","Rosario Central","Rot-Weiss Essen","SC Verl","SK Slavia Prague","SSV Ulm","San Antonio","San Lorenzo","San Martín (SJ)","Sarmiento (J)","Servette","Shakhtar Donetsk","Shamrock Rovers","Shandong Taishan","Shanghai Port","Shanghai Shenhua","Shelbourne","Shenzhen Peng City","Sligo Rovers","Sporting Cristal","Sportivo Luqueño","St Patrick's Athletic","Suwon FC","Sydney FC","TSV Havelse","Talleres (C)","Tianjin Jinmen Tiger","Tigre","U. Católica","Ulsan HD","Universidad Católica","Universidad de Chile","Universitario","Unión","Unión Española","VfB Stuttgart II","VfL Osnabrück","Viktoria Köln","Vélez Sarsfield","Waldhof Mannheim","Waterford","Wehen Wiesbaden","Wellington Phoenix","Western Sydney Wanderers","Widzew Łódź","Wisła Płock","Wuhan Three Towns","Yunnan Yukun","Zagłębie Lubin","Zhejiang","Östers IF"],
   };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>/* js/records.js */
+/*
+ * Generated by scripts/fetch-records.js on 2026-10-24. Do not edit by hand.
+ * Each club's record signing as of 2025-09-15 (when FC 26 launched), from English Wikipedia:
+ * { fee (as reported), eur (millions of euros, converted at rough 2025 rates for comparing),
+ *   player, from (the selling club), year, source (the article) }.
+ * Clubs where Wikipedia doesn't name a record signing are missing.
+ */
+(function (root) {
+  'use strict';
+  const FC26 = (root.FC26 = root.FC26 || {});
+  FC26.records = {"Arsenal":{"fee":"£100m","eur":117,"player":"Declan Rice","from":"West Ham United","year":2023,"source":"List of Arsenal F.C. records and statistics"},"Liverpool":{"fee":"£125m","eur":146.3,"player":"Alexander Isak","from":"Newcastle United","year":2025,"source":"List of Liverpool F.C. records and statistics"},"Manchester City":{"fee":"£100m","eur":117,"player":"Jack Grealish","from":"Aston Villa","year":2021,"source":"List of Manchester City F.C. records and statistics"},"Chelsea":{"fee":"£106.8m","eur":125,"player":"Enzo Fernández","from":"Benfica","year":2023,"source":"checked by hand"},"Manchester United":{"fee":"£89m","eur":104.5,"player":"Paul Pogba","from":"Juventus","year":2016,"source":"List of Manchester United F.C. records and statistics"},"Tottenham Hotspur":{"fee":"£60m","eur":70.2,"player":"Richarlison","from":"Everton","year":2022,"source":"List of Tottenham Hotspur F.C. records and statistics"},"Newcastle United":{"fee":"£69m","eur":80.7,"player":"Nick Woltemade","from":"VfB Stuttgart","year":2025,"source":"List of Newcastle United F.C. records and statistics"},"Aston Villa":{"fee":"£50m","eur":58.5,"player":"Amadou Onana","from":"Everton","year":2024,"source":"List of Aston Villa F.C. records and statistics"},"Brighton & Hove Albion":{"fee":"£43m","eur":49.7,"player":"Georginio Rutter","from":"Leeds United","year":2024,"source":"List of Brighton & Hove Albion F.C. records and statistics"},"Nottingham Forest":{"fee":"£35m","eur":40.9,"player":"Dan Ndoye","from":"Bologna","year":null,"source":"List of Nottingham Forest F.C. records and statistics"},"Crystal Palace":{"fee":"£32m","eur":37.4,"player":"Christian Benteke","from":"Liverpool","year":2016,"source":"List of Crystal Palace F.C. records and statistics"},"AFC Bournemouth":{"fee":"£40m","eur":47,"player":"Evanilson","from":"Porto","year":2024,"source":"List of AFC Bournemouth records and statistics"},"Brentford":{"fee":"£43m","eur":49.7,"player":"Dango Ouattara","from":"AFC Bournemouth","year":2025,"source":"List of Brentford F.C. records and statistics"},"Fulham":{"fee":"£35m","eur":40.5,"player":"Kevin","from":"Shakhtar Donetsk","year":2025,"source":"List of Fulham F.C. records and statistics"},"West Ham United":{"fee":"£51m","eur":59.9,"player":"Lucas Paquetá","from":"Lyon","year":2022,"source":"West Ham United F.C."},"Everton":{"fee":"£45m","eur":52.7,"player":"Gylfi Sigurðsson","from":"Swansea City","year":2017,"source":"List of Everton F.C. records and statistics"},"Wolverhampton Wanderers":{"fee":"£44m","eur":51.5,"player":"Matheus Cunha","from":"Atlético Madrid","year":2023,"source":"List of Wolverhampton Wanderers F.C. records and statistics"},"Burnley":{"fee":"£23m","eur":26.9,"player":"Lesley Ugochukwu","from":"Chelsea","year":2025,"source":"List of Burnley F.C. records and statistics"},"Ipswich Town":{"fee":"£20m","eur":23.4,"player":"Omari Hutchinson","from":"Chelsea","year":2024,"source":"List of Ipswich Town F.C. records and statistics"},"Sheffield United":{"fee":"£24m","eur":27.5,"player":"Rhian Brewster","from":"Liverpool","year":2020,"source":"List of Sheffield United F.C. records and statistics"},"Coventry City":{"fee":"£7.7m","eur":9,"player":"Haji Wright","from":"Antalyaspor","year":2023,"source":"List of Coventry City F.C. records and statistics"},"West Bromwich Albion":{"fee":"£15m","eur":17.5,"player":"Oliver Burke","from":"RB Leipzig","year":2017,"source":"List of West Bromwich Albion F.C. records and statistics"},"Wrexham":{"fee":"£2m","eur":2.3,"player":"Sam Smith","from":"Reading","year":2025,"source":"List of Wrexham A.F.C. records and statistics"},"Birmingham City":{"fee":"£10m","eur":11.7,"player":"Jay Stansfield","from":"Fulham","year":2024,"source":"List of Birmingham City F.C. records and statistics"},"Hull City":{"fee":"£13m","eur":15.2,"player":"Ryan Mason","from":"Tottenham Hotspur","year":2016,"source":"checked by hand"},"Stoke City":{"fee":"£18m","eur":21.4,"player":"Giannelli Imbula","from":"Porto","year":2016,"source":"List of Stoke City F.C. records and statistics"},"Swansea City":{"fee":"£18m","eur":21.1,"player":"André Ayew","from":"West Ham United","year":2018,"source":"List of Swansea City A.F.C. records and statistics"},"Queens Park Rangers":{"fee":"£13m","eur":14.6,"player":"Christopher Samba","from":"Anzhi Makhachkala","year":2013,"source":"List of Queens Park Rangers F.C. records and statistics"},"Preston North End":{"fee":"£2.1m","eur":2.5,"player":"Milutin Osmajić","from":"Cádiz CF","year":2023,"source":"Preston North End F.C."},"Bristol City":{"fee":"£8m","eur":9.4,"player":"Tomáš Kalas","from":"Chelsea","year":2019,"source":"Bristol City F.C."},"Blackburn Rovers":{"fee":"£8m","eur":9.4,"player":"Andy Cole","from":"Tottenham Hotspur","year":2001,"source":"Blackburn Rovers F.C."},"Derby County":{"fee":"£10m","eur":11.7,"player":"Krystian Bielik","from":"Arsenal F.C.","year":2019,"source":"List of Derby County F.C. records and statistics"},"Portsmouth":{"fee":"£11m","eur":12.9,"player":"Peter Crouch","from":"Liverpool","year":2008,"source":"Portsmouth F.C."},"Oxford United":{"fee":"£650k","eur":0.8,"player":"Marvin Johnson","from":"Motherwell","year":2016,"source":"List of Oxford United F.C. records and statistics"},"Luton Town":{"fee":"£1.8m","eur":2.1,"player":"Carlton Morris","from":"Barnsley F.C.","year":2022,"source":"List of Luton Town F.C. records and statistics"},"Plymouth Argyle":{"fee":"£1.1m","eur":1.3,"player":"Bali Mumba","from":"Norwich City","year":2023,"source":"List of Plymouth Argyle F.C. records and statistics"},"Cardiff City":{"fee":"£15m","eur":17.5,"player":"Emiliano Sala","from":"Nantes","year":2019,"source":"List of Cardiff City F.C. records and statistics"},"Wigan Athletic":{"fee":"£7m","eur":8.2,"player":"Charles N'Zogbia","from":"Newcastle United","year":2009,"source":"List of Wigan Athletic F.C. records and statistics"},"Bolton Wanderers":{"fee":"£8.3m","eur":9.7,"player":"Johan Elmander","from":"Toulouse","year":2008,"source":"List of Bolton Wanderers F.C. records and statistics"},"Huddersfield Town":{"fee":"£18m","eur":20.5,"player":"Terence Kongolo","from":"Monaco","year":2018,"source":"List of Huddersfield Town A.F.C. records and statistics"},"Barnsley":{"fee":"£2m","eur":2.3,"player":"Georgi Hristov","from":"","year":1976,"source":"Barnsley F.C."},"Blackpool":{"fee":"£1.3m","eur":1.5,"player":"DJ Campbell","from":"Leicester City","year":2010,"source":"List of Blackpool F.C. records and statistics"},"Peterborough United":{"fee":"£1.3m","eur":1.5,"player":"Mo Eisa","from":"Bristol City","year":2019,"source":"Peterborough United F.C."},"Lincoln City":{"fee":"£350k","eur":0.4,"player":"Ivan Varfolomeyev","from":"Slovan Liberec","year":2025,"source":"Lincoln City F.C."},"Leyton Orient":{"fee":"£300k","eur":0.4,"player":"Idris El Mizouni","from":"Oxford United","year":2025,"source":"Leyton Orient F.C."},"Burton Albion":{"fee":"£500k","eur":0.6,"player":"Liam Boyce","from":"","year":null,"source":"Burton Albion F.C."},"Doncaster Rovers":{"fee":"£1.1m","eur":1.3,"player":"Billy Sharp","from":"Sheffield United","year":null,"source":"List of Doncaster Rovers F.C. records and statistics"},"Bradford City":{"fee":"£2.5m","eur":2.9,"player":"David Hopkin","from":"Leeds United","year":2000,"source":"List of Bradford City A.F.C. records and statistics"},"Northampton Town":{"fee":"£265k","eur":0.3,"player":"Richard Hill","from":"Watford","year":1986,"source":"Northampton Town F.C."},"Bristol Rovers":{"fee":"£375k","eur":0.4,"player":"Andy Tillson","from":"","year":1992,"source":"Bristol Rovers F.C."},"Cambridge United":{"fee":"£190k","eur":0.2,"player":"Steve Claridge","from":"Luton Town","year":1992,"source":"Cambridge United F.C."},"Notts County":{"fee":"£750k","eur":0.9,"player":"Tony Agana","from":"Sheffield United","year":1991,"source":"List of Notts County F.C. records and statistics"},"Walsall":{"fee":"£270k","eur":0.3,"player":"Andreas Makris","from":"Anorthosis Famagusta","year":2016,"source":"Walsall F.C."},"Grimsby Town":{"fee":"£550k","eur":0.6,"player":"Lee Ashcroft","from":"Preston North End","year":1998,"source":"List of Grimsby Town F.C. records and statistics"},"Swindon Town":{"fee":"£800k","eur":0.9,"player":"Joey Beauchamp","from":"West Ham","year":1994,"source":"List of Swindon Town F.C. records and statistics"},"Crewe Alexandra":{"fee":"£650k","eur":0.8,"player":"Rodney Jack","from":"Torquay United","year":1998,"source":"List of Crewe Alexandra F.C. records and statistics"},"Gillingham":{"fee":"£600k","eur":0.7,"player":"Carl Asaba","from":"Reading","year":1998,"source":"List of Gillingham F.C. records and statistics"},"Colchester United":{"fee":"£400k","eur":0.5,"player":"Steven Gillespie","from":"Cheltenham Town","year":2008,"source":"List of Colchester United F.C. records and statistics"},"Oldham Athletic":{"fee":"£750k","eur":0.9,"player":"Ian Olney","from":"Aston Villa","year":1992,"source":"Oldham Athletic A.F.C."},"FC Barcelona":{"fee":"€120m","eur":120,"player":"Philippe Coutinho","from":"","year":2018,"source":"FC Barcelona"},"Atlético de Madrid":{"fee":"€126m","eur":126,"player":"João Félix","from":"Benfica","year":2019,"source":"checked by hand"},"Athletic Club":{"fee":"€24m","eur":24,"player":"Yuri Berchiche","from":"Paris Saint-Germain","year":2018,"source":"List of Athletic Bilbao records and statistics"},"Inter":{"fee":"€80m","eur":80,"player":"Romelu Lukaku","from":"Manchester United","year":2019,"source":"List of Inter Milan records and statistics"},"Napoli":{"fee":"€70m","eur":70,"player":"Victor Osimhen","from":"Lille","year":2020,"source":"checked by hand"},"Juventus":{"fee":"€100m","eur":100,"player":"Cristiano Ronaldo","from":"Real Madrid","year":2018,"source":"checked by hand"},"Parma":{"fee":"€32m","eur":32.2,"player":"Hidetoshi Nakata","from":"Roma","year":2001,"source":"List of Parma Calcio 1913 records and statistics"},"FC Bayern München":{"fee":"€100m","eur":100,"player":"Harry Kane","from":"Tottenham Hotspur","year":2023,"source":"checked by hand"},"Borussia Dortmund":{"fee":"€35m","eur":35,"player":"Ousmane Dembélé","from":"Rennes","year":2016,"source":"List of Borussia Dortmund records and statistics"},"Paris Saint-Germain":{"fee":"€222m","eur":222,"player":"Neymar","from":"Barcelona","year":2017,"source":"List of Paris Saint-Germain FC records and statistics"},"NEC Nijmegen":{"fee":"€1.8m","eur":1.8,"player":"Björn Vleminckx","from":"KV Mechelen","year":2009,"source":"NEC Nijmegen"},"Celtic":{"fee":"£11m","eur":12.9,"player":"Arne Engels","from":"FC Augsburg","year":2024,"source":"List of Celtic F.C. records and statistics"},"Rangers":{"fee":"£12m","eur":14,"player":"Tore André Flo","from":"Chelsea","year":2000,"source":"List of Rangers F.C. records and statistics"},"Heart of Midlothian":{"fee":"£1.7m","eur":2,"player":"Eduardo Ageu","from":"Santa Clara","year":2025,"source":"Heart of Midlothian F.C."},"Hibernian":{"fee":"£1m","eur":1.2,"player":"Thibault Klidjé","from":"Luzern","year":2025,"source":"Hibernian F.C."},"Motherwell":{"fee":"£500k","eur":0.6,"player":"John Spencer","from":"Everton","year":1999,"source":"List of Motherwell F.C. records and statistics"},"Dundee United":{"fee":"£750k","eur":0.9,"player":"Steven Pressley","from":"Coventry City","year":1995,"source":"List of Dundee United F.C. records and statistics"},"St Mirren":{"fee":"£400k","eur":0.5,"player":"Bayer Uerdingen","from":"","year":1990,"source":"St Mirren F.C."},"Dundee":{"fee":"£600k","eur":0.7,"player":"Fabián Caballero","from":"Club Sol de América","year":null,"source":"Dundee F.C."},"Livingston":{"fee":"£200k","eur":0.2,"player":"Lyndon Dykes","from":"Queen of the South","year":2019,"source":"Livingston F.C."},"LAFC":{"fee":"$12m","eur":10.3,"player":"Brian Rodríguez","from":"Peñarol","year":2019,"source":"List of Los Angeles FC records and statistics"},"Philadelphia Union":{"fee":"$2.8m","eur":2.5,"player":"Mikael Uhre","from":"Brøndby","year":2022,"source":"List of Philadelphia Union records and statistics"},"Orlando City":{"fee":"$9m","eur":7.9,"player":"Facundo Torres","from":"Peñarol","year":2022,"source":"List of Orlando City SC records and statistics"},"Atlanta United":{"fee":"$22m","eur":19.4,"player":"Emmanuel Latte Lath","from":"Middlesbrough","year":2025,"source":"List of Atlanta United FC records and statistics"},"New York City FC":{"fee":"$9m","eur":7.9,"player":"Alexandru Mitriță","from":"Universitatea Craiova","year":2019,"source":"List of New York City FC records and statistics"},"New York Red Bulls":{"fee":"$6.3m","eur":5.5,"player":"Kaku","from":"Huracán","year":2018,"source":"List of New York Red Bulls records and statistics"},"Austin FC":{"fee":"$12m","eur":10.6,"player":"Myrto Uzuni","from":"Granada CF","year":2025,"source":"List of Austin FC records and statistics"},"New England Revolution":{"fee":"$2m","eur":1.8,"player":"Carles Gil","from":"","year":2019,"source":"New England Revolution"},"FC Schalke 04":{"fee":"€27m","eur":26.5,"player":"Breel Embolo","from":"","year":2016,"source":"List of FC Schalke 04 records and statistics"},"Hannover 96":{"fee":"€9m","eur":9,"player":"Jonathas","from":"Rubin Kazan","year":2017,"source":"List of Hannover 96 records and statistics"},"AS Monaco":{"fee":"€60m","eur":60,"player":"Radamel Falcao","from":"Atlético Madrid","year":2013,"source":"checked by hand"},"FCSB":{"fee":"€3m","eur":3,"player":"Florinel Coman","from":"FC Viitorul Constanta","year":2018,"source":"FCSB"}};
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
   <script>/* js/players.js */
@@ -10591,17 +10659,26 @@ Aleksei Miranchuk|Russian|CAM
       return `<small class="rule-check s-${r.status}"><span>${CHECK_ICON[r.status]} ${esc(r.summary)}</span>${r.details.length ? `<span class="rule-details">${r.details.slice(0, 4).map(esc).join(' · ')}${more}</span>` : ''}</small>`;
     };
     const ruleClass = (i) => (checks && checks[i] ? ` s-${checks[i].status}` : '');
+    // ℹ️ Facts a rule needs: the club's record signing, its league rivals.
+    const info = (text) => {
+      const x = Compliance.ruleInfo(text, ch);
+      if (!x) return '';
+      // On a save, the starting record can be set by hand (a club without one here, or a different figure in the game).
+      const typed = mode === 'saved' && x.kind === 'transferRecord' ? `
+        <label class="record-edit">Record fee at the start (€M) <input type="number" min="0" step="0.1" data-record value="${esc(Number(entry.tracker && entry.tracker.record) > 0 ? entry.tracker.record : '')}" placeholder="${esc(x.eur || '')}"></label>` : '';
+      return `<small class="rule-info" ${x.source ? `title="${esc(x.source)}"` : ''}>ℹ️ ${esc(x.text)}${typed}</small>`;
+    };
 
     const check = (key) => (mode === 'saved'
       ? `<input type="checkbox" class="obj-check" data-action="toggle" data-key="${esc(key)}" ${progress[key] ? 'checked' : ''} aria-label="Mark done">`
       : '');
 
     const rulesHtml = ch.coreRules.map((r, i) => `
-        <li class="rule core${ruleClass(i)}"><span class="rule-tag">Core</span><span class="rule-text">${esc(r.text)}${ruleCheck(i)}</span></li>`).join('')
+        <li class="rule core${ruleClass(i)}"><span class="rule-tag">Core</span><span class="rule-text">${esc(r.text)}${info(r.text)}${ruleCheck(i)}</span></li>`).join('')
       + ch.rules.map((r, i) => `
         <li class="rule ${controls && L.rules.has(r.id) ? 'is-locked' : ''}${ruleClass(ch.coreRules.length + i)}">
           <span class="rule-tag cat-${esc(r.cat.toLowerCase())}">${esc(r.cat)}</span>
-          <span class="rule-text">${esc(r.text)}${ruleCheck(ch.coreRules.length + i)}</span>
+          <span class="rule-text">${esc(r.text)}${info(r.text)}${ruleCheck(ch.coreRules.length + i)}</span>
           ${controls ? `<span class="rule-actions">
             <button type="button" class="icon-btn" data-action="reroll-rule" data-index="${i}" title="Swap this rule">🔄</button>
             ${lockBtn('rule', L.rules.has(r.id), r.id)}
@@ -11238,6 +11315,14 @@ Aleksei Miranchuk|Russian|CAM
 
   // Diary text fields save without re-rendering, so typing isn't interrupted.
   function onSavedChange(e) {
+    if (e.target.matches('[data-record]')) {
+      const item = e.target.closest('.saved-item');
+      const value = Number(e.target.value);
+      const entry = mutateEntry(item.dataset.id, (en) => { en.tracker = Compliance.normalizeTracker(en.tracker); en.tracker.record = value > 0 ? Math.round(value * 10) / 10 : 0; });
+      if (entry) refreshSavedItem(item, entry);
+      toast(value > 0 ? `Record set to €${value}M` : 'Using the record from Wikipedia');
+      return;
+    }
     const tItem = e.target.closest('.saved-item');
     if (tItem && Tracker.onChange(e, tItem)) return;
     const input = e.target.closest('[data-log]');

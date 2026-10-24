@@ -176,6 +176,7 @@
     [/only spending money is what you raise from player sales|only spend money raised from sales/i, () => ({ kind: 'spendFromSales' })],
     [/Finish every season with a positive net transfer spend/i, () => ({ kind: 'profitSeason' })],
     [/No signing players from clubs in your own league/i, () => ({ kind: 'noLeagueRivals' })],
+    [/Break your club's transfer record at least once every (\d+) season/i, (m) => ({ kind: 'transferRecord', every: Number(m[1]) || 1 })],
     [/No selling a player in the same season you signed them/i, () => ({ kind: 'noFlip' })],
     [/Never re-sign a player you sold/i, () => ({ kind: 'noResign' })],
     [/^Never sign a player from (.+?)\.$/i, (m) => ({ kind: 'noSignFrom', clubs: clubList(m[1]) })],
@@ -336,6 +337,31 @@
       if (!details.length) return ok('Every season in profit so far');
       const onlyCurrent = details.length === 1 && details[0].includes('still going');
       return onlyCurrent ? warn('This season is in the red so far', details) : broken('A season finished in the red', details);
+    },
+    // Each signing for more than the record sets a new one; there must be one every `every` seasons.
+    transferRecord(c, t, ctx) {
+      // The record you typed on the save wins over the one from Wikipedia.
+      const start = Number(t.record) > 0 ? { eur: Number(t.record) } : ctx.record;
+      if (!start) return Object.assign(manual(), { summary: "Type the club's record fee above and I'll check this one" });
+      let record = start.eur;
+      let last = 0;
+      const missed = [];
+      const broke = [];
+      for (let s = 1; s <= ctx.season; s++) {
+        const beat = signings(t).filter((x) => x.season === s).sort((a, b) => (a.window === 'winter') - (b.window === 'winter'))
+          .filter((x) => { if (fee(x) > record) { record = fee(x); return true; } return false; });
+        if (beat.length) {
+          last = s;
+          beat.forEach((x) => broke.push(`Season ${s}: ${nameOf(x)} for ${money(fee(x))}`));
+        } else if (s - last >= c.every && s < ctx.season) {
+          missed.push(`Seasons ${last + 1}–${s}: record not broken`);
+          last = s;
+        }
+      }
+      const now = `Record now ${money(record)}`;
+      if (missed.length) return broken('Went too long without a record signing', missed.concat(now));
+      if (ctx.season - last >= c.every) return warn(`Break the record this season: sign someone for more than ${money(record)}`, broke.concat(now));
+      return ok(broke.length ? 'Record broken in time so far' : 'Not due yet', broke.concat(now));
     },
     noLeagueRivals(c, t, ctx) {
       const rivals = ctx.leagueClubs;
@@ -576,6 +602,8 @@
       finalSeason: Number(ch.seasons) || 1,
       startClub: ch.club.name,
       startCountry: ch.club.country || '',
+      // The club's record signing as FC 26 launched (js/records.js), in millions of euros.
+      record: (FC26.records || {})[ch.club.name] || null,
       ageAt: (s) => (Number(ch.startAge) || 17) + s - 1,
     };
   }
@@ -586,6 +614,29 @@
     if (!check || !EVAL[check.kind]) return manual();
     const t = normalizeTracker(tracker);
     return Object.assign({ kind: check.kind }, EVAL[check.kind](check, t, contextFor(ch, t)));
+  }
+
+  /**
+   * Facts a rule needs that the challenge card can show next to it ("Club record:
+   * £105m, Declan Rice from West Ham United, 2023"), or null.
+   */
+  function ruleInfo(text, ch) {
+    const check = interpret(text);
+    if (!check || !ch || !ch.club) return null;
+    if (check.kind === 'transferRecord') {
+      const r = (FC26.records || {})[ch.club.name];
+      if (!r) return { kind: check.kind, text: `${ch.club.name}'s record signing isn't known here: look it up before you start, then beat it in the game.` };
+      return {
+        kind: check.kind, eur: r.eur,
+        text: `${ch.club.name}'s record signing: ${r.fee}${r.fee.startsWith('€') ? '' : ` (about ${money(r.eur)})`}, ${r.player}${r.from ? ` from ${r.from}` : ''}${r.year ? ` in ${r.year}` : ''}. Sign someone for more to break it.`,
+        source: r.source ? `Wikipedia, as FC 26 launched: ${r.source}` : '',
+      };
+    }
+    if (check.kind === 'noLeagueRivals' || check.kind === 'noSellToLeague') {
+      const rivals = G.CLUBS.filter((c) => c.leagueId === ch.club.leagueId && c.name !== ch.club.name).map((c) => c.name).sort();
+      return rivals.length ? { text: `Your league rivals (${rivals.length}): ${rivals.join(', ')}.` } : null;
+    }
+    return null;
   }
 
   /** Results for every rule of a challenge, core rules first. */
@@ -626,5 +677,5 @@
     return results.reduce((n, r) => Object.assign(n, { [r.status]: n[r.status] + 1 }), { ok: 0, broken: 0, warn: 0, manual: 0 });
   }
 
-  FC26.compliance = { interpret, evaluateRule, checkChallenge, applyTransfer, tally, normNat, normalizeTracker, emptyTracker, NATIONALITIES, REGIONS, money };
+  FC26.compliance = { interpret, evaluateRule, checkChallenge, ruleInfo, applyTransfer, tally, normNat, normalizeTracker, emptyTracker, NATIONALITIES, REGIONS, money };
 })(typeof window !== 'undefined' ? window : globalThis);

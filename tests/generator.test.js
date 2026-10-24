@@ -1034,3 +1034,49 @@ test('usernames for following are short, lower-case and safe', () => {
   ['gaffer_99', 'abc', 'a_b_c_d_e_f_g_h_i_jk'].forEach((h) => assert.ok(S.HANDLE_RE.test(h), h));
   ['ab', 'Gaffer', 'has space', 'x'.repeat(21), 'dot.name', '<b>'].forEach((h) => assert.ok(!S.HANDLE_RE.test(h), h));
 });
+
+// ---------- Transfer records ----------
+
+test("the transfer-record rule starts from the club's real record and moves it up", () => {
+  const saved = globalThis.FC26.records;
+  globalThis.FC26.records = { 'Test FC': { fee: '£100m', eur: 117, player: 'Big Signing', from: 'Other FC', year: 2023, source: 'List of Test F.C. records and statistics' } };
+  try {
+    const rule = "Break your club's transfer record at least once every 2 season(s).";
+    const ch = Object.assign({}, ch0, { coreRules: [{ text: rule }], rules: [] });
+    const info = C.ruleInfo(rule, ch);
+    assert.match(info.text, /record signing: £100m \(about €117M\), Big Signing from Other FC in 2023/);
+    assert.match(info.source, /Wikipedia/);
+    const sign = (name, f, season) => ({ id: name, dir: 'in', type: 'permanent', name, fee: f, season, window: 'summer' });
+    // Season 1: €110M doesn't beat €117M; season 2: €120M does.
+    let res = C.evaluateRule(rule, tracker({ season: 2, transfers: [sign('A', 110, 1), sign('B', 120, 2)] }), ch);
+    assert.equal(res.status, 'ok', res.summary);
+    assert.ok(res.details.includes('Season 2: B for €120M'));
+    // Seasons 3–4 without beating €120M: broken.
+    res = C.evaluateRule(rule, tracker({ season: 5, transfers: [sign('B', 120, 2), sign('C', 119, 3)] }), ch);
+    assert.equal(res.status, 'broken');
+    // Due this season: a warning that names the fee to beat.
+    res = C.evaluateRule(rule, tracker({ season: 2, transfers: [] }), ch);
+    assert.equal(res.status, 'warn');
+    assert.match(res.summary, /more than €117M/);
+    // A record typed on the save wins.
+    res = C.evaluateRule(rule, tracker({ season: 2, record: 50, transfers: [sign('A', 60, 1)] }), ch);
+    assert.equal(res.status, 'ok');
+    // Unknown club: asks for the record.
+    const other = Object.assign({}, ch, { club: Object.assign({}, ch.club, { name: 'Nobody FC' }) });
+    assert.equal(C.evaluateRule(rule, tracker({}), other).status, 'manual');
+    assert.match(C.ruleInfo(rule, other).text, /isn't known/);
+    // League rivals are listed for the no-rivals rule.
+    assert.match(C.ruleInfo('No signing players from clubs in your own league.', Object.assign({}, ch, { club: { name: 'Arsenal', leagueId: 'eng1' } })).text, /Your league rivals \(19\): .*Chelsea/);
+  } finally {
+    globalThis.FC26.records = saved;
+  }
+});
+
+test('club records are well-formed', () => {
+  const R = globalThis.FC26.records || {};
+  const clubs = new Set(G.CLUBS.map((c) => c.name));
+  Object.entries(R).forEach(([club, r]) => {
+    assert.ok(clubs.has(club), `unknown club ${club}`);
+    assert.ok(/^[£€$]\d/.test(r.fee) && r.eur > 0 && r.player && (!r.year || (r.year >= 1950 && r.year <= 2025)), `${club}: ${JSON.stringify(r)}`);
+  });
+});

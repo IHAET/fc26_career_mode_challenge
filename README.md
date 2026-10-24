@@ -26,6 +26,7 @@ A web app that generates random **EA SPORTS FC 26 Career Mode** challenges, each
 - **🧬 Regens**: signings are matched against every squad player plus a hand-written list of well-known players. A known player's club, age, nationality and position are filled in as you type. Anyone it doesn't recognise is marked as a regen, as are academy promotions. Untick it for a real player it doesn't know and it remembers them.
 - **🎧 Spotify soundtracks (optional)**: make a playlist for a save from your favourite genres plus ones that fit the club, the challenge and your squad.
 - **👤 Accounts (optional)**: sign in with email and password or Google, and your saved challenges, trackers, diaries and confirmed players sync across your devices. Without an account (or before accounts are set up) everything stays on the device as before. See "Accounts and Spotify" below.
+- **ℹ️ Rule info**: rules that depend on a fact show it under the rule. "Break your club's transfer record" names the club's record signing as FC 26 launched (Chelsea: £106.8m for Enzo Fernández from Benfica, 2023) and the checker keeps track as you break it; on a save you can type a different starting figure, or one for a club that isn't covered. The league-rivals rules list the rivals. Records cover 91 clubs (scripts/fetch-records.js reads them from Wikipedia, with a few checked by hand).
 - **🎓 Tour**: a short walkthrough of the app on your first visit (Skip, Back, Next, arrow keys, Esc). ❓ in the top bar shows it again.
 - **🔔 Subscriptions** (🔔 in the top bar): the daily challenge as a calendar you subscribe to (Google Calendar, Apple Calendar, Outlook) or an RSS feed; reminder notifications for the daily challenge and for friends' new challenges; **following** friends by username to see the challenges they share and open them; and **⭐ Pro**, a paid monthly plan with coupon codes (unlimited saves, choosing seasons, rules and seed, writing your own challenges, a Pro badge, five colour themes, 75 and 100-track soundtracks). See "Subscriptions, following and Pro" below.
 - **Quick start**: one-click cards on the Builder (Surprise me, Club Heritage, Road to Glory, Player Career, Legendary, today's daily), and a short club reel while a challenge is drawn.
@@ -168,6 +169,7 @@ npm test         # node --test (Node 18+)
 | `js/scout.js` | Wonderkid scout: young players from the squad data, ranked, with the hand-picked talent list |
 | `js/spotify.js` | Spotify soundtracks: PKCE sign-in, genres for a save, playlist building and the panel on saved challenges |
 | `firestore.rules` | Firestore security rules: own saves only, public profiles and usernames, private follows, the Stripe extension's collections |
+| `js/records.js` | Generated: clubs' record signings as FC 26 launched (`scripts/fetch-records.js`, from Wikipedia) |
 | `js/tutorial.js` | The first-visit tour and the ❓ button |
 | `js/subscriptions.js` | 🔔 Subscriptions: feed links, reminders, following, Pro |
 | `sw.js` | Service worker for reminder notifications on phones (no caching) |
